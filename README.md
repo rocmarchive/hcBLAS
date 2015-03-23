@@ -3,6 +3,7 @@
 ##Introduction: ##
 
 This repository hosts the C++ AMP implementation of BLAS subroutines. The following are the sub-routines that are implemented
+
 1. Sgemm : Single Precision real valued general matrix-matrix multiplication
 2. Cgemm : Complex valued general matrix matrix multiplication
 2. Sgemv : Single Precision real valued general matrix-vector multiplication
@@ -71,4 +72,3 @@ Prior to building the library the following environment variables need to be set
 
 * AMDAPPSDKROOT=<path to AMD APP SDK>
 * MCWCPPAMPROOT=<path to mcw_cppamp dir>
-
