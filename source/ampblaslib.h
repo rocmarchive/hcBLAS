@@ -32,8 +32,8 @@ enum AMPBLAS_TRANS {
 };
 
 /* Template class to define a complex number and perform aritmetic operations
-between two complex / complex-vector numbers*/
-template<typename T>
+between two complex/complex-real numbers*/
+template<class T>
 class Complex
 {
 private:
@@ -43,7 +43,7 @@ private:
 public:
     typedef T value_type;
 
-    complex(const T& real = T(), const T& imag = T())
+    Complex(const T& real = T(), const T& imag = T())
         : real_val(real), imag_val(imag)
     {
     }
@@ -55,8 +55,9 @@ class Ampblaslibrary
     public:
 /*                  Y = alpha * X + Y                                    */
     ampblasStatus  ampblas_saxpy(const int N,
-                                 const float *alpha, const float *X, const int incX,
-                                 const float *Y, const int incY);
+                                 const float *alpha, float *X, const int incX,
+                                 float *Y, const int incY, long xOffset,
+                                 long yOffset);
 
 /*                  A = alpha * X * Y' + A                             */
     ampblasStatus  ampblas_sger(const enum AMPBLAS_ORDER order, const int M, const int N,
@@ -75,6 +76,6 @@ class Ampblaslibrary
 
 /*                  C = alpha * op(A) * op(B) + beta * C      */
     ampblasStatus  ampblas_cgemm(const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA, const enum AMPBLAS_TRANS typeB,
-                                 const int M, const int N, const int K, const Complex *alpha, const Complex *A, const int lda, const Complex *B, const int ldb ,
-                                 const Complex *beta, Complex *C, const int ldc);
+                                 const int M, const int N, const int K, const Complex<float> *alpha, const Complex<float> *A, const int lda, const Complex<float> *B, const int ldb ,
+                                 const Complex<float> *beta, Complex<float> *C, const int ldc);
 };
