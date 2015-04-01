@@ -6,7 +6,6 @@
 *
 */
 
-
 #include <iostream>
 
 using namespace std;
@@ -26,9 +25,9 @@ enum AMPBLAS_ORDER {
 /* enumerator to define the type of operation to be performed on the input matrix
  ( NO_TRANSPOSE, TRANSPOSE, CONJUGATE) */
 enum AMPBLAS_TRANS {
-    noTrans ,
-    trans,
-    conjugate
+    noTrans = 'n',
+    trans = 't',
+    conjugate = 'c'
 };
 
 /* Template class to define a complex number and perform aritmetic operations
@@ -71,9 +70,9 @@ class Ampblaslibrary
                                  const float *beta, float *Y, const int incY);
 
 /*                  C = alpha * op(A) * op(B) + beta * C                 */
-    ampblasStatus  ampblas_sgemm(const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA, const enum AMPBLAS_TRANS typeB,
-                                 const int M, const int N, const int K, const float *alpha, const float *A, const int lda, const float *B, const int ldb ,
-                                 const float *beta, float *C, const int ldc);
+    ampblasStatus  ampblas_sgemm(const enum AMPBLAS_TRANS typeA, const enum AMPBLAS_TRANS typeB,
+                                 const int M, const int N, const int K, const float *alpha, float *A, const long lda, float *B, const long ldb ,
+                                 const float *beta, float *C, const long ldc, const long aOffset, const long bOffset, const long cOffset);
 
 /*                  C = alpha * op(A) * op(B) + beta * C                  */
     ampblasStatus  ampblas_cgemm(const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA, const enum AMPBLAS_TRANS typeB,
