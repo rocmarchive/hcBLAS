@@ -199,20 +199,20 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_ORDER order,
     float* temp = (float*)malloc(num_blocks * lenYt * sizeof(float));
     Concurrency::array_view<float> tempBuf(num_blocks * lenYt, temp);
 
-    if( type == 0)
+    if( type == 'n')
     {
     Concurrency::array_view<float> xView(lenXn, X);
     Concurrency::array_view<float> yView(lenYn, Y);  
-    gemv_AMP('n', M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY, tempBuf);
+    gemv_AMP(type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY, tempBuf);
     aMat.synchronize();
     }
     
     
-    if( type == 1)
+    if( type == 't')
     {
     Concurrency::array_view<float> xView(lenXt, X);
     Concurrency::array_view<float> yView(lenYt, Y);
-    gemv_AMP('t', M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY, tempBuf);
+    gemv_AMP(type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY, tempBuf);
     aMat.synchronize();
     }
     return AMPBLAS_SUCCESS;
