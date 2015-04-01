@@ -176,8 +176,7 @@ void gemv_AMP(char TransA, int M, int N, float alpha,
     gemv_NoTransA(A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
 }
 
-ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_ORDER order,
-                                              const enum AMPBLAS_TRANS type,
+ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_TRANS type,
                                               const int M, const int N,
                                               const float *alpha, float *A, const long aOffset,
                                               const int lda, float *X, const long xOffset,
@@ -187,7 +186,6 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_ORDER order,
 
     if(alpha == NULL || X == NULL || Y == NULL || A == NULL || M <= 0 || N <= 0 || beta == NULL )
         return AMPBLAS_INVALID;
-
 
     long lenXn = 1 + (N - 1) * abs(incX);
     long lenXt = 1 + (M - 1) * abs(incX);
@@ -205,6 +203,10 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_ORDER order,
     Concurrency::array_view<float> yView(lenYn, Y);  
     gemv_AMP(type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY, tempBuf);
     aMat.synchronize();
+    /* Print Output */
+    for (int i = 0 ;i < M; i++) {
+        cout << "[Y" << i << "] " << yView[i] << endl;
+    }
     }
     
     
@@ -214,6 +216,11 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_ORDER order,
     Concurrency::array_view<float> yView(lenYt, Y);
     gemv_AMP(type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY, tempBuf);
     aMat.synchronize();
+    /* Print Output */
+    for (int i = 0 ;i < lenYt; i++) {
+        cout << "[Y" << i << "] "<< yView[i] << endl;
     }
+    }
+
     return AMPBLAS_SUCCESS;
 }
