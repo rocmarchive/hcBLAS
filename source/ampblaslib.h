@@ -30,22 +30,10 @@ enum AMPBLAS_TRANS {
     conjugate = 'c'
 };
 
-/* Template class to define a complex number and perform aritmetic operations
-between two complex/complex-real numbers*/
-template<class T>
-class Complex
+struct ampComplex
 {
-private:
-    T   real_val;
-    T   imag_val;
-
-public:
-    typedef T value_type;
-
-    Complex(const T& real = T(), const T& imag = T())
-        : real_val(real), imag_val(imag)
-    {
-    }
+     float real;
+     float img;
 };
 
 /* Class which implements the blas ( SGEMM, CGEMM, SGEMV, SGER, SAXPY )  */
@@ -82,13 +70,11 @@ class Ampblaslibrary
                                  const long bOffset, const long cOffset);
 
 /*                  C = alpha * op(A) * op(B) + beta * C                  */
-    ampblasStatus  ampblas_cgemm(const enum AMPBLAS_ORDER order,
-                                 const enum AMPBLAS_TRANS typeA,
-                                 const enum AMPBLAS_TRANS typeB,
-                                 const int M, const int N, const int K,
-                                 const Complex<float> *alpha,
-                                 const Complex<float> *A, const int lda,
-                                 const Complex<float> *B, const int ldb,
-                                 const Complex<float> *beta, Complex<float> *C,
-                                 const int ldc);
+    ampblasStatus  ampblas_cgemm(char transA, char transB, const int M, 
+                                 const int N, const int K,
+                                 const ampComplex *alpha,
+                                 const ampComplex *A, long aOffset, long lda,
+                                 const ampComplex *B, long bOffset, long ldb,
+                                 const ampComplex *beta, ampComplex *C,
+                                 long cOffset, long ldc);
 };
