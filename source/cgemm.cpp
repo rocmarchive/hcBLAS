@@ -6,11 +6,62 @@
 #include <amp_short_vectors.h>
 using namespace Concurrency;
 using namespace Concurrency::graphics;
-void cgemm_TransAB(int M, int N, int K, float_2 alpha, 
-             Concurrency::array_view<float_2> &A, long aOffset, long lda,
-             Concurrency::array_view<float_2> &B, long bOffset, long ldb,
-             float_2 beta,
-             Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+
+
+void cgemm_NoTransA(int M, int N, int K, float_2 alpha,
+                    Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                    Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+                    float_2 beta,
+                    Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+{
+    Concurrency::extent<2> grdExt(M,N);
+
+    Concurrency::parallel_for_each(grdExt, [=](index<2> idx) restrict(amp)
+    {
+        int row = idx[0];
+        int col = idx[1];
+        float tempReal = 0.0;
+        float tempImg = 0.0;
+
+        /* column by column multiplication */
+        float realSum = 0.0;
+        float imgSum = 0.0;
+
+        if (row < M && col < N ) {
+            for (int i = 0 ; i < K; i++) {
+                float xAVal = A[aOffset + row + i * M].x;
+                float xBVal = B[bOffset + col + i * N].x;
+                float yAVal = A[aOffset + row + i * M].y;
+                float yBVal = B[bOffset + col + i * N].y;
+
+                realSum += (xAVal * xBVal - yAVal * yBVal);
+                imgSum += (xAVal * yBVal + yAVal * xBVal);
+            }
+
+            /* Multiply results with scalar complex alpha */
+            float CrealValue = (realSum * alpha.x) - (imgSum * alpha.y);
+            float CimgValue  = (realSum * alpha.y) + (imgSum * alpha.x);
+
+            float xCVal = C[cOffset + row * N + col].x;
+            float yCVal = C[cOffset + row * N + col].y;
+
+            /* Multiply C matrix with scalar beta complex number */
+            tempReal = xCVal * beta.x - yCVal * beta.y;
+            tempImg = xCVal * beta.y + yCVal * beta.x;
+
+            /* Add both the results and store in C Matrix */
+            C[cOffset + row * N + col].x = tempReal + CrealValue;
+            C[cOffset + row * N + col].y = tempImg + CimgValue;
+        }
+    });
+    C.synchronize();
+}
+
+void cgemm_NoTransB(int M, int N, int K, float_2 alpha,
+                    Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                    Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+                    float_2 beta,
+                    Concurrency::array_view<float_2> &C, long cOffset, long ldc)
 {
     Concurrency::extent<2> grdExt(M,N);
 
@@ -21,34 +72,88 @@ void cgemm_TransAB(int M, int N, int K, float_2 alpha,
         float tempReal = 0.0;
         float tempImg = 0.0;
       
-        /* row by column multiplication */
+        /* row by row multiplication */
         float realSum = 0.0;
         float imgSum = 0.0;
       
         if (row < M && col < N ) {
             for ( int i = 0 ; i < K; i++) {
-                realSum += (A[aOffset + row * K + i].x * B[bOffset + i * N + col].x) - (A[aOffset + row * K + i].y * B[aOffset + i * N + col].y);
-                imgSum += (A[aOffset + row * K + i].x * B[bOffset + i * N + col].y) + (A[aOffset + row * K + i].y * B[aOffset + i * N + col].x);
+                float xAVal = A[(row * K) + i].x;
+                float xBVal = B[(col * K) + i].x;
+                float yAVal = A[(row * K) + i].y;
+                float yBVal = B[(col * K) + i].y;
+
+                realSum += (xAVal * xBVal - yAVal * yBVal);
+                imgSum += (xAVal * yBVal + yAVal * xBVal);
             }
       
             /* Multiply results with scalar complex alpha */      
             float CrealValue = (realSum * alpha.x) - (imgSum * alpha.y); 
             float CimgValue  = (realSum * alpha.y) + (imgSum * alpha.x);
-      
+
+            float xCVal = C[cOffset + row * N + col].x;
+            float yCVal = C[cOffset + row * N + col].y ;
+
             /* Multiply C matrix with scalar beta complex number */
-            tempReal = C[cOffset + row * N + col].x * beta.x - C[cOffset + row * N + col].y * beta.y;
-            tempImg = C[cOffset + row * N + col].x * beta.y + C[cOffset + row * N + col].y * beta.x;
+            tempReal = xCVal * beta.x - yCVal * beta.y;
+            tempImg = xCVal * beta.y + yCVal * beta.x;
      
             /* Add both the results and store in C Matrix */
             C[cOffset + row * N + col].x = tempReal + CrealValue;
             C[cOffset + row * N + col].y = tempImg + CimgValue;
-       }
-
-  });
-
-  C.synchronize();
-  
+        }
+    });
+    C.synchronize();
 }
+
+void cgemm_TransAB(int M, int N, int K, float_2 alpha,
+                   Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                   Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+                   float_2 beta,
+                   Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+{
+    Concurrency::extent<2> grdExt(M,N);
+
+    Concurrency::parallel_for_each(grdExt , [=](index<2> idx) restrict(amp)
+    {
+        int row = idx[0];
+        int col = idx[1];
+        float tempReal = 0.0;
+        float tempImg = 0.0;
+
+        /* row by column multiplication */
+        float realSum = 0.0;
+        float imgSum = 0.0;
+
+        if (row < M && col < N ) {
+            for ( int i = 0 ; i < K; i++) {
+                float xAVal = A[aOffset + row * K + i].x;
+                float yAVal = A[aOffset + row * K + i].y;
+                float xBVal = B[bOffset + i * N + col].x;
+                float yBVal = B[bOffset + i * N + col].y;
+                realSum += xAVal * xBVal - yAVal * yBVal;
+                imgSum += xAVal * yBVal + yAVal * xBVal;
+            }
+
+            /* Multiply results with scalar complex alpha */
+            float CrealValue = (realSum * alpha.x) - (imgSum * alpha.y);
+            float CimgValue  = (realSum * alpha.y) + (imgSum * alpha.x);
+
+            float xCVal = C[cOffset + row * N + col].x;
+            float yCVal = C[cOffset + row * N + col].y;
+
+            /* Multiply C matrix with scalar beta complex number */
+            tempReal = xCVal * beta.x - yCVal * beta.y;
+            tempImg = xCVal * beta.y + yCVal * beta.x;
+
+            /* Add both the results and store in C Matrix */
+            C[cOffset + row * N + col].x = tempReal + CrealValue;
+            C[cOffset + row * N + col].y = tempImg + CimgValue;
+        }
+    });
+    C.synchronize();
+}
+
 ampblasStatus Ampblaslibrary:: ampblas_cgemm(char transA, char transB, const int M,
                                              const int N, const int K, 
                                              const ampComplex *alpha,
@@ -89,12 +194,22 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(char transA, char transB, const int
         Ccmplx[i].y = C[i].img;
     }
 
-    if( transA == 'n' && transB == 'n') 
-        cgemm_TransAB( M, N, K, Calpha, Acmplx, 0, lda, Bcmplx, 0, ldb, Cbeta, Ccmplx, 0, ldc);
-    else
-        return AMPBLAS_ERROR; 
+   // Start the operations
+    if (transB == 'n') {
+        if (transA == 'n') {
+        }
+        else {
+            cgemm_NoTransB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
+        }
+    }
+    else if (transA == 'n') {
+        cgemm_NoTransA( M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+    }
+    else {
+        cgemm_TransAB(M, N, K, Calpha, Acmplx, 0, lda, Bcmplx, 0, ldb, Cbeta, Ccmplx, 0, ldc);
+    }
 
-    for ( int i = 0 ;i <  M * K;i++) {
+    for ( int i = 0 ;i <  M * N;i++) {
         C[i].real = Ccmplx[i].x;
         C[i].img = Ccmplx[i].y;
     }
