@@ -7,6 +7,55 @@
 using namespace Concurrency;
 using namespace Concurrency::graphics;
 
+void cgemm_NoTransAB(int M, int N, int K, float_2 alpha,
+             Concurrency::array_view<float_2> &A, long aOffset, long lda,
+             Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+             float_2 beta,
+             Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+{
+    Concurrency::extent<2> grdExt(M,N);
+
+    Concurrency::parallel_for_each(grdExt , [=](index<2> idx) restrict(amp)
+    {
+        int row = idx[0];
+        int col = idx[1];
+        float tempReal = 0.0;
+        float tempImg = 0.0;
+
+        /* row by column multiplication */
+        float realSum = 0.0;
+        float imgSum = 0.0;
+
+        if (row < M && col < N ) {
+            for ( int i = 0 ; i < K; i++) {
+                 float xAVal = A[aOffset + row + i * M].x;
+                 float yAVal = A[aOffset + row + i * M].y;
+                 float xBVal = B[bOffset + i + col * K].x;
+                 float yBVal = B[aOffset + i + col * K].y;
+                 realSum += (xAVal * xBVal) - (yAVal * yBVal);
+                 imgSum += (xAVal * yBVal) + (yAVal * xBVal);
+            }
+
+            /* Multiply results with scalar complex alpha */
+            float CrealValue = (realSum * alpha.x) - (imgSum * alpha.y);
+            float CimgValue  = (realSum * alpha.y) + (imgSum * alpha.x);
+
+            float xCVal = C[cOffset + row * N + col].x;
+            float yCVal = C[cOffset + row * N + col].y;
+            /* Multiply C matrix with scalar beta complex number */
+            tempReal = xCVal * beta.x - yCVal * beta.y;
+            tempImg = xCVal * beta.y + yCVal * beta.x;
+
+            /* Add both the results and store in C Matrix */
+            C[cOffset + row * N + col].x = tempReal + CrealValue;
+            C[cOffset + row * N + col].y = tempImg + CimgValue;
+       }
+
+  });
+
+  C.synchronize();
+
+}
 
 void cgemm_NoTransA(int M, int N, int K, float_2 alpha,
                     Concurrency::array_view<float_2> &A, long aOffset, long lda,
@@ -154,9 +203,10 @@ void cgemm_TransAB(int M, int N, int K, float_2 alpha,
     C.synchronize();
 }
 
-ampblasStatus Ampblaslibrary:: ampblas_cgemm(char transA, char transB, const int M,
-                                             const int N, const int K, 
-                                             const ampComplex *alpha,
+ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
+                                             const enum AMPBLAS_TRANS typeB,
+                                             const int M, const int N,
+                                             const int K, const ampComplex *alpha,
                                              const ampComplex *A, long aOffset,
                                              long lda, const ampComplex *B,
                                              long bOffset, long ldb,
@@ -195,18 +245,19 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(char transA, char transB, const int
     }
 
    // Start the operations
-    if (transB == 'n') {
-        if (transA == 'n') {
+    if (typeB == noTrans) {
+        if (typeA == noTrans) {
+            cgemm_NoTransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
         }
         else {
             cgemm_NoTransB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
         }
     }
-    else if (transA == 'n') {
+    else if (typeA == noTrans) {
         cgemm_NoTransA( M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
     else {
-        cgemm_TransAB(M, N, K, Calpha, Acmplx, 0, lda, Bcmplx, 0, ldb, Cbeta, Ccmplx, 0, ldc);
+        cgemm_TransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
 
     for ( int i = 0 ;i <  M * N;i++) {

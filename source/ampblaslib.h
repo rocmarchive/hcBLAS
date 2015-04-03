@@ -70,7 +70,8 @@ class Ampblaslibrary
                                  const long bOffset, const long cOffset);
 
 /*                  C = alpha * op(A) * op(B) + beta * C                  */
-    ampblasStatus  ampblas_cgemm(char transA, char transB, const int M, 
+    ampblasStatus  ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
+                                 const enum AMPBLAS_TRANS typeB, const int M, 
                                  const int N, const int K,
                                  const ampComplex *alpha,
                                  const ampComplex *A, long aOffset, long lda,
