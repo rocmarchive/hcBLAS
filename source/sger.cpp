@@ -27,8 +27,13 @@ ampblasStatus Ampblaslibrary :: ampblas_sger(const int M, const int N,
                                              const int incY, float *A,
                                              const long aOffset, const int lda)
 {
-    long lenX = 1 + (N - 1) * abs(incX);
-    long lenY = 1 + (M - 1) * abs(incY);
+   
+    if (alpha == NULL || X == NULL || Y == NULL || N <= 0 || M <= 0 || A == NULL || incX == 0 || incY == 0) {
+        return AMPBLAS_INVALID;
+    }
+
+    long lenX = 1 + (M - 1) * abs(incX);
+    long lenY = 1 + (N - 1) * abs(incY);
 
     array_view<float> xView(lenX, X);
     array_view<float> yView(lenY, Y);
