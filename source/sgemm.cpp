@@ -1,6 +1,6 @@
 #include "ampblaslib.h"
 #include <amp.h>
-
+#include <amp_math.h>
 using namespace Concurrency;
 
 #define THREADS    16
@@ -143,7 +143,7 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    int shiftFactor = Concurrency::fast_math::log2(MICROTILE);
+    int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
     float rC[1][1];
     float rA[1][1];
     float rB[1][1];
@@ -157,7 +157,7 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int idt = TILESIZE*idy + idx;
     int idxT = idt % TILESIZE;
     int idyT = idt / TILESIZE;
-    int block_k =( (K + (TILESIZE - 1)) & ~(TILESIZEi - 1)) >> shiftFactor;
+    int block_k =( (K + (TILESIZE - 1)) & ~(TILESIZE - 1)) >> shiftFactor;
 
     int i = 0;
     do
@@ -359,7 +359,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
  
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   { 
-    int shiftFactor = Concurrency::fast_math::log2(MICROTILE);
+    int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
     float rC[1][1];
     float rA[1][1];
     float rB[1][1];
