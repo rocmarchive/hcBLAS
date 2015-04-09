@@ -369,7 +369,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int idt = 8*idy + idx;
     int idxT = idt % 8;
     int idyT = idt / 8;
-    int block_k = K >> 3;
+    int block_k = ((K + 7) & ~7) >> 3;
     int i = 0;
     do
     {
@@ -399,56 +399,48 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
       offA += 8;
       offB += 8;
       rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
       
       rA[0][0] = lA[offA + 0];
       rB[0][0] = lB[offB + 0];
       offA += 8;
       offB += 8;
       rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
       
       rA[0][0] = lA[offA + 0];
       rB[0][0] = lB[offB + 0];
       offA += 8;
       offB += 8;
       rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
       
       rA[0][0] = lA[offA + 0];
       rB[0][0] = lB[offB + 0];
       offA += 8;
       offB += 8;
       rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
 
       rA[0][0] = lA[offA + 0];
       rB[0][0] = lB[offB + 0];
       offA += 8;
       offB += 8;
       rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
 
       rA[0][0] = lA[offA + 0];
       rB[0][0] = lB[offB + 0];
       offA += 8;
       offB += 8;
       rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
 
       rA[0][0] = lA[offA + 0];
       rB[0][0] = lB[offB + 0];
       offA += 8;
       offB += 8;
       rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
 
       rA[0][0] = lA[offA + 0];
       rB[0][0] = lB[offB + 0];
       offA += 8;
       offB += 8;
       rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
 
       i++;
     } while (--block_k > 0);
@@ -456,7 +448,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
 
     tidx.barrier.wait();
     if(gidx*8+idx < M && gidy*8+idy < N)
-        C[cOffset + gidx*8 +idx + (gidy*8 + idy)*ldc] = alpha*rC[0][0] + beta*C[cOffset + gidx*8+idx + (gidy*8 + idy)*ldc];
+        C[cOffset + gidx*8 +idx + (gidy*8 + idy)*ldc] = alpha * rC[0][0] + beta * C[cOffset + gidx*8+idx + (gidy*8 + idy)*ldc];
 
   });
 
