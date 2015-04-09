@@ -8,7 +8,7 @@ using namespace Concurrency;
 #define TILE_DIM  16
 
 #define TILE_SZ_A 64
-#define TILE_SZ_B 32
+#define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
 
 static void gemm_NoTransAB(Concurrency::array_view<float, 1> &A, long aOffset,
@@ -89,9 +89,7 @@ static void gemm_NoTransB(Concurrency::array_view<float, 1> &A, long aOffset,
     float c_reg[TILE_SZ_B];
 
     // Initialize output values
-    for(unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
-        c_reg[outIdx] = 0;
-    }
+    c_reg[tidx.local[0] & (TILE_SZ_B-1)] = 0;
 
     // Loop over the input tiles
     for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
@@ -280,10 +278,7 @@ static void gemm_NoTransA(Concurrency::array_view<float, 1> &A, long aOffset,
     // Privatization of output variables
     float c_reg[TILE_SZ_B];
 
-    // Initialize output values
-    for(unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
-        c_reg[outIdx] = 0;
-    }
+    c_reg[tidx.local[0] & (TILE_SZ_B-1)] = 0;
 
     // Loop over the input tiles
     for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
