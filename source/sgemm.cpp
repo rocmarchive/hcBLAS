@@ -455,6 +455,116 @@ static void gemm_TransAB(Concurrency::array_view<float, 1> &A, long aOffset,
   });
 }
 
+static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffset,
+                               Concurrency::array_view<float, 1> &B, long bOffset,
+                               Concurrency::array_view<float, 1> &C, long cOffset,
+                               int M, int N, int K, int lda, int ldb, int ldc,
+                               float alpha, float beta)
+{
+  cout<<" Transab batch "<<endl;
+  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+
+  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  {
+    int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
+    float rC[1][1];
+    float rA[1][1];
+    float rB[1][1];
+    tile_static float lA[64];//8*8+8
+    tile_static float lB[64];
+    rC[0][0] = 0;
+    int gidx = tidx.tile[1];
+    int gidy = tidx.tile[0];
+    int idx = tidx.local[1];
+    int idy = tidx.local[0];
+    int idt = TILESIZE*idy + idx;
+    int idxT = idt % TILESIZE;
+    int idyT = idt / TILESIZE;
+    int block_k = ((K + (TILESIZE - 1)) & ~(TILESIZE - 1)) >> shiftFactor;
+    int i = 0;
+    do
+    {
+      //barrier(CLK_LOCAL_MEM_FENCE);
+      tidx.barrier.wait();
+      if(gidy*TILESIZE+idxT < N && i*TILESIZE+idyT < K)
+      {
+        lB[idyT*TILESIZE+idxT] = B[bOffset + gidy*TILESIZE+ idxT + idyT*ldb + i * (ldb << shiftFactor)];
+      }
+      else
+        lB[idyT*TILESIZE+idxT] = 0;
+
+      if(gidx*TILESIZE+idxT < M && i*TILESIZE+idyT < K)
+      {
+        lA[idyT*TILESIZE+idxT] = A[aOffset  + (gidx*TILESIZE+ idxT)*lda + idyT + i * TILESIZE];
+      }
+      else
+      {
+        lA[idyT*TILESIZE+idxT] = 0;
+      }
+      tidx.barrier.wait();
+
+      //barrier(CLK_LOCAL_MEM_FENCE);
+      int offA = idx;
+      int offB = idy;
+      rA[0][0] = lA[offA + 0];
+      rB[0][0] = lB[offB + 0];
+      offA += TILESIZE;
+      offB += TILESIZE;
+      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+
+      rA[0][0] = lA[offA + 0];
+      rB[0][0] = lB[offB + 0];
+      offA += TILESIZE;
+      offB += TILESIZE;
+      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+
+      rA[0][0] = lA[offA + 0];
+      rB[0][0] = lB[offB + 0];
+      offA += TILESIZE;
+      offB += TILESIZE;
+      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+
+      rA[0][0] = lA[offA + 0];
+      rB[0][0] = lB[offB + 0];
+      offA += TILESIZE;
+      offB += TILESIZE;
+      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+
+      rA[0][0] = lA[offA + 0];
+      rB[0][0] = lB[offB + 0];
+      offA += TILESIZE;
+      offB += TILESIZE;
+      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+
+      rA[0][0] = lA[offA + 0];
+      rB[0][0] = lB[offB + 0];
+      offA += TILESIZE;
+      offB += TILESIZE;
+      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+
+      rA[0][0] = lA[offA + 0];
+      rB[0][0] = lB[offB + 0];
+      offA += TILESIZE;
+      offB += TILESIZE;
+      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+
+      rA[0][0] = lA[offA + 0];
+      rB[0][0] = lB[offB + 0];
+      offA += TILESIZE;
+      offB += TILESIZE;
+      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+
+      i++;
+    } while (--block_k > 0);
+
+
+    tidx.barrier.wait();
+    if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N)
+        C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc] = alpha * rC[0][0] + beta * C[cOffset + gidx*TILESIZE+idx + (gidy*TILESIZE + idy)*ldc];
+  });
+}
+
 static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffset,
                                 Concurrency::array_view<float, 1> &B, long bOffset,
                                 Concurrency::array_view<float, 1> &C, long cOffset,
@@ -604,7 +714,7 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
   else if (TransA == 'n') 
     gemm_NoTransA_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   else
-    gemm_TransAB(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    gemm_TransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 
   return 0;
 }
