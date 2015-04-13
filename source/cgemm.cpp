@@ -47,8 +47,8 @@ void cgemm_NoTransAB(int M, int N, int K, float_2 alpha,
             tempImg = xCVal * beta.y + yCVal * beta.x;
 
             /* Add both the results and store in C Matrix */
-            C[cOffset + row * N + col].x = tempReal + CrealValue;
-            C[cOffset + row * N + col].y = tempImg + CimgValue;
+            C[cOffset + col * M + row].x = tempReal + CrealValue;
+            C[cOffset + col * M + row].y = tempImg + CimgValue;
        }
 
   });
@@ -99,8 +99,8 @@ void cgemm_NoTransA(int M, int N, int K, float_2 alpha,
             tempImg = xCVal * beta.y + yCVal * beta.x;
 
             /* Add both the results and store in C Matrix */
-            C[cOffset + row * N + col].x = tempReal + CrealValue;
-            C[cOffset + row * N + col].y = tempImg + CimgValue;
+            C[cOffset + col * M + row].x = tempReal + CrealValue;
+            C[cOffset + col * M + row].y = tempImg + CimgValue;
         }
     });
     C.synchronize();
@@ -148,8 +148,8 @@ void cgemm_NoTransB(int M, int N, int K, float_2 alpha,
             tempImg = xCVal * beta.y + yCVal * beta.x;
      
             /* Add both the results and store in C Matrix */
-            C[cOffset + row * N + col].x = tempReal + CrealValue;
-            C[cOffset + row * N + col].y = tempImg + CimgValue;
+            C[cOffset + col * M + row].x = tempReal + CrealValue;
+            C[cOffset + col * M + row].y = tempImg + CimgValue;
         }
     });
     C.synchronize();
@@ -196,8 +196,8 @@ void cgemm_TransAB(int M, int N, int K, float_2 alpha,
             tempImg = xCVal * beta.y + yCVal * beta.x;
 
             /* Add both the results and store in C Matrix */
-            C[cOffset + row * N + col].x = tempReal + CrealValue;
-            C[cOffset + row * N + col].y = tempImg + CimgValue;
+            C[cOffset + col * M + row].x = tempReal + CrealValue;
+            C[cOffset + col * M + row].y = tempImg + CimgValue;
         }
     });
     C.synchronize();
