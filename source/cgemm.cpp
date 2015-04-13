@@ -16,6 +16,7 @@ using namespace Concurrency::graphics;
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
 #define TILESIZE 8
 #define MICROTILESIZE 1
+#define STEPSIZE 128 
 
 #define  M1x1(offset)			\
             rAreal[0][0] = lAreal[offA + 0];	\
@@ -35,7 +36,29 @@ using namespace Concurrency::graphics;
             offB += offset;			\
             rCimg[0][0] = rCimg[0][0] + (rAreal[0][0] *rBimg[0][0]) + (rAimg[0][0] * rBreal[0][0]) ; \	
 
+#define  MS1x1(offset)			\
+            for(int iter = 0; iter < STEPSIZE/TILESIZE; ++iter) \
+            {\
+              rAreal[0][iter] = lAreal[offA + (TILESIZE * TILESIZE) * iter];	\
+              rBreal[0][iter] = lBreal[offB + (TILESIZE * TILESIZE) * iter];	\
+              rAimg[0][iter] = lAimg[offA + (TILESIZE * TILESIZE) * iter];	\
+              rBimg[0][iter] = lBimg[offB + (TILESIZE * TILESIZE) * iter];	\
+              rCreal[0][0] = rCreal[0][0] + (rAreal[0][iter] *rBreal[0][iter]) - (rAimg[0][iter] * rBimg[0][iter]) ; \
+            }\
+            offA += offset;			\
+            offB += offset;			\
 
+#define  MS1x1img(offset)			\
+            for(int iter = 0; iter < STEPSIZE/TILESIZE; ++iter) \
+            {\
+              rAreal[0][iter] = lAreal[offA + (TILESIZE * TILESIZE) * iter];	\
+              rBreal[0][iter] = lBreal[offB + (TILESIZE * TILESIZE) * iter];	\
+              rAimg[0][iter] = lAimg[offA + (TILESIZE * TILESIZE) * iter];	\
+              rBimg[0][iter] = lBimg[offB + (TILESIZE * TILESIZE) * iter];	\
+              rCimg[0][0] = rCimg[0][0] + (rAreal[0][iter] *rBimg[0][iter]) + (rAimg[0][iter] * rBreal[0][iter]) ; \
+            }\
+            offA += offset;			\
+            offB += offset;			\
 
 void cgemm_NoTransAB(int M, int N, int K, float_2 alpha,
              Concurrency::array_view<float_2> &A, long aOffset, long lda,
@@ -84,8 +107,98 @@ void cgemm_NoTransAB(int M, int N, int K, float_2 alpha,
   });
 
   C.synchronize();
+}
+
+void cgemm_NoTransAB_batch(int M, int N, int K, float_2 alpha,
+                           Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                           Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+                           float_2 beta,
+                           Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+
+{
+  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  {
+    int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
+    float rCreal[1][1];
+    float rAreal[1][STEPSIZE/TILESIZE];
+    float rBreal[1][STEPSIZE/TILESIZE];
+    float rCimg[1][1];
+    float rAimg[1][STEPSIZE/TILESIZE];
+    float rBimg[1][STEPSIZE/TILESIZE];
+    tile_static float lAreal[TILESIZE * MICROTILESIZE * STEPSIZE];//8*8+8
+    tile_static float lBreal[TILESIZE * MICROTILESIZE * STEPSIZE];
+    tile_static float lAimg[TILESIZE * MICROTILESIZE * STEPSIZE];//8*8+8
+    tile_static float lBimg[TILESIZE * MICROTILESIZE * STEPSIZE];
+    rCreal[0][0] = 0;
+    rCimg[0][0] = 0;
+    int gidx = tidx.tile[1];
+    int gidy = tidx.tile[0];
+    int idx = tidx.local[1];
+    int idy = tidx.local[0];
+    int idt = TILESIZE * idy + idx;
+    int idxT = idt % TILESIZE;
+    int idyT = idt / TILESIZE;
+    int block_k = ((K + (STEPSIZE - 1)) & ~(STEPSIZE - 1)) >> shiftFactor;
+    int i = 0;
+    do
+    {
+      tidx.barrier.wait();
+
+      // Load Sections of A and B into respective shared memory slots
+      for (int sec =0; sec < STEPSIZE/TILESIZE; ++sec)
+      {
+        // Load Section 'sec' from global memory B onto shared lB
+        if(gidy*TILESIZE+idxT  < N && (idyT + i * STEPSIZE + (TILESIZE * sec)) < K){ 
+          lBreal[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = B[bOffset + (gidy*TILESIZE+ idxT) * ldb + idyT + i * STEPSIZE + (TILESIZE * sec)].x;
+          lBimg[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = B[bOffset + (gidy*TILESIZE+ idxT) * ldb + idyT + i * STEPSIZE + (TILESIZE * sec)].y;
+         }
+        else{
+          lBreal[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = 0;
+          lBimg[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = 0;
+        }
+
+        // Load Section 'sec' from global memory A onto shared lA
+        if(gidx * TILESIZE + idxT < M && (i * STEPSIZE + idyT + (TILESIZE * sec)) < K){
+           lAreal[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = A[aOffset  + gidx*TILESIZE+ idxT + idyT*lda + i * (lda << shiftFactor) + (TILESIZE * sec) * lda].x;
+           lAimg[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = A[aOffset  + gidx*TILESIZE+ idxT + idyT*lda + i * (lda << shiftFactor) + (TILESIZE * sec) * lda].y;
+         }        
+        else{
+           lAreal[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = 0;
+           lAimg[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = 0;
+        }
+      }
+      tidx.barrier.wait();
+
+      int offA = idx * TILESIZE;
+      int offB = idy * TILESIZE;
+      int offset = 1;
+
+      for (int iter=0; iter < TILESIZE; ++iter)
+      {
+         MS1x1(offset);
+      }
+
+      for (int iter=0; iter < TILESIZE; ++iter)
+      {
+         MS1x1img(offset);
+      }
+      i++;
+    } while (--block_k > 0);
+
+
+    tidx.barrier.wait();
+    if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N){
+        C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x = alpha.x * rCreal[0][0] + beta.x * C[cOffset + gidx*TILESIZE+idx + (gidy*TILESIZE + idy)*ldc].x;
+        C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].y = alpha.y * rCimg[0][0] + beta.y * C[cOffset + gidx*TILESIZE+idx + (gidy*TILESIZE + idy)*ldc].y;
+    } 
+ });
 
 }
+
+
+
 
 void cgemm_NoTransA(int M, int N, int K, float_2 alpha,
                     Concurrency::array_view<float_2> &A, long aOffset, long lda,
@@ -449,7 +562,7 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
    // Start the operations
     if (typeB == noTrans) {
         if (typeA == noTrans) {
-            cgemm_NoTransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
+            cgemm_NoTransAB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
         }
         else {
             cgemm_NoTransB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
