@@ -31,6 +31,23 @@ using namespace Concurrency;
             offA += offsetA;			\
             offB += offsetB;			\
 
+#define  MTS(microTileSize, offset)                                         \
+           for(int iter = 0; iter < microTileSize ; i++)                    \
+           {                                                                \
+             rA[0][iter] = lA[offA + (iter * TILESIZE)];                    \
+             rB[0][iter] = lA[offB + (iter * TILESIZE)];                    \
+           }                                                                \
+           for(int rowIndex = 0; rowIndex < microTileSize ; rowIndex++)     \
+           {                                                                \
+           for(int colIndex = 0; colIndex < microTileSize ; colIndex++)     \
+           {                                                                \
+           rC[rowIndex][colIndex] = rA[0][rowIndex] * rB[0][colIndex] +     \
+                                    rC[rowIndex][colIndex];                 \
+           }                                                                \
+           }                                                                \
+           offA += offset;                                                  \
+           offB += offset;                                                  \
+
 static void gemm_NoTransAB(Concurrency::array_view<float, 1> &A, long aOffset,
                            Concurrency::array_view<float, 1> &B, long bOffset,
                            Concurrency::array_view<float, 1> &C, long cOffset,
