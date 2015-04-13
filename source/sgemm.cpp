@@ -11,7 +11,7 @@ using namespace Concurrency;
 #define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
 #define TILESIZE 16
-#define STEPSIZE 32
+#define STEPSIZE 128 
 #define MICROTILESIZE 1
 
 #define  M1x1(offset)			\
@@ -22,14 +22,14 @@ using namespace Concurrency;
             rC[0][0]=rA[0][0] *rB[0][0] + rC[0][0]; \	
 
 #define  MS1x1(offset)			\
-            rA[0][0] = lA[offA + 0];	\
-            rB[0][0] = lB[offB + 0];	\
-            rA[0][1] = lA[offA + TILESIZE * TILESIZE];	\
-            rB[0][1] = lB[offB + TILESIZE * TILESIZE];	\
+            for(int iter = 0; iter < STEPSIZE/TILESIZE; ++iter) \
+            {\
+              rA[0][iter] = lA[offA + (TILESIZE * TILESIZE) * iter];	\
+              rB[0][iter] = lB[offB + (TILESIZE * TILESIZE) * iter];	\
+              rC[0][0] +=rA[0][iter] *rB[0][iter]; \
+            }\
             offA += offset;			\
             offB += offset;			\
-            rC[0][0]=rA[0][0] *rB[0][0] + rC[0][0]; \
-            rC[0][0]=rA[0][1] *rB[0][1] + rC[0][0]; \
 
 static void gemm_NoTransAB(Concurrency::array_view<float, 1> &A, long aOffset,
                            Concurrency::array_view<float, 1> &B, long bOffset,
@@ -92,8 +92,8 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rC[1][1];
-    float rA[1][2];
-    float rB[1][2];
+    float rA[1][STEPSIZE/TILESIZE];
+    float rB[1][STEPSIZE/TILESIZE];
     tile_static float lA[TILESIZE * MICROTILESIZE * STEPSIZE];//8*8+8
     tile_static float lB[TILESIZE * MICROTILESIZE * STEPSIZE];
     rC[0][0] = 0;
@@ -110,41 +110,20 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
     {
       tidx.barrier.wait();
 
-      // Load Section I of Shared B
-      if(gidy*TILESIZE+idxT < N && (i*STEPSIZE+idyT) < K)
+      // Load Sections of A and B into respective shared memory slots
+      for (int sec =0; sec < STEPSIZE/TILESIZE; ++sec)
       {
-        lB[idxT* TILESIZE + idyT] = B[bOffset + (gidy*TILESIZE+ idxT) * ldb + idyT + i * STEPSIZE];
-      }
-      else
-      {
-        lB[idxT*TILESIZE+idyT] = 0;
-      }
-      // Load Section II of Shared B
-      if(STEPSIZE/TILESIZE > 1)
-      {
-        if(gidy*TILESIZE+idxT && (idyT + i * STEPSIZE + TILESIZE) < K) 
-          lB[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE)] = B[bOffset + (gidy*TILESIZE+ idxT) * ldb + idyT + i * STEPSIZE + TILESIZE];
+        // Load Section 'sec' from global memory B onto shared lB
+        if(gidy*TILESIZE+idxT  < N && (idyT + i * STEPSIZE + (TILESIZE * sec)) < K) 
+          lB[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = B[bOffset + (gidy*TILESIZE+ idxT) * ldb + idyT + i * STEPSIZE + (TILESIZE * sec)];
         else
-          lB[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE)] = 0;
-      }
+          lB[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = 0;
 
-      // Load Section I of A
-      if(gidx*TILESIZE+idxT < M && i*STEPSIZE+idyT < K)
-      {
-        lA[idxT*TILESIZE+idyT] = A[aOffset  + gidx*TILESIZE+ idxT + idyT*lda + i * (lda << shiftFactor)];
-      }
-      else
-      {
-        lA[idxT*TILESIZE+idyT] = 0;
-      }
-
-      // Load Section II of A
-      if(STEPSIZE/TILESIZE > 1)
-      {
-        if(gidx * TILESIZE + idxT < M && (i * STEPSIZE + idyT + TILESIZE) < K)
-           lA[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE)] = A[aOffset  + gidx*TILESIZE+ idxT + idyT*lda + i * (lda << shiftFactor) + TILESIZE * lda];
+        // Load Section 'sec' from global memory A onto shared lA
+        if(gidx * TILESIZE + idxT < M && (i * STEPSIZE + idyT + (TILESIZE * sec)) < K)
+           lA[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = A[aOffset  + gidx*TILESIZE+ idxT + idyT*lda + i * (lda << shiftFactor) + (TILESIZE * sec) * lda];
         else
-           lA[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE)] = 0;
+           lA[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = 0;
       }
       tidx.barrier.wait();
 
