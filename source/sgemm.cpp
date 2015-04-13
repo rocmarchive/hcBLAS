@@ -12,7 +12,7 @@ using namespace Concurrency;
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
 #define TILESIZE 16
 #define STEPSIZE 128 
-#define MICROTILESIZE 1
+#define MICROTILESIZE 2
 
 #define  M1x1(offset)			\
             rA[0][0] = lA[offA + 0];	\
@@ -31,22 +31,22 @@ using namespace Concurrency;
             offA += offsetA;			\
             offB += offsetB;			\
 
-#define  MTS(microTileSize, offset)                                         \
-           for(int iter = 0; iter < microTileSize ; i++)                    \
+#define  MTS                                                                \
+           for(int iter = 0; iter < MICROTILESIZE ; iter++)                 \
            {                                                                \
              rA[0][iter] = lA[offA + (iter * TILESIZE)];                    \
-             rB[0][iter] = lA[offB + (iter * TILESIZE)];                    \
+             rB[0][iter] = lB[offB + (iter * TILESIZE)];                    \
            }                                                                \
-           for(int rowIndex = 0; rowIndex < microTileSize ; rowIndex++)     \
+           for(int rowIndex = 0; rowIndex < MICROTILESIZE ; rowIndex++)     \
            {                                                                \
-           for(int colIndex = 0; colIndex < microTileSize ; colIndex++)     \
+           for(int colIndex = 0; colIndex < MICROTILESIZE ; colIndex++)     \
            {                                                                \
            rC[rowIndex][colIndex] = rA[0][rowIndex] * rB[0][colIndex] +     \
                                     rC[rowIndex][colIndex];                 \
            }                                                                \
            }                                                                \
-           offA += offset;                                                  \
-           offB += offset;                                                  \
+           offA += (MICROTILESIZE * TILESIZE);                              \
+           offB += (MICROTILESIZE * TILESIZE);                              \
 
 static void gemm_NoTransAB(Concurrency::array_view<float, 1> &A, long aOffset,
                            Concurrency::array_view<float, 1> &B, long bOffset,
