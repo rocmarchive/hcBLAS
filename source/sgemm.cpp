@@ -12,6 +12,13 @@ using namespace Concurrency;
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
 #define TILESIZE 8
 
+#define  M1x1(offset)			\
+            rA[0][0] = lA[offA + 0];	\
+            rB[0][0] = lB[offB + 0];	\
+            offA += offset;			\
+            offB += offset;			\
+            rC[0][0]=rA[0][0] *rB[0][0] + rC[0][0]; \	
+
 static void gemm_NoTransAB(Concurrency::array_view<float, 1> &A, long aOffset,
                            Concurrency::array_view<float, 1> &B, long bOffset,
                            Concurrency::array_view<float, 1> &C, long cOffset,
@@ -110,53 +117,15 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
       //barrier(CLK_LOCAL_MEM_FENCE);
       int offA = idx;
       int offB = idy;
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
 
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
 
       i++;
     } while (--block_k > 0);
@@ -292,61 +261,15 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
       //barrier(CLK_LOCAL_MEM_FENCE);
       int offA = idx*TILESIZE;
       int offB = idy*TILESIZE;
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += 1;
-      offB += 1;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += 1;
-      offB += 1;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += 1;
-      offB += 1;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += 1;
-      offB += 1;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += 1;
-      offB += 1;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += 1;
-      offB += 1;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += 1;
-      offB += 1;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += 1;
-      offB += 1;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      tidx.barrier.wait();
+      int offset = 1;
+      M1x1(offset);
+      M1x1(offset);
+      M1x1(offset);
+      M1x1(offset);
+      M1x1(offset);
+      M1x1(offset);
+      M1x1(offset);
+      M1x1(offset);
 
       i++;
     } while (--block_k > 0);
@@ -461,7 +384,6 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
                                int M, int N, int K, int lda, int ldb, int ldc,
                                float alpha, float beta)
 {
-  cout<<" Transab batch "<<endl;
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -507,53 +429,15 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
       //barrier(CLK_LOCAL_MEM_FENCE);
       int offA = idx;
       int offB = idy;
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
 
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
 
       i++;
     } while (--block_k > 0);
@@ -615,53 +499,15 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
       //barrier(CLK_LOCAL_MEM_FENCE);
       int offA = idx;
       int offB = idy;
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-      
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
 
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
-
-      rA[0][0] = lA[offA + 0];
-      rB[0][0] = lB[offB + 0];
-      offA += TILESIZE;
-      offB += TILESIZE;
-      rC[0][0]=rA[0][0]*rB[0][0]+rC[0][0];
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
 
       i++;
     } while (--block_k > 0);
