@@ -4,8 +4,38 @@
 #include <amp.h>
 #include <iostream>
 #include <amp_short_vectors.h>
+#include <amp_math.h>
 using namespace Concurrency;
 using namespace Concurrency::graphics;
+#define THREADS    16
+#define GEMM_BLOCK 256
+#define TILE_DIM  16
+
+#define TILE_SZ_A 64
+#define TILE_SZ_B 16
+#define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
+#define TILESIZE 8
+#define MICROTILESIZE 1
+
+#define  M1x1(offset)			\
+            rAreal[0][0] = lAreal[offA + 0];	\
+            rBreal[0][0] = lBreal[offB + 0];	\
+            rAimg[0][0] = lAimg[offA + 0];	\
+            rBimg[0][0] = lBimg[offB + 0];	\
+            offA += offset;			\
+            offB += offset;			\
+            rCreal[0][0] = rCreal[0][0] + (rAreal[0][0] *rBreal[0][0]) - (rAimg[0][0] * rBimg[0][0]) ; \	
+
+#define  M1x1img(offset)			\
+            rAreal[0][0] = lAreal[offA + 0];	\
+            rBreal[0][0] = lBreal[offB + 0];	\
+            rAimg[0][0] = lAimg[offA + 0];	\
+            rBimg[0][0] = lBimg[offB + 0];	\
+            offA += offset;			\
+            offB += offset;			\
+            rCimg[0][0] = rCimg[0][0] + (rAreal[0][0] *rBimg[0][0]) + (rAimg[0][0] * rBreal[0][0]) ; \	
+
+
 
 void cgemm_NoTransAB(int M, int N, int K, float_2 alpha,
              Concurrency::array_view<float_2> &A, long aOffset, long lda,
@@ -106,6 +136,99 @@ void cgemm_NoTransA(int M, int N, int K, float_2 alpha,
     C.synchronize();
 }
 
+void cgemm_NoTransA_batch(int M, int N, int K, float_2 alpha,
+                    Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                    Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+                    float_2 beta,
+                    Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+{
+  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt); 
+  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  { 
+    int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
+    float rCreal[1][1];
+    float rAreal[1][1];
+    float rBreal[1][1];
+    float rCimg[1][1];
+    float rAimg[1][1];
+    float rBimg[1][1];
+    tile_static float lAreal[64];//8*8+8
+    tile_static float lBreal[64];
+    tile_static float lAimg[64];//8*8+8
+    tile_static float lBimg[64];
+    rCreal[0][0] = 0;
+    rCimg [0][0] = 0;
+    int gidx = tidx.tile[1];
+    int gidy = tidx.tile[0];
+    int idx = tidx.local[1];
+    int idy = tidx.local[0];
+    int idt = TILESIZE*idy + idx;
+    int idxT = idt % TILESIZE; // col
+    int idyT = idt / TILESIZE; // row
+    int block_k = ((K + (TILESIZE - 1)) & ~(TILESIZE - 1)) >> shiftFactor;
+    int i = 0;
+    do
+    {
+      //barrier(CLK_LOCAL_MEM_FENCE);
+      tidx.barrier.wait();
+      if(gidy*TILESIZE+idxT < N && i*TILESIZE+idyT < K)
+      {
+        lBreal[idyT*TILESIZE+idxT] = B[bOffset + gidy*TILESIZE+ idxT + idyT*ldb + i * (ldb << shiftFactor)].x;
+        lBimg[idyT*TILESIZE+idxT] = B[bOffset + gidy*TILESIZE+ idxT + idyT*ldb + i * (ldb << shiftFactor)].y;
+      }
+      else
+      {
+        lBreal[idyT*TILESIZE+idxT] = 0;
+        lBimg[idyT*TILESIZE+idxT] = 0;
+      }
+  
+      if(gidx*TILESIZE+idxT < M && i*TILESIZE+idyT < K)
+      {
+        lAreal[idyT*TILESIZE+idxT] = A[aOffset  + gidx*TILESIZE+ idxT + idyT*lda + i * (lda << shiftFactor)].x;
+        lAimg[idyT*TILESIZE+idxT] = A[aOffset  + gidx*TILESIZE+ idxT + idyT*lda + i * (lda << shiftFactor)].y;
+      }
+      else
+      {
+        lAreal[idyT*TILESIZE+idxT] = 0;
+        lAimg[idyT*TILESIZE+idxT] = 0;
+      }
+      tidx.barrier.wait();
+
+      //barrier(CLK_LOCAL_MEM_FENCE);
+      int offA = idx;
+      int offB = idy;
+
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1(TILESIZE);
+      M1x1img(TILESIZE);
+      M1x1img(TILESIZE);
+      M1x1img(TILESIZE);
+      M1x1img(TILESIZE);
+      M1x1img(TILESIZE);
+      M1x1img(TILESIZE);
+      M1x1img(TILESIZE);
+      M1x1img(TILESIZE);
+
+      i++;
+    } while (--block_k > 0);
+
+
+    tidx.barrier.wait();
+    if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N)
+    {
+        C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x = alpha.x * rCreal[0][0] + beta.x * C[cOffset + gidx*TILESIZE+idx + (gidy*TILESIZE + idy)*ldc].x;
+        C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].y = alpha.y * rCimg[0][0] + beta.y * C[cOffset + gidx*TILESIZE+idx + (gidy*TILESIZE + idy)*ldc].y;   
+  }
+  });
+  C.synchronize();
+}
 void cgemm_NoTransB(int M, int N, int K, float_2 alpha,
                     Concurrency::array_view<float_2> &A, long aOffset, long lda,
                     Concurrency::array_view<float_2> &B, long bOffset, long ldb,
@@ -254,7 +377,7 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
         }
     }
     else if (typeA == noTrans) {
-        cgemm_NoTransA( M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+        cgemm_NoTransA_batch( M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
     else {
         cgemm_TransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
