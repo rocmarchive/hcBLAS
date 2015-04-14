@@ -3,9 +3,9 @@
 #include <amp_math.h>
 using namespace Concurrency;
 
-#define REGISTER      1
+#define REGISTER      0
 #define STEP          0
-#define SUBMICROTILE  0
+#define SUBMICROTILE  1
 
 #define THREADS    16
 #define GEMM_BLOCK 256
@@ -198,7 +198,7 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
       {
         if(gidy * TILESIZE * MICROTILESIZE + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
         {
-          lB[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * TILESIZE * MICROTILESIZE) + (idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
+          lB[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * TILESIZE * MICROTILESIZE + idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
         }
         else
         {
