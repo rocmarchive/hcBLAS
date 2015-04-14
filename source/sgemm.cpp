@@ -246,7 +246,7 @@ static void gemm_NoTransB(Concurrency::array_view<float, 1> &A, long aOffset,
                           float alpha, float beta,
                           Concurrency::array_view<float,1> &temp_buf)
 {
-    Concurrency::extent<2> grdExt(((N - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (M - 1) / TILE_SZ_B + 1);
+    Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
 
     Concurrency::parallel_for_each(t_ext,
