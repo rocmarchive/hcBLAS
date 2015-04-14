@@ -3,6 +3,10 @@
 #include <amp_math.h>
 using namespace Concurrency;
 
+#define REGISTER      1
+#define STEP          0
+#define SUBMICROTILE  0
+
 #define THREADS    16
 #define GEMM_BLOCK 256
 #define TILE_DIM  16
@@ -845,19 +849,50 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     return 0;
   }
   // Start the operations
-  if (TransB == 'n')
+  if (REGISTER == 1)
   {
-    if (TransA == 'n')
-      gemm_NoTransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    if (TransB == 'n')
+    {
+      if (TransA == 'n')
+        gemm_NoTransAB(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      else
+        gemm_NoTransB(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta, temp_buf);
+    }
+    else if (TransA == 'n')
+      gemm_NoTransA(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      gemm_NoTransB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_TransAB(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if (TransA == 'n') 
-    gemm_NoTransA_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
-  else
-    gemm_TransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  else if (STEP == 1)
+  {
+    if (TransB == 'n')
+    {
+      if (TransA == 'n')
+        gemm_NoTransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      else
+        gemm_NoTransB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    }
+    else if (TransA == 'n')
+      gemm_NoTransA_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    else
+      gemm_TransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if (SUBMICROTILE == 1)
+  {
+    if (TransB == 'n')
+    {
+      if (TransA == 'n')
+        gemm_NoTransAB_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      else
+        gemm_NoTransB_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    }
+    else if (TransA == 'n')
+      gemm_NoTransA_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    else
+     gemm_TransAB_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
 
-  return 0;
+ return 0;
 }
 
 ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_TRANS typeA,
