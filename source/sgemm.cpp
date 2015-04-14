@@ -262,10 +262,7 @@ static void gemm_NoTransB(Concurrency::array_view<float, 1> &A, long aOffset,
     const unsigned int col = tidx.tile[1] * TILE_SZ_B;
 
     // Privatization of output variables
-    float c_reg[TILE_SZ_B];
-
-    // Initialize output values
-    c_reg[tidx.local[0] & (TILE_SZ_B-1)] = 0;
+    float c_reg[TILE_SZ_B] = {(float)0};
 
     // Loop over the input tiles
     for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
@@ -473,9 +470,7 @@ static void gemm_NoTransA(Concurrency::array_view<float, 1> &A, long aOffset,
     const unsigned int col = tidx.tile[1] * TILE_SZ_B;
 
     // Privatization of output variables
-    float c_reg[TILE_SZ_B];
-
-    c_reg[tidx.local[0] & (TILE_SZ_B-1)] = 0;
+    float c_reg[TILE_SZ_B] = {(float)0};
 
     // Loop over the input tiles
     for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
