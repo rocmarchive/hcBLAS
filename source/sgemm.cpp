@@ -709,6 +709,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int i = 0;
     do
     {
+      tidx.barrier.wait();
       for(int sec = 0; sec < STEPSIZE / TILESIZE; ++sec)
       {
         if(gidy * TILESIZE + idxT < N && i * STEPSIZE + idyT + (sec * TILESIZE) < K)
