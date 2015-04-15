@@ -710,7 +710,7 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    float rC[MICROTILESIZE][MICROTILESIZE];
+    float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
     tile_static float lA[TILESIZE * TILESIZE * MICROTILESIZE];
@@ -725,11 +725,12 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
     int block_k = 0;
     do
     {
+      tidx.barrier.wait();
       for(int sec = 0; sec < MICROTILESIZE; ++sec)
       {
         if(gidy * TILESIZE * MICROTILESIZE + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
         {
-          lB[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * TILESIZE * MICROTILESIZE) + (idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
+          lB[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * TILESIZE * MICROTILESIZE + idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
         }
         else
         {
@@ -738,7 +739,7 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
 
         if(gidx * TILESIZE * MICROTILESIZE + idxT + (sec * TILESIZE) < M && block_k * TILESIZE + idyT < K)
         {
-          lA[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = A[aOffset + (gidx * TILESIZE * MICROTILESIZE) + (idxT + sec * TILESIZE) * lda +  idyT + block_k * TILESIZE];
+          lA[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = A[aOffset + (gidx * TILESIZE * MICROTILESIZE + idxT + sec * TILESIZE) * lda +  idyT + block_k * TILESIZE];
         }
         else
         {
