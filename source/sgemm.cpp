@@ -3,8 +3,8 @@
 #include <amp_math.h>
 using namespace Concurrency;
 
-#define REGISTER 0
-#define STEP 1
+#define REGISTER 1
+#define STEP 0
 #define SUBMICROTILE 0
 
 #if SUBMICROTILE
@@ -114,7 +114,6 @@ static void gemm_NoTransA(Concurrency::array_view<float, 1> &A, long aOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta)
 {
-
     Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
     Concurrency::parallel_for_each(t_ext,
@@ -248,28 +247,70 @@ static void gemm_NoTransB(Concurrency::array_view<float, 1> &A, long aOffset,
 static void gemm_TransAB(Concurrency::array_view<float, 1> &A, long aOffset,
                          Concurrency::array_view<float, 1> &B, long bOffset,
                          Concurrency::array_view<float, 1> &C, long cOffset,
-                         int M, int N, int K, long lda, long ldb, long ldc,
+                         int M, int N, int K, int lda, int ldb, int ldc,
                          float alpha, float beta)
 {
-  Concurrency::extent<2> grdExt((N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
-  Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
+    Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
+    Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
-  {
-    float temp;
-    int j = tidx.global[0];
-    int i = tidx.global[1];
-    if(i < M && j < N)
-    {
-      temp = 0;
-      for (int l = 0; l < K; ++l)
-        temp += A[aOffset + l + i * lda] * B[bOffset + j + l * ldb];
+    Concurrency::parallel_for_each(t_ext,
+                                   [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
+                                   restrict(amp) {
 
-      C[cOffset + i + j * ldc] = alpha * temp + beta * C[cOffset + i + j * ldc];
+    // Shared memory for tiling input B array
+    tile_static float B_s [TILE_SZ_RATIO][TILE_SZ_B];
+
+    // Macros for accessing flattened matrices
+    #define A1(row,col) A[(row) * K + (col)]
+    #define B1(row,col) B[(row) * N + (col)]
+    #define C1(row,col) C[(row) + (col) * M]
+
+    // Index variables
+    const unsigned int row = tidx.global[0];
+    const unsigned int col = tidx.tile[1] * TILE_SZ_B;
+
+    // Privatization of output variables
+    float c_reg[TILE_SZ_B] = {(float)0};
+
+    // Loop over the input tiles
+    for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
+        // Load the tile of B into shared memory
+        const unsigned int i = tidx.local[0]/TILE_SZ_B;
+        const unsigned int j = tidx.local[0]%TILE_SZ_B;
+
+        if (tileIdx*TILE_SZ_RATIO + i < K && col + j < N) {
+            B_s[i][j] = B1(tileIdx*TILE_SZ_RATIO + i, col + j);
+        }
+        else {
+            B_s[i][j] = 0;
+        }
+        tidx.barrier.wait();
+
+        // Loop over elements inside the tile
+        for (unsigned int idx = 0; idx < TILE_SZ_RATIO; ++idx) {
+            // Load tile of A matrix into register
+            float a_reg;
+            if(row < M && tileIdx*TILE_SZ_RATIO + idx < K) {
+                a_reg = A1(row, tileIdx*TILE_SZ_RATIO + idx);
+            }
+            else {
+                a_reg = 0;
+            }
+
+            // Loop over and update the output elements assigned to the thread
+            for(unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+                c_reg[outIdx] += a_reg*B_s[idx][outIdx];
+            }
+        }
+        tidx.barrier.wait();
     }
-  });
+    for (unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+        if (row < M && col + outIdx < N) {
+            (C1(row, col + outIdx) *= beta) += (c_reg[outIdx] *= alpha);
+        }
+    }
+});
 }
-
 #endif
 
 #if STEP
