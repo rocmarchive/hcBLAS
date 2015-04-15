@@ -16,7 +16,7 @@ using namespace Concurrency;
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
 #define TILESIZE 16
 #define STEPSIZE 128 
-#define MICROTILESIZE 2
+#define MICROTILESIZE 1
 
 #define  M1x1(offset)			\
             rA[0][0] = lA[offA + 0];	\
@@ -337,11 +337,12 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int i = 0;
     do
     {
+      tidx.barrier.wait();
       for(int sec = 0; sec < STEPSIZE / TILESIZE; ++sec)
       {
         if(gidy * TILESIZE + idxT < N && i * STEPSIZE + idyT + (sec * TILESIZE) < K)
         {
-          lB[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = B[bOffset + (gidy * TILESIZE + idxT) * ldb + idyT + i * TILESIZE + (sec * TILESIZE)];
+          lB[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = B[bOffset + (gidy * TILESIZE + idxT) * ldb + idyT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
@@ -350,7 +351,7 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
 
         if(gidx * TILESIZE + idxT < M && i * STEPSIZE + idyT + (sec * TILESIZE ) < K)
         {
-          lA[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = A[aOffset + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE + (sec * TILESIZE)];
+          lA[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = A[aOffset + (gidx * TILESIZE + idxT) * lda + idyT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
