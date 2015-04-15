@@ -565,7 +565,7 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    float rC[MICROTILESIZE][MICROTILESIZE];
+    float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
     tile_static float lA[TILESIZE * TILESIZE * MICROTILESIZE];
@@ -580,6 +580,7 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
     int block_k = 0;
     do
     {
+      tidx.barrier.wait();
       for(int sec = 0; sec < MICROTILESIZE; ++sec)
       {
         if(gidy * TILESIZE * MICROTILESIZE + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
