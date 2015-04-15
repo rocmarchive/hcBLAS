@@ -4,8 +4,8 @@
 using namespace Concurrency;
 
 #define REGISTER      0
-#define STEP          0
-#define SUBMICROTILE  1
+#define STEP          1
+#define SUBMICROTILE  0
 
 #define THREADS    16
 #define GEMM_BLOCK 256
@@ -573,18 +573,19 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
     {
       tidx.barrier.wait();
       for(int sec = 0; sec < STEPSIZE / TILESIZE; sec++ ) {
+
         if(gidy * TILESIZE + idxT < N && i * STEPSIZE + idyT +(sec * TILESIZE) < K)
         {
-          lB[((idyT + (sec * TILESIZE)) * TILESIZE) + idxT] = B[bOffset + gidy * TILESIZE + idxT + ((idyT + (sec * TILESIZE)) *ldb) + i * (ldb << shiftFactor)];
+          lB[((idxT + sec * TILESIZE) * TILESIZE) + idyT] = B[bOffset + gidy * TILESIZE + idxT + ((idyT + (sec * TILESIZE)) *ldb) + i * (ldb << shiftFactor)];
         }
         else
         {
-          lB[((idyT + (sec * TILESIZE)) * TILESIZE) + idxT] = 0;
+          lB[((idxT + sec * TILESIZE) * TILESIZE) + idyT] = 0;
         }
 
         if(gidx * TILESIZE + idxT < M && i * STEPSIZE + idyT + (sec * TILESIZE) < K)
         {
-          lA[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = A[aOffset  + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE + (sec * TILESIZE)];
+          lA[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = A[aOffset  + (gidx * TILESIZE + idxT) * lda + idyT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
@@ -594,12 +595,11 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
       tidx.barrier.wait();
 
       int offA = idx * TILESIZE;
-      int offB = idy;
-      int offsetA = 1;
-      int offsetB = TILESIZE;
+      int offB = idy * TILESIZE;
+      int offset = 1;
       for (int iter = 0; iter < TILESIZE; ++iter)
       {
-        MS1x1(offsetA, offsetB);
+        MS1x1(offset, offset);
       }
       i++;
     } while (--block_k > 0);
