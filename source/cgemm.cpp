@@ -7,6 +7,11 @@
 #include <amp_math.h>
 using namespace Concurrency;
 using namespace Concurrency::graphics;
+
+#define REGISTER 1
+#define STEP 0
+#define SUBMICROTILE 0
+
 #define THREADS    16
 #define GEMM_BLOCK 256
 #define TILE_DIM  16
@@ -60,55 +65,365 @@ using namespace Concurrency::graphics;
             offA += offset;			\
             offB += offset;			\
 
+#if REGISTER
 void cgemm_NoTransAB(int M, int N, int K, float_2 alpha,
              Concurrency::array_view<float_2> &A, long aOffset, long lda,
-             Concurrency::array_view<float_2> &B, long bOffset, long ldb,
-             float_2 beta,
+             Concurrency::array_view<float_2> &B, long bOffset, long ldb,float_2 beta,
              Concurrency::array_view<float_2> &C, long cOffset, long ldc)
 {
-    Concurrency::extent<2> grdExt(M,N);
+    Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
+    Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
+    Concurrency::parallel_for_each(t_ext,
+                                   [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
+                                   restrict(amp) {
 
-    Concurrency::parallel_for_each(grdExt , [=](index<2> idx) restrict(amp)
-    {
-        int row = idx[0];
-        int col = idx[1];
-        float tempReal = 0.0;
-        float tempImg = 0.0;
+    // Shared memory for tiling input B array
+    tile_static float B_s_real [TILE_SZ_RATIO][TILE_SZ_B];
+    tile_static float B_s_img [TILE_SZ_RATIO][TILE_SZ_B];
 
-        /* row by column multiplication */
-        float realSum = 0.0;
-        float imgSum = 0.0;
+    // Macros for accessing flattened matrices
+    #define A_real(row,col) A[(row) + (col) * M].x
+    #define B_real(row,col) B[(row) + (col) * K].x
+    #define C_real(row,col) C[(row) + (col) * M].x
+    #define A_img(row,col) A[(row) + (col) * M].y
+    #define B_img(row,col) B[(row) + (col) * K].y
+    #define C_img(row,col) C[(row) + (col) * M].y
+    
+    // Index variables
+    const unsigned int row = tidx.global[0];
+    const unsigned int col = tidx.tile[1] * TILE_SZ_B;
 
-        if (row < M && col < N ) {
-            for ( int i = 0 ; i < K; i++) {
-                 float xAVal = A[aOffset + row + i * M].x;
-                 float yAVal = A[aOffset + row + i * M].y;
-                 float xBVal = B[bOffset + i + col * K].x;
-                 float yBVal = B[aOffset + i + col * K].y;
-                 realSum += (xAVal * xBVal) - (yAVal * yBVal);
-                 imgSum += (xAVal * yBVal) + (yAVal * xBVal);
+    // Privatization of output variables
+    float c_reg_real[TILE_SZ_B] = {(float)0};
+    float c_reg_img[TILE_SZ_B] = {(float)0};
+     
+    // Loop over the input tiles
+    for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
+        // Load the tile of B into shared memory
+        const unsigned int i = tidx.local[0]/TILE_SZ_B;
+        const unsigned int j = tidx.local[0]%TILE_SZ_B;
+
+        if (tileIdx*TILE_SZ_RATIO + i < K && col + j < N) {
+            B_s_real[i][j] = B_real(tileIdx*TILE_SZ_RATIO + i, col + j);
+        }
+        else {
+            B_s_real[i][j] = 0;
+        }
+        
+        if (tileIdx*TILE_SZ_RATIO + i < K && col + j < N) {
+            B_s_img[i][j] = B_img(tileIdx*TILE_SZ_RATIO + i, col + j);
+        }
+        else {
+            B_s_img[i][j] = 0;
+        }
+        
+        tidx.barrier.wait();
+
+        // Loop over elements inside the tile
+        for (unsigned int idx = 0; idx < TILE_SZ_RATIO; ++idx) {
+            // Load tile of A matrix into register
+            float a_reg_real, a_reg_img;
+            if(row < M && tileIdx*TILE_SZ_RATIO + idx < K) {
+                a_reg_real = A_real(row, tileIdx*TILE_SZ_RATIO + idx);
+            }
+            else {
+                a_reg_real = 0;
+            }
+            
+            if(row < M && tileIdx*TILE_SZ_RATIO + idx < K) {
+                a_reg_img = A_img(row, tileIdx*TILE_SZ_RATIO + idx);
+            }
+            else {
+                a_reg_img = 0;
             }
 
-            /* Multiply results with scalar complex alpha */
-            float CrealValue = (realSum * alpha.x) - (imgSum * alpha.y);
-            float CimgValue  = (realSum * alpha.y) + (imgSum * alpha.x);
-
-            float xCVal = C[cOffset + row * N + col].x;
-            float yCVal = C[cOffset + row * N + col].y;
-            /* Multiply C matrix with scalar beta complex number */
-            tempReal = xCVal * beta.x - yCVal * beta.y;
-            tempImg = xCVal * beta.y + yCVal * beta.x;
-
-            /* Add both the results and store in C Matrix */
-            C[cOffset + col * M + row].x = tempReal + CrealValue;
-            C[cOffset + col * M + row].y = tempImg + CimgValue;
-       }
-
-  });
-
-  C.synchronize();
+            // Loop over and update the output elements assigned to the thread
+            for(unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+                c_reg_real[outIdx] += (a_reg_real*B_s_real[idx][outIdx]) -  (a_reg_img*B_s_img[idx][outIdx]);
+                c_reg_img[outIdx] += (a_reg_real*B_s_img[idx][outIdx]) +  (a_reg_img*B_s_real[idx][outIdx]);
+            }
+        }
+        tidx.barrier.wait();
+    }
+    for (unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+        if (row < M && col + outIdx < N) {
+            (C_real(row, col + outIdx) *= beta.x) += (c_reg_real[outIdx] *= alpha.x);
+            (C_img(row, col + outIdx) *= beta.y) += (c_reg_img[outIdx] *= alpha.y);
+        }
+    }
+});
+   
 }
 
+void cgemm_NoTransA(int M, int N, int K, float_2 alpha,
+             Concurrency::array_view<float_2> &A, long aOffset, long lda,
+             Concurrency::array_view<float_2> &B, long bOffset, long ldb,float_2 beta,
+             Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+{
+    Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
+    Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
+    Concurrency::parallel_for_each(t_ext,
+                                   [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
+                                   restrict(amp) {
+
+    // Shared memory for tiling input B array
+    tile_static float B_s_real [TILE_SZ_RATIO][TILE_SZ_B];
+    tile_static float B_s_img [TILE_SZ_RATIO][TILE_SZ_B];
+    
+    #define A1_real(row,col) A[(row) + (col) * M].x
+    #define B1_real(row,col) B[(row) * N + (col)].x
+    #define C1_real(row,col) C[(row) + (col) * M].x
+    #define A1_img(row,col) A[(row) + (col) * M].y
+    #define B1_img(row,col) B[(row) * N +(col)].y
+    #define C1_img(row,col) C[(row) + (col) * M].y
+
+    // Index variables
+    const unsigned int row = tidx.global[0];
+    const unsigned int col = tidx.tile[1] * TILE_SZ_B;
+
+    // Privatization of output variables
+    float c_reg_real[TILE_SZ_B] = {(float)0};
+    float c_reg_img[TILE_SZ_B] = {(float)0};
+    
+    // Loop over the input tiles
+    for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
+        // Load the tile of B into shared memory
+        const unsigned int i = tidx.local[0]/TILE_SZ_B;
+        const unsigned int j = tidx.local[0]%TILE_SZ_B;
+
+        if (tileIdx*TILE_SZ_RATIO + i < K && col + j < N) {
+            B_s_real[i][j] = B1_real(tileIdx*TILE_SZ_RATIO + i, col + j);
+        }
+        else {
+            B_s_real[i][j] = 0;
+        }
+        
+        if (tileIdx*TILE_SZ_RATIO + i < K && col + j < N) {
+            B_s_img[i][j] = B1_img(tileIdx*TILE_SZ_RATIO + i, col + j);
+        }
+        else {
+            B_s_img[i][j] = 0;
+        }
+        
+        tidx.barrier.wait();
+
+        // Loop over elements inside the tile
+        for (unsigned int idx = 0; idx < TILE_SZ_RATIO; ++idx) {
+            // Load tile of A matrix into register
+            float a_reg_real, a_reg_img;
+            if(row < M && tileIdx*TILE_SZ_RATIO + idx < K) {
+                a_reg_real = A1_real(row, tileIdx*TILE_SZ_RATIO + idx);
+            }
+            else {
+                a_reg_real = 0;
+            }
+            
+            if(row < M && tileIdx*TILE_SZ_RATIO + idx < K) {
+                a_reg_img = A1_img(row, tileIdx*TILE_SZ_RATIO + idx);
+            }
+            else {
+                a_reg_img = 0;
+            }
+            // Loop over and update the output elements assigned to the thread
+            for(unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+                c_reg_real[outIdx] += (a_reg_real*B_s_real[idx][outIdx]) -  (a_reg_img*B_s_img[idx][outIdx]);
+                c_reg_img[outIdx] += (a_reg_real*B_s_img[idx][outIdx]) +  (a_reg_img*B_s_real[idx][outIdx]);
+            }
+        }
+        tidx.barrier.wait();
+    }
+    for (unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+        if (row < M && col + outIdx < N) {
+            (C1_real(row, col + outIdx) *= beta.x) += (c_reg_real[outIdx] *= alpha.x);
+            (C1_img(row, col + outIdx) *= beta.y) += (c_reg_img[outIdx] *= alpha.y);
+        }
+    }
+});
+}
+
+void cgemm_NoTransB(int M, int N, int K, float_2 alpha,
+             Concurrency::array_view<float_2> &A, long aOffset, long lda,
+             Concurrency::array_view<float_2> &B, long bOffset, long ldb,float_2 beta,
+             Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+{
+    Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
+    Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
+
+    Concurrency::parallel_for_each(t_ext,
+                                   [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
+                                   restrict(amp) {
+
+    // Shared memory for tiling input B array
+    tile_static float B_s_real [TILE_SZ_RATIO][TILE_SZ_B];
+    tile_static float B_s_img [TILE_SZ_RATIO][TILE_SZ_B];
+    
+    // Macros for accessing flattened matrices
+    #define A2_real(row,col) A[(row) * K + (col)].x
+    #define B2_real(row,col) B[(row) + (col) * K].x
+    #define C2_real(row,col) C[(row) + (col) * M].x
+    #define A2_img(row,col) A[(row) * K + (col)].y
+    #define B2_img(row,col) B[(row) + (col) * K].y
+    #define C2_img(row,col) C[(row) + (col) * M].y
+
+    // Index variables
+   const unsigned int row = tidx.global[0];
+    const unsigned int col = tidx.tile[1] * TILE_SZ_B;
+
+    // Privatization of output variables
+    float c_reg_real[TILE_SZ_B] = {(float)0};
+    float c_reg_img[TILE_SZ_B] = {(float)0};
+
+    // Loop over the input tiles
+    for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
+        // Load the tile of B into shared memory
+        const unsigned int i = tidx.local[0]/TILE_SZ_B;
+        const unsigned int j = tidx.local[0]%TILE_SZ_B;
+
+        if (tileIdx*TILE_SZ_RATIO + i < K && col + j < N) {
+            B_s_real[i][j] = B2_real(tileIdx*TILE_SZ_RATIO + i, col + j);
+        }
+        else {
+            B_s_real[i][j] = 0;
+        }
+        
+        if (tileIdx*TILE_SZ_RATIO + i < K && col + j < N) {
+            B_s_img[i][j] = B2_img(tileIdx*TILE_SZ_RATIO + i, col + j);
+        }
+        else {
+            B_s_img[i][j] = 0;
+        }
+        
+        tidx.barrier.wait();
+
+        // Loop over elements inside the tile
+        for (unsigned int idx = 0; idx < TILE_SZ_RATIO; ++idx) {
+            // Load tile of A matrix into register
+            float a_reg_real, a_reg_img;
+            if(row < M && tileIdx*TILE_SZ_RATIO + idx < K) {
+                a_reg_real = A2_real(row, tileIdx*TILE_SZ_RATIO + idx);
+            }
+            else {
+                a_reg_real = 0;
+            }
+            
+            if(row < M && tileIdx*TILE_SZ_RATIO + idx < K) {
+                a_reg_img = A2_img(row, tileIdx*TILE_SZ_RATIO + idx);
+            }
+            else {
+                a_reg_img = 0;
+            }
+
+            // Loop over and update the output elements assigned to the thread
+            for(unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+                c_reg_real[outIdx] += (a_reg_real*B_s_real[idx][outIdx]) -  (a_reg_img*B_s_img[idx][outIdx]);
+                c_reg_img[outIdx] += (a_reg_real*B_s_img[idx][outIdx]) +  (a_reg_img*B_s_real[idx][outIdx]);
+            }
+        }
+        tidx.barrier.wait();
+    }
+    for (unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+        if (row < M && col + outIdx < N) {
+            (C2_real(row, col + outIdx) *= beta.x) += (c_reg_real[outIdx] *= alpha.x);
+            (C2_img(row, col + outIdx) *= beta.y) += (c_reg_img[outIdx] *= alpha.y);
+        }
+    }
+});
+}
+
+void cgemm_TransAB(int M, int N, int K, float_2 alpha,
+                   Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                   Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+                   float_2 beta,
+                   Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+{
+    Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
+    Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
+
+    Concurrency::parallel_for_each(t_ext,
+                                   [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
+                                   restrict(amp) {
+
+    // Shared memory for tiling input B array
+    tile_static float B_s_real [TILE_SZ_RATIO][TILE_SZ_B];
+    tile_static float B_s_img [TILE_SZ_RATIO][TILE_SZ_B];
+
+    // Macros for accessing flattened matrices
+    #define A3_real(row,col) A[(row) * K + (col)].x
+    #define B3_real(row,col) B[(row) * N + (col)].x
+    #define C3_real(row,col) C[(row) + (col) * M].x
+    #define A3_img(row,col) A[(row) * K + (col)].y
+    #define B3_img(row,col) B[(row) * N + (col)].y
+    #define C3_img(row,col) C[(row) + (col) * M].y
+
+    // Index variables
+    const unsigned int row = tidx.global[0];
+    const unsigned int col = tidx.tile[1] * TILE_SZ_B;
+
+    // Privatization of output variables
+    float c_reg_real[TILE_SZ_B] = {(float)0};
+    float c_reg_img[TILE_SZ_B] = {(float)0};
+
+    // Loop over the input tiles
+    for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
+        // Load the tile of B into shared memory
+        const unsigned int i = tidx.local[0]/TILE_SZ_B;
+        const unsigned int j = tidx.local[0]%TILE_SZ_B;
+
+        if (tileIdx*TILE_SZ_RATIO + i < K && col + j < N) {
+            B_s_real[i][j] = B3_real(tileIdx*TILE_SZ_RATIO + i, col + j);
+        }
+        else {
+            B_s_real[i][j] = 0;
+        }
+        
+        if (tileIdx*TILE_SZ_RATIO + i < K && col + j < N) {
+            B_s_img[i][j] = B3_img(tileIdx*TILE_SZ_RATIO + i, col + j);
+        }
+        else {
+            B_s_img[i][j] = 0;
+        }
+        
+        tidx.barrier.wait();
+
+        // Loop over elements inside the tile
+        for (unsigned int idx = 0; idx < TILE_SZ_RATIO; ++idx) {
+            // Load tile of A matrix into register
+            float a_reg_real, a_reg_img;
+            if(row < M && tileIdx*TILE_SZ_RATIO + idx < K) {
+                a_reg_real = A3_real(row, tileIdx*TILE_SZ_RATIO + idx);
+            }
+            else {
+                a_reg_real = 0;
+            }
+             
+            if(row < M && tileIdx*TILE_SZ_RATIO + idx < K) {
+                a_reg_img = A3_img(row, tileIdx*TILE_SZ_RATIO + idx);
+            }
+            else {
+                a_reg_img = 0;
+            } 
+              
+            // Loop over and update the output elements assigned to the thread
+            for(unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+                c_reg_real[outIdx] += (a_reg_real*B_s_real[idx][outIdx]) -  (a_reg_img*B_s_img[idx][outIdx]);
+                c_reg_img[outIdx] += (a_reg_real*B_s_img[idx][outIdx]) +  (a_reg_img*B_s_real[idx][outIdx]);
+            }
+        }
+        tidx.barrier.wait();
+    }
+    for (unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
+        if (row < M && col + outIdx < N) {
+            (C3_real(row, col + outIdx) *= beta.x) += (c_reg_real[outIdx] *= alpha.x);
+            (C3_img(row, col + outIdx) *= beta.y) += (c_reg_img[outIdx] *= alpha.y);
+        }
+    }
+});
+}
+
+#endif
+
+
+#if STEP
 void cgemm_NoTransAB_batch(int M, int N, int K, float_2 alpha,
                            Concurrency::array_view<float_2> &A, long aOffset, long lda,
                            Concurrency::array_view<float_2> &B, long bOffset, long ldb,
@@ -199,56 +514,6 @@ void cgemm_NoTransAB_batch(int M, int N, int K, float_2 alpha,
 
 
 
-
-void cgemm_NoTransA(int M, int N, int K, float_2 alpha,
-                    Concurrency::array_view<float_2> &A, long aOffset, long lda,
-                    Concurrency::array_view<float_2> &B, long bOffset, long ldb,
-                    float_2 beta,
-                    Concurrency::array_view<float_2> &C, long cOffset, long ldc)
-{
-    Concurrency::extent<2> grdExt(M,N);
-
-    Concurrency::parallel_for_each(grdExt, [=](index<2> idx) restrict(amp)
-    {
-        int row = idx[0];
-        int col = idx[1];
-        float tempReal = 0.0;
-        float tempImg = 0.0;
-
-        /* column by column multiplication */
-        float realSum = 0.0;
-        float imgSum = 0.0;
-
-        if (row < M && col < N ) {
-            for (int i = 0 ; i < K; i++) {
-                float xAVal = A[aOffset + row + i * M].x;
-                float xBVal = B[bOffset + col + i * N].x;
-                float yAVal = A[aOffset + row + i * M].y;
-                float yBVal = B[bOffset + col + i * N].y;
-
-                realSum += (xAVal * xBVal - yAVal * yBVal);
-                imgSum += (xAVal * yBVal + yAVal * xBVal);
-            }
-
-            /* Multiply results with scalar complex alpha */
-            float CrealValue = (realSum * alpha.x) - (imgSum * alpha.y);
-            float CimgValue  = (realSum * alpha.y) + (imgSum * alpha.x);
-
-            float xCVal = C[cOffset + row * N + col].x;
-            float yCVal = C[cOffset + row * N + col].y;
-
-            /* Multiply C matrix with scalar beta complex number */
-            tempReal = xCVal * beta.x - yCVal * beta.y;
-            tempImg = xCVal * beta.y + yCVal * beta.x;
-
-            /* Add both the results and store in C Matrix */
-            C[cOffset + col * M + row].x = tempReal + CrealValue;
-            C[cOffset + col * M + row].y = tempImg + CimgValue;
-        }
-    });
-    C.synchronize();
-}
-
 void cgemm_NoTransA_batch(int M, int N, int K, float_2 alpha,
                     Concurrency::array_view<float_2> &A, long aOffset, long lda,
                     Concurrency::array_view<float_2> &B, long bOffset, long ldb,
@@ -335,54 +600,7 @@ void cgemm_NoTransA_batch(int M, int N, int K, float_2 alpha,
   });
   C.synchronize();
 }
-void cgemm_NoTransB(int M, int N, int K, float_2 alpha,
-                    Concurrency::array_view<float_2> &A, long aOffset, long lda,
-                    Concurrency::array_view<float_2> &B, long bOffset, long ldb,
-                    float_2 beta,
-                    Concurrency::array_view<float_2> &C, long cOffset, long ldc)
-{
-    Concurrency::extent<2> grdExt(M,N);
 
-    Concurrency::parallel_for_each(grdExt , [=](index<2> idx) restrict(amp)
-    {
-        int row = idx[0];
-        int col = idx[1];
-        float tempReal = 0.0;
-        float tempImg = 0.0;
-      
-        /* row by row multiplication */
-        float realSum = 0.0;
-        float imgSum = 0.0;
-      
-        if (row < M && col < N ) {
-            for ( int i = 0 ; i < K; i++) {
-                float xAVal = A[(row * K) + i].x;
-                float xBVal = B[(col * K) + i].x;
-                float yAVal = A[(row * K) + i].y;
-                float yBVal = B[(col * K) + i].y;
-
-                realSum += (xAVal * xBVal - yAVal * yBVal);
-                imgSum += (xAVal * yBVal + yAVal * xBVal);
-            }
-      
-            /* Multiply results with scalar complex alpha */      
-            float CrealValue = (realSum * alpha.x) - (imgSum * alpha.y); 
-            float CimgValue  = (realSum * alpha.y) + (imgSum * alpha.x);
-
-            float xCVal = C[cOffset + row * N + col].x;
-            float yCVal = C[cOffset + row * N + col].y ;
-
-            /* Multiply C matrix with scalar beta complex number */
-            tempReal = xCVal * beta.x - yCVal * beta.y;
-            tempImg = xCVal * beta.y + yCVal * beta.x;
-     
-            /* Add both the results and store in C Matrix */
-            C[cOffset + col * M + row].x = tempReal + CrealValue;
-            C[cOffset + col * M + row].y = tempImg + CimgValue;
-        }
-    });
-    C.synchronize();
-}
 
 void cgemm_NoTransB_batch(int M, int N, int K, float_2 alpha,
                           Concurrency::array_view<float_2> &A, long aOffset, long lda,
@@ -470,54 +688,6 @@ void cgemm_NoTransB_batch(int M, int N, int K, float_2 alpha,
 
 }
 
-void cgemm_TransAB(int M, int N, int K, float_2 alpha,
-                   Concurrency::array_view<float_2> &A, long aOffset, long lda,
-                   Concurrency::array_view<float_2> &B, long bOffset, long ldb,
-                   float_2 beta,
-                   Concurrency::array_view<float_2> &C, long cOffset, long ldc)
-{
-    Concurrency::extent<2> grdExt(M,N);
-
-    Concurrency::parallel_for_each(grdExt , [=](index<2> idx) restrict(amp)
-    {
-        int row = idx[0];
-        int col = idx[1];
-        float tempReal = 0.0;
-        float tempImg = 0.0;
-
-        /* row by column multiplication */
-        float realSum = 0.0;
-        float imgSum = 0.0;
-
-        if (row < M && col < N ) {
-            for ( int i = 0 ; i < K; i++) {
-                float xAVal = A[aOffset + row * K + i].x;
-                float yAVal = A[aOffset + row * K + i].y;
-                float xBVal = B[bOffset + i * N + col].x;
-                float yBVal = B[bOffset + i * N + col].y;
-                realSum += xAVal * xBVal - yAVal * yBVal;
-                imgSum += xAVal * yBVal + yAVal * xBVal;
-            }
-
-            /* Multiply results with scalar complex alpha */
-            float CrealValue = (realSum * alpha.x) - (imgSum * alpha.y);
-            float CimgValue  = (realSum * alpha.y) + (imgSum * alpha.x);
-
-            float xCVal = C[cOffset + row * N + col].x;
-            float yCVal = C[cOffset + row * N + col].y;
-
-            /* Multiply C matrix with scalar beta complex number */
-            tempReal = xCVal * beta.x - yCVal * beta.y;
-            tempImg = xCVal * beta.y + yCVal * beta.x;
-
-            /* Add both the results and store in C Matrix */
-            C[cOffset + col * M + row].x = tempReal + CrealValue;
-            C[cOffset + col * M + row].y = tempImg + CimgValue;
-        }
-    });
-    C.synchronize();
-}
-
 void cgemm_TransAB_batch(int M, int N, int K, float_2 alpha,
                         Concurrency::array_view<float_2> &A, long aOffset, long lda,
                         Concurrency::array_view<float_2> &B, long bOffset, long ldb,
@@ -598,7 +768,7 @@ void cgemm_TransAB_batch(int M, int N, int K, float_2 alpha,
     }
   });
 }
-
+#endif
 
 ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
                                              const enum AMPBLAS_TRANS typeB,
@@ -642,6 +812,26 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
     }
 
    // Start the operations
+#if REGISTER
+{
+   if (typeB == noTrans) {
+        if (typeA == noTrans) {
+            cgemm_NoTransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
+        }
+        else {
+            cgemm_NoTransB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
+        }
+    }
+    else if (typeA == noTrans) {
+        cgemm_NoTransA( M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+    }
+    else {
+        cgemm_TransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+    }
+}
+#endif
+#if STEP
+{
     if (typeB == noTrans) {
         if (typeA == noTrans) {
             cgemm_NoTransAB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
@@ -656,7 +846,8 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
     else {
         cgemm_TransAB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
-
+}
+#endif
     for ( int i = 0 ;i <  M * N;i++) {
         C[i].real = Ccmplx[i].x;
         C[i].img = Ccmplx[i].y;
