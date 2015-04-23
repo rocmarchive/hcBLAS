@@ -372,10 +372,10 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
       for (int sec =0; sec < STEPSIZE/TILESIZE; ++sec)
       {
         // Load Section 'sec' from global memory B onto shared lB
-        if(gidy*TILESIZE+idxT  < N && (idyT + i * STEPSIZE + (TILESIZE * sec)) < K) 
-          lB[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = B[bOffset + (gidy*TILESIZE+ idxT) * ldb + idyT + i * STEPSIZE + (TILESIZE * sec)];
+        if(gidy*TILESIZE+idyT  < N && (idxT + i * STEPSIZE + (TILESIZE * sec)) < K) 
+          lB[idyT*TILESIZE+idxT + (TILESIZE * TILESIZE * sec)] = B[bOffset + (gidy*TILESIZE+ idyT) * ldb + idxT + i * STEPSIZE + (TILESIZE * sec)];
         else
-          lB[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = 0;
+          lB[idyT*TILESIZE+idxT + (TILESIZE * TILESIZE * sec)] = 0;
 
         // Load Section 'sec' from global memory A onto shared lA
         if(gidx * TILESIZE + idxT < M && (i * STEPSIZE + idyT + (TILESIZE * sec)) < K)
@@ -507,22 +507,22 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
       tidx.barrier.wait();
       for(int sec = 0; sec < STEPSIZE / TILESIZE; ++sec)
       {
-        if(gidy * TILESIZE + idxT < N && i * STEPSIZE + idyT + (sec * TILESIZE) < K)
+        if(gidy * TILESIZE + idyT < N && i * STEPSIZE + idxT + (sec * TILESIZE) < K)
         {
-          lB[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = B[bOffset + (gidy * TILESIZE + idxT) * ldb + idyT + i * STEPSIZE + (sec * TILESIZE)];
+          lB[(sec * TILESIZE * TILESIZE) + idxT + idyT * TILESIZE] = B[bOffset + (gidy * TILESIZE + idyT) * ldb + idxT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
-          lB[(sec * TILESIZE * TILESIZE ) + idyT + idxT * TILESIZE] = 0;
+          lB[(sec * TILESIZE * TILESIZE ) + idxT + idyT * TILESIZE] = 0;
 	}
 
-        if(gidx * TILESIZE + idxT < M && i * STEPSIZE + idyT + (sec * TILESIZE ) < K)
+        if(gidx * TILESIZE + idyT < M && i * STEPSIZE + idxT + (sec * TILESIZE ) < K)
         {
-          lA[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = A[aOffset + (gidx * TILESIZE + idxT) * lda + idyT + i * STEPSIZE + (sec * TILESIZE)];
+          lA[(sec * TILESIZE * TILESIZE) + idxT + idyT * TILESIZE] = A[aOffset + (gidx * TILESIZE + idyT) * lda + idxT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
-          lA[(sec * TILESIZE * TILESIZE ) + idyT + idxT * TILESIZE] = 0;
+          lA[(sec * TILESIZE * TILESIZE ) + idxT + idyT * TILESIZE] = 0;
         }
       }
 
