@@ -3,8 +3,8 @@
 #include <amp_math.h>
 using namespace Concurrency;
 
-#define REGISTER 1
-#define STEP 0
+#define REGISTER 0
+#define STEP 1
 #define SUBMICROTILE 0
 
 #if SUBMICROTILE
@@ -352,8 +352,8 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
     float rC[1][1];
     float rA[1][STEPSIZE/TILESIZE];
     float rB[1][STEPSIZE/TILESIZE];
-    tile_static float lA[TILESIZE * MICROTILESIZE * STEPSIZE];//8*8+8
-    tile_static float lB[TILESIZE * MICROTILESIZE * STEPSIZE];
+    tile_static float lA[TILESIZE * STEPSIZE];//8*8+8
+    tile_static float lB[TILESIZE * STEPSIZE];
     rC[0][0] = 0;
     int gidx = tidx.tile[1];
     int gidy = tidx.tile[0];
@@ -420,8 +420,8 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
     float rC[1][1] = {(float)0};
     float rA[1][STEPSIZE / TILESIZE];
     float rB[1][STEPSIZE / TILESIZE];
-    tile_static float lA[TILESIZE * MICROTILESIZE * STEPSIZE];
-    tile_static float lB[TILESIZE * MICROTILESIZE * STEPSIZE];
+    tile_static float lA[TILESIZE * STEPSIZE];
+    tile_static float lB[TILESIZE * STEPSIZE];
     int gidx = tidx.tile[1];
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
@@ -490,8 +490,8 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
     float rC[1][1] = {(float)0};
     float rA[1][STEPSIZE / TILESIZE];
     float rB[1][STEPSIZE / TILESIZE];
-    tile_static float lA[TILESIZE * MICROTILESIZE * STEPSIZE];
-    tile_static float lB[TILESIZE * MICROTILESIZE * STEPSIZE];
+    tile_static float lA[TILESIZE * STEPSIZE];
+    tile_static float lB[TILESIZE * STEPSIZE];
     int gidx = tidx.tile[1];
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
@@ -562,8 +562,8 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
     float rC[1][1] = {(float)0};
     float rA[1][STEPSIZE/TILESIZE];
     float rB[1][STEPSIZE/TILESIZE];
-    tile_static float lA[TILESIZE * MICROTILESIZE * STEPSIZE];
-    tile_static float lB[TILESIZE * MICROTILESIZE * STEPSIZE];
+    tile_static float lA[TILESIZE * STEPSIZE];
+    tile_static float lB[TILESIZE * STEPSIZE];
     int gidx = tidx.tile[1];
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
