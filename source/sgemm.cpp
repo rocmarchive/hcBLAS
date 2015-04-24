@@ -21,8 +21,12 @@ using namespace Concurrency;
 #define TILE_SZ_A 32
 #define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
-#define TILESIZE 16
-#define STEPSIZE 128 
+#define TILESIZE 8 
+#define STEPSIZE 8 
+#define STEPTILERATIO STEPSIZE/TILESIZE 
+#define STEPTILEPROD STEPSIZE*TILESIZE
+#define NUMTILEELMTS TILESIZE*TILESIZE
+#define SHIFTFACTOR (int)Concurrency::fast_math::log2(STEPSIZE);
 #define MICROTILESIZE 2
 
 #define  M1x1(offset)			\
@@ -483,15 +487,15 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+  int numKblocks =((K + (STEPSIZE - 1)) & ~(STEPSIZE - 1)) >> SHIFTFACTOR;
 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
-    float rC[1][1] = {(float)0};
-    float rA[1][STEPSIZE / TILESIZE];
-    float rB[1][STEPSIZE / TILESIZE];
-    tile_static float lA[TILESIZE * STEPSIZE];
-    tile_static float lB[TILESIZE * STEPSIZE];
+    float rC[1][1] = {0.0};
+    float rA[1][STEPTILERATIO];
+    float rB[1][STEPTILERATIO];
+    tile_static float lA[STEPTILEPROD];
+    tile_static float lB[STEPTILEPROD];
     int gidx = tidx.tile[1];
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
@@ -499,30 +503,30 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int idt = TILESIZE * idy + idx;
     int idxT = idt % TILESIZE;
     int idyT = idt / TILESIZE;
-    int block_k =((K + (STEPSIZE - 1)) & ~(STEPSIZE - 1)) >> shiftFactor;
+    auto block_k = numKblocks;
 
     int i = 0;
     do
     {
       tidx.barrier.wait();
-      for(int sec = 0; sec < STEPSIZE / TILESIZE; ++sec)
+      for(int sec = 0; sec < STEPTILERATIO; ++sec)
       {
         if(gidy * TILESIZE + idyT < N && i * STEPSIZE + idxT + (sec * TILESIZE) < K)
         {
-          lB[(sec * TILESIZE * TILESIZE) + idxT + idyT * TILESIZE] = B[bOffset + (gidy * TILESIZE + idyT) * ldb + idxT + i * STEPSIZE + (sec * TILESIZE)];
+          lB[(sec * NUMTILEELMTS) + idxT + idyT * TILESIZE] = B[bOffset + (gidy * TILESIZE + idyT) * ldb + idxT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
-          lB[(sec * TILESIZE * TILESIZE ) + idxT + idyT * TILESIZE] = 0;
+          lB[(sec * NUMTILEELMTS) + idxT + idyT * TILESIZE] = 0;
 	}
 
         if(gidx * TILESIZE + idyT < M && i * STEPSIZE + idxT + (sec * TILESIZE ) < K)
         {
-          lA[(sec * TILESIZE * TILESIZE) + idxT + idyT * TILESIZE] = A[aOffset + (gidx * TILESIZE + idyT) * lda + idxT + i * STEPSIZE + (sec * TILESIZE)];
+          lA[(sec * NUMTILEELMTS) + idxT + idyT * TILESIZE] = A[aOffset + (gidx * TILESIZE + idyT) * lda + idxT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
-          lA[(sec * TILESIZE * TILESIZE ) + idxT + idyT * TILESIZE] = 0;
+          lA[(sec * NUMTILEELMTS) + idxT + idyT * TILESIZE] = 0;
         }
       }
 
