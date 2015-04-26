@@ -21,8 +21,8 @@ using namespace Concurrency;
 #define TILE_SZ_A 32
 #define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
-#define TILESIZE 8 
-#define STEPSIZE 64 
+#define TILESIZE 16 
+#define STEPSIZE 256 
 #define STEPTILERATIO STEPSIZE/TILESIZE 
 #define STEPTILEPROD STEPSIZE*TILESIZE
 #define NUMTILEELMTS TILESIZE*TILESIZE
@@ -503,8 +503,18 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int idx = tidx.local[1];
     int idy = tidx.local[0];
     int idt = (idy << tilemulshift) + idx; //(idy * TILESIZE + idx)
-    int idt1 = (idy << shiftfactor) + idx; //(idy * TILESIZE + idx)
-    int idxT = idt1 & (STEPSIZE - 1);
+    int ids = (idy << shiftfactor) + idx; //(idy * STEPSIZE + idx)
+    int idxS = 0;
+    if (STEPSIZE/TILESIZE == TILESIZE)
+    {
+       idxS = ids & (STEPSIZE - 1);
+    }
+    else
+    { 
+       idxS = idt & (TILESIZE - 1);
+    }
+  
+   
     int idyT = (idt)>> tilemulshift;
     int gidyOffset = gidy << tilemulshift;
     int gidxOffset = gidx << tilemulshift;
@@ -519,14 +529,17 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
       for(int sec = 0; sec < STEPTILERATIO; ++sec)
       {
         int secOffset  = sec << tilemulshift;
-        int secStartPt = sec << shiftfactor;
-        int localIdx = secStartPt + idxT + idyTOffset;
-        int kIndex = iOffset + idxT + secOffset;
+        int secStartPt = sec << numtilesfact;
+        if (STEPSIZE/TILESIZE == TILESIZE)
+           secStartPt = sec << shiftfactor;
+        int localIdx = secStartPt + idxS + idyTOffset;
+        int kIndex = iOffset + idxS + secOffset;
 
         // Initialize the local memory with zero
         lB[localIdx] = 0;
         lA[localIdx] = 0;
 
+           
         if(gidyOffset + idyT < N && kIndex < K)
         {
           lB[localIdx] = B[bOffset + (gidyOffset + idyT) * ldb + kIndex];
