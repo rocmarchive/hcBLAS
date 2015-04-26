@@ -22,7 +22,7 @@ using namespace Concurrency;
 #define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
 #define TILESIZE 16 
-#define STEPSIZE 256 
+#define STEPSIZE 32 
 #define STEPTILERATIO STEPSIZE/TILESIZE 
 #define STEPTILEPROD STEPSIZE*TILESIZE
 #define NUMTILEELMTS TILESIZE*TILESIZE
@@ -504,15 +504,7 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int idy = tidx.local[0];
     int idt = (idy << tilemulshift) + idx; //(idy * TILESIZE + idx)
     int ids = (idy << shiftfactor) + idx; //(idy * STEPSIZE + idx)
-    int idxS = 0;
-    if (STEPSIZE/TILESIZE == TILESIZE)
-    {
-       idxS = ids & (STEPSIZE - 1);
-    }
-    else
-    { 
-       idxS = idt & (TILESIZE - 1);
-    }
+    int idxS = idxS = ids & (STEPSIZE - 1);
   
    
     int idyT = (idt)>> tilemulshift;
@@ -530,8 +522,6 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
       {
         int secOffset  = sec << tilemulshift;
         int secStartPt = sec << numtilesfact;
-        if (STEPSIZE/TILESIZE == TILESIZE)
-           secStartPt = sec << shiftfactor;
         int localIdx = secStartPt + idxS + idyTOffset;
         int kIndex = iOffset + idxS + secOffset;
 
