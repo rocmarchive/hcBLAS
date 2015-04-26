@@ -503,7 +503,8 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int idx = tidx.local[1];
     int idy = tidx.local[0];
     int idt = (idy << tilemulshift) + idx; //(idy * TILESIZE + idx)
-    int idxT = idt & (TILESIZE - 1);
+    int idt1 = (idy << shiftfactor) + idx; //(idy * TILESIZE + idx)
+    int idxT = idt1 & (STEPSIZE - 1);
     int idyT = (idt)>> tilemulshift;
     int gidyOffset = gidy << tilemulshift;
     int gidxOffset = gidx << tilemulshift;
@@ -518,7 +519,7 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
       for(int sec = 0; sec < STEPTILERATIO; ++sec)
       {
         int secOffset  = sec << tilemulshift;
-        int secStartPt = sec << numtilesfact;
+        int secStartPt = sec << shiftfactor;
         int localIdx = secStartPt + idxT + idyTOffset;
         int kIndex = iOffset + idxT + secOffset;
 
