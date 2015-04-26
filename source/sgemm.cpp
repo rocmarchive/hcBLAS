@@ -22,7 +22,7 @@ using namespace Concurrency;
 #define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
 #define TILESIZE 8 
-#define STEPSIZE 8 
+#define STEPSIZE 64 
 #define STEPTILERATIO STEPSIZE/TILESIZE 
 #define STEPTILEPROD STEPSIZE*TILESIZE
 #define NUMTILEELMTS TILESIZE*TILESIZE
@@ -489,8 +489,8 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    int tilemulshift = (int)Concurrency::fast_math::log2(STEPSIZE);
-    int shiftfactor = (int)Concurrency::fast_math::log2(TILESIZE);
+    int tilemulshift = (int)Concurrency::fast_math::log2(TILESIZE);
+    int shiftfactor = (int)Concurrency::fast_math::log2(STEPSIZE);
     int numtilesfact = (int)Concurrency::fast_math::log2(NUMTILEELMTS);
     int block_k =((K + (STEPSIZE - 1)) & ~(STEPSIZE - 1)) >> shiftfactor;
     float rC[1][1] = {0.0};
@@ -503,8 +503,8 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int idx = tidx.local[1];
     int idy = tidx.local[0];
     int idt = (idy << tilemulshift) + idx; //(idy * TILESIZE + idx)
-    int idxT = idt % TILESIZE;
-    int idyT = idt / TILESIZE;
+    int idxT = idt & (TILESIZE - 1);
+    int idyT = (idt)>> tilemulshift;
     int gidyOffset = gidy << tilemulshift;
     int gidxOffset = gidx << tilemulshift;
     int idyTOffset = idyT << tilemulshift;
@@ -514,47 +514,54 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
     do
     {
       tidx.barrier.wait();
+      int iOffset = i << shiftfactor;
       for(int sec = 0; sec < STEPTILERATIO; ++sec)
       {
         int secOffset  = sec << tilemulshift;
         int secStartPt = sec << numtilesfact;
-        int iOffset = i << shiftfactor;
-        if(gidyOffset + idyT < N && iOffset + idxT + secOffset < K)
-        {
-          lB[secStartPt + idxT + idyTOffset] = B[bOffset + (gidyOffset + idyT) * ldb + idxT + iOffset + secOffset];
-        }
-        else
-        {
-          lB[secStartPt + idxT + idyTOffset] = 0;
-	}
+        int localIdx = secStartPt + idxT + idyTOffset;
+        int kIndex = iOffset + idxT + secOffset;
 
-        if(gidxOffset + idyT < M && iOffset + idxT + secOffset  < K)
+        // Initialize the local memory with zero
+        lB[localIdx] = 0;
+        lA[localIdx] = 0;
+
+        if(gidyOffset + idyT < N && kIndex < K)
         {
-          lA[secStartPt + idxT + idyTOffset] = A[aOffset + (gidxOffset + idyT) * lda + idxT + iOffset + secOffset];
+          lB[localIdx] = B[bOffset + (gidyOffset + idyT) * ldb + kIndex];
         }
-        else
+        if(gidxOffset + idyT < M && kIndex < K)
         {
-          lA[secStartPt + idxT + idyTOffset] = 0;
+          lA[localIdx] = A[aOffset + (gidxOffset + idyT) * lda + kIndex];
         }
       }
 
-    tidx.barrier.wait();
+      tidx.barrier.wait();
 
-    int offA = idx << tilemulshift;
-    int offB = idy << tilemulshift;
-    int offset = 1;
+      int offA = idx << tilemulshift;
+      int offB = idy << tilemulshift;
+      
+      for (int piter=0; piter < TILESIZE; ++piter)
+      {
+        for(int qiter = 0; qiter < STEPTILERATIO; ++qiter) 
+        {
+          int shIdx = qiter << numtilesfact;
+          rC[0][0] += lA[offA + shIdx] * lB[offB + shIdx];
+        }
+        offA++;			
+        offB++;			
+      }
 
-    for (int iter=0; iter < TILESIZE; ++iter)
-    {
-      MS1x1(offset, offset);
-    }
+      i++;
 
-    i++;
     }while (--block_k > 0);
 
     tidx.barrier.wait();
-    if(gidxOffset + idx < M && gidyOffset + idy < N)
-        C[cOffset + gidxOffset + idx + (gidyOffset + idy) * ldc] = alpha * rC[0][0] + beta * C[cOffset + gidxOffset + idx + (gidyOffset + idy) * ldc];
+
+    int crow = gidxOffset + idx;
+    int ccolprod = (gidyOffset + idy) * ldc;
+    if(crow < M && ccolprod/ldc < N)
+        C[cOffset + crow + ccolprod] = alpha * rC[0][0] + beta * C[cOffset + crow + ccolprod];
   });
 }
 
