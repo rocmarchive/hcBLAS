@@ -103,6 +103,67 @@ static void gemv_TransA(Concurrency::array_view<float> &A_mat, int aOffset,
   }
 }
 
+#define TILE_SZ_A 8
+
+static void gemv_NoTransA_register(Concurrency::array_view<float> &A, long aOffset,
+                          Concurrency::array_view<float> &X, long xOffset,
+                          Concurrency::array_view<float> &Y, long yOffset,
+                          float alpha, float beta, int lenX, int lenY)
+{
+    Concurrency::extent<2> grdExt( ((lenX - 1) / TILE_SZ_A + 1)*TILE_SZ_A, ((lenY - 1) / TILE_SZ_A + 1)*TILE_SZ_A);
+    Concurrency::tiled_extent <TILE_SZ_A, TILE_SZ_A> t_ext(grdExt);
+    Concurrency::parallel_for_each(t_ext,
+                                   [=] (Concurrency::tiled_index<TILE_SZ_A,TILE_SZ_A> tidx)
+                                   restrict(amp) {
+
+    tile_static float A_s [TILE_SZ_A][TILE_SZ_A];
+
+    #define A(row,col) A[(row)*lenY + (col)]
+
+    const unsigned int row = tidx.local[0];
+    const unsigned int col = tidx.global[1];
+
+    float y_reg[TILE_SZ_A] = {(float)0};
+
+    for(unsigned int tileIdx = 0; tileIdx < (lenX - 1)/TILE_SZ_A + 1; ++tileIdx) {
+        if (tileIdx*TILE_SZ_A + row < lenX && col < lenY) {
+            A_s[tidx.local[0]][tidx.local[1]] = A(tileIdx*TILE_SZ_A + row, col);
+        }
+        else {
+            A_s[tidx.local[0]][tidx.local[1]] = 0;
+        }
+        tidx.barrier.wait();
+
+        for (unsigned int idx = 0; idx < TILE_SZ_A; ++idx) {
+            float x_reg;
+            if(tileIdx*TILE_SZ_A + idx < lenX) {
+                x_reg = X[tileIdx*TILE_SZ_A + idx];
+            }
+            else {
+                x_reg = 0;
+            }
+
+            for(unsigned int outIdx = 0; outIdx < TILE_SZ_A; ++outIdx) {
+                y_reg[outIdx] += x_reg*A_s[idx][outIdx];
+            }
+        }
+          tidx.barrier.wait();
+    }
+    for (unsigned int outIdx = 0; outIdx < TILE_SZ_A; ++outIdx) {
+        if (col < lenY) {
+           Y[tidx.tile[1] * TILE_SZ_A + outIdx] *= beta;
+           Y[tidx.tile[1] * TILE_SZ_A + outIdx] += y_reg[outIdx] * alpha;
+        }
+    }
+});
+
+
+}
+                                                                                                                                                                          
+
+
+
+
 static void gemv_NoTransA(Concurrency::array_view<float> &A, long aOffset,
                           Concurrency::array_view<float> &X, long xOffset,
                           Concurrency::array_view<float> &Y, long yOffset,
@@ -173,7 +234,7 @@ void gemv_AMP(char TransA, int M, int N, float alpha,
   if (TransA == 't')
     gemv_TransA(A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY, temp_buf);
   else if (TransA == 'n')
-    gemv_NoTransA(A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
+    gemv_NoTransA_register(A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
 }
 
 ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_TRANS type,
@@ -204,9 +265,9 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_TRANS type,
     gemv_AMP(type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY, tempBuf);
     aMat.synchronize();
     /* Print Output */
-    for (int i = 0 ;i < M; i++) {
+/*    for (int i = 0 ;i < M; i++) {
         cout << "[Y" << i << "] " << yView[i] << endl;
-    }
+    }*/
     }
     
     
@@ -217,9 +278,9 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_TRANS type,
     gemv_AMP(type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY, tempBuf);
     aMat.synchronize();
     /* Print Output */
-    for (int i = 0 ;i < lenYt; i++) {
+   /* for (int i = 0 ;i < lenYt; i++) {
         cout << "[Y" << i << "] "<< yView[i] << endl;
-    }
+    }*/
     }
 
     return AMPBLAS_SUCCESS;
