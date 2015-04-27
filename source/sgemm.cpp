@@ -9,9 +9,9 @@ using namespace Concurrency;
 
 #if SUBMICROTILE
 #define NOTRANSAB 0
-#define NOTRANSA 0
+#define NOTRANSA 1
 #define NOTRANSB 0
-#define TRANSAB 1
+#define TRANSAB 0
 #endif
 
 #define THREADS    16
@@ -425,8 +425,8 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
     float rC[1][1] = {0.0};
     float rA[1][STEPTILERATIO];
     float rB[1][STEPTILERATIO];
-    tile_static float lA[STEPTILEPROD];
-    tile_static float lB[STEPTILEPROD];
+    tile_static float lA[STEPTILEPROD + STEPSIZE];
+    tile_static float lB[STEPTILEPROD + STEPSIZE];
     int gidx = tidx.tile[1];
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
@@ -436,7 +436,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int idxT = idt & (TILESIZE - 1);
     int gidyOffset = gidy << tilemulshift;
     int gidxOffset = gidx << tilemulshift;
-    int idyTOffset = idyT << tilemulshift;
+    int idyTOffset = idyT * BANKTILESIZE;
 
     int i = 0;
     do
@@ -446,7 +446,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
       for(int sec = 0; sec < STEPTILERATIO; ++sec)
       {
         int secOffset  = sec << tilemulshift;
-        int secStartPt = sec << numtilesfact;
+        int secStartPt = (sec << tilemulshift) * BANKTILESIZE;
         int localIdx = secStartPt + idxT + idyTOffset;
         int kIndex = iOffset + idyT + secOffset;
 
@@ -456,7 +456,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
 
         if(gidyOffset + idxT < N && kIndex < K)
         {
-          lB[localIdx] = B[bOffset + gidyOffset + idxT + kIndex *ldb];
+          lB[localIdx] = B[bOffset + gidyOffset + idxT + kIndex * ldb];
         }
 
         if(gidxOffset + idxT < M && kIndex < K)
@@ -471,7 +471,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
 
       for (int iter=0; iter < TILESIZE; ++iter)
       {
-        MS1x1(TILESIZE);
+        MS1x1(BANKTILESIZE);
       }
 
       i++;
