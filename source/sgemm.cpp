@@ -432,8 +432,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
     int idy = tidx.local[0];
     int idt = (idy << tilemulshift) + idx;
     int idyT = idt >> tilemulshift;
-    int ids = (idy << shiftfactor) + idx; //(idy * STEPSIZE + idx)
-    int idxS = ids & (STEPSIZE - 1);
+    int idxT = idt & (TILESIZE - 1);
     int gidyOffset = gidy << tilemulshift;
     int gidxOffset = gidx << tilemulshift;
     int idyTOffset = idyT << tilemulshift;
@@ -447,21 +446,21 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
       {
         int secOffset  = sec << tilemulshift;
         int secStartPt = sec << numtilesfact;
-        int localIdx = secStartPt + idxS + idyTOffset;
+        int localIdx = secStartPt + idxT + idyTOffset;
         int kIndex = iOffset + idyT + secOffset;
 
         // Initialize the local memory with zero
         lB[localIdx] = 0;
         lA[localIdx] = 0;
 
-        if(gidyOffset + idxS < N && kIndex < K)
+        if(gidyOffset + idxT < N && kIndex < K)
         {
-          lB[localIdx] = B[bOffset + gidyOffset + idxS + kIndex *ldb];
+          lB[localIdx] = B[bOffset + gidyOffset + idxT + kIndex *ldb];
         }
 
-        if(gidxOffset + idxS < M && kIndex < K)
+        if(gidxOffset + idxT < M && kIndex < K)
         {
-          lA[localIdx] = A[aOffset + gidxOffset + idxS + kIndex * lda];
+          lA[localIdx] = A[aOffset + gidxOffset + idxT + kIndex * lda];
         }
       }
       tidx.barrier.wait();
