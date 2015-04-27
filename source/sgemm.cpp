@@ -237,6 +237,65 @@ static void gemm_NoTransB_loopunroll(Concurrency::array_view<float, 1> &A, long 
  });
 }
 
+static void gemm_TransAB_loopunroll(Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
+  Concurrency::extent<2> grdExt((M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
+  Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
+  Concurrency::array_view<float,2> Cmat = C.view_as<2>(Concurrency::extent<2>(N, M));
+  Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(M, K));
+  Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(K, N));
+
+  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  {
+    float CValue = 0;
+    int Row = tidx.global[0];
+    int Col = tidx.global[1];
+    tile_static float As[TILE_DIM][TILE_DIM];
+    tile_static float Bs[TILE_DIM][TILE_DIM];
+    for (int k = 0; k < ((K + (TILE_DIM - 1)) & ~(TILE_DIM - 1)) ; k += TILE_DIM)
+    {
+      if (k + tidx.local[0] < K && Col < N)
+        Bs[tidx.local[1]][tidx.local[0]] = Bmat[bOffset + k + tidx.local[0]][Col];
+      else
+        Bs[tidx.local[1]][tidx.local[0]] = 0.0;
+      if (Row < M && (k + tidx.local[1]) < K)
+        As[tidx.local[0]][tidx.local[1]] = Amat[Row][(k + tidx.local[1])];
+      else
+        As[tidx.local[0]][tidx.local[1]] = 0.0;
+
+      tidx.barrier.wait();
+      // Unrolled Matrix Mul operation
+      CValue += Bs[tidx.local[1]][0] * As[tidx.local[0]][0] +
+                Bs[tidx.local[1]][1] * As[tidx.local[0]][1] +
+                Bs[tidx.local[1]][2] * As[tidx.local[0]][2] +
+                Bs[tidx.local[1]][3] * As[tidx.local[0]][3] +
+                Bs[tidx.local[1]][4] * As[tidx.local[0]][4] +
+                Bs[tidx.local[1]][5] * As[tidx.local[0]][5] +
+                Bs[tidx.local[1]][6] * As[tidx.local[0]][6] +
+                Bs[tidx.local[1]][7] * As[tidx.local[0]][7] +
+                Bs[tidx.local[1]][8] * As[tidx.local[0]][8] +
+                Bs[tidx.local[1]][9] * As[tidx.local[0]][9] +
+                Bs[tidx.local[1]][10] * As[tidx.local[0]][10] +
+                Bs[tidx.local[1]][11] * As[tidx.local[0]][11] +
+                Bs[tidx.local[1]][12] * As[tidx.local[0]][12] +
+                Bs[tidx.local[1]][13] * As[tidx.local[0]][13] +
+                Bs[tidx.local[1]][14] * As[tidx.local[0]][14] +
+                Bs[tidx.local[1]][15] * As[tidx.local[0]][15];
+
+   tidx.barrier.wait();
+   }
+   if (Row < M && Col < N)
+   {
+    Cmat[cOffset + Col][Row] *= beta;
+    Cmat[cOffset + Col][Row] += CValue * alpha;
+   }
+ });
+}
+
 #endif
 
 #if REGISTER
@@ -1129,7 +1188,9 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     }
     else if (TransA == 'n')
       gemm_NoTransA_loopunroll(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
- }
+    else
+      gemm_TransAB_loopunroll(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
 #endif
 
 #if REGISTER
