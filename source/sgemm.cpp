@@ -9,9 +9,9 @@ using namespace Concurrency;
 
 #if SUBMICROTILE
 #define NOTRANSAB 0
-#define NOTRANSA 1
+#define NOTRANSA 0
 #define NOTRANSB 0
-#define TRANSAB 0
+#define TRANSAB 1
 #endif
 
 #define THREADS    16
@@ -584,10 +584,10 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rC[1][1] = {(float)0};
-    float rA[1][STEPSIZE/TILESIZE];
-    float rB[1][STEPSIZE/TILESIZE];
-    tile_static float lA[TILESIZE * STEPSIZE];
-    tile_static float lB[TILESIZE * STEPSIZE];
+    float rA[1][STEPTILERATIO];
+    float rB[1][STEPTILERATIO];
+    tile_static float lA[STEPTILEPROD + STEPSIZE];
+    tile_static float lB[STEPTILEPROD + STEPSIZE];
     int gidx = tidx.tile[1];
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
@@ -604,26 +604,26 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
 
         if(gidy * TILESIZE + idxT < N && i * STEPSIZE + idyT +(sec * TILESIZE) < K)
         {
-          lB[((idxT + sec * TILESIZE) * TILESIZE) + idyT] = B[bOffset + gidy * TILESIZE + idxT + ((idyT + (sec * TILESIZE)) *ldb) + i * (ldb << shiftFactor)];
+          lB[((idxT + sec * TILESIZE) * BANKTILESIZE) + idyT] = B[bOffset + gidy * TILESIZE + idxT + ((idyT + (sec * TILESIZE)) *ldb) + i * (ldb << shiftFactor)];
         }
         else
         {
-          lB[((idxT + sec * TILESIZE) * TILESIZE) + idyT] = 0;
+          lB[((idxT + sec * TILESIZE) * BANKTILESIZE) + idyT] = 0;
         }
 
         if(gidx * TILESIZE + idxT < M && i * STEPSIZE + idyT + (sec * TILESIZE) < K)
         {
-          lA[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = A[aOffset  + (gidx * TILESIZE + idxT) * lda + idyT + i * STEPSIZE + (sec * TILESIZE)];
+          lA[(sec * BANKNUMTILEELMTS) + idyT + idxT * BANKTILESIZE] = A[aOffset  + (gidx * TILESIZE + idxT) * lda + idyT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
-          lA[(sec * TILESIZE * TILESIZE ) + idyT + idxT * TILESIZE] = 0;
+          lA[(sec * BANKNUMTILEELMTS ) + idyT + idxT * BANKTILESIZE] = 0;
         }
       }
       tidx.barrier.wait();
 
-      int offA = idx * TILESIZE;
-      int offB = idy * TILESIZE;
+      int offA = idx * BANKTILESIZE;
+      int offB = idy * BANKTILESIZE;
       for (int iter = 0; iter < TILESIZE; ++iter)
       {
         MS1x1(1);
