@@ -1118,6 +1118,20 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     return 0;
   }
   // Start the operations
+#if LOOPUNROLL
+  {
+    if (TransB == 'n')
+    {
+      if (TransA == 'n')
+        gemm_NoTransAB_loopunroll(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      else
+        gemm_NoTransB_loopunroll(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta, temp_buf);
+    }
+    else if (TransA == 'n')
+      gemm_NoTransA_loopunroll(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+ }
+#endif
+
 #if REGISTER
   {
     if (TransB == 'n')
