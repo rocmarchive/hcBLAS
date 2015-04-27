@@ -4,13 +4,13 @@
 using namespace Concurrency;
 
 #define REGISTER 0
-#define STEP 1
-#define SUBMICROTILE 0
+#define STEP 0
+#define SUBMICROTILE 1
 
 #if SUBMICROTILE
-#define NOTRANSAB 0
+#define NOTRANSAB 1
 #define NOTRANSA 0
-#define NOTRANSB 1
+#define NOTRANSB 0
 #define TRANSAB 0
 #endif
 
@@ -29,6 +29,9 @@ using namespace Concurrency;
 #define NUMTILEELMTS TILESIZE*TILESIZE
 #define BANKNUMTILEELMTS TILESIZE*BANKTILESIZE
 #define MICROTILESIZE 2
+#define TOTMICROTILEPROD TILESIZE*TILESIZE*MICROTILESIZE
+#define MICROTILEPROD TILESIZE*MICROTILESIZE
+#define BANKMICROTILESIZE (TILESIZE*MICROTILESIZE+1)
 
 #define  M1x1(offset)			\
             rA[0][0] = lA[offA + 0];	\
@@ -61,8 +64,8 @@ using namespace Concurrency;
                                     rC[rowIndex][colIndex];                 \
            }                                                                \
            }                                                                \
-           offA += (MICROTILESIZE * TILESIZE);                              \
-           offB += (MICROTILESIZE * TILESIZE);                              \
+           offA += BANKMICROTILESIZE;                              \
+           offB += BANKMICROTILESIZE;                              \
 
 #if REGISTER
 
@@ -654,8 +657,8 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
     float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
-    tile_static float lA[TILESIZE * TILESIZE * MICROTILESIZE];
-    tile_static float lB[TILESIZE * TILESIZE * MICROTILESIZE];
+    tile_static float lA[TOTMICROTILEPROD + TILESIZE];
+    tile_static float lB[TOTMICROTILEPROD + TILESIZE];
     int gidx = tidx.tile[1];
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
@@ -669,22 +672,22 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
       tidx.barrier.wait();
       for(int sec = 0; sec < MICROTILESIZE; ++sec)
       {
-        if(gidy * TILESIZE * MICROTILESIZE + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
+        if(gidy * MICROTILEPROD + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
         {
-          lB[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * TILESIZE * MICROTILESIZE + idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
+          lB[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * MICROTILEPROD + idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
         }
         else
         {
-          lB[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = 0;
+          lB[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = 0;
 	}
 
-        if(gidx * TILESIZE * MICROTILESIZE + idxT + (sec * TILESIZE) < M && block_k * TILESIZE + idyT < K)
+        if(gidx * MICROTILEPROD + idxT + (sec * TILESIZE) < M && block_k * TILESIZE + idyT < K)
         {
-          lA[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = A[aOffset + (gidx * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE) +  idyT * lda + block_k * (lda * TILESIZE)];
+          lA[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = A[aOffset + (gidx * MICROTILEPROD) + idxT + (sec * TILESIZE) +  idyT * lda + block_k * (lda * TILESIZE)];
         }
         else
         {
-          lA[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = 0;
+          lA[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = 0;
         }
       }
       tidx.barrier.wait();
@@ -698,8 +701,8 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1))/TILESIZE));
 
-    int xIndex = gidx * TILESIZE * MICROTILESIZE + idx;
-    int yIndex = (gidy * TILESIZE * MICROTILESIZE + idy) * ldc;
+    int xIndex = gidx * MICROTILEPROD + idx;
+    int yIndex = (gidy * MICROTILEPROD + idy) * ldc;
     for( int row = 0; row < MICROTILESIZE; row++)
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
