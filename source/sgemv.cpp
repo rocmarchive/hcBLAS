@@ -103,7 +103,64 @@ static void gemv_TransA(Concurrency::array_view<float> &A_mat, int aOffset,
   }
 }
 
-#define TILE_SZ_A 8
+#define TILE_SZ_A 16
+
+static void gemv_TransA_register(Concurrency::array_view<float> &A_mat, int aOffset,
+                        Concurrency::array_view<float> &X_vec, long xOffset,
+                        Concurrency::array_view<float> &Y_vec, long yOffset,
+                        float alpha, float beta, int lenX, int lenY,
+                        Concurrency::array_view<float> &tempBuf)
+{
+
+    Concurrency::extent<2> grdExt(((lenX - 1) / TILE_SZ_A + 1) * TILE_SZ_A, ((lenY - 1) / TILE_SZ_A + 1)*TILE_SZ_A);
+    Concurrency::tiled_extent <TILE_SZ_A, TILE_SZ_A> t_ext(grdExt);
+    Concurrency::parallel_for_each(t_ext,
+                                   [=] (Concurrency::tiled_index<TILE_SZ_A,TILE_SZ_A>tidx)
+                                   restrict(amp) {
+
+    // Shared memory for tiling input B array
+    tile_static float A_s [TILE_SZ_A][TILE_SZ_A];
+
+    // Macros for accessing flattened matrices
+    #define A1(row,col) A_mat[(row) + (col) * lenX]
+    const unsigned int row = tidx.local[0];
+    const unsigned int col = tidx.global[1];
+
+    float y_reg[TILE_SZ_A] = {(float)0};
+
+    for(unsigned int tileIdx = 0; tileIdx < (lenX - 1)/TILE_SZ_A + 1; ++tileIdx) {
+        if (tileIdx*TILE_SZ_A + row < lenX && col < lenY) {
+            A_s[tidx.local[0]][tidx.local[1]] = A1(tileIdx*TILE_SZ_A + row, col);
+        }
+        else {
+            A_s[tidx.local[0]][tidx.local[1]] = 0;
+        }
+        tidx.barrier.wait();
+
+        for (unsigned int idx = 0; idx < TILE_SZ_A; ++idx) {
+            float x_reg;
+            if(tileIdx*TILE_SZ_A + idx < lenX) {
+                x_reg = X_vec[tileIdx*TILE_SZ_A + idx];
+            }
+            else {
+                x_reg = 0;
+            }
+
+            for(unsigned int outIdx = 0; outIdx < TILE_SZ_A; ++outIdx) {
+                y_reg[outIdx] += x_reg*A_s[idx][outIdx];
+            }
+        }
+          tidx.barrier.wait();
+    }
+    for (unsigned int outIdx = 0; outIdx < TILE_SZ_A; ++outIdx) {
+        if (col < lenY) {
+           Y_vec[tidx.tile[1] * TILE_SZ_A + outIdx] *= beta;
+           Y_vec[tidx.tile[1] * TILE_SZ_A + outIdx] += y_reg[outIdx] * alpha;
+        }
+    }
+});
+
+}
 
 static void gemv_NoTransA_register(Concurrency::array_view<float> &A, long aOffset,
                           Concurrency::array_view<float> &X, long xOffset,
@@ -232,7 +289,7 @@ void gemv_AMP(char TransA, int M, int N, float alpha,
   }
 
   if (TransA == 't')
-    gemv_TransA(A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY, temp_buf);
+    gemv_TransA_register(A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY, temp_buf);
   else if (TransA == 'n')
     gemv_NoTransA_register(A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
 }
