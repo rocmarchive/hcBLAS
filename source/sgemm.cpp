@@ -3,9 +3,10 @@
 #include <amp_math.h>
 using namespace Concurrency;
 
-#define REGISTER 1
+#define REGISTER 0
 #define STEP 0
 #define SUBMICROTILE 0
+#define LOOPUNROLL 1
 
 #if SUBMICROTILE
 #define NOTRANSAB 0
@@ -58,6 +59,66 @@ using namespace Concurrency;
            }                                                                \
            offA += (MICROTILESIZE * TILESIZE);                              \
            offB += (MICROTILESIZE * TILESIZE);                              \
+
+#if LOOPUNROLL
+static void gemm_NoTransAB_loopunroll(Concurrency::array_view<float, 1> &A, long aOffset,
+                                      Concurrency::array_view<float, 1> &B, long bOffset,
+                                      Concurrency::array_view<float, 1> &C, long cOffset,
+                                      int M, int N, int K, int lda, int ldb, int ldc,
+                                      float alpha, float beta)
+{
+  Concurrency::extent<2> grdExt((N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
+  Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
+  Concurrency::array_view<float,2> Cmat = C.view_as<2>(Concurrency::extent<2>(N, M));
+  Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(K, M));
+  Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(N, K));
+
+  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  {
+    float CValue = 0;
+    int Row = tidx.global[0];
+    int Col = tidx.global[1];
+    tile_static float As[TILE_DIM][TILE_DIM];
+    tile_static float Bs[TILE_DIM][TILE_DIM];
+    for (int k = 0; k < ((K + (TILE_DIM - 1)) & ~(TILE_DIM - 1)) ; k += TILE_DIM)
+    {
+      if (k + tidx.local[1] < K && Row < N)
+        Bs[tidx.local[0]][tidx.local[1]] = Bmat[Row][bOffset + k + tidx.local[1]];
+      else
+        Bs[tidx.local[0]][tidx.local[1]] = 0.0;
+      if (k + tidx.local[0] < K && Col < M)
+        As[tidx.local[1]][tidx.local[0]] = Amat[aOffset + k + tidx.local[0]][Col];
+      else
+        As[tidx.local[1]][tidx.local[0]] = 0.0;
+
+      tidx.barrier.wait();
+      // Unrolled Matrix Mul operation
+      CValue += Bs[tidx.local[0]][0] * As[tidx.local[1]][0] +
+                Bs[tidx.local[0]][1] * As[tidx.local[1]][1] +
+                Bs[tidx.local[0]][2] * As[tidx.local[1]][2] +
+                Bs[tidx.local[0]][3] * As[tidx.local[1]][3] +
+                Bs[tidx.local[0]][4] * As[tidx.local[1]][4] +
+                Bs[tidx.local[0]][5] * As[tidx.local[1]][5] +
+                Bs[tidx.local[0]][6] * As[tidx.local[1]][6] +
+                Bs[tidx.local[0]][7] * As[tidx.local[1]][7] +
+                Bs[tidx.local[0]][8] * As[tidx.local[1]][8] +
+                Bs[tidx.local[0]][9] * As[tidx.local[1]][9] +
+                Bs[tidx.local[0]][10] * As[tidx.local[1]][10] +
+                Bs[tidx.local[0]][11] * As[tidx.local[1]][11] +
+                Bs[tidx.local[0]][12] * As[tidx.local[1]][12] +
+                Bs[tidx.local[0]][13] * As[tidx.local[1]][13] +
+                Bs[tidx.local[0]][14] * As[tidx.local[1]][14] +
+                Bs[tidx.local[0]][15] * As[tidx.local[1]][15];
+   tidx.barrier.wait();
+   }
+   if (Row < N && Col < M)
+   {
+     Cmat[Row][cOffset + Col] *= beta;
+     Cmat[Row][cOffset + Col] += CValue * alpha;
+   }
+ });
+}
+#endif
 
 #if REGISTER
 
