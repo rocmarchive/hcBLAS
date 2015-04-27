@@ -21,11 +21,13 @@ using namespace Concurrency;
 #define TILE_SZ_A 32
 #define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
-#define TILESIZE 16 
-#define STEPSIZE 256 
+#define TILESIZE 16
+#define BANKTILESIZE (TILESIZE + 1)
+#define STEPSIZE 128 
 #define STEPTILERATIO STEPSIZE/TILESIZE 
 #define STEPTILEPROD STEPSIZE*TILESIZE
 #define NUMTILEELMTS TILESIZE*TILESIZE
+#define BANKNUMTILEELMTS TILESIZE*BANKTILESIZE
 #define MICROTILESIZE 2
 
 #define  M1x1(offset)			\
@@ -38,8 +40,8 @@ using namespace Concurrency;
 #define  MS1x1(offset)			\
             for(int iter = 0; iter < STEPTILERATIO; ++iter) \
             {\
-              rA[0][iter] = lA[offA + (NUMTILEELMTS) * iter];	\
-              rB[0][iter] = lB[offB + (NUMTILEELMTS) * iter];	\
+              rA[0][iter] = lA[offA + (BANKNUMTILEELMTS) * iter];	\
+              rB[0][iter] = lB[offB + (BANKNUMTILEELMTS) * iter];	\
               rC[0][0] +=rA[0][iter] *rB[0][iter]; \
             }\
             offA += offset;			\
@@ -352,12 +354,11 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
-    float rC[1][1];
-    float rA[1][STEPSIZE/TILESIZE];
-    float rB[1][STEPSIZE/TILESIZE];
-    tile_static float lA[TILESIZE * STEPSIZE];//8*8+8
-    tile_static float lB[TILESIZE * STEPSIZE];
-    rC[0][0] = 0;
+    float rC[1][1] = {0.0};
+    float rA[1][STEPTILERATIO];
+    float rB[1][STEPTILERATIO];
+    tile_static float lA[STEPTILEPROD + STEPSIZE];//8*8+8
+    tile_static float lB[STEPTILEPROD + STEPSIZE];
     int gidx = tidx.tile[1];
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
@@ -376,20 +377,20 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
       {
         // Load Section 'sec' from global memory B onto shared lB
         if(gidy*TILESIZE+idyT  < N && (idxT + i * STEPSIZE + (TILESIZE * sec)) < K) 
-          lB[idyT*TILESIZE+idxT + (TILESIZE * TILESIZE * sec)] = B[bOffset + (gidy*TILESIZE+ idyT) * ldb + idxT + i * STEPSIZE + (TILESIZE * sec)];
+          lB[idyT * BANKTILESIZE + idxT + (BANKNUMTILEELMTS * sec)] = B[bOffset + (gidy*TILESIZE+ idyT) * ldb + idxT + i * STEPSIZE + (TILESIZE * sec)];
         else
-          lB[idyT*TILESIZE+idxT + (TILESIZE * TILESIZE * sec)] = 0;
+          lB[idyT * BANKTILESIZE + idxT + (BANKNUMTILEELMTS * sec)] = 0;
 
         // Load Section 'sec' from global memory A onto shared lA
         if(gidx * TILESIZE + idxT < M && (i * STEPSIZE + idyT + (TILESIZE * sec)) < K)
-           lA[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = A[aOffset  + gidx*TILESIZE+ idxT + idyT*lda + i * (lda << shiftFactor) + (TILESIZE * sec) * lda];
+           lA[idxT * BANKTILESIZE + idyT + (BANKNUMTILEELMTS * sec)] = A[aOffset  + gidx*TILESIZE+ idxT + idyT*lda + i * (lda << shiftFactor) + (TILESIZE * sec) * lda];
         else
-           lA[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = 0;
+           lA[idxT * BANKTILESIZE + idyT + (BANKNUMTILEELMTS * sec)] = 0;
       }
       tidx.barrier.wait();
 
-      int offA = idx * TILESIZE;
-      int offB = idy * TILESIZE;
+      int offA = idx * BANKTILESIZE;
+      int offB = idy * BANKTILESIZE;
 
       for (int iter=0; iter < TILESIZE; ++iter)
       {
