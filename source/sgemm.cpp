@@ -263,7 +263,6 @@ static void gemm_NoTransAB_extend(Concurrency::array_view<float, 1> &A, long aOf
     Concurrency::extent<2> grdExt((((M - 1)/WPTM + 1) + (RTSM -1)) & ~(RTSM - 1),
                                   (((N -1) /WPTN + 1) + (RTSN - 1)) & ~(RTSN - 1));
     Concurrency::tiled_extent < RTSM, RTSN > t_ext(grdExt);
-
     Concurrency::parallel_for_each(t_ext,
                                    [=] (Concurrency::tiled_index<RTSM,RTSN> tidx)
                                    restrict(amp) {
@@ -295,14 +294,14 @@ static void gemm_NoTransAB_extend(Concurrency::array_view<float, 1> &A, long aOf
             int col = id / TSM;
             int tiledIndex = TSK*t + col;
             if ( tiledIndex < K && offsetM +row < M) {
-                Asub[col][row] = A[tiledIndex*M + offsetM + row];
+                Asub[col][row] = A[aOffset + tiledIndex*M + offsetM + row];
             }
             else Asub[col][row] = 0.0;
             col = id % TSM;
             row = id / TSM;
             tiledIndex = TSK * t +col;
             if ( tiledIndex < K && offsetN + row < N) {
-                Bsub[row][col] = B[tiledIndex + (offsetN + row) * K ];
+                Bsub[row][col] = B[bOffset + tiledIndex + (offsetN + row) * K ];
             }
             else Bsub[row][col] = 0.0;
         }
@@ -338,10 +337,101 @@ static void gemm_NoTransAB_extend(Concurrency::array_view<float, 1> &A, long aOf
           for (int wn=0; wn<WPTN; wn++) {
               int globalCol = offsetN + tidn + wn*RTSN;
               if (  globalCol < N  && globalRow < M ) {
-                  C[globalCol * M + globalRow ] = acc[wm][wn];
+                  C[cOffset + globalCol * M + globalRow ] = acc[wm][wn];
               }
           }
      }
+});
+
+}
+
+static void gemm_TransAB_extend(Concurrency::array_view<float, 1> &A, long aOffset,
+                                Concurrency::array_view<float, 1> &B, long bOffset,
+                                Concurrency::array_view<float, 1> &C, long cOffset,
+                                int M, int N, int K, int lda, int ldb, int ldc,
+                                float alpha, float beta)
+{
+    Concurrency::extent<2> grdExt((((M - 1)/WPTM + 1) + (RTSM -1)) & ~(RTSM - 1),
+                                  (((N -1) /WPTN + 1) + (RTSN - 1)) & ~(RTSN - 1));
+    Concurrency::tiled_extent < RTSM, RTSN > t_ext(grdExt);
+    Concurrency::parallel_for_each(t_ext,
+                                   [=] (Concurrency::tiled_index<RTSM,RTSN> tidx)
+                                   restrict(amp) {
+
+    // Thread identifiers
+    const int tidm = tidx.local[0]; // Local row ID (max: TSM/WPTM)
+    const int tidn = tidx.local[1]; // Local col ID (max: TSN/WPTN)
+    const int offsetM = TSM*tidx.tile[0]; // Work-group offset
+    const int offsetN = TSN*tidx.tile[1]; // Work-group offset
+
+    // Local memory to fit a tile of A and B
+    tile_static float Asub[TSK][TSM];
+    tile_static float Bsub[TSN][TSK+2];
+
+    // Allocate register space
+    float Areg;
+    float Breg[WPTN];
+    float acc[WPTM][WPTN] = {{(float)0.0}};
+
+    // Loop over all tiles
+    int numTiles = (K - 1)/TSK + 1 ;
+    for (int t=0; t<numTiles; t++) {
+
+        // Load one tile of A and B into local memory
+        for (int la=0; la<LPTA; la++) {
+            int tid = tidn*RTSM + tidm;
+            int id = la*RTSN*RTSM + tid;
+            int col = id % TSM;
+            int row = id / TSM;
+            int tiledIndex = TSK*t + col;
+            if ( tiledIndex < K && offsetM +row < M) {
+                Asub[col][row] = A[aOffset + tiledIndex + (offsetM + row) * K];
+            }
+            else Asub[col][row] = 0.0;
+            row = id % TSM;
+            col = id / TSM;
+            tiledIndex = TSK * t +col;
+            if ( tiledIndex < K && offsetN +row < N) {
+                Bsub[row][col] = B[bOffset + tiledIndex * N + offsetN + row ];
+            }
+            else Bsub[row][col] = 0.0;
+        }
+       // Synchronise to make sure the tile is loaded
+       tidx.barrier.wait();
+
+       // Loop over the values of a single tile
+       for (int k=0; k<TSK; k++) {
+
+          // Cache the values of Bsub in registers
+          for (int wn=0; wn<WPTN; wn++) {
+              int col = tidn + wn*RTSN;
+              Breg[wn] = Bsub[col][k];
+          }
+
+          // Perform the computation
+          for (int wm=0; wm<WPTM; wm++) {
+              int row = tidm + wm*RTSM;
+              Areg = Asub[k][row];
+              for (int wn=0; wn<WPTN; wn++) {
+                  acc[wm][wn] += Areg * Breg[wn];
+              }
+          }
+       }
+
+       // Synchronise before loading the next tile
+       tidx.barrier.wait();
+    }
+
+    // Store the final results in C
+    for (int wm=0; wm<WPTM; wm++) {
+        int globalRow = offsetM + tidm + wm*RTSM;
+        for (int wn=0; wn<WPTN; wn++) {
+            int globalCol = offsetN + tidn + wn*RTSN;
+            if (  globalCol < N  && globalRow < M ) {
+                 C[cOffset + globalCol * M + globalRow ] = acc[wm][wn];
+            }
+        }
+    }
 });
 
 }
@@ -1254,7 +1344,7 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     else if (TransA == 'n')
       gemm_NoTransA_extend(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      return 0;
+      gemm_TransAB_extend(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 }
 #endif
 #if STEP 
