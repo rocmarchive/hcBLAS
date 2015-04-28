@@ -3,7 +3,8 @@
 #include <amp_math.h>
 using namespace Concurrency;
 
-#define REGISTER 1
+#define REGISTER 0
+#define REGISTER_EXTN 1
 #define STEP 0
 #define SUBMICROTILE 0
 
@@ -12,6 +13,18 @@ using namespace Concurrency;
 #define NOTRANSA 1
 #define NOTRANSB 0
 #define TRANSAB 0
+#endif
+
+#if REGISTER_EXTN
+#define TSM 16 // tile-size in M
+#define TSN 16 // tile-size in N
+#define TSK 16 // tile-size in K
+#define WPTM 2 // work-per-thread in M
+#define WPTN 2 // work-per-thread in  N
+#define RTSM (TSM/WPTM) // reduced tile-size in M
+#define RTSN (TSN/WPTN) // reduced tile-size in N
+#define LPTA ((TSK*TSM)/(RTSM*RTSN)) // Loads-per-thread for A
+#define LPTB ((TSK*TSN)/(RTSM*RTSN)) // Loads-per-thread for B
 #endif
 
 #define THREADS    16
@@ -30,7 +43,7 @@ using namespace Concurrency;
             rB[0][0] = lB[offB + 0];	\
             offA += offset;			\
             offB += offset;			\
-            rC[0][0]=rA[0][0] *rB[0][0] + rC[0][0]; \	
+            rC[0][0]=rA[0][0] *rB[0][0] + rC[0][0]; \
 
 #define  MS1x1(offsetA, offsetB)			\
             for(int iter = 0; iter < STEPSIZE/TILESIZE; ++iter) \
@@ -58,6 +71,101 @@ using namespace Concurrency;
            }                                                                \
            offA += (MICROTILESIZE * TILESIZE);                              \
            offB += (MICROTILESIZE * TILESIZE);                              \
+
+#if REGISTER_EXTN
+
+static void gemm_NoTransA_extend(Concurrency::array_view<float, 1> &A, long aOffset,
+                                Concurrency::array_view<float, 1> &B, long bOffset,
+                                Concurrency::array_view<float, 1> &C, long cOffset,
+                                int M, int N, int K, int lda, int ldb, int ldc,
+                                float alpha, float beta)
+{
+    Concurrency::extent<2> grdExt((((M - 1)/WPTM + 1) + (RTSM -1)) & ~(RTSM - 1), (((N -1) /WPTN + 1) + (RTSN - 1)) & ~(RTSN - 1));//((M - 1) / WPTM + 1) * WPTM, ((N - 1) / WPTN + 1) *WPTN);
+    Concurrency::tiled_extent < RTSM, RTSN > t_ext(grdExt);
+
+    Concurrency::parallel_for_each(t_ext,
+                                   [=] (Concurrency::tiled_index<RTSM,RTSN> tidx)
+                                   restrict(amp) {
+
+    // Thread identifiers
+    const int tidm = tidx.local[0]; // Local row ID (max: TSM/WPTM)
+    const int tidn = tidx.local[1]; // Local col ID (max: TSN/WPTN)
+    const int offsetM = TSM*tidx.tile[0]; // Work-group offset
+    const int offsetN = TSN*tidx.tile[1]; // Work-group offset
+
+    // Local memory to fit a tile of A and B
+    tile_static float Asub[TSK][TSM];
+    tile_static float Bsub[TSN][TSK+2];
+
+    // Allocate register space
+    float Areg;
+    float Breg[WPTN];
+    float acc[WPTM][WPTN] = {{(float)0.0}};
+
+    // Loop over all tiles
+    int numTiles = (K - 1)/TSK + 1 ;
+    for (int t=0; t<numTiles; t++) {
+
+        // Load one tile of A and B into local memory
+        for (int la=0; la<LPTA; la++) {
+            int tid = tidn*RTSM + tidm;
+            int id = la*RTSN*RTSM + tid;
+            int row = id % TSM;
+            int col = id / TSM;
+            int tiledIndex = TSK*t + col;
+            if ( tiledIndex < K && offsetM +row < M) {
+                Asub[col][row] = A[aOffset + tiledIndex * M + offsetM + row];
+            }
+            else Asub[col][row] = 0.0;
+            if ( tiledIndex < K && offsetN +row < N) {
+               Bsub[row][col] = B[bOffset + tiledIndex * N + offsetN + row];
+            }
+            else Bsub[row][col] = 0.0;
+        }
+
+        // Synchronise to make sure the tile is loaded
+        tidx.barrier.wait();
+
+        // Loop over the values of a single tile
+        for (int k=0; k<TSK; k++) {
+
+            // Cache the values of Bsub in registers
+            for (int wn=0; wn<WPTN; wn++) {
+                int col = tidn + wn*RTSN;
+                Breg[wn] = Bsub[col][k];
+            }
+
+            // Perform the computation
+            for (int wm=0; wm<WPTM; wm++) {
+                int row = tidm + wm*RTSM;
+                Areg = Asub[k][row];
+                for (int wn=0; wn<WPTN; wn++) {
+                    acc[wm][wn] += Areg * Breg[wn];
+                }
+            }
+        }
+
+        // Synchronise before loading the next tile
+        tidx.barrier.wait();
+     }
+
+     // Store the final results in C
+     for (int wm=0; wm<WPTM; wm++) {
+        int globalRow = offsetM + tidm + wm*RTSM;
+        for (int wn=0; wn<WPTN; wn++) {
+            int globalCol = offsetN + tidn + wn*RTSN;
+            if (  globalCol < N  && globalRow < M ) {
+                C[cOffset + globalCol * M + globalRow ] = acc[wm][wn];
+            }
+        }
+    }
+
+});
+
+}
+
+
+#endif
 
 #if REGISTER
 
@@ -952,6 +1060,12 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     else
       gemm_TransAB(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
+#endif
+#if REGISTER_EXTN
+ {
+     if (TransA == 'n')
+      gemm_NoTransA_extend(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+ }
 #endif
 #if STEP 
   {
