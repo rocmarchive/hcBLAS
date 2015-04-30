@@ -213,62 +213,46 @@ static void gemm_NoTransA_loopunroll(Concurrency::array_view<float, 1> &A, long 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0;
-    int tileId = tidx.tile[0] * TILE_DIM + tidx.local[1];
-    tile_static float As[2][TILE_DIM][TILE_DIM];
-    tile_static float Bs[2][TILE_DIM][TILE_DIM];
-
-    int kNext, kmod = 0;
-    int kSize = ((K + (TILE_DIM - 1)) & ~(TILE_DIM - 1)) / TILE_DIM;
-
-    if (tidx.local[0] < K && tileId < N)
-      Bs[0][tidx.local[1]][tidx.local[0]] = Bmat[tidx.local[0]][tileId];
-    else
-      Bs[0][tidx.local[1]][tidx.local[0]] = 0.0;
-
-    if (tidx.global[1] < M && (tidx.local[0]) < K)
-      As[0][tidx.local[1]][tidx.local[0]] = Amat[tidx.local[0]] [tidx.global[1]];
-    else
-      As[0][tidx.local[1]][tidx.local[0]] = 0.0;
-
-    for (int k = 0; k < kSize; k++)
+    int Row = tidx.global[0];
+    int Col = tidx.global[1];
+    tile_static float As[TILE_DIM][TILE_DIM];
+    tile_static float Bs[TILE_DIM][TILE_DIM];
+    for (int k = 0; k < ((K + (TILE_DIM - 1)) & ~(TILE_DIM - 1)) ; k += TILE_DIM)
     {
-      kNext = k + 1;
-      kmod = k & 1;
+      if (k + tidx.local[0] < K && tidx.tile[0] * TILE_DIM + tidx.local[1] < N)
+        Bs[tidx.local[1]][tidx.local[0]] = Bmat[bOffset + k + tidx.local[0]][tidx.tile[0] * TILE_DIM + tidx.local[1]];
+      else
+        Bs[tidx.local[1]][tidx.local[0]] = 0.0;
+      if (Col < M && (k + tidx.local[0]) < K)
+        As[tidx.local[1]][tidx.local[0]] = Amat[(k + tidx.local[0])] [Col];
+      else
+        As[tidx.local[1]][tidx.local[0]] = 0.0;
 
       tidx.barrier.wait();
-      if (kNext * TILE_DIM + tidx.local[0] < K && tileId < N)
-        Bs[kNext & 1][tidx.local[1]][tidx.local[0]] = Bmat[kNext * TILE_DIM + tidx.local[0]][tileId];
-      else
-        Bs[kNext & 1][tidx.local[1]][tidx.local[0]] = 0;
-
-      if (tidx.global[1] < M && (kNext * TILE_DIM + tidx.local[0]) < K)
-        As[kNext & 1][tidx.local[1]][tidx.local[0]] = Amat[(kNext * TILE_DIM + tidx.local[0])] [tidx.global[1]];
-      else
-        As[kNext & 1][tidx.local[1]][tidx.local[0]] = 0.0;
-
       // Unrolled Matrix Mul operation
-      CValue += Bs[kmod][tidx.local[0]][0] * As[kmod][tidx.local[1]][0] +
-                Bs[kmod][tidx.local[0]][1] * As[kmod][tidx.local[1]][1] +
-                Bs[kmod][tidx.local[0]][2] * As[kmod][tidx.local[1]][2] +
-                Bs[kmod][tidx.local[0]][3] * As[kmod][tidx.local[1]][3] +
-                Bs[kmod][tidx.local[0]][4] * As[kmod][tidx.local[1]][4] +
-                Bs[kmod][tidx.local[0]][5] * As[kmod][tidx.local[1]][5] +
-                Bs[kmod][tidx.local[0]][6] * As[kmod][tidx.local[1]][6] +
-                Bs[kmod][tidx.local[0]][7] * As[kmod][tidx.local[1]][7] +
-                Bs[kmod][tidx.local[0]][8] * As[kmod][tidx.local[1]][8] +
-                Bs[kmod][tidx.local[0]][9] * As[kmod][tidx.local[1]][9] +
-                Bs[kmod][tidx.local[0]][10] * As[kmod][tidx.local[1]][10] +
-                Bs[kmod][tidx.local[0]][11] * As[kmod][tidx.local[1]][11] +
-                Bs[kmod][tidx.local[0]][12] * As[kmod][tidx.local[1]][12] +
-                Bs[kmod][tidx.local[0]][13] * As[kmod][tidx.local[1]][13] +
-                Bs[kmod][tidx.local[0]][14] * As[kmod][tidx.local[1]][14] +
-                Bs[kmod][tidx.local[0]][15] * As[kmod][tidx.local[1]][15];
+      CValue += Bs[tidx.local[0]][0] * As[tidx.local[1]][0] +
+                Bs[tidx.local[0]][1] * As[tidx.local[1]][1] +
+                Bs[tidx.local[0]][2] * As[tidx.local[1]][2] +
+                Bs[tidx.local[0]][3] * As[tidx.local[1]][3] +
+                Bs[tidx.local[0]][4] * As[tidx.local[1]][4] +
+                Bs[tidx.local[0]][5] * As[tidx.local[1]][5] +
+                Bs[tidx.local[0]][6] * As[tidx.local[1]][6] +
+                Bs[tidx.local[0]][7] * As[tidx.local[1]][7] +
+                Bs[tidx.local[0]][8] * As[tidx.local[1]][8] +
+                Bs[tidx.local[0]][9] * As[tidx.local[1]][9] +
+                Bs[tidx.local[0]][10] * As[tidx.local[1]][10] +
+                Bs[tidx.local[0]][11] * As[tidx.local[1]][11] +
+                Bs[tidx.local[0]][12] * As[tidx.local[1]][12] +
+                Bs[tidx.local[0]][13] * As[tidx.local[1]][13] +
+                Bs[tidx.local[0]][14] * As[tidx.local[1]][14] +
+                Bs[tidx.local[0]][15] * As[tidx.local[1]][15];
 
+   tidx.barrier.wait();
    }
-   if (tidx.global[0] < N && tidx.global[1] < M)
+   if (Row < N && Col < M)
    {
-     Cmat[tidx.global[0]][tidx.global[1]] *= beta;
-     Cmat[tidx.global[0]][tidx.global[1]] += CValue * alpha;
+     Cmat[Row][cOffset + Col] *= beta;
+     Cmat[Row][cOffset + Col] += CValue * alpha;
    }
  });
 }
