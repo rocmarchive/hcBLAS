@@ -435,7 +435,8 @@ static void gemm_TransAB_extend(Concurrency::array_view<float, 1> &A, long aOffs
         }
     }
 });
-
+}
+#endif
 #if LOOPUNROLL_SWPREFETCH
 static void gemm_NoTransAB_loopunroll_swprefetch(Concurrency::array_view<float, 1> &A, long aOffset,
                                                  Concurrency::array_view<float, 1> &B, long bOffset,
