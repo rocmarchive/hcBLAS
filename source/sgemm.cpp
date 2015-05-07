@@ -4,11 +4,12 @@
 using namespace Concurrency;
 
 #define REGISTER 0
-#define REGISTER_EXTN 1
+#define REGISTER_EXTN 0
 #define STEP 0
 #define SUBMICROTILE 0
 #define LOOPUNROLL 0
-#define LOOPUNROLL_SWPREFETCH 1
+#define LOOPUNROLL_SWPREFETCH 0
+#define RECTANGULAR_TILING 1
 
 #if SUBMICROTILE
 #define NOTRANSAB 0
@@ -29,6 +30,11 @@ using namespace Concurrency;
 #define LPTB ((TSK*TSN)/(RTSM*RTSN)) // Loads-per-thread for B
 #endif
 
+#if RECTANGULAR_TILING
+#define TILE_SIZE_A 32
+#define TILE_SIZE_B 8
+#endif
+
 #define THREADS    16
 #define GEMM_BLOCK 256
 #define TILE_DIM  16
@@ -37,7 +43,7 @@ using namespace Concurrency;
 #define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
 #define TILESIZE 16
-#define STEPSIZE 128 
+#define STEPSIZE 128
 #define MICROTILESIZE 2
 
 #define  M1x1(offset)			\
@@ -74,6 +80,56 @@ using namespace Concurrency;
            offA += (MICROTILESIZE * TILESIZE);                              \
            offB += (MICROTILESIZE * TILESIZE);                              \
 
+#if RECTANGULAR_TILING
+static void gemm_NoTransA_rect(Concurrency::array_view<float, 1> &A, long aOffset,
+                               Concurrency::array_view<float, 1> &B, long bOffset,
+                               Concurrency::array_view<float, 1> &C, long cOffset,
+                               int M, int N, int K, int lda, int ldb, int ldc,
+                               float alpha, float beta)
+{
+  Concurrency::extent<2> grdExt((N + (TILE_SIZE_B - 1)) & ~(TILE_SIZE_B - 1), (M + (TILE_SIZE_A - 1)) & ~(TILE_SIZE_A - 1));
+  Concurrency::tiled_extent<TILE_SIZE_B, TILE_SIZE_A> t_ext(grdExt);
+
+  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILE_SIZE_B, TILE_SIZE_A> tidx) restrict(amp)
+  {
+    float CValue = 0;
+    int Row = tidx.tile[0] * TILE_SIZE_B + tidx.local[0];
+    int Col = tidx.tile[1] * TILE_SIZE_A + tidx.local[1];
+    tile_static float As[TILE_DIM][TILE_SIZE_A];
+    tile_static float Bs[TILE_DIM][TILE_SIZE_B];
+    int kSize = (((K + (TILE_DIM - 1)) & ~(TILE_DIM - 1)) / TILE_DIM);
+    for (int k = 0; k < kSize; k++)
+    {
+      // Read Matrix B from global to shared tile
+      if (k * TILE_DIM + tidx.local[1]/2 < K && Row < N)
+        Bs[tidx.local[1]/2][tidx.local[0]] = B[bOffset + (k * TILE_DIM + tidx.local[1]/2) * N + Row];
+      else
+        Bs[tidx.local[1]/2][tidx.local[0]] = 0.0;
+
+      // Read Matrix A from global to shared tile
+      for(int sec = 0; sec < 2; sec++)
+      {
+      if ((k * TILE_DIM + tidx.local[0] + sec * TILE_SIZE_B) < K && Col < M)
+        As[tidx.local[0] + sec * 8][tidx.local[1]] = A[aOffset + (k * TILE_DIM + tidx.local[0] + sec * TILE_SIZE_B) * M + Col];
+      else
+        As[tidx.local[0] + sec * 8][tidx.local[1]] = 0.0;
+      }
+      tidx.barrier.wait();
+
+      for (int n = 0; n < TILE_DIM; ++n)
+        CValue += Bs[n][tidx.local[0]] * As[n][tidx.local[1]];
+
+      tidx.barrier.wait();
+    }
+
+    if (Row < N && Col < M)
+    {
+      C[cOffset + (Row * M)+Col] *= beta;
+      C[cOffset + (Row * M)+Col] += CValue * alpha;
+    }
+  });
+}
+#endif
 #if REGISTER_EXTN
 
 static void gemm_NoTransA_extend(Concurrency::array_view<float, 1> &A, long aOffset,
@@ -1848,6 +1904,12 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     return 0;
   }
   // Start the operations
+#if RECTANGULAR_TILING
+  {
+      gemm_NoTransA_rect(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+#endif
+
 #if LOOPUNROLL_SWPREFETCH
   {
     if (TransB == 'n')
