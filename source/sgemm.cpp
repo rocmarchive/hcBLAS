@@ -800,8 +800,8 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
-    int shiftMTP = Concurrency::fast_math::log2(MICTOTILEPROD);
-    float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
+    int shiftMTP = Concurrency::fast_math::log2(MICROTILEPROD);
+    float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
     tile_static float lA[TOTMICROTILEPROD + TILESIZE];
@@ -810,13 +810,13 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
     int idy = tidx.local[0];
-    int idt = TILESIZE * idy + idx;
-    int idxT = idt % TILESIZE;
+    int idt = ( idy << shiftTS ) + idx;
+    int idxT = idt % TILESIZE ;
     int idyT = idt / TILESIZE;
     int block_k = 0;
     do
     {
-      int colIndex = block_k << shiftTS + idyT;
+      int colIndex =( block_k << shiftTS )+ idyT;
       int lIndex = (idyT * BANKMICROTILESIZE) + idxT;
 
       tidx.barrier.wait();
