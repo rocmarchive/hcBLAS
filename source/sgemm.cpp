@@ -10,8 +10,8 @@ using namespace Concurrency;
 #if SUBMICROTILE
 #define NOTRANSAB 0
 #define NOTRANSA 0
-#define NOTRANSB 0
-#define TRANSAB 1
+#define NOTRANSB 1
+#define TRANSAB 0
 #endif
 
 #define THREADS    16
@@ -799,6 +799,8 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
+    int shiftTS = Concurrency::fast_math::log2(TILESIZE);
+    int shiftMTP = Concurrency::fast_math::log2(MICTOTILEPROD);
     float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
@@ -814,25 +816,33 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
     int block_k = 0;
     do
     {
+      int colIndex = block_k << shiftTS + idyT;
+      int lIndex = (idyT * BANKMICROTILESIZE) + idxT;
+
       tidx.barrier.wait();
       for(int sec = 0; sec < MICROTILESIZE; ++sec)
       {
-        if(gidy * MICROTILEPROD + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
+        int secVal = sec << shiftTS;
+        int BrowIndex = ( gidy << shiftMTP) + idxT + secVal;
+        int ArowIndex = ( gidx << shiftMTP) + idxT + secVal;
+
+        tidx.barrier.wait();
+        if( BrowIndex < N && colIndex < K)
         {
-          lB[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * MICROTILEPROD + idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
+          lB[ lIndex + secVal] = B[ bOffset + BrowIndex * ldb + colIndex ];
         }
         else
         {
-          lB[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = 0;
+          lB[ lIndex + secVal] = 0;
 	}
 
-        if(gidx * MICROTILEPROD + idxT + (sec * TILESIZE) < M && block_k * TILESIZE + idyT < K)
+        if( ArowIndex < M && colIndex < K)
         {
-          lA[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = A[aOffset + (gidx * MICROTILEPROD + idxT + sec * TILESIZE) * lda +  idyT + block_k * TILESIZE];
+          lA[ lIndex + secVal] = A[aOffset + ArowIndex * lda +  colIndex];
         }
         else
         {
-          lA[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = 0;
+          lA[ lIndex + secVal] = 0;
         }
       }
       tidx.barrier.wait();
@@ -844,16 +854,16 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
         MTS;
       }
       tidx.barrier.wait();
-    } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1))/TILESIZE));
+    } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) >> shiftTS));
 
-    int xIndex = gidx * MICROTILEPROD + idx;
-    int yIndex = (gidy * MICROTILEPROD + idy) * ldc;
+    int xIndex = (gidx << shiftMTP) + idx;
+    int yIndex = ((gidy << shiftMTP) + idy) * ldc;
     for( int row = 0; row < MICROTILESIZE; row++)
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if(xIndex + (TILESIZE * col) < M && (yIndex / ldc) + (TILESIZE * row) < N)
-        C[cOffset + (xIndex + TILESIZE * col) + yIndex + (TILESIZE * row) * ldc] = alpha * rC[col][row] + beta * C[cOffset + (xIndex + TILESIZE * col) + yIndex + (TILESIZE * row) * ldc];
+      if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N)
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS ) * ldc] = alpha * rC[col][row] + beta * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc];
       }
     }
  });
