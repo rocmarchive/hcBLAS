@@ -8,8 +8,8 @@ using namespace Concurrency;
 #define SUBMICROTILE 1
 
 #if SUBMICROTILE
-#define NOTRANSAB 1
-#define NOTRANSA 0
+#define NOTRANSAB 0
+#define NOTRANSA 1
 #define NOTRANSB 0
 #define TRANSAB 0
 #endif
@@ -649,7 +649,7 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
                                         int M, int N, int K, int lda, int ldb, int ldc,
                                         float alpha, float beta)
 {
-  Concurrency::extent<2> grdExt(((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -730,12 +730,14 @@ static void gemm_NoTransA_subMicroTile(Concurrency::array_view<float, 1> &A, lon
                                        int M, int N, int K, int lda, int ldb, int ldc,
                                        float alpha, float beta)
 {
-  Concurrency::extent<2> grdExt(((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
+    int shiftTS = Concurrency::fast_math::log2(TILESIZE);
+    int shiftMTP = Concurrency::fast_math::log2(MICROTILEPROD);
+    float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
     tile_static float lA[TOTMICROTILEPROD + TILESIZE];
@@ -744,31 +746,38 @@ static void gemm_NoTransA_subMicroTile(Concurrency::array_view<float, 1> &A, lon
     int gidy = tidx.tile[0];
     int idx = tidx.local[1];
     int idy = tidx.local[0];
-    int idt = TILESIZE * idy + idx;
-    int idxT = idt % TILESIZE;
-    int idyT = idt / TILESIZE;
+    int idt = ( idy << shiftTS) + idx;
+    int idxT = idt & ( TILESIZE - 1);
+    int idyT = idt >> shiftTS;
     int block_k = 0;
     do
     {
+      int colIndex = ( block_k << shiftTS ) + idyT;
+      int lIndex = (idyT * BANKMICROTILESIZE) + idxT;
+
       tidx.barrier.wait();
       for(int sec = 0; sec < MICROTILESIZE; ++sec)
       {
-        if(gidy * MICROTILEPROD + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
+        int secVal = sec << shiftTS;
+        int BrowIndex = (gidy << shiftMTP) + idxT + secVal;
+        int ArowIndex = (gidx << shiftMTP) + idxT + secVal;
+
+        if( BrowIndex < N && colIndex < K)
         {
-          lB[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * MICROTILEPROD) + idxT + (sec * TILESIZE) + idyT * ldb + block_k * (ldb * TILESIZE)];
+          lB[ lIndex + secVal] = B[bOffset + BrowIndex + colIndex * ldb];
         }
         else
         {
-          lB[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = 0;
+          lB[lIndex + secVal] = 0;
 	}
 
-        if(gidx * MICROTILEPROD + idxT + (sec * TILESIZE) < M && block_k * TILESIZE + idyT < K)
+        if(ArowIndex < M && colIndex < K)
         {
-          lA[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = A[aOffset + (gidx * MICROTILEPROD) + idxT + (sec * TILESIZE) +  idyT * lda + block_k * (lda * TILESIZE)];
+          lA[lIndex + secVal] = A[aOffset + ArowIndex + colIndex * lda];
         }
         else
         {
-          lA[(idyT * BANKMICROTILESIZE) + idxT + (sec * TILESIZE)] = 0;
+          lA[lIndex + secVal] = 0;
         }
       }
       tidx.barrier.wait();
@@ -780,16 +789,16 @@ static void gemm_NoTransA_subMicroTile(Concurrency::array_view<float, 1> &A, lon
         MTS;
       }
       tidx.barrier.wait();
-    } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1))/TILESIZE));
+    } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) >> shiftTS));
 
-    int xIndex = gidx * MICROTILEPROD + idx;
-    int yIndex = (gidy * MICROTILEPROD + idy) * ldc;
+    int xIndex = (gidx << shiftMTP) + idx;
+    int yIndex = ((gidy << shiftMTP) + idy) * ldc;
     for( int row = 0; row < MICROTILESIZE; row++)
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if(xIndex + (TILESIZE * col) < M && (yIndex / ldc) + (TILESIZE * row) < N)
-        C[cOffset + (xIndex + TILESIZE * col) + yIndex + (TILESIZE * row) * ldc] = alpha * rC[col][row] + beta * C[cOffset + (xIndex + TILESIZE * col) + yIndex + (TILESIZE * row) * ldc];
+      if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N)
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc] = alpha * rC[col][row] + beta * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc];
       }
     }
  });
@@ -803,7 +812,7 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
                                        int M, int N, int K, int lda, int ldb, int ldc,
                                        float alpha, float beta)
 {
-  Concurrency::extent<2> grdExt(((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
   Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
