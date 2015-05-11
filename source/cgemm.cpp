@@ -1169,6 +1169,27 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
     }
 
    // Start the operations
+#if LOOPUNROLL
+{
+    if (typeB == noTrans) {
+        if (typeA == noTrans) {
+            cgemm_NoTransAB_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+	}
+        else {
+            cgemm_NoTransB_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        }
+    }
+    else if (typeA == noTrans) {
+        cgemm_NoTransA_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+    }
+    else {
+        cgemm_TransAB_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+    }
+}
+#endif
+
+
+
 #if REGISTER
 {
    if (typeB == noTrans) {
