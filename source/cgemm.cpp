@@ -73,6 +73,29 @@ using namespace Concurrency::graphics;
             offA += offset;			\
             offB += offset;			\
 
+#define  MTS                                                                                \
+           for(int iter = 0; iter < MICROTILESIZE ; iter++)                                 \
+           {                                                                                \
+             rAreal[0][iter] = lAreal[offA + (iter * TILESIZE)];                            \
+             rBreal[0][iter] = lBreal[offB + (iter * TILESIZE)];                            \
+             rAimg[0][iter] = lAimg[offA + (iter * TILESIZE)];                              \
+             rBimg[0][iter] = lBimg[offB + (iter * TILESIZE)];                              \
+           }                                                                                \
+           for(int rowIndex = 0; rowIndex < MICROTILESIZE ; rowIndex++)                     \
+           {                                                                                \
+           for(int colIndex = 0; colIndex < MICROTILESIZE ; colIndex++)                     \
+           {                                                                                \
+           rCreal[rowIndex][colIndex] = (rAreal[0][rowIndex] * rBreal[0][colIndex] -        \
+	                                 rAimg[0][rowIndex] * rBimg[0][colIndex]) +         \
+                                         rCreal[rowIndex][colIndex];                        \
+           rCimg[rowIndex][colIndex] = (rAreal[0][rowIndex] * rBimg[0][colIndex] +          \
+                                        rAimg[0][rowIndex] * rBreal[0][colIndex]) +         \
+                                        rCimg[rowIndex][colIndex];                          \
+           }                                                                                \
+           }                                                                                \
+           offA += BANKMICROTILESIZE;                                                       \
+           offB += BANKMICROTILESIZE;                                                       \
+
 #if LOOPUNROLL
 static void cgemm_NoTransAB_loopunroll(Concurrency::array_view<float_2, 1> &A, long aOffset,
                                        Concurrency::array_view<float_2, 1> &B, long bOffset,
