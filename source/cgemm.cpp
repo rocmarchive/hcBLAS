@@ -10,8 +10,15 @@ using namespace Concurrency::graphics;
 
 #define REGISTER 0
 #define STEP 0
-#define SUBMICROTILE 0
-#define LOOPUNROLL 1
+#define SUBMICROTILE 1
+#define LOOPUNROLL 0
+
+#if SUBMICROTILE
+#define NOTRANSAB 1
+#define NOTRANSA 0
+#define NOTRANSB 0
+#define TRANSAB 0
+#endif
 
 #define THREADS    16
 #define GEMM_BLOCK 256
