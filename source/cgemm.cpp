@@ -27,9 +27,12 @@ using namespace Concurrency::graphics;
 #define TILE_SZ_A 64
 #define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
-#define TILESIZE 8
-#define MICROTILESIZE 1
+#define TILESIZE 16
+#define MICROTILESIZE 2
 #define STEPSIZE 128 
+#define TOTMICROTILEPROD (TILESIZE*TILESIZE*MICROTILESIZE)
+#define MICROTILEPROD (TILESIZE*MICROTILESIZE)
+#define BANKMICROTILESIZE (TILESIZE*MICROTILESIZE+1)
 
 #define  M1x1(offset)			\
             rAreal[0][0] = lAreal[offA + 0];	\
