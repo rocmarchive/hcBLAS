@@ -159,7 +159,6 @@ static void cgemm_NoTransA_loopunroll(Concurrency::array_view<float_2, 1> &A, lo
                                       int M, int N, int K, int lda, int ldb, int ldc,
                                       float_2 alpha, float_2 beta)
 {
-	cout<<" notransa loop unroll"<<endl;
   Concurrency::extent<2> grdExt((N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
 
