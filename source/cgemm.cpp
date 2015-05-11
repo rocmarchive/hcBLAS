@@ -1600,7 +1600,32 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
 }
 #endif
 
-
+#if SUBMICROTILE
+{
+    if (typeB == noTrans) {
+        if (typeA == noTrans) {
+#if NOTRANSAB
+            cgemm_NoTransAB_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+#endif
+	}
+      else {
+#if NOTRANSB
+            cgemm_NoTransB_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+#endif
+        }
+  }
+  else if (typeA == noTrans) {
+#if NOTRANSA
+        cgemm_NoTransA_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+#endif
+    }
+    else {
+#if TRANSAB
+        cgemm_TransAB_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+#endif
+    }
+}
+#endif
 
 #if REGISTER
 {
