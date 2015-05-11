@@ -8,9 +8,10 @@
 using namespace Concurrency;
 using namespace Concurrency::graphics;
 
-#define REGISTER 1
+#define REGISTER 0
 #define STEP 0
 #define SUBMICROTILE 0
+#define LOOPUNROLL 1
 
 #define THREADS    16
 #define GEMM_BLOCK 256
