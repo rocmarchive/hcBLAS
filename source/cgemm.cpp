@@ -96,6 +96,103 @@ using namespace Concurrency::graphics;
            offA += BANKMICROTILESIZE;                                                       \
            offB += BANKMICROTILESIZE;                                                       \
 
+#if SUBMICROTILE
+#if NOTRANSAB
+static void cgemm_NoTransAB_subMicroTile(Concurrency::array_view<float_2, 1> &A, long aOffset,
+                                         Concurrency::array_view<float_2, 1> &B, long bOffset,
+                                         Concurrency::array_view<float_2, 1> &C, long cOffset,
+                                         int M, int N, int K, int lda, int ldb, int ldc,
+                                         float_2 alpha, float_2 beta)
+{
+  Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+
+  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  {
+    int shiftTS = Concurrency::fast_math::log2(TILESIZE);
+    int shiftMTP = Concurrency::fast_math::log2(MICROTILEPROD);
+    float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
+    float rCimg[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
+    float rAreal[1][MICROTILESIZE] = {{(float)0}};
+    float rAimg[1][MICROTILESIZE] = {{(float)0}};
+    float rBreal[1][MICROTILESIZE] = {{(float)0}};
+    float rBimg[1][MICROTILESIZE] = {{(float)0}};
+    tile_static float lAreal[TOTMICROTILEPROD + TILESIZE];
+    tile_static float lAimg[TOTMICROTILEPROD + TILESIZE];
+    tile_static float lBreal[TOTMICROTILEPROD + TILESIZE];
+    tile_static float lBimg[TOTMICROTILEPROD + TILESIZE];
+    int gidx = tidx.tile[1];
+    int gidy = tidx.tile[0];
+    int idx = tidx.local[1];
+    int idy = tidx.local[0];
+    int idt =  ( idy * TILESIZE ) + idx;
+    int idxT = idt & (TILESIZE - 1);
+    int idyT = idt/ TILESIZE;
+    int block_k = 0;
+    do
+    {
+      int colIndex = ( block_k * TILESIZE ) + idyT;
+      int lIndex = (idyT * BANKMICROTILESIZE) + idxT;
+
+      tidx.barrier.wait();
+      for(int sec = 0; sec < MICROTILESIZE; ++sec)
+      {
+        int secVal = sec * TILESIZE;
+        int BrowIndex =  (gidy * MICROTILEPROD)+ idxT + secVal;
+        int ArowIndex = (gidx * MICROTILEPROD) + idxT + secVal;
+
+        if( BrowIndex < N && colIndex < K)
+        {
+          lBreal[lIndex + secVal] = B[bOffset + BrowIndex * ldb + colIndex].x;
+          lBimg[lIndex + secVal] = B[bOffset + BrowIndex * ldb + colIndex].y;
+        }
+        else
+        {
+          lBreal[lIndex + secVal] = 0;
+          lBimg[lIndex + secVal] = 0;
+	}
+
+        if( ArowIndex < M && colIndex < K)
+        {
+          lAreal[lIndex + secVal] = A[aOffset + ArowIndex +  colIndex * lda].x;
+          lAimg[lIndex + secVal] = A[aOffset + ArowIndex +  colIndex * lda].y;
+        }
+        else
+        {
+          lAreal[lIndex + secVal] = 0;
+          lAimg[lIndex + secVal] = 0;
+        }
+      }
+      tidx.barrier.wait();
+
+      int offA = idx;
+      int offB = idy;
+      for (int iter=0; iter < TILESIZE; ++iter)
+      {
+        MTS;
+      }
+      tidx.barrier.wait();
+    } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1))/TILESIZE));
+
+
+    int xIndex = (gidx << shiftMTP) + idx;
+    int yIndex = ((gidy << shiftMTP) + idy) * ldc;
+    for( int row = 0; row < MICROTILESIZE; row++)
+    {
+      for( int col = 0; col < MICROTILESIZE ; col++)
+      {
+      if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = alpha.x * rCreal[col][row] + beta.x * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = alpha.y * rCimg[col][row] + beta.y * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].y;
+      }
+      }
+    }
+ });
+}
+#endif
+#endif
+
+
 #if LOOPUNROLL
 static void cgemm_NoTransAB_loopunroll(Concurrency::array_view<float_2, 1> &A, long aOffset,
                                        Concurrency::array_view<float_2, 1> &B, long bOffset,
