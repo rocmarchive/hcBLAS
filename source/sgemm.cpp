@@ -345,11 +345,11 @@ static void gemm_TransAB(Concurrency::array_view<float, 1> &A, long aOffset,
 #endif
 
 #if STEP_NOBANKCONF
-static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOffset,
-                                 Concurrency::array_view<float, 1> &B, long bOffset,
-                                 Concurrency::array_view<float, 1> &C, long cOffset,
-                                 int M, int N, int K, int lda, int ldb, int ldc,
-                                 float alpha, float beta)
+static void gemm_NoTransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+                                            Concurrency::array_view<float, 1> &B, long bOffset,
+                                            Concurrency::array_view<float, 1> &C, long cOffset,
+                                            int M, int N, int K, int lda, int ldb, int ldc,
+                                            float alpha, float beta)
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -411,11 +411,11 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
 
 }
 
-static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffset,
-                                Concurrency::array_view<float, 1> &B, long bOffset,
-                                Concurrency::array_view<float, 1> &C, long cOffset,
-                                int M, int N, int K, int lda, int ldb, int ldc,
-                                float alpha, float beta)
+static void gemm_NoTransA_batch_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+                                           Concurrency::array_view<float, 1> &B, long bOffset,
+                                           Concurrency::array_view<float, 1> &C, long cOffset,
+                                           int M, int N, int K, int lda, int ldb, int ldc,
+                                           float alpha, float beta)
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -488,11 +488,11 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
 
 }
 
-static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffset,
-                                Concurrency::array_view<float, 1> &B, long bOffset,
-                                Concurrency::array_view<float, 1> &C, long cOffset,
-                                int M, int N, int K, int lda, int ldb, int ldc,
-                                float alpha, float beta)
+static void gemm_NoTransB_batch_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+                                           Concurrency::array_view<float, 1> &B, long bOffset,
+                                           Concurrency::array_view<float, 1> &C, long cOffset,
+                                           int M, int N, int K, int lda, int ldb, int ldc,
+                                           float alpha, float beta)
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -572,11 +572,11 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
   });
 }
 
-static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffset,
-                               Concurrency::array_view<float, 1> &B, long bOffset,
-                               Concurrency::array_view<float, 1> &C, long cOffset,
-                               int M, int N, int K, int lda, int ldb, int ldc,
-                               float alpha, float beta)
+static void gemm_TransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+                                          Concurrency::array_view<float, 1> &B, long bOffset,
+                                          Concurrency::array_view<float, 1> &C, long cOffset,
+                                          int M, int N, int K, int lda, int ldb, int ldc,
+                                          float alpha, float beta)
 
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -643,11 +643,11 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
 
 #if SUBMICROTILE_NOBANKCONF
 #if NOTRANSAB
-static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, long aOffset,
-                                        Concurrency::array_view<float, 1> &B, long bOffset,
-                                        Concurrency::array_view<float, 1> &C, long cOffset,
-                                        int M, int N, int K, int lda, int ldb, int ldc,
-                                        float alpha, float beta)
+static void gemm_NoTransAB_subMicroTile_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+                                                   Concurrency::array_view<float, 1> &B, long bOffset,
+                                                   Concurrency::array_view<float, 1> &C, long cOffset,
+                                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                                   float alpha, float beta)
 {
   Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -724,11 +724,11 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
 }
 #endif
 #if NOTRANSA
-static void gemm_NoTransA_subMicroTile(Concurrency::array_view<float, 1> &A, long aOffset,
-                                       Concurrency::array_view<float, 1> &B, long bOffset,
-                                       Concurrency::array_view<float, 1> &C, long cOffset,
-                                       int M, int N, int K, int lda, int ldb, int ldc,
-                                       float alpha, float beta)
+static void gemm_NoTransA_subMicroTile_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+                                                  Concurrency::array_view<float, 1> &B, long bOffset,
+                                                  Concurrency::array_view<float, 1> &C, long cOffset,
+                                                  int M, int N, int K, int lda, int ldb, int ldc,
+                                                  float alpha, float beta)
 {
   Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -806,11 +806,11 @@ static void gemm_NoTransA_subMicroTile(Concurrency::array_view<float, 1> &A, lon
 #endif
 
 #if NOTRANSB
-static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, long aOffset,
-                                       Concurrency::array_view<float, 1> &B, long bOffset,
-                                       Concurrency::array_view<float, 1> &C, long cOffset,
-                                       int M, int N, int K, int lda, int ldb, int ldc,
-                                       float alpha, float beta)
+static void gemm_NoTransB_subMicroTile_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+                                                  Concurrency::array_view<float, 1> &B, long bOffset,
+                                                  Concurrency::array_view<float, 1> &C, long cOffset,
+                                                  int M, int N, int K, int lda, int ldb, int ldc,
+                                                  float alpha, float beta)
 {
   Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -889,11 +889,11 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
 #endif
 
 #if TRANSAB
-static void gemm_TransAB_subMicroTile(Concurrency::array_view<float, 1> &A, long aOffset,
-                                      Concurrency::array_view<float, 1> &B, long bOffset,
-                                      Concurrency::array_view<float, 1> &C, long cOffset,
-                                      int M, int N, int K, int lda, int ldb, int ldc,
-                                      float alpha, float beta)
+static void gemm_TransAB_subMicroTile_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+                                                 Concurrency::array_view<float, 1> &B, long bOffset,
+                                                 Concurrency::array_view<float, 1> &C, long cOffset,
+                                                 int M, int N, int K, int lda, int ldb, int ldc,
+                                                 float alpha, float beta)
 {
   Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -1020,14 +1020,14 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     if (TransB == 'n')
     {
       if (TransA == 'n')
-        gemm_NoTransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransAB_batch_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       else
-        gemm_NoTransB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransB_batch_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
     else if (TransA == 'n')
-      gemm_NoTransA_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_batch_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      gemm_TransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_TransAB_batch_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
 #if SUBMICROTILE_NOBANKCONF
@@ -1037,26 +1037,26 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
       if (TransA == 'n')
       {
 #if NOTRANSAB
-       gemm_NoTransAB_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+       gemm_NoTransAB_subMicroTile_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
       }
       else
       {
 #if NOTRANSB
-        gemm_NoTransB_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransB_subMicroTile_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
       }
     }
     else if (TransA == 'n')
     {
 #if NOTRANSA
-      gemm_NoTransA_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_subMicroTile_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
     }
     else
     {
 #if TRANSAB
-     gemm_TransAB_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+     gemm_TransAB_subMicroTile_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
     }
   }
