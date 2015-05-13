@@ -40,7 +40,7 @@ using namespace Concurrency;
             offB += offset;			\
             rC[0][0]=rA[0][0] *rB[0][0] + rC[0][0]; \	
 
-#define  MS1x1(offset)			\
+#define  MS1x1_NOBANK(offset)			\
             for(int iter = 0; iter < STEPTILERATIO; ++iter) \
             {\
               rA[0][iter] = lA[offA + (BANKNUMTILEELMTS) * iter];	\
@@ -50,7 +50,7 @@ using namespace Concurrency;
             offA += offset;			\
             offB += offset;			\
 
-#define  MTS                                                                \
+#define  MTS_NOBANK                                                         \
            for(int iter = 0; iter < MICROTILESIZE ; iter++)                 \
            {                                                                \
              rA[0][iter] = lA[offA + (iter * TILESIZE)];                    \
@@ -397,7 +397,7 @@ static void gemm_NoTransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A
 
       for (int iter=0; iter < TILESIZE; ++iter)
       {
-         MS1x1(1);
+         MS1x1_NOBANK(1);
       }
 
       i++;
@@ -474,7 +474,7 @@ static void gemm_NoTransA_batch_nobankconf(Concurrency::array_view<float, 1> &A,
 
       for (int iter=0; iter < TILESIZE; ++iter)
       {
-        MS1x1(BANKTILESIZE);
+        MS1x1_NOBANK(BANKTILESIZE);
       }
 
       i++;
@@ -556,7 +556,7 @@ static void gemm_NoTransB_batch_nobankconf(Concurrency::array_view<float, 1> &A,
       
       for (int piter=0; piter < TILESIZE; ++piter)
       {
-        MS1x1(1);
+        MS1x1_NOBANK(1);
       }
 
       i++;
@@ -628,7 +628,7 @@ static void gemm_TransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A, 
       int offB = idy * BANKTILESIZE;
       for (int iter = 0; iter < TILESIZE; ++iter)
       {
-        MS1x1(1);
+        MS1x1_NOBANK(1);
       }
       i++;
     } while (--block_k > 0);
@@ -705,7 +705,7 @@ static void gemm_NoTransAB_subMicroTile_nobankconf(Concurrency::array_view<float
       int offB = idy;
       for (int iter=0; iter < TILESIZE; ++iter)
       {
-        MTS;
+        MTS_NOBANK;
       }
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1))/TILESIZE));
@@ -786,7 +786,7 @@ static void gemm_NoTransA_subMicroTile_nobankconf(Concurrency::array_view<float,
       int offB = idy;
       for (int iter=0; iter < TILESIZE; ++iter)
       {
-        MTS;
+        MTS_NOBANK;
       }
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) >> shiftTS));
@@ -869,7 +869,7 @@ static void gemm_NoTransB_subMicroTile_nobankconf(Concurrency::array_view<float,
       int offB = idy;
       for (int iter=0; iter < TILESIZE; ++iter)
       {
-        MTS;
+        MTS_NOBANK;
       }
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) >> shiftTS));
@@ -951,7 +951,7 @@ static void gemm_TransAB_subMicroTile_nobankconf(Concurrency::array_view<float, 
       int offB = idy;
       for (int iter=0; iter < TILESIZE; ++iter)
       {
-        MTS;
+        MTS_NOBANK;
       }
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) >> shiftTS));
