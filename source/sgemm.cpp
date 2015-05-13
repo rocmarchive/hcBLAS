@@ -4,10 +4,10 @@
 using namespace Concurrency;
 
 #define REGISTER 0
-#define STEP 0
-#define SUBMICROTILE 1
+#define STEP_NOBANKCONF 0
+#define SUBMICROTILE_NOBANKCONF 1
 
-#if SUBMICROTILE
+#if SUBMICROTILE_NOBANKCONF
 #define NOTRANSAB 0
 #define NOTRANSA 0
 #define NOTRANSB 0
@@ -344,7 +344,7 @@ static void gemm_TransAB(Concurrency::array_view<float, 1> &A, long aOffset,
 }
 #endif
 
-#if STEP
+#if STEP_NOBANKCONF
 static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOffset,
                                  Concurrency::array_view<float, 1> &B, long bOffset,
                                  Concurrency::array_view<float, 1> &C, long cOffset,
@@ -641,7 +641,7 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
 }
 #endif
 
-#if SUBMICROTILE
+#if SUBMICROTILE_NOBANKCONF
 #if NOTRANSAB
 static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, long aOffset,
                                         Concurrency::array_view<float, 1> &B, long bOffset,
@@ -1015,7 +1015,7 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
       gemm_TransAB(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
-#if STEP 
+#if STEP_NOBANKCONF
   {
     if (TransB == 'n')
     {
@@ -1030,7 +1030,7 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
       gemm_TransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
-#if SUBMICROTILE
+#if SUBMICROTILE_NOBANKCONF
   {
     if (TransB == 'n')
     {
