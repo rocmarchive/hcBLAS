@@ -7,7 +7,11 @@
 */
 
 #include <iostream>
+#include <amp.h>
+#include <amp_short_vectors.h>
 
+using namespace Concurrency;
+using namespace Concurrency::graphics;
 using namespace std;
 /* enumerator to indicate the status of  blas operation */
 enum ampblasStatus {
@@ -69,7 +73,7 @@ class Ampblaslibrary
                                  const long ldc, const long aOffset,
                                  const long bOffset, const long cOffset);
 
-/*                  C = alpha * op(A) * op(B) + beta * C                  */
+/*                  C = alpha * op(A) * op(B) + beta * C                   */
     ampblasStatus  ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
                                  const enum AMPBLAS_TRANS typeB, const int M, 
                                  const int N, const int K,
@@ -78,4 +82,15 @@ class Ampblaslibrary
                                  const ampComplex *B, long bOffset, long ldb,
                                  const ampComplex *beta, ampComplex *C,
                                  long cOffset, long ldc);
+
+/* CGEMM - Overloaded function with arguments of type Concurrency::array_view */     
+   ampblasStatus ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
+                              const enum AMPBLAS_TRANS typeB, const int M,
+                              const int N, const int K,
+                              const Concurrency::graphics::float_2 &alpha,
+                              Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                              Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+                              const Concurrency::graphics::float_2 &beta, 
+                              Concurrency::array_view<float_2> &C, long cOffset, long ldc);
+
 };
