@@ -8,7 +8,7 @@ void axpy_AMP(long n, float alpha,
               Concurrency::array_view<float> &X, long xOffset, long incx,
               Concurrency::array_view<float> &Y, long yOffset, long incy)
 {
-  if(n <= 20480)
+  if(n <= 102400)
   {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     Concurrency::extent<1> compute_domain(size);
@@ -23,6 +23,8 @@ void axpy_AMP(long n, float alpha,
     int step_sz;
     if (n <= 409600)
       step_sz = 3;
+    else if (n <= 921600)
+      step_sz = 5;
     else if ( n <= 1939526)
       step_sz = 7;
     else
