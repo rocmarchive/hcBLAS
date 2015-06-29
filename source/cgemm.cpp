@@ -9,8 +9,8 @@ using namespace Concurrency;
 using namespace Concurrency::graphics;
 
 #define REGISTER 0
-#define STEP 0
-#define SUBMICROTILE 1
+#define STEP 1
+#define SUBMICROTILE 0
 #define LOOPUNROLL 0
 
 #if SUBMICROTILE
@@ -101,7 +101,8 @@ using namespace Concurrency::graphics;
 
 #if SUBMICROTILE
 #if NOTRANSAB
-static void cgemm_NoTransAB_subMicroTile(Concurrency::array_view<float_2, 1> &A, long aOffset,
+static void cgemm_NoTransAB_subMicroTile(Concurrency::accelerator_view &accl_view,
+					 Concurrency::array_view<float_2, 1> &A, long aOffset,
                                          Concurrency::array_view<float_2, 1> &B, long bOffset,
                                          Concurrency::array_view<float_2, 1> &C, long cOffset,
                                          int M, int N, int K, int lda, int ldb, int ldc,
@@ -109,8 +110,7 @@ static void cgemm_NoTransAB_subMicroTile(Concurrency::array_view<float_2, 1> &A,
 {
   Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
-
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
     int shiftMTP = Concurrency::fast_math::log2(MICROTILEPROD);
@@ -195,7 +195,8 @@ static void cgemm_NoTransAB_subMicroTile(Concurrency::array_view<float_2, 1> &A,
 #endif
 
 #if NOTRANSA
-static void cgemm_NoTransA_subMicroTile(Concurrency::array_view<float_2, 1> &A, long aOffset,
+static void cgemm_NoTransA_subMicroTile(Concurrency::accelerator_view &accl_view,
+					Concurrency::array_view<float_2, 1> &A, long aOffset,
                                         Concurrency::array_view<float_2, 1> &B, long bOffset,
                                         Concurrency::array_view<float_2, 1> &C, long cOffset,
                                         int M, int N, int K, int lda, int ldb, int ldc,
@@ -204,7 +205,7 @@ static void cgemm_NoTransA_subMicroTile(Concurrency::array_view<float_2, 1> &A, 
   Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
     int shiftMTP = Concurrency::fast_math::log2(MICROTILEPROD);
@@ -289,7 +290,8 @@ static void cgemm_NoTransA_subMicroTile(Concurrency::array_view<float_2, 1> &A, 
 #endif
 
 #if NOTRANSB
-static void cgemm_NoTransB_subMicroTile(Concurrency::array_view<float_2> &A, long aOffset,
+static void cgemm_NoTransB_subMicroTile(Concurrency::accelerator_view &accl_view,
+					Concurrency::array_view<float_2> &A, long aOffset,
                                         Concurrency::array_view<float_2> &B, long bOffset,
                                         Concurrency::array_view<float_2> &C, long cOffset,
                                         int M, int N, int K, int lda, int ldb, int ldc,
@@ -298,7 +300,7 @@ static void cgemm_NoTransB_subMicroTile(Concurrency::array_view<float_2> &A, lon
   Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
     int shiftMTP = Concurrency::fast_math::log2(MICROTILEPROD);
@@ -384,7 +386,8 @@ static void cgemm_NoTransB_subMicroTile(Concurrency::array_view<float_2> &A, lon
 #endif
 
 #if TRANSAB
-static void cgemm_TransAB_subMicroTile(Concurrency::array_view<float_2, 1> &A, long aOffset,
+static void cgemm_TransAB_subMicroTile(Concurrency::accelerator_view &accl_view,
+				       Concurrency::array_view<float_2, 1> &A, long aOffset,
                                        Concurrency::array_view<float_2, 1> &B, long bOffset,
                                        Concurrency::array_view<float_2, 1> &C, long cOffset,
                                        int M, int N, int K, int lda, int ldb, int ldc,
@@ -393,7 +396,7 @@ static void cgemm_TransAB_subMicroTile(Concurrency::array_view<float_2, 1> &A, l
   Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
     int shiftMTP = Concurrency::fast_math::log2(MICROTILEPROD);
@@ -479,7 +482,8 @@ static void cgemm_TransAB_subMicroTile(Concurrency::array_view<float_2, 1> &A, l
 #endif
 
 #if LOOPUNROLL
-static void cgemm_NoTransAB_loopunroll(Concurrency::array_view<float_2, 1> &A, long aOffset,
+static void cgemm_NoTransAB_loopunroll(Concurrency::accelerator_view &accl_view,
+				       Concurrency::array_view<float_2, 1> &A, long aOffset,
                                        Concurrency::array_view<float_2, 1> &B, long bOffset,
                                        Concurrency::array_view<float_2, 1> &C, long cOffset,
                                        int M, int N, int K, int lda, int ldb, int ldc,
@@ -488,7 +492,7 @@ static void cgemm_NoTransAB_loopunroll(Concurrency::array_view<float_2, 1> &A, l
   Concurrency::extent<2> grdExt((N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0, CValue1 = 0;
     int Row = tidx.global[0];
@@ -565,7 +569,8 @@ static void cgemm_NoTransAB_loopunroll(Concurrency::array_view<float_2, 1> &A, l
  });
 }
 
-static void cgemm_NoTransA_loopunroll(Concurrency::array_view<float_2, 1> &A, long aOffset,
+static void cgemm_NoTransA_loopunroll(Concurrency::accelerator_view &accl_view,
+				      Concurrency::array_view<float_2, 1> &A, long aOffset,
                                       Concurrency::array_view<float_2, 1> &B, long bOffset,
                                       Concurrency::array_view<float_2, 1> &C, long cOffset,
                                       int M, int N, int K, int lda, int ldb, int ldc,
@@ -574,7 +579,7 @@ static void cgemm_NoTransA_loopunroll(Concurrency::array_view<float_2, 1> &A, lo
   Concurrency::extent<2> grdExt((N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0, CValue1 = 0;
     int Row = tidx.global[0];
@@ -655,7 +660,8 @@ static void cgemm_NoTransA_loopunroll(Concurrency::array_view<float_2, 1> &A, lo
  });
 }
 
-static void cgemm_NoTransB_loopunroll(Concurrency::array_view<float_2, 1> &A, long aOffset,
+static void cgemm_NoTransB_loopunroll(Concurrency::accelerator_view &accl_view,
+				      Concurrency::array_view<float_2, 1> &A, long aOffset,
                                       Concurrency::array_view<float_2, 1> &B, long bOffset,
                                       Concurrency::array_view<float_2, 1> &C, long cOffset,
                                       int M, int N, int K, int lda, int ldb, int ldc,
@@ -664,7 +670,7 @@ static void cgemm_NoTransB_loopunroll(Concurrency::array_view<float_2, 1> &A, lo
   Concurrency::extent<2> grdExt((N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0, CValue1 = 0;
     int Row = tidx.global[0];
@@ -744,7 +750,8 @@ static void cgemm_NoTransB_loopunroll(Concurrency::array_view<float_2, 1> &A, lo
  });
 }
 
-static void cgemm_TransAB_loopunroll(Concurrency::array_view<float_2, 1> &A, long aOffset,
+static void cgemm_TransAB_loopunroll(Concurrency::accelerator_view &accl_view,
+				     Concurrency::array_view<float_2, 1> &A, long aOffset,
                                      Concurrency::array_view<float_2, 1> &B, long bOffset,
                                      Concurrency::array_view<float_2, 1> &C, long cOffset,
                                      int M, int N, int K, int lda, int ldb, int ldc,
@@ -753,7 +760,7 @@ static void cgemm_TransAB_loopunroll(Concurrency::array_view<float_2, 1> &A, lon
   Concurrency::extent<2> grdExt((M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0, CValue1 = 0;
     int Row = tidx.global[0];
@@ -835,14 +842,15 @@ static void cgemm_TransAB_loopunroll(Concurrency::array_view<float_2, 1> &A, lon
 #endif
 
 #if REGISTER
-void cgemm_NoTransAB(int M, int N, int K, float_2 alpha,
-             Concurrency::array_view<float_2> &A, long aOffset, long lda,
-             Concurrency::array_view<float_2> &B, long bOffset, long ldb,float_2 beta,
-             Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+void cgemm_NoTransAB(Concurrency::accelerator_view &accl_view,
+		     int M, int N, int K, float_2 alpha,
+                     Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                     Concurrency::array_view<float_2> &B, long bOffset, long ldb,float_2 beta,
+                     Concurrency::array_view<float_2> &C, long cOffset, long ldc)
 {
     Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
                                    restrict(amp) {
 
@@ -924,14 +932,15 @@ void cgemm_NoTransAB(int M, int N, int K, float_2 alpha,
    
 }
 
-void cgemm_NoTransA(int M, int N, int K, float_2 alpha,
-             Concurrency::array_view<float_2> &A, long aOffset, long lda,
-             Concurrency::array_view<float_2> &B, long bOffset, long ldb,float_2 beta,
-             Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+void cgemm_NoTransA(Concurrency::accelerator_view &accl_view,
+		    int M, int N, int K, float_2 alpha,
+                    Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                    Concurrency::array_view<float_2> &B, long bOffset, long ldb,float_2 beta,
+                    Concurrency::array_view<float_2> &C, long cOffset, long ldc)
 {
     Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
                                    restrict(amp) {
 
@@ -1010,15 +1019,16 @@ void cgemm_NoTransA(int M, int N, int K, float_2 alpha,
 });
 }
 
-void cgemm_NoTransB(int M, int N, int K, float_2 alpha,
-             Concurrency::array_view<float_2> &A, long aOffset, long lda,
-             Concurrency::array_view<float_2> &B, long bOffset, long ldb,float_2 beta,
-             Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+void cgemm_NoTransB(Concurrency::accelerator_view &accl_view,
+		    int M, int N, int K, float_2 alpha,
+                    Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                    Concurrency::array_view<float_2> &B, long bOffset, long ldb,float_2 beta,
+                    Concurrency::array_view<float_2> &C, long cOffset, long ldc)
 {
     Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
 
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
                                    restrict(amp) {
 
@@ -1099,7 +1109,8 @@ void cgemm_NoTransB(int M, int N, int K, float_2 alpha,
 });
 }
 
-void cgemm_TransAB(int M, int N, int K, float_2 alpha,
+void cgemm_TransAB(Concurrency::accelerator_view &accl_view,
+		   int M, int N, int K, float_2 alpha,
                    Concurrency::array_view<float_2> &A, long aOffset, long lda,
                    Concurrency::array_view<float_2> &B, long bOffset, long ldb,
                    float_2 beta,
@@ -1108,7 +1119,7 @@ void cgemm_TransAB(int M, int N, int K, float_2 alpha,
     Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
 
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
                                    restrict(amp) {
 
@@ -1193,7 +1204,8 @@ void cgemm_TransAB(int M, int N, int K, float_2 alpha,
 
 
 #if STEP
-void cgemm_NoTransAB_batch(int M, int N, int K, float_2 alpha,
+void cgemm_NoTransAB_batch(Concurrency::accelerator_view &accl_view,
+			   int M, int N, int K, float_2 alpha,
                            Concurrency::array_view<float_2> &A, long aOffset, long lda,
                            Concurrency::array_view<float_2> &B, long bOffset, long ldb,
                            float_2 beta,
@@ -1202,7 +1214,7 @@ void cgemm_NoTransAB_batch(int M, int N, int K, float_2 alpha,
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(/*accl_view,*/ t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rCreal[1][1];
@@ -1283,15 +1295,16 @@ void cgemm_NoTransAB_batch(int M, int N, int K, float_2 alpha,
 
 
 
-void cgemm_NoTransA_batch(int M, int N, int K, float_2 alpha,
-                    Concurrency::array_view<float_2> &A, long aOffset, long lda,
-                    Concurrency::array_view<float_2> &B, long bOffset, long ldb,
-                    float_2 beta,
-                    Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+void cgemm_NoTransA_batch(Concurrency::accelerator_view &accl_view,
+			  int M, int N, int K, float_2 alpha,
+                          Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                          Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+                          float_2 beta,
+                          Concurrency::array_view<float_2> &C, long cOffset, long ldc)
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt); 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   { 
     int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
     float rCreal[1][1];
@@ -1371,7 +1384,8 @@ void cgemm_NoTransA_batch(int M, int N, int K, float_2 alpha,
 }
 
 
-void cgemm_NoTransB_batch(int M, int N, int K, float_2 alpha,
+void cgemm_NoTransB_batch(Concurrency::accelerator_view &accl_view,
+			  int M, int N, int K, float_2 alpha,
                           Concurrency::array_view<float_2> &A, long aOffset, long lda,
                           Concurrency::array_view<float_2> &B, long bOffset, long ldb,
                           float_2 beta,
@@ -1379,7 +1393,7 @@ void cgemm_NoTransB_batch(int M, int N, int K, float_2 alpha,
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
     float rCreal[1][1];
@@ -1457,15 +1471,16 @@ void cgemm_NoTransB_batch(int M, int N, int K, float_2 alpha,
 
 }
 
-void cgemm_TransAB_batch(int M, int N, int K, float_2 alpha,
-                        Concurrency::array_view<float_2> &A, long aOffset, long lda,
-                        Concurrency::array_view<float_2> &B, long bOffset, long ldb,
-                        float_2 beta,
-                        Concurrency::array_view<float_2> &C, long cOffset, long ldc)
+void cgemm_TransAB_batch(Concurrency::accelerator_view &accl_view,
+			 int M, int N, int K, float_2 alpha,
+                         Concurrency::array_view<float_2> &A, long aOffset, long lda,
+                         Concurrency::array_view<float_2> &B, long bOffset, long ldb,
+                         float_2 beta,
+                         Concurrency::array_view<float_2> &C, long cOffset, long ldc)
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
     float rCreal[1][1];
@@ -1562,6 +1577,9 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
     std::vector<float_2> src3(M * N);
     array_view<float_2,1> Ccmplx(ext3, src3);
 
+    std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+    accelerator_view accl_view = (acc[1].create_view());
+
     float_2 Calpha(alpha->real, alpha->img);
     float_2 Cbeta(beta->real, beta->img);
    
@@ -1585,17 +1603,17 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
 {
     if (typeB == noTrans) {
         if (typeA == noTrans) {
-            cgemm_NoTransAB_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+            cgemm_NoTransAB_loopunroll(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 	}
         else {
-            cgemm_NoTransB_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+            cgemm_NoTransB_loopunroll(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
         }
     }
     else if (typeA == noTrans) {
-        cgemm_NoTransA_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        cgemm_NoTransA_loopunroll(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     }
     else {
-        cgemm_TransAB_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        cgemm_TransAB_loopunroll(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     }
 }
 #endif
@@ -1605,23 +1623,23 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
     if (typeB == noTrans) {
         if (typeA == noTrans) {
 #if NOTRANSAB
-            cgemm_NoTransAB_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+            cgemm_NoTransAB_subMicroTile(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 #endif
 	}
       else {
 #if NOTRANSB
-            cgemm_NoTransB_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+            cgemm_NoTransB_subMicroTile(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 #endif
         }
   }
   else if (typeA == noTrans) {
 #if NOTRANSA
-        cgemm_NoTransA_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        cgemm_NoTransA_subMicroTile(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 #endif
     }
     else {
 #if TRANSAB
-        cgemm_TransAB_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        cgemm_TransAB_subMicroTile(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 #endif
     }
 }
@@ -1631,17 +1649,17 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
 {
    if (typeB == noTrans) {
         if (typeA == noTrans) {
-            cgemm_NoTransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
+            cgemm_NoTransAB(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
         }
         else {
-            cgemm_NoTransB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
+            cgemm_NoTransB(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
         }
     }
     else if (typeA == noTrans) {
-        cgemm_NoTransA( M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+        cgemm_NoTransA(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
     else {
-        cgemm_TransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+        cgemm_TransAB(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
 }
 #endif
@@ -1649,17 +1667,17 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
 {
     if (typeB == noTrans) {
         if (typeA == noTrans) {
-            cgemm_NoTransAB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
+            cgemm_NoTransAB_batch(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
         }
         else {
-            cgemm_NoTransB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
+            cgemm_NoTransB_batch(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
         }
     }
     else if (typeA == noTrans) {
-        cgemm_NoTransA_batch( M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+        cgemm_NoTransA_batch(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
     else {
-        cgemm_TransAB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+        cgemm_TransAB_batch(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
 }
 #endif
@@ -1672,14 +1690,15 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
 
 }
 
-ampblasStatus Ampblaslibrary :: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
-                                             const enum AMPBLAS_TRANS typeB, const int M,
-                                             const int N, const int K,
-                                             const Concurrency::graphics::float_2 &Calpha,
-                                             Concurrency::array_view<float_2> &Acmplx, long aOffset, long lda,
-                                             Concurrency::array_view<float_2> &Bcmplx, long bOffset, long ldb,
-                                             const Concurrency::graphics::float_2 &Cbeta,
-                                             Concurrency::array_view<float_2> &Ccmplx, long cOffset, long ldc)
+ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &accl_view,
+					      const enum AMPBLAS_TRANS typeA,
+                                              const enum AMPBLAS_TRANS typeB, const int M,
+                                              const int N, const int K,
+                                              const Concurrency::graphics::float_2 &Calpha,
+                                              Concurrency::array_view<float_2> &Acmplx, long aOffset, long lda,
+                                              Concurrency::array_view<float_2> &Bcmplx, long bOffset, long ldb,
+                                              const Concurrency::graphics::float_2 &Cbeta,
+                                              Concurrency::array_view<float_2> &Ccmplx, long cOffset, long ldc)
 {
 
   int i, j;
@@ -1713,17 +1732,17 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
 {
     if (typeB == noTrans) {
         if (typeA == noTrans) {
-            cgemm_NoTransAB_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+            cgemm_NoTransAB_loopunroll(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 	}
         else {
-            cgemm_NoTransB_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+            cgemm_NoTransB_loopunroll(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
         }
     }
     else if (typeA == noTrans) {
-        cgemm_NoTransA_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        cgemm_NoTransA_loopunroll(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     }
     else {
-        cgemm_TransAB_loopunroll(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        cgemm_TransAB_loopunroll(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     }
 }
 #endif
@@ -1733,23 +1752,23 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
     if (typeB == noTrans) {
         if (typeA == noTrans) {
 #if NOTRANSAB
-            cgemm_NoTransAB_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+            cgemm_NoTransAB_subMicroTile(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 #endif
 	}
       else {
 #if NOTRANSB
-            cgemm_NoTransB_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+            cgemm_NoTransB_subMicroTile(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 #endif
         }
   }
   else if (typeA == noTrans) {
 #if NOTRANSA
-        cgemm_NoTransA_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        cgemm_NoTransA_subMicroTile(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 #endif
     }
     else {
 #if TRANSAB
-        cgemm_TransAB_subMicroTile(Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        cgemm_TransAB_subMicroTile(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
 #endif
     }
 }
@@ -1759,17 +1778,17 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
 {
    if (typeB == noTrans) {
         if (typeA == noTrans) {
-            cgemm_NoTransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
+            cgemm_NoTransAB(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
         }
         else {
-            cgemm_NoTransB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
+            cgemm_NoTransB(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
         }
     }
     else if (typeA == noTrans) {
-        cgemm_NoTransA( M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+        cgemm_NoTransA( accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
     else {
-        cgemm_TransAB(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+        cgemm_TransAB( accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
 }
 #endif
@@ -1777,17 +1796,17 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
 {
     if (typeB == noTrans) {
         if (typeA == noTrans) {
-            cgemm_NoTransAB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
+            cgemm_NoTransAB_batch( accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc); 
         }
         else {
-            cgemm_NoTransB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
+            cgemm_NoTransB_batch( accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, lda, Cbeta, Ccmplx, cOffset, ldc);
         }
     }
     else if (typeA == noTrans) {
-        cgemm_NoTransA_batch( M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+        cgemm_NoTransA_batch( accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
     else {
-        cgemm_TransAB_batch(M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
+        cgemm_TransAB_batch(accl_view, M, N, K, Calpha, Acmplx, aOffset, lda, Bcmplx, bOffset, ldb, Cbeta, Ccmplx, cOffset, ldc);
     }
 }
 #endif
