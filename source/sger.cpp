@@ -3,7 +3,8 @@
 
 using namespace concurrency;
 
-void ger_AMP(long m, long n, float alpha,
+void ger_AMP(Concurrency::accelerator_view &accl_view,
+	     long m, long n, float alpha,
              Concurrency::array_view<float> &x, long xOffset, long incx,
              Concurrency::array_view<float> &y, long yOffset, long incy,
              Concurrency::array_view<float> &a, long aOffset, long lda)
@@ -11,7 +12,7 @@ void ger_AMP(long m, long n, float alpha,
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
   Concurrency::extent<2> compute_domain(M, N);
-  Concurrency::parallel_for_each(compute_domain.tile<16, 16>(),[=] (Concurrency::tiled_index<16, 16> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, compute_domain.tile<16, 16>(),[=] (Concurrency::tiled_index<16, 16> tidx) restrict(amp)
   {
     int i = tidx.global[0];
     int j = tidx.global[1];
@@ -38,8 +39,11 @@ ampblasStatus Ampblaslibrary :: ampblas_sger(const int M, const int N,
     array_view<float> xView(lenX, X);
     array_view<float> yView(lenY, Y);
     array_view<float> aMat(M*N, A);
+    std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+    accelerator_view accl_view = (acc[1].create_view());
+
     
-    ger_AMP(M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
+    ger_AMP(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
     aMat.synchronize();
 
     /* Debug purpose */
