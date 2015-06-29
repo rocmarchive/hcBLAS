@@ -4,7 +4,8 @@
 using namespace concurrency;
 #define BLOCK_SIZE 256 
 
-void axpy_AMP(long n, float alpha,
+void axpy_AMP(Concurrency::accelerator_view &accl_view, 
+	      long n, float alpha,
               Concurrency::array_view<float> &X, long xOffset, long incx,
               Concurrency::array_view<float> &Y, long yOffset, long incy)
 {
@@ -12,7 +13,7 @@ void axpy_AMP(long n, float alpha,
   {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     Concurrency::extent<1> compute_domain(size);
-    Concurrency::parallel_for_each(compute_domain.tile<BLOCK_SIZE>(),[=] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
+    Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(),[=] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
     {
       if(tidx.global[0] < n)
         Y[yOffset + tidx.global[0]] += X[xOffset + tidx.global[0]] * alpha;
@@ -68,8 +69,9 @@ ampblasStatus Ampblaslibrary :: ampblas_saxpy(const int N, const float *alpha,
    
     array_view<float> xView(lenX, X);
     array_view<float> yView(lenY, Y);
-
-    axpy_AMP(N, *alpha, xView, xOffset, incX, yView, yOffset, incY);
+    std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+    accelerator_view accl_view = (acc[1].create_view());
+    axpy_AMP(accl_view, N, *alpha, xView, xOffset, incX, yView, yOffset, incY);
     yView.synchronize();
 
     return AMPBLAS_SUCCESS;
