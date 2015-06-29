@@ -1,14 +1,12 @@
 #include "ampblaslib.h"
 #include <amp.h>
 #include <amp_math.h>
-#include <amp_short_vectors.h>
 using namespace Concurrency;
-using namespace concurrency::graphics;
 
 #define REGISTER 0
 #define REGISTER_EXTN 0
 #define STEP_NOBANKCONF 0
-#define SUBMICROTILE_NOBANKCONF 0
+#define SUBMICROTILE_NOBANKCONF 1
 #define STEP 0
 #define SUBMICROTILE 0
 #define LOOPUNROLL 0
@@ -16,8 +14,8 @@ using namespace concurrency::graphics;
 #define RECTANGULAR_TILING 0
 
 #if SUBMICROTILE
-#define NOTRANSAB 0
-#define NOTRANSA 1
+#define NOTRANSAB 1
+#define NOTRANSA 0
 #define NOTRANSB 0
 #define TRANSAB 0
 #endif
@@ -130,7 +128,8 @@ using namespace concurrency::graphics;
 
 
 #if RECTANGULAR_TILING
-static void gemm_NoTransA_rect(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransA_rect(Concurrency::accelerator_view &accl_view,
+			       Concurrency::array_view<float, 1> &A, long aOffset,
                                Concurrency::array_view<float, 1> &B, long bOffset,
                                Concurrency::array_view<float, 1> &C, long cOffset,
                                int M, int N, int K, int lda, int ldb, int ldc,
@@ -139,7 +138,7 @@ static void gemm_NoTransA_rect(Concurrency::array_view<float, 1> &A, long aOffse
   Concurrency::extent<2> grdExt((N + (TILE_SIZE_B - 1)) & ~(TILE_SIZE_B - 1), (M + (TILE_SIZE_A - 1)) & ~(TILE_SIZE_A - 1));
   Concurrency::tiled_extent<TILE_SIZE_B, TILE_SIZE_A> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILE_SIZE_B, TILE_SIZE_A> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILE_SIZE_B, TILE_SIZE_A> tidx) restrict(amp)
   {
     float CValue = 0;
     int Row = tidx.tile[0] * TILE_SIZE_B + tidx.local[0];
@@ -181,17 +180,18 @@ static void gemm_NoTransA_rect(Concurrency::array_view<float, 1> &A, long aOffse
 #endif
 #if REGISTER_EXTN
 
-static void gemm_NoTransA_extend(Concurrency::array_view<float, 1> &A, long aOffset,
-                                Concurrency::array_view<float, 1> &B, long bOffset,
-                                Concurrency::array_view<float, 1> &C, long cOffset,
-                                int M, int N, int K, int lda, int ldb, int ldc,
-                                float alpha, float beta)
+static void gemm_NoTransA_extend(Concurrency::accelerator_view &accl_view,
+				 Concurrency::array_view<float, 1> &A, long aOffset,
+                                 Concurrency::array_view<float, 1> &B, long bOffset,
+                                 Concurrency::array_view<float, 1> &C, long cOffset,
+                                 int M, int N, int K, int lda, int ldb, int ldc,
+                                 float alpha, float beta)
 {
     Concurrency::extent<2> grdExt((((M - 1)/WPTM + 1) + (RTSM -1)) & ~(RTSM - 1),
                                   (((N -1) /WPTN + 1) + (RTSN - 1)) & ~(RTSN - 1));
     Concurrency::tiled_extent < RTSM, RTSN > t_ext(grdExt);
 
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<RTSM,RTSN> tidx)
                                    restrict(amp) {
 
@@ -272,17 +272,18 @@ static void gemm_NoTransA_extend(Concurrency::array_view<float, 1> &A, long aOff
 
 }
 
-static void gemm_NoTransB_extend(Concurrency::array_view<float, 1> &A, long aOffset,
-                                Concurrency::array_view<float, 1> &B, long bOffset,
-                                Concurrency::array_view<float, 1> &C, long cOffset,
-                                int M, int N, int K, int lda, int ldb, int ldc,
-                                float alpha, float beta)
+static void gemm_NoTransB_extend(Concurrency::accelerator_view &accl_view,
+				 Concurrency::array_view<float, 1> &A, long aOffset,
+                                 Concurrency::array_view<float, 1> &B, long bOffset,
+                                 Concurrency::array_view<float, 1> &C, long cOffset,
+                                 int M, int N, int K, int lda, int ldb, int ldc,
+                                 float alpha, float beta)
 {
     Concurrency::extent<2> grdExt((((M - 1)/WPTM + 1) + (RTSM -1)) & ~(RTSM - 1),
                                   (((N -1) /WPTN + 1) + (RTSN - 1)) & ~(RTSN - 1));
     Concurrency::tiled_extent < RTSM, RTSN > t_ext(grdExt);
 
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<RTSM,RTSN> tidx)
                                    restrict(amp) {
 
@@ -361,16 +362,17 @@ static void gemm_NoTransB_extend(Concurrency::array_view<float, 1> &A, long aOff
 
 }
 
-static void gemm_NoTransAB_extend(Concurrency::array_view<float, 1> &A, long aOffset,
-                                Concurrency::array_view<float, 1> &B, long bOffset,
-                                Concurrency::array_view<float, 1> &C, long cOffset,
-                                int M, int N, int K, int lda, int ldb, int ldc,
-                                float alpha, float beta)
+static void gemm_NoTransAB_extend(Concurrency::accelerator_view &accl_view,
+				  Concurrency::array_view<float, 1> &A, long aOffset,
+                                  Concurrency::array_view<float, 1> &B, long bOffset,
+                                  Concurrency::array_view<float, 1> &C, long cOffset,
+                                  int M, int N, int K, int lda, int ldb, int ldc,
+                                  float alpha, float beta)
 {
     Concurrency::extent<2> grdExt((((M - 1)/WPTM + 1) + (RTSM -1)) & ~(RTSM - 1),
                                   (((N -1) /WPTN + 1) + (RTSN - 1)) & ~(RTSN - 1));
     Concurrency::tiled_extent < RTSM, RTSN > t_ext(grdExt);
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<RTSM,RTSN> tidx)
                                    restrict(amp) {
 
@@ -452,7 +454,8 @@ static void gemm_NoTransAB_extend(Concurrency::array_view<float, 1> &A, long aOf
 
 }
 
-static void gemm_TransAB_extend(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_TransAB_extend(Concurrency::accelerator_view &accl_view, 
+				Concurrency::array_view<float, 1> &A, long aOffset,
                                 Concurrency::array_view<float, 1> &B, long bOffset,
                                 Concurrency::array_view<float, 1> &C, long cOffset,
                                 int M, int N, int K, int lda, int ldb, int ldc,
@@ -461,7 +464,7 @@ static void gemm_TransAB_extend(Concurrency::array_view<float, 1> &A, long aOffs
     Concurrency::extent<2> grdExt((((M - 1)/WPTM + 1) + (RTSM -1)) & ~(RTSM - 1),
                                   (((N -1) /WPTN + 1) + (RTSN - 1)) & ~(RTSN - 1));
     Concurrency::tiled_extent < RTSM, RTSN > t_ext(grdExt);
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<RTSM,RTSN> tidx)
                                    restrict(amp) {
 
@@ -543,7 +546,8 @@ static void gemm_TransAB_extend(Concurrency::array_view<float, 1> &A, long aOffs
 }
 #endif
 #if LOOPUNROLL_SWPREFETCH
-static void gemm_NoTransAB_loopunroll_swprefetch(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransAB_loopunroll_swprefetch(Concurrency::accelerator_view &accl_view,
+						 Concurrency::array_view<float, 1> &A, long aOffset,
                                                  Concurrency::array_view<float, 1> &B, long bOffset,
                                                  Concurrency::array_view<float, 1> &C, long cOffset,
                                                  int M, int N, int K, int lda, int ldb, int ldc,
@@ -555,7 +559,7 @@ static void gemm_NoTransAB_loopunroll_swprefetch(Concurrency::array_view<float, 
   Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(K, M));
   Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(N, K));
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0;
     tile_static float As[2][TILE_DIM][TILE_DIM];
@@ -615,7 +619,8 @@ static void gemm_NoTransAB_loopunroll_swprefetch(Concurrency::array_view<float, 
  });
 }
 
-static void gemm_NoTransA_loopunroll_swprefetch(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransA_loopunroll_swprefetch(Concurrency::accelerator_view &accl_view,
+						Concurrency::array_view<float, 1> &A, long aOffset,
                                                 Concurrency::array_view<float, 1> &B, long bOffset,
                                                 Concurrency::array_view<float, 1> &C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
@@ -627,7 +632,7 @@ static void gemm_NoTransA_loopunroll_swprefetch(Concurrency::array_view<float, 1
   Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(K, M));
   Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(K, N));
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0;
     int tileId = tidx.tile[0] * TILE_DIM + tidx.local[1];
@@ -690,7 +695,8 @@ static void gemm_NoTransA_loopunroll_swprefetch(Concurrency::array_view<float, 1
  });
 }
 
-static void gemm_NoTransB_loopunroll_swprefetch(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransB_loopunroll_swprefetch(Concurrency::accelerator_view &accl_view,
+						Concurrency::array_view<float, 1> &A, long aOffset,
                                                 Concurrency::array_view<float, 1> &B, long bOffset,
                                                 Concurrency::array_view<float, 1> &C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
@@ -703,7 +709,7 @@ static void gemm_NoTransB_loopunroll_swprefetch(Concurrency::array_view<float, 1
   Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(M, K));
   Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(N, K));
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0;
     tile_static float As[2][TILE_DIM][TILE_DIM];
@@ -763,7 +769,8 @@ static void gemm_NoTransB_loopunroll_swprefetch(Concurrency::array_view<float, 1
  });
 }
 
-static void gemm_TransAB_loopunroll_swprefetch(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_TransAB_loopunroll_swprefetch(Concurrency::accelerator_view &accl_view,
+					       Concurrency::array_view<float, 1> &A, long aOffset,
                                                Concurrency::array_view<float, 1> &B, long bOffset,
                                                Concurrency::array_view<float, 1> &C, long cOffset,
                                                int M, int N, int K, int lda, int ldb, int ldc,
@@ -775,7 +782,7 @@ static void gemm_TransAB_loopunroll_swprefetch(Concurrency::array_view<float, 1>
   Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(M, K));
   Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(K, N));
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0;
     tile_static float As[2][TILE_DIM][TILE_DIM];
@@ -837,7 +844,8 @@ static void gemm_TransAB_loopunroll_swprefetch(Concurrency::array_view<float, 1>
 
 #endif
 #if LOOPUNROLL
-static void gemm_NoTransAB_loopunroll(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransAB_loopunroll(Concurrency::accelerator_view &accl_view,
+				      Concurrency::array_view<float, 1> &A, long aOffset,
                                       Concurrency::array_view<float, 1> &B, long bOffset,
                                       Concurrency::array_view<float, 1> &C, long cOffset,
                                       int M, int N, int K, int lda, int ldb, int ldc,
@@ -849,7 +857,7 @@ static void gemm_NoTransAB_loopunroll(Concurrency::array_view<float, 1> &A, long
   Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(K, M));
   Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(N, K));
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0;
     int Row = tidx.global[0];
@@ -895,7 +903,8 @@ static void gemm_NoTransAB_loopunroll(Concurrency::array_view<float, 1> &A, long
  });
 }
 
-static void gemm_NoTransA_loopunroll(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransA_loopunroll(Concurrency::accelerator_view &accl_view,
+				     Concurrency::array_view<float, 1> &A, long aOffset,
                                      Concurrency::array_view<float, 1> &B, long bOffset,
                                      Concurrency::array_view<float, 1> &C, long cOffset,
                                      int M, int N, int K, int lda, int ldb, int ldc,
@@ -907,7 +916,7 @@ static void gemm_NoTransA_loopunroll(Concurrency::array_view<float, 1> &A, long 
   Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(K, M));
   Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(K, N));
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0;
     int Row = tidx.global[0];
@@ -954,7 +963,8 @@ static void gemm_NoTransA_loopunroll(Concurrency::array_view<float, 1> &A, long 
  });
 }
 
-static void gemm_NoTransB_loopunroll(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransB_loopunroll(Concurrency::accelerator_view &accl_view,
+				     Concurrency::array_view<float, 1> &A, long aOffset,
                                      Concurrency::array_view<float, 1> &B, long bOffset,
                                      Concurrency::array_view<float, 1> &C, long cOffset,
                                      int M, int N, int K, int lda, int ldb, int ldc,
@@ -967,7 +977,7 @@ static void gemm_NoTransB_loopunroll(Concurrency::array_view<float, 1> &A, long 
   Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(M, K));
   Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(N, K));
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0;
     int Row = tidx.global[0];
@@ -1013,7 +1023,8 @@ static void gemm_NoTransB_loopunroll(Concurrency::array_view<float, 1> &A, long 
  });
 }
 
-static void gemm_TransAB_loopunroll(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_TransAB_loopunroll(Concurrency::accelerator_view &accl_view,
+				    Concurrency::array_view<float, 1> &A, long aOffset,
                                     Concurrency::array_view<float, 1> &B, long bOffset,
                                     Concurrency::array_view<float, 1> &C, long cOffset,
                                     int M, int N, int K, int lda, int ldb, int ldc,
@@ -1025,7 +1036,7 @@ static void gemm_TransAB_loopunroll(Concurrency::array_view<float, 1> &A, long a
   Concurrency::array_view<float,2> Amat = A.view_as<2>(Concurrency::extent<2>(M, K));
   Concurrency::array_view<float,2> Bmat = B.view_as<2>(Concurrency::extent<2>(K, N));
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0;
     int Row = tidx.global[0];
@@ -1076,15 +1087,16 @@ static void gemm_TransAB_loopunroll(Concurrency::array_view<float, 1> &A, long a
 
 #if REGISTER
 
-static void gemm_NoTransAB(Concurrency::array_view<float, 1> &A, long aOffset,
-                          Concurrency::array_view<float, 1> &B, long bOffset,
-                          Concurrency::array_view<float, 1> &C, long cOffset,
-                          int M, int N, int K, int lda, int ldb, int ldc,
-                          float alpha, float beta)
+static void gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
+			   Concurrency::array_view<float, 1> &A, long aOffset,
+                           Concurrency::array_view<float, 1> &B, long bOffset,
+                           Concurrency::array_view<float, 1> &C, long cOffset,
+                           int M, int N, int K, int lda, int ldb, int ldc,
+                           float alpha, float beta)
 {
     Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
                                    restrict(amp) {
 
@@ -1146,7 +1158,8 @@ static void gemm_NoTransAB(Concurrency::array_view<float, 1> &A, long aOffset,
 }
 
 
-static void gemm_NoTransA(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransA(Concurrency::accelerator_view &accl_view,
+			  Concurrency::array_view<float, 1> &A, long aOffset,
                           Concurrency::array_view<float, 1> &B, long bOffset,
                           Concurrency::array_view<float, 1> &C, long cOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
@@ -1154,7 +1167,7 @@ static void gemm_NoTransA(Concurrency::array_view<float, 1> &A, long aOffset,
 {
     Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
                                    restrict(amp) {
 
@@ -1213,7 +1226,8 @@ static void gemm_NoTransA(Concurrency::array_view<float, 1> &A, long aOffset,
 });
 }
 
-static void gemm_NoTransB(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransB(Concurrency::accelerator_view &accl_view,
+			  Concurrency::array_view<float, 1> &A, long aOffset,
                           Concurrency::array_view<float, 1> &B, long bOffset,
                           Concurrency::array_view<float, 1> &C, long cOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
@@ -1223,7 +1237,7 @@ static void gemm_NoTransB(Concurrency::array_view<float, 1> &A, long aOffset,
     Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
 
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
                                    restrict(amp) {
 
@@ -1282,7 +1296,8 @@ static void gemm_NoTransB(Concurrency::array_view<float, 1> &A, long aOffset,
 });
 }
 
-static void gemm_TransAB(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_TransAB(Concurrency::accelerator_view &accl_view,
+			 Concurrency::array_view<float, 1> &A, long aOffset,
                          Concurrency::array_view<float, 1> &B, long bOffset,
                          Concurrency::array_view<float, 1> &C, long cOffset,
                          int M, int N, int K, int lda, int ldb, int ldc,
@@ -1291,7 +1306,7 @@ static void gemm_TransAB(Concurrency::array_view<float, 1> &A, long aOffset,
     Concurrency::extent<2> grdExt(((M - 1) / TILE_SZ_A + 1) * TILE_SZ_A, (N - 1) / TILE_SZ_B + 1);
     Concurrency::tiled_extent <TILE_SZ_A, 1> t_ext(grdExt);
 
-    Concurrency::parallel_for_each(t_ext,
+    Concurrency::parallel_for_each(accl_view, t_ext,
                                    [=] (Concurrency::tiled_index<TILE_SZ_A,1> tidx)
                                    restrict(amp) {
 
@@ -1352,7 +1367,8 @@ static void gemm_TransAB(Concurrency::array_view<float, 1> &A, long aOffset,
 #endif
 
 #if STEP
-static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransAB_batch(Concurrency::accelerator_view &accl_view,
+				 Concurrency::array_view<float, 1> &A, long aOffset,
                                  Concurrency::array_view<float, 1> &B, long bOffset,
                                  Concurrency::array_view<float, 1> &C, long cOffset,
                                  int M, int N, int K, int lda, int ldb, int ldc,
@@ -1361,7 +1377,7 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rC[1][1];
@@ -1419,7 +1435,8 @@ static void gemm_NoTransAB_batch(Concurrency::array_view<float, 1> &A, long aOff
   });
 }
 
-static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransA_batch(Concurrency::accelerator_view &accl_view,
+				Concurrency::array_view<float, 1> &A, long aOffset,
                                 Concurrency::array_view<float, 1> &B, long bOffset,
                                 Concurrency::array_view<float, 1> &C, long cOffset,
                                 int M, int N, int K, int lda, int ldb, int ldc,
@@ -1428,7 +1445,7 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   { 
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rC[1][1] = {(float)0};
@@ -1488,7 +1505,8 @@ static void gemm_NoTransA_batch(Concurrency::array_view<float, 1> &A, long aOffs
   });
 }
 
-static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransB_batch(Concurrency::accelerator_view &accl_view,
+				Concurrency::array_view<float, 1> &A, long aOffset,
                                 Concurrency::array_view<float, 1> &B, long bOffset,
                                 Concurrency::array_view<float, 1> &C, long cOffset,
                                 int M, int N, int K, int lda, int ldb, int ldc,
@@ -1497,7 +1515,7 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rC[1][1] = {(float)0};
@@ -1559,7 +1577,8 @@ static void gemm_NoTransB_batch(Concurrency::array_view<float, 1> &A, long aOffs
   });
 }
 
-static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_TransAB_batch(Concurrency::accelerator_view &accl_view,
+			       Concurrency::array_view<float, 1> &A, long aOffset,
                                Concurrency::array_view<float, 1> &B, long bOffset,
                                Concurrency::array_view<float, 1> &C, long cOffset,
                                int M, int N, int K, int lda, int ldb, int ldc,
@@ -1569,7 +1588,7 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rC[1][1] = {(float)0};
@@ -1630,7 +1649,8 @@ static void gemm_TransAB_batch(Concurrency::array_view<float, 1> &A, long aOffse
 #endif
 
 #if STEP_NOBANKCONF
-static void gemm_NoTransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransAB_batch_nobankconf(Concurrency::accelerator_view &accl_view,
+					    Concurrency::array_view<float, 1> &A, long aOffset,
                                             Concurrency::array_view<float, 1> &B, long bOffset,
                                             Concurrency::array_view<float, 1> &C, long cOffset,
                                             int M, int N, int K, int lda, int ldb, int ldc,
@@ -1638,8 +1658,8 @@ static void gemm_NoTransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
-
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+ 
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rC[1][1] = {0.0};
@@ -1696,7 +1716,8 @@ static void gemm_NoTransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A
 
 }
 
-static void gemm_NoTransA_batch_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransA_batch_nobankconf(Concurrency::accelerator_view &accl_view,
+					   Concurrency::array_view<float, 1> &A, long aOffset,
                                            Concurrency::array_view<float, 1> &B, long bOffset,
                                            Concurrency::array_view<float, 1> &C, long cOffset,
                                            int M, int N, int K, int lda, int ldb, int ldc,
@@ -1704,7 +1725,7 @@ static void gemm_NoTransA_batch_nobankconf(Concurrency::array_view<float, 1> &A,
 {
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   { 
     int tilemulshift = (int)Concurrency::fast_math::log2(TILESIZE);
     int shiftfactor = Concurrency::fast_math::log2(STEPSIZE);
@@ -1773,7 +1794,8 @@ static void gemm_NoTransA_batch_nobankconf(Concurrency::array_view<float, 1> &A,
 
 }
 
-static void gemm_NoTransB_batch_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransB_batch_nobankconf(Concurrency::accelerator_view &accl_view, 
+                                           Concurrency::array_view<float, 1> &A, long aOffset,
                                            Concurrency::array_view<float, 1> &B, long bOffset,
                                            Concurrency::array_view<float, 1> &C, long cOffset,
                                            int M, int N, int K, int lda, int ldb, int ldc,
@@ -1782,7 +1804,7 @@ static void gemm_NoTransB_batch_nobankconf(Concurrency::array_view<float, 1> &A,
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int tilemulshift = (int)Concurrency::fast_math::log2(TILESIZE);
     int shiftfactor = (int)Concurrency::fast_math::log2(STEPSIZE);
@@ -1857,7 +1879,8 @@ static void gemm_NoTransB_batch_nobankconf(Concurrency::array_view<float, 1> &A,
   });
 }
 
-static void gemm_TransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_TransAB_batch_nobankconf(Concurrency::accelerator_view &accl_view,
+                                          Concurrency::array_view<float, 1> &A, long aOffset,
                                           Concurrency::array_view<float, 1> &B, long bOffset,
                                           Concurrency::array_view<float, 1> &C, long cOffset,
                                           int M, int N, int K, int lda, int ldb, int ldc,
@@ -1867,7 +1890,7 @@ static void gemm_TransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A, 
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rC[1][1] = {(float)0};
@@ -1928,7 +1951,8 @@ static void gemm_TransAB_batch_nobankconf(Concurrency::array_view<float, 1> &A, 
 
 #if SUBMICROTILE
 #if NOTRANSAB
-static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransAB_subMicroTile(Concurrency::accelerator_view &accl_view,
+                                        Concurrency::array_view<float, 1> &A, long aOffset,
                                         Concurrency::array_view<float, 1> &B, long bOffset,
                                         Concurrency::array_view<float, 1> &C, long cOffset,
                                         int M, int N, int K, int lda, int ldb, int ldc,
@@ -1937,7 +1961,7 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
   Concurrency::extent<2> grdExt(((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
     float rA[1][MICROTILESIZE];
@@ -2001,7 +2025,8 @@ static void gemm_NoTransAB_subMicroTile(Concurrency::array_view<float, 1> &A, lo
 #endif
 
 #if NOTRANSA
-static void gemm_NoTransA_subMicroTile(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransA_subMicroTile(Concurrency::accelerator_view &accl_view,
+				       Concurrency::array_view<float, 1> &A, long aOffset,
                                        Concurrency::array_view<float, 1> &B, long bOffset,
                                        Concurrency::array_view<float, 1> &C, long cOffset,
                                        int M, int N, int K, int lda, int ldb, int ldc,
@@ -2010,7 +2035,7 @@ static void gemm_NoTransA_subMicroTile(Concurrency::array_view<float, 1> &A, lon
   Concurrency::extent<2> grdExt(((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
     float rA[1][MICROTILESIZE];
@@ -2074,7 +2099,8 @@ static void gemm_NoTransA_subMicroTile(Concurrency::array_view<float, 1> &A, lon
 #endif
 
 #if NOTRANSB
-static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransB_subMicroTile(Concurrency::accelerator_view &accl_view,
+				       Concurrency::array_view<float, 1> &A, long aOffset,
                                        Concurrency::array_view<float, 1> &B, long bOffset,
                                        Concurrency::array_view<float, 1> &C, long cOffset,
                                        int M, int N, int K, int lda, int ldb, int ldc,
@@ -2083,7 +2109,7 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
   Concurrency::extent<2> grdExt(((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
     float rA[1][MICROTILESIZE];
@@ -2147,7 +2173,8 @@ static void gemm_NoTransB_subMicroTile(Concurrency::array_view<float, 1> &A, lon
 #endif
 
 #if TRANSAB
-static void gemm_TransAB_subMicroTile(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_TransAB_subMicroTile(Concurrency::accelerator_view &accl_view,
+				      Concurrency::array_view<float, 1> &A, long aOffset,
                                       Concurrency::array_view<float, 1> &B, long bOffset,
                                       Concurrency::array_view<float, 1> &C, long cOffset,
                                       int M, int N, int K, int lda, int ldb, int ldc,
@@ -2156,7 +2183,7 @@ static void gemm_TransAB_subMicroTile(Concurrency::array_view<float, 1> &A, long
   Concurrency::extent<2> grdExt(((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
     float rA[1][MICROTILESIZE];
@@ -2222,7 +2249,8 @@ static void gemm_TransAB_subMicroTile(Concurrency::array_view<float, 1> &A, long
 
 #if SUBMICROTILE_NOBANKCONF
 #if NOTRANSAB
-static void gemm_NoTransAB_subMicroTile_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransAB_subMicroTile_nobankconf(Concurrency::accelerator_view &accl_view,
+						   Concurrency::array_view<float, 1> &A, long aOffset,
                                                    Concurrency::array_view<float, 1> &B, long bOffset,
                                                    Concurrency::array_view<float, 1> &C, long cOffset,
                                                    int M, int N, int K, int lda, int ldb, int ldc,
@@ -2231,7 +2259,7 @@ static void gemm_NoTransAB_subMicroTile_nobankconf(Concurrency::array_view<float
   Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
     float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
@@ -2302,7 +2330,8 @@ static void gemm_NoTransAB_subMicroTile_nobankconf(Concurrency::array_view<float
 }
 #endif
 #if NOTRANSA
-static void gemm_NoTransA_subMicroTile_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransA_subMicroTile_nobankconf(Concurrency::accelerator_view &accl_view,
+						  Concurrency::array_view<float, 1> &A, long aOffset,
                                                   Concurrency::array_view<float, 1> &B, long bOffset,
                                                   Concurrency::array_view<float, 1> &C, long cOffset,
                                                   int M, int N, int K, int lda, int ldb, int ldc,
@@ -2311,7 +2340,7 @@ static void gemm_NoTransA_subMicroTile_nobankconf(Concurrency::array_view<float,
   Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
     float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
@@ -2383,7 +2412,8 @@ static void gemm_NoTransA_subMicroTile_nobankconf(Concurrency::array_view<float,
 #endif
 
 #if NOTRANSB
-static void gemm_NoTransB_subMicroTile_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_NoTransB_subMicroTile_nobankconf(Concurrency::accelerator_view &accl_view,
+						  Concurrency::array_view<float, 1> &A, long aOffset,
                                                   Concurrency::array_view<float, 1> &B, long bOffset,
                                                   Concurrency::array_view<float, 1> &C, long cOffset,
                                                   int M, int N, int K, int lda, int ldb, int ldc,
@@ -2392,7 +2422,7 @@ static void gemm_NoTransB_subMicroTile_nobankconf(Concurrency::array_view<float,
   Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
     float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
@@ -2465,7 +2495,8 @@ static void gemm_NoTransB_subMicroTile_nobankconf(Concurrency::array_view<float,
 #endif
 
 #if TRANSAB
-static void gemm_TransAB_subMicroTile_nobankconf(Concurrency::array_view<float, 1> &A, long aOffset,
+static void gemm_TransAB_subMicroTile_nobankconf(Concurrency::accelerator_view &accl_view,
+						 Concurrency::array_view<float, 1> &A, long aOffset,
                                                  Concurrency::array_view<float, 1> &B, long bOffset,
                                                  Concurrency::array_view<float, 1> &C, long cOffset,
                                                  int M, int N, int K, int lda, int ldb, int ldc,
@@ -2474,7 +2505,7 @@ static void gemm_TransAB_subMicroTile_nobankconf(Concurrency::array_view<float, 
   Concurrency::extent<2> grdExt(((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-  Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
     float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
@@ -2546,7 +2577,8 @@ static void gemm_TransAB_subMicroTile_nobankconf(Concurrency::array_view<float, 
 #endif
 #endif
 
-int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
+int gemm_AMP(Concurrency::accelerator_view &accl_view,
+	     char TransA, char TransB, const int M, const int N, const int K,
              const float alpha, Concurrency::array_view<float> &A_mat, long aOffset, long lda,
              Concurrency::array_view<float> &B_mat, long bOffset, long ldb, const float beta,
              Concurrency::array_view<float> &C_mat, long cOffset, long ldc,
@@ -2580,20 +2612,20 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     if (TransB == 'n')
     {
       if (TransA == 'n')
-        return 0;//gemm_NoTransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        return 0;//gemm_NoTransAB_batch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       else
-        gemm_NoTransB_MK(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransB_MK(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
     else if (TransA == 'n')
-      return 0;//gemm_NoTransA_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      return 0;//gemm_NoTransA_batch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      return 0;//gemm_TransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      return 0;//gemm_TransAB_batch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 }
 #endif
 
 #if RECTANGULAR_TILING
   {
-      gemm_NoTransA_rect(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_rect(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
 
@@ -2602,14 +2634,14 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     if (TransB == 'n')
     {
       if (TransA == 'n')
-        gemm_NoTransAB_loopunroll_swprefetch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransAB_loopunroll_swprefetch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       else
-        gemm_NoTransB_loopunroll_swprefetch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta, temp_buf);
+        gemm_NoTransB_loopunroll_swprefetch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta, temp_buf);
     }
     else if (TransA == 'n')
-      gemm_NoTransA_loopunroll_swprefetch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_loopunroll_swprefetch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      gemm_TransAB_loopunroll_swprefetch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_TransAB_loopunroll_swprefetch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
 
@@ -2618,14 +2650,14 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     if (TransB == 'n')
     {
       if (TransA == 'n')
-        gemm_NoTransAB_loopunroll(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransAB_loopunroll(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       else
-        gemm_NoTransB_loopunroll(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta, temp_buf);
+        gemm_NoTransB_loopunroll(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta, temp_buf);
     }
     else if (TransA == 'n')
-      gemm_NoTransA_loopunroll(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_loopunroll(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      gemm_TransAB_loopunroll(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_TransAB_loopunroll(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
 
@@ -2634,14 +2666,14 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     if (TransB == 'n')
     {
       if (TransA == 'n')
-        gemm_NoTransAB(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       else
-        gemm_NoTransB(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta, temp_buf);
+        gemm_NoTransB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta, temp_buf);
     }
     else if (TransA == 'n')
-      gemm_NoTransA(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      gemm_TransAB(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_TransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
 #if REGISTER_EXTN
@@ -2649,14 +2681,14 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     if (TransB == 'n')
     {
       if (TransA == 'n')
-        gemm_NoTransAB_extend(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransAB_extend(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       else
-        gemm_NoTransB_extend(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransB_extend(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
     else if (TransA == 'n')
-      gemm_NoTransA_extend(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_extend(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      gemm_TransAB_extend(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_TransAB_extend(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 }
 #endif
 #if STEP 
@@ -2664,14 +2696,14 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     if (TransB == 'n')
     {
       if (TransA == 'n')
-        gemm_NoTransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransAB_batch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       else
-        gemm_NoTransB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransB_batch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
     else if (TransA == 'n')
-      gemm_NoTransA_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_batch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      gemm_TransAB_batch(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_TransAB_batch(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
 #if STEP_NOBANKCONF
@@ -2679,14 +2711,14 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
     if (TransB == 'n')
     {
       if (TransA == 'n')
-        gemm_NoTransAB_batch_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransAB_batch_nobankconf(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       else
-        gemm_NoTransB_batch_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransB_batch_nobankconf(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
     else if (TransA == 'n')
-      gemm_NoTransA_batch_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_batch_nobankconf(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
-      gemm_TransAB_batch_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_TransAB_batch_nobankconf(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
 
@@ -2697,26 +2729,26 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
       if (TransA == 'n')
       {
 #if NOTRANSAB
-       gemm_NoTransAB_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+       gemm_NoTransAB_subMicroTile(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
       }
       else
       {
 #if NOTRANSB
-        gemm_NoTransB_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransB_subMicroTile(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
       }
     }
     else if (TransA == 'n')
     {
 #if NOTRANSA
-      gemm_NoTransA_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_subMicroTile(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
     }
     else
     {
 #if TRANSAB
-     gemm_TransAB_subMicroTile(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+     gemm_TransAB_subMicroTile(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
     }
   }
@@ -2729,26 +2761,26 @@ int gemm_AMP(char TransA, char TransB, const int M, const int N, const int K,
       if (TransA == 'n')
       {
 #if NOTRANSAB
-       gemm_NoTransAB_subMicroTile_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+       gemm_NoTransAB_subMicroTile_nobankconf(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
       }
       else
       {
 #if NOTRANSB
-        gemm_NoTransB_subMicroTile_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransB_subMicroTile_nobankconf(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
       }
     }
     else if (TransA == 'n')
     {
 #if NOTRANSA
-      gemm_NoTransA_subMicroTile_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      gemm_NoTransA_subMicroTile_nobankconf(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
     }
     else
     {
 #if TRANSAB
-     gemm_TransAB_subMicroTile_nobankconf(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+     gemm_TransAB_subMicroTile_nobankconf(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
 #endif
     }
   }
@@ -2772,8 +2804,11 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_TRANS typeA,
     Concurrency::array_view<float> B_mat(N * K, B);
     Concurrency::array_view<float> C_mat(M * N, C);
     Concurrency::array_view<float> *temp_buf = NULL;
+    std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+    accelerator_view accl_view = (acc[1].create_view());
 
-    gemm_AMP(typeA, typeB, M, N, K, *alpha, A_mat, aOffset, lda, B_mat,
+ 
+    gemm_AMP(accl_view, typeA, typeB, M, N, K, *alpha, A_mat, aOffset, lda, B_mat,
              bOffset, ldb, *beta, C_mat, cOffset, ldc, *temp_buf);
 
     C_mat.synchronize();
