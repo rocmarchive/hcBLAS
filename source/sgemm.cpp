@@ -3,10 +3,10 @@
 #include <amp_math.h>
 using namespace Concurrency;
 
-#define REGISTER 0
+#define REGISTER 1
 #define REGISTER_EXTN 0
 #define STEP_NOBANKCONF 0
-#define SUBMICROTILE_NOBANKCONF 1
+#define SUBMICROTILE_NOBANKCONF 0
 #define STEP 0
 #define SUBMICROTILE 0
 #define LOOPUNROLL 0
@@ -2819,3 +2819,28 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_TRANS typeA,
 
     return AMPBLAS_SUCCESS;
 }
+
+ampblasStatus  Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &accl_view,
+                                 	       const enum AMPBLAS_TRANS typeA,
+                                               const enum AMPBLAS_TRANS typeB, const int M,
+                                               const int N, const int K, const float &alpha,
+                                               Concurrency::array_view<float> &A, const long lda,
+                                               Concurrency::array_view<float> &B, const long ldb,
+                                               const float &beta,
+                                               Concurrency::array_view<float> &C, const long ldc,
+                                               const long aOffset, const long bOffset, const long cOffset)
+
+{
+    Concurrency::array_view<float> *temp_buf = NULL;
+    gemm_AMP(accl_view, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
+             bOffset, ldb, beta, C, cOffset, ldc, *temp_buf);
+
+    C.synchronize();
+
+    /* Print Output */
+    /*for (int i = 0; i < M * N; i++)
+        cout<<" C_mat["<<i<<"] "<<C_mat[i]<<endl;*/
+
+    return AMPBLAS_SUCCESS;
+}
+
