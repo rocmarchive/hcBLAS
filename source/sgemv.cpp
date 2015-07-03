@@ -271,8 +271,6 @@ void gemv_AMP(Concurrency::accelerator_view &accl_view,
               Concurrency::array_view<float> &Y, long yOffset, long incY,
               Concurrency::array_view<float> &temp_buf)
 {
-  if (alpha == 0.0)
-    return;
 
   int lenX, lenY;
   if (M == 0 || N == 0)
@@ -349,3 +347,33 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_TRANS type,
 
     return AMPBLAS_SUCCESS;
 }
+
+
+ampblasStatus Ampblaslibrary :: ampblas_sgemv(Concurrency::accelerator_view &accl_view,
+                                              const enum AMPBLAS_TRANS type, const int M,
+                                              const int N, const float &alpha,
+                                              Concurrency::array_view<float> &A, const long aOffset, const int lda,
+                                              Concurrency::array_view<float> &X, const long xOffset, const int incX,
+                                              const float &beta,
+                                              Concurrency::array_view<float> &Y, const long yOffset, const int incY)
+{ 
+  /*Check the conditions*/
+  if(M <= 0 || N <= 0)
+        return AMPBLAS_INVALID;
+
+  if( alpha == 0 && beta == 1)
+        return AMPBLAS_SUCCESS;
+
+    long lenXt = 1 + (M - 1) * abs(incX);
+    long lenYt = 1 + (N - 1) * abs(incY);
+
+    int num_blocks = lenXt / BLOCK_SIZE;
+    float* temp = (float*)malloc(num_blocks * lenYt * sizeof(float));
+    Concurrency::array_view<float> tempBuf(num_blocks * lenYt, temp);
+
+    gemv_AMP(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY, tempBuf);
+    A.synchronize();
+
+    return AMPBLAS_SUCCESS;
+}
+
