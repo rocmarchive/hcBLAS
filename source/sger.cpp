@@ -53,3 +53,27 @@ ampblasStatus Ampblaslibrary :: ampblas_sger(const int M, const int N,
 
     return AMPBLAS_SUCCESS;
 }
+
+
+ampblasStatus Ampblaslibrary ::ampblas_sger(Concurrency::accelerator_view &accl_view,
+                                            const int M, const int N, const float &alpha,
+                                            Concurrency::array_view<float> &X, const long xOffset, const int incX,
+                                            Concurrency::array_view<float> &Y, const long yOffset, const int incY,
+                                            Concurrency::array_view<float> &A, const long aOffset, const int lda)
+{ 
+    /*Check the conditions*/
+    if (N <= 0 || M <= 0 || incX == 0 || incY == 0) {
+        return AMPBLAS_INVALID;
+    }
+
+    if(alpha == 0)
+	return AMPBLAS_SUCCESS;
+
+    ger_AMP(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, M);
+    A.synchronize();
+    return AMPBLAS_SUCCESS;
+}
+
+
+
+
