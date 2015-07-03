@@ -3,7 +3,7 @@
 #include <amp_math.h>
 using namespace Concurrency;
 
-#define REGISTER 1
+#define REGISTER 0
 #define REGISTER_EXTN 0
 #define STEP_NOBANKCONF 0
 #define SUBMICROTILE_NOBANKCONF 0
@@ -12,7 +12,7 @@ using namespace Concurrency;
 #define LOOPUNROLL 0
 #define LOOPUNROLL_SWPREFETCH 0
 #define RECTANGULAR_TILING 0
-#define RECTANGULAR_EXTN 1
+#define SUBMICROTILE_EXTN 1
 
 #if SUBMICROTILE
 #define NOTRANSAB 1
@@ -147,8 +147,9 @@ using namespace Concurrency;
            offB += (MICROTILESIZE_B * TILESIZE);                            \
 
 
-#if RECTANGULAR_EXTN
-static void gemm_NoTransB_subMicrotile_extn(Concurrency::array_view<float, 1> &A, long aOffset,
+#if SUBMICROTILE_EXTN
+static void gemm_NoTransB_subMicrotile_extn(Concurrency::accelerator_view &accl_view,
+				       Concurrency::array_view<float, 1> &A, long aOffset,
                                        Concurrency::array_view<float, 1> &B, long bOffset,
                                        Concurrency::array_view<float, 1> &C, long cOffset,
                                        int M, int N, int K, int lda, int ldb, int ldc,
@@ -159,7 +160,7 @@ static void gemm_NoTransB_subMicrotile_extn(Concurrency::array_view<float, 1> &A
     Concurrency::extent<2> grdExt(((N / MICROTILESIZE_B) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / MICROTILESIZE_A) + (TILESIZE - 1)) & ~(TILESIZE - 1));
     Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
-    Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+    Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
     {
 
       float rC[MICROTILESIZE_A][MICROTILESIZE_B];
@@ -232,6 +233,88 @@ static void gemm_NoTransB_subMicrotile_extn(Concurrency::array_view<float, 1> &A
 #undef MICROTILESIZE_A
 #undef MICROTILESIZE_B
 }
+
+static void gemm_NoTransAB_subMicrotile_extn(Concurrency::accelerator_view &accl_view,
+				       Concurrency::array_view<float, 1> &A, long aOffset,
+                                       Concurrency::array_view<float, 1> &B, long bOffset,
+                                       Concurrency::array_view<float, 1> &C, long cOffset,
+                                       int M, int N, int K, int lda, int ldb, int ldc,
+                                       float alpha, float beta)
+{
+#define MICROTILESIZE_A 4 
+#define MICROTILESIZE_B 1
+    Concurrency::extent<2> grdExt(((N / MICROTILESIZE_B) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / MICROTILESIZE_A) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+    Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+    Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+    {
+      float rC[MICROTILESIZE_A][MICROTILESIZE_B];
+      float rA[1][MICROTILESIZE_A];
+      float rB[1][MICROTILESIZE_B];
+      tile_static float lA[TILESIZE * TILESIZE * MICROTILESIZE_A];
+      tile_static float lB[TILESIZE * TILESIZE * MICROTILESIZE_B];
+      int gidx = tidx.tile[1];
+      int gidy = tidx.tile[0];
+      int idx = tidx.local[1];
+      int idy = tidx.local[0];
+      int idt = TILESIZE * idy + idx;
+      int idxT = idt % TILESIZE;
+      int idyT = idt / TILESIZE;
+     
+      rC[0][0] = 0;
+      rC[1][0] = 0;
+
+      int block_k = 0;
+      do
+      {
+        for (int sec = 0; sec < MICROTILESIZE_B; ++sec)
+        {
+          if (gidy * TILESIZE * MICROTILESIZE_B + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
+          {
+            lB[(idyT * TILESIZE * MICROTILESIZE_B) + idxT + (sec * TILESIZE)] = B[bOffset + MICROTILESIZE_B + (gidy * TILESIZE * MICROTILESIZE_B + idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
+          }
+          else
+          {
+            lB[(idyT * TILESIZE * MICROTILESIZE_B) + idxT + (sec * TILESIZE)] = 0;
+          }
+        }
+
+        for (int sec = 0; sec < MICROTILESIZE_A; ++sec)
+        {
+          if (gidx * TILESIZE * MICROTILESIZE_A + idxT + (sec * TILESIZE) < M && block_k * TILESIZE + idyT < K)
+          {
+            lA[(idyT * TILESIZE * MICROTILESIZE_A) + idxT + (sec * TILESIZE)] = A[aOffset + MICROTILESIZE_A + (gidx * TILESIZE * MICROTILESIZE_A) + idxT + (sec * TILESIZE) +  idyT * lda + block_k * (lda * TILESIZE)];
+          }
+          else
+          {
+            lA[(idyT * TILESIZE * MICROTILESIZE_A) + idxT + (sec * TILESIZE)] = 0;
+          }
+        }
+        tidx.barrier.wait();
+
+        int offA = idx;
+        int offB = idy;
+        for (int iter=0; iter < TILESIZE; ++iter)
+        {
+          MTS_EXTN;
+        }
+        tidx.barrier.wait();
+      } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1))/TILESIZE));
+
+      int xIndex = gidx * TILESIZE * MICROTILESIZE_A + idx;
+      int yIndex = gidy * TILESIZE * MICROTILESIZE_B + idy;
+      for (int col = 0; col < MICROTILESIZE_A; col++)
+      {
+        for (int row = 0; row < MICROTILESIZE_B ; row++)
+        {
+        if (xIndex + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
+          C[cOffset + (xIndex + TILESIZE * col) + (yIndex + TILESIZE * row) * ldc] = alpha * rC[col][row] + beta * C[cOffset + (xIndex + TILESIZE * col) + (yIndex + TILESIZE * row) * ldc];
+        }
+      }
+   });
+#undef MICROTILESIZE_A
+#undef MICROTILESIZE_B
+}
+
 #endif
 
 #if RECTANGULAR_TILING
@@ -2735,14 +2818,14 @@ int gemm_AMP(Concurrency::accelerator_view &accl_view,
       gemm_NoTransA_rect(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
-#if RECTANGULAR_EXTN
+#if SUBMICROTILE_EXTN
 {
     if (TransB == 'n')
     {
-      if (TransA == 'n')
-        return 0;
+      if (TransA == 'n') 
+        gemm_NoTransAB_subMicrotile_extn(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta); 
       else
-        gemm_NoTransB_subMicrotile_extn(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        gemm_NoTransB_subMicrotile_extn(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
     else
      return 0;//  gemm_TransAB_extend(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
