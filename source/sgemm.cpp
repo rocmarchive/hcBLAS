@@ -12,6 +12,7 @@ using namespace Concurrency;
 #define LOOPUNROLL 0
 #define LOOPUNROLL_SWPREFETCH 0
 #define RECTANGULAR_TILING 0
+#define RECTANGULAR_EXTN 1
 
 #if SUBMICROTILE
 #define NOTRANSAB 1
@@ -45,15 +46,14 @@ using namespace Concurrency;
 #endif
 
 #define THREADS    16
-#define GEMM_BLOCK 256
 #define TILE_DIM  16
 
 #define TILE_SZ_A 32
 #define TILE_SZ_B 16
 #define TILE_SZ_RATIO (TILE_SZ_A/TILE_SZ_B)
-#define TILESIZE 8
+#define TILESIZE 16
 #define BANKTILESIZE (TILESIZE + 1)
-#define STEPSIZE 128
+#define STEPSIZE 64
 #define STEPTILERATIO STEPSIZE/TILESIZE 
 #define STEPTILEPROD STEPSIZE*TILESIZE
 #define NUMTILEELMTS TILESIZE*TILESIZE
@@ -126,6 +126,113 @@ using namespace Concurrency;
            offA += BANKMICROTILESIZE;                              \
            offB += BANKMICROTILESIZE;                              \
 
+#define  MTS_EXTN                                                                \
+           for (int iter = 0; iter < MICROTILESIZE_A ; iter++)              \
+           {                                                                \
+             rA[0][iter] = lA[offA + (iter * TILESIZE)];                    \
+           }                                                                \
+           for (int iter = 0; iter < MICROTILESIZE_B ; iter++)              \
+           {                                                                \
+             rB[0][iter] = lB[offB + (iter * TILESIZE)];                    \
+           }                                                                \
+           for (int rowIndex = 0; rowIndex < MICROTILESIZE_A ; rowIndex++)  \
+           {                                                                \
+           for (int colIndex = 0; colIndex < MICROTILESIZE_B ; colIndex++)  \
+           {                                                                \
+           rC[rowIndex][colIndex] = rA[0][rowIndex] * rB[0][colIndex] +     \
+                                    rC[rowIndex][colIndex];                 \
+           }                                                                \
+           }                                                                \
+           offA += (MICROTILESIZE_A * TILESIZE);                            \
+           offB += (MICROTILESIZE_B * TILESIZE);                            \
+
+
+#if RECTANGULAR_EXTN
+static void gemm_NoTransB_subMicrotile_extn(Concurrency::array_view<float, 1> &A, long aOffset,
+                                       Concurrency::array_view<float, 1> &B, long bOffset,
+                                       Concurrency::array_view<float, 1> &C, long cOffset,
+                                       int M, int N, int K, int lda, int ldb, int ldc,
+                                       float alpha, float beta)
+{
+#define MICROTILESIZE_A 4
+#define MICROTILESIZE_B 1
+    Concurrency::extent<2> grdExt(((N / MICROTILESIZE_B) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((M / MICROTILESIZE_A) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+    Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+
+    Concurrency::parallel_for_each(t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+    {
+
+      float rC[MICROTILESIZE_A][MICROTILESIZE_B];
+      float rA[1][MICROTILESIZE_A];
+      float rB[1][MICROTILESIZE_B];
+      tile_static float lA[TILESIZE * TILESIZE * MICROTILESIZE_A];
+      tile_static float lB[TILESIZE * TILESIZE * MICROTILESIZE_B];
+      int gidx = tidx.tile[1];
+      int gidy = tidx.tile[0];
+      int idx = tidx.local[1];
+      int idy = tidx.local[0];
+      int idt = TILESIZE * idy + idx;
+      int idxT = idt % TILESIZE;
+      int idyT = idt / TILESIZE;
+
+      rC[0][0] = 0;
+      rC[1][0] = 0;
+
+      int block_k = 0;
+      do
+      {
+        for (int sec = 0; sec < MICROTILESIZE_B; ++sec)
+        {
+          if (gidy * TILESIZE * MICROTILESIZE_B + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
+          {
+
+            lB[(idyT * TILESIZE * MICROTILESIZE_B) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * TILESIZE * MICROTILESIZE_B + idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
+          }
+
+          else
+          {
+            lB[(idyT * TILESIZE * MICROTILESIZE_B) + idxT + (sec * TILESIZE)] = 0;
+          }
+        }
+
+        for (int sec = 0; sec < MICROTILESIZE_A; ++sec)
+        {
+          if (gidx * TILESIZE * MICROTILESIZE_A + idxT + (sec * TILESIZE) < M && block_k * TILESIZE + idyT < K)
+          {
+            lA[(idyT * TILESIZE * MICROTILESIZE_A) + idxT + (sec * TILESIZE)] = A[aOffset + (gidx * TILESIZE * MICROTILESIZE_A + idxT + sec * TILESIZE) * lda +  idyT + block_k * TILESIZE];
+          }
+          else
+          {
+            lA[(idyT * TILESIZE * MICROTILESIZE_A) + idxT + (sec * TILESIZE)] = 0;
+          }
+        }
+        tidx.barrier.wait();
+
+        int offA = idx;
+        int offB = idy;
+        for (int iter=0; iter < TILESIZE; ++iter)
+        {
+          MTS_EXTN;
+        }
+        tidx.barrier.wait();
+      } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1))/TILESIZE));
+
+
+      int xIndex = gidx * TILESIZE * MICROTILESIZE_A + idx;
+      int yIndex = gidy * TILESIZE * MICROTILESIZE_B + idy;
+      for (int col = 0; col < MICROTILESIZE_A; col++)
+      {
+        for (int row = 0; row < MICROTILESIZE_B ; row++)
+        {
+        if (xIndex + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
+          C[cOffset + (xIndex + TILESIZE * col) + (yIndex + TILESIZE * row) * ldc] = alpha * rC[col][row] + beta * C[cOffset + (xIndex + TILESIZE * col) + (yIndex + TILESIZE * row) * ldc];
+        }
+      }
+   });
+#undef MICROTILESIZE_A
+#undef MICROTILESIZE_B
+}
+#endif
 
 #if RECTANGULAR_TILING
 static void gemm_NoTransA_rect(Concurrency::accelerator_view &accl_view,
@@ -2628,7 +2735,19 @@ int gemm_AMP(Concurrency::accelerator_view &accl_view,
       gemm_NoTransA_rect(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 #endif
-
+#if RECTANGULAR_EXTN
+{
+    if (TransB == 'n')
+    {
+      if (TransA == 'n')
+        return 0;
+      else
+        gemm_NoTransB_subMicrotile_extn(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    }
+    else
+     return 0;//  gemm_TransAB_extend(A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+}
+#endif
 #if LOOPUNROLL_SWPREFETCH
   {
     if (TransB == 'n')
