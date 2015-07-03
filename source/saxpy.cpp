@@ -2,7 +2,7 @@
 #include <amp.h>
 
 using namespace concurrency;
-#define BLOCK_SIZE 256 
+#define BLOCK_SIZE 8 
 
 void axpy_AMP(Concurrency::accelerator_view &accl_view, 
 	      long n, float alpha,
@@ -55,7 +55,7 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
     });
   } 
 }
-ampblasStatus Ampblaslibrary :: ampblas_saxpy(const int N, const float *alpha,
+ ampblasStatus Ampblaslibrary :: ampblas_saxpy(const int N, const float *alpha,
                                               float *X, const int incX,
                                               float *Y, const int incY,
                                               long xOffset, long yOffset)
@@ -75,4 +75,27 @@ ampblasStatus Ampblaslibrary :: ampblas_saxpy(const int N, const float *alpha,
     yView.synchronize();
 
     return AMPBLAS_SUCCESS;
+}
+
+
+ ampblasStatus Ampblaslibrary :: ampblas_saxpy(Concurrency::accelerator_view &accl_view,
+                                               const int N,const float &alpha,
+                                               Concurrency::array_view<float> &X, const int incX,
+                                               Concurrency::array_view<float> &Y, const int incY,
+                                               long xOffset, long yOffset)
+
+{
+    /*Check the conditions*/
+    if (  N <= 0 ){
+        return AMPBLAS_INVALID;
+    }
+
+    if ( alpha == 0){
+        return AMPBLAS_SUCCESS;
+    }
+    axpy_AMP(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY);
+    Y.synchronize();
+
+    return AMPBLAS_SUCCESS;
+
 }
