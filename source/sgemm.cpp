@@ -4,7 +4,7 @@
 using namespace Concurrency;
 
 #define REGISTER 0
-#define REGISTER_EXTN 0
+#define REGISTER_EXTN 1
 #define STEP_NOBANKCONF 0
 #define SUBMICROTILE_NOBANKCONF 0
 #define STEP 0
@@ -12,7 +12,7 @@ using namespace Concurrency;
 #define LOOPUNROLL 0
 #define LOOPUNROLL_SWPREFETCH 0
 #define RECTANGULAR_TILING 0
-#define SUBMICROTILE_EXTN 1
+#define SUBMICROTILE_EXTN 0
 
 #if SUBMICROTILE
 #define NOTRANSAB 1
@@ -536,7 +536,7 @@ static void gemm_NoTransA_extend(Concurrency::accelerator_view &accl_view,
         for (int wn=0; wn<WPTN; wn++) {
             int globalCol = offsetN + tidn + wn*RTSN;
             if (  globalCol < N  && globalRow < M ) {
-                C[cOffset + globalCol * M + globalRow ] = acc[wm][wn];
+                C[cOffset + globalCol * M + globalRow ] = alpha * acc[wm][wn] + beta * C[cOffset + globalCol * M + globalRow ];
             }
         }
     }
@@ -627,7 +627,7 @@ static void gemm_NoTransB_extend(Concurrency::accelerator_view &accl_view,
         for (int wn=0; wn<WPTN; wn++) {
             int globalCol = offsetN + tidn + wn*RTSN;
             if (  globalCol < N  && globalRow < M ) {
-                C[cOffset + globalCol * M + globalRow ] = acc[wm][wn];
+                C[cOffset + globalCol * M + globalRow ] = alpha * acc[wm][wn] + beta * C[cOffset + globalCol * M + globalRow ];
             }
         }
     }
@@ -719,7 +719,7 @@ static void gemm_NoTransAB_extend(Concurrency::accelerator_view &accl_view,
           for (int wn=0; wn<WPTN; wn++) {
               int globalCol = offsetN + tidn + wn*RTSN;
               if (  globalCol < N  && globalRow < M ) {
-                  C[cOffset + globalCol * M + globalRow ] = acc[wm][wn];
+                  C[cOffset + globalCol * M + globalRow ] = alpha * acc[wm][wn] + beta * C[cOffset + globalCol * M + globalRow ];
               }
           }
      }
@@ -811,7 +811,7 @@ static void gemm_TransAB_extend(Concurrency::accelerator_view &accl_view,
         for (int wn=0; wn<WPTN; wn++) {
             int globalCol = offsetN + tidn + wn*RTSN;
             if (  globalCol < N  && globalRow < M ) {
-                 C[cOffset + globalCol * M + globalRow ] = acc[wm][wn];
+                 C[cOffset + globalCol * M + globalRow ] = alpha * acc[wm][wn] + beta * C[cOffset + globalCol * M + globalRow ];
             }
         }
     }
