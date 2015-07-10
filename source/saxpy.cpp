@@ -55,10 +55,69 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
     });
   } 
 }
+
+void axpy_AMP(Concurrency::accelerator_view &accl_view,
+              long n, float alpha,
+              Concurrency::array_view<float> &X, long xOffset, long incx,
+              Concurrency::array_view<float> &Y, long yOffset, long incy,
+              long X_batchOffset, long Y_batchOffset, int batchSize)
+{
+
+  if(n <= 102400)
+  {
+    long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
+    Concurrency::extent<2> compute_domain(batchSize, size);
+    Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(),[=] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
+    {
+      int elt = tidx.tile[0];
+      if(tidx.global[1] < n)
+        Y[yOffset + Y_batchOffset * elt + tidx.global[1]] += X[xOffset + X_batchOffset * elt + tidx.global[1]] * alpha;
+    });
+  }
+  else
+  {
+    int step_sz;
+    if (n <= 409600)
+      step_sz = 3;
+    else if (n <= 921600)
+      step_sz = 5;
+    else if ( n <= 1939526)
+      step_sz = 7;
+    else
+      step_sz = 15;
+
+    long size = (n/step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
+    long nBlocks = size/BLOCK_SIZE;
+    Concurrency::extent<2> compute_domain(batchSize, size);
+    Concurrency::parallel_for_each(compute_domain.tile<1, BLOCK_SIZE>(),[=] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
+    {
+      int elt = tidx.tile[0];
+      if(tidx.tile[1] != nBlocks -1)
+      {
+        for(int iter = 0; iter < step_sz; iter++)
+        {
+          Y[yOffset +  Y_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] += X[xOffset +  X_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] * alpha;
+        }
+      }
+      else
+      {
+        int n_iter = ((n - ((nBlocks - 1) * 256 * step_sz)) / 256) + 1;
+        for(int iter = 0; iter < n_iter; iter++)
+        {
+          if (((nBlocks - 1) * 256 * step_sz + iter * 256 + tidx.local[1]) < n)
+            Y[yOffset +  Y_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] += X[xOffset +  X_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] * alpha;
+        }
+      }
+    });
+  }
+}
+
+
+
  ampblasStatus Ampblaslibrary :: ampblas_saxpy(const int N, const float *alpha,
                                               float *X, const int incX,
                                               float *Y, const int incY,
-                                              long xOffset, long yOffset)
+                                              const long xOffset, const long yOffset)
 {
     if (alpha == NULL || X == NULL || Y == NULL || N <= 0 ) {
         return AMPBLAS_INVALID;
@@ -79,10 +138,10 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
 
 
  ampblasStatus Ampblaslibrary :: ampblas_saxpy(Concurrency::accelerator_view &accl_view,
-                                               const int N,const float &alpha,
+                                               const int N, const float &alpha,
                                                Concurrency::array_view<float> &X, const int incX,
                                                Concurrency::array_view<float> &Y, const int incY,
-                                               long xOffset, long yOffset)
+                                               const long xOffset, const long yOffset)
 
 {
     /*Check the conditions*/
@@ -99,3 +158,29 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
     return AMPBLAS_SUCCESS;
 
 }
+
+
+ ampblasStatus  Ampblaslibrary :: ampblas_saxpy(Concurrency::accelerator_view &accl_view,
+                                                const int N,const float &alpha,
+                                                Concurrency::array_view<float> &X, const int incX, const long X_batchOffset,
+                                                Concurrency::array_view<float> &Y, const int incY, const long Y_batchOffset,
+                                                const long xOffset, const long yOffset, const int batchSize)
+
+{
+    /*Check the conditions*/
+    if (  N <= 0 ){
+        return AMPBLAS_INVALID;
+    }
+
+    if ( alpha == 0){
+        return AMPBLAS_SUCCESS;
+    }
+    axpy_AMP(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY, X_batchOffset, Y_batchOffset, batchSize);
+    Y.synchronize();
+
+    return AMPBLAS_SUCCESS;
+
+}
+
+
+
