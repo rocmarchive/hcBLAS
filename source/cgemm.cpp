@@ -8,9 +8,9 @@
 using namespace Concurrency;
 using namespace Concurrency::graphics;
 
-#define REGISTER 0
+#define REGISTER 1
 #define STEP 0
-#define SUBMICROTILE 1
+#define SUBMICROTILE 0
 #define LOOPUNROLL 0
 
 #if SUBMICROTILE
@@ -860,7 +860,8 @@ void cgemm_NoTransAB(Concurrency::accelerator_view &accl_view,
     // Shared memory for tiling input B array
     tile_static float B_s_real [TILE_SZ_RATIO][TILE_SZ_B];
     tile_static float B_s_img [TILE_SZ_RATIO][TILE_SZ_B];
-
+    float tempReal = 0.0;
+    float tempImg = 0.0;
     // Macros for accessing flattened matrices
     #define A_real(row,col) A[(row) + (col) * M].x
     #define B_real(row,col) B[(row) + (col) * K].x
@@ -927,8 +928,12 @@ void cgemm_NoTransAB(Concurrency::accelerator_view &accl_view,
     }
     for (unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
         if (row < M && col + outIdx < N) {
-            (C_real(row, col + outIdx) *= beta.x) += (c_reg_real[outIdx] *= alpha.x);
-            (C_img(row, col + outIdx) *= beta.y) += (c_reg_img[outIdx] *= alpha.y);
+             tempReal = (( C_real(row, col + outIdx) * beta.x) - (C_img(row, col + outIdx) * beta.y));
+             tempImg  = (( C_real(row, col + outIdx) * beta.y) + (C_img(row, col + outIdx) * beta.x));
+             C_real(row, col + outIdx) =  tempReal;
+             C_img(row, col + outIdx)  =  tempImg;
+             C_real(row, col + outIdx) += ((c_reg_real[outIdx] * alpha.x) - (c_reg_img[outIdx] * alpha.y));
+             C_img(row, col + outIdx)  += ((c_reg_real[outIdx] * alpha.y) + (c_reg_img[outIdx] * alpha.x));
         }
     }
 });
@@ -950,7 +955,8 @@ void cgemm_NoTransA(Concurrency::accelerator_view &accl_view,
     // Shared memory for tiling input B array
     tile_static float B_s_real [TILE_SZ_RATIO][TILE_SZ_B];
     tile_static float B_s_img [TILE_SZ_RATIO][TILE_SZ_B];
-    
+    float tempReal = 0.0;
+    float tempImg = 0.0;
     #define A1_real(row,col) A[(row) + (col) * M].x
     #define B1_real(row,col) B[(row) * N + (col)].x
     #define C1_real(row,col) C[(row) + (col) * M].x
@@ -1015,8 +1021,12 @@ void cgemm_NoTransA(Concurrency::accelerator_view &accl_view,
     }
     for (unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
         if (row < M && col + outIdx < N) {
-            (C1_real(row, col + outIdx) *= beta.x) += (c_reg_real[outIdx] *= alpha.x);
-            (C1_img(row, col + outIdx) *= beta.y) += (c_reg_img[outIdx] *= alpha.y);
+             tempReal = (( C1_real(row, col + outIdx) * beta.x) - (C1_img(row, col + outIdx) * beta.y));
+             tempImg  = (( C1_real(row, col + outIdx) * beta.y) + (C1_img(row, col + outIdx) * beta.x));
+             C1_real(row, col + outIdx) =  tempReal;
+             C1_img(row, col + outIdx)  =  tempImg;
+             C1_real(row, col + outIdx) += ((c_reg_real[outIdx] * alpha.x) - (c_reg_img[outIdx] * alpha.y));
+             C1_img(row, col + outIdx)  += ((c_reg_real[outIdx] * alpha.y) + (c_reg_img[outIdx] * alpha.x));
         }
     }
 });
@@ -1054,7 +1064,8 @@ void cgemm_NoTransB(Concurrency::accelerator_view &accl_view,
     // Privatization of output variables
     float c_reg_real[TILE_SZ_B] = {(float)0};
     float c_reg_img[TILE_SZ_B] = {(float)0};
-
+    float tempReal = 0.0;
+    float tempImg = 0.0;
     // Loop over the input tiles
     for(unsigned int tileIdx = 0; tileIdx < (K - 1)/TILE_SZ_RATIO + 1; ++tileIdx) {
         // Load the tile of B into shared memory
@@ -1105,8 +1116,12 @@ void cgemm_NoTransB(Concurrency::accelerator_view &accl_view,
     }
     for (unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
         if (row < M && col + outIdx < N) {
-            (C2_real(row, col + outIdx) *= beta.x) += (c_reg_real[outIdx] *= alpha.x);
-            (C2_img(row, col + outIdx) *= beta.y) += (c_reg_img[outIdx] *= alpha.y);
+             tempReal = (( C2_real(row, col + outIdx) * beta.x) - (C2_img(row, col + outIdx) * beta.y));
+             tempImg  = (( C2_real(row, col + outIdx) * beta.y) + (C2_img(row, col + outIdx) * beta.x));
+             C2_real(row, col + outIdx) =  tempReal;
+             C2_img(row, col + outIdx)  =  tempImg;
+             C2_real(row, col + outIdx) += ((c_reg_real[outIdx] * alpha.x) - (c_reg_img[outIdx] * alpha.y));
+             C2_img(row, col + outIdx)  += ((c_reg_real[outIdx] * alpha.y) + (c_reg_img[outIdx] * alpha.x));
         }
     }
 });
@@ -1129,7 +1144,8 @@ void cgemm_TransAB(Concurrency::accelerator_view &accl_view,
     // Shared memory for tiling input B array
     tile_static float B_s_real [TILE_SZ_RATIO][TILE_SZ_B];
     tile_static float B_s_img [TILE_SZ_RATIO][TILE_SZ_B];
-
+    float tempReal = 0.0;
+    float tempImg = 0.0;
     // Macros for accessing flattened matrices
     #define A3_real(row,col) A[(row) * K + (col)].x
     #define B3_real(row,col) B[(row) * N + (col)].x
@@ -1196,15 +1212,19 @@ void cgemm_TransAB(Concurrency::accelerator_view &accl_view,
     }
     for (unsigned int outIdx = 0; outIdx < TILE_SZ_B; ++outIdx) {
         if (row < M && col + outIdx < N) {
-            (C3_real(row, col + outIdx) *= beta.x) += (c_reg_real[outIdx] *= alpha.x);
-            (C3_img(row, col + outIdx) *= beta.y) += (c_reg_img[outIdx] *= alpha.y);
+             tempReal = (( C3_real(row, col + outIdx) * beta.x) - (C3_img(row, col + outIdx) * beta.y));
+             tempImg  = (( C3_real(row, col + outIdx) * beta.y) + (C3_img(row, col + outIdx) * beta.x));
+             C3_real(row, col + outIdx) =  tempReal;
+             C3_img(row, col + outIdx)  =  tempImg;
+             C3_real(row, col + outIdx) += ((c_reg_real[outIdx] * alpha.x) - (c_reg_img[outIdx] * alpha.y));
+             C3_img(row, col + outIdx)  += ((c_reg_real[outIdx] * alpha.y) + (c_reg_img[outIdx] * alpha.x));
+
         }
     }
 });
 }
 
 #endif
-
 
 #if STEP
 void cgemm_NoTransAB_batch(Concurrency::accelerator_view &accl_view,
