@@ -9,15 +9,15 @@ using namespace Concurrency;
 using namespace Concurrency::graphics;
 
 #define REGISTER 0
-#define STEP 1
-#define SUBMICROTILE 0
+#define STEP 0
+#define SUBMICROTILE 1
 #define LOOPUNROLL 0
 
 #if SUBMICROTILE
-#define NOTRANSAB 1
+#define NOTRANSAB 0
 #define NOTRANSA 0
 #define NOTRANSB 0
-#define TRANSAB 0
+#define TRANSAB 1
 #endif
 
 #define THREADS    16
@@ -113,6 +113,8 @@ static void cgemm_NoTransAB_subMicroTile(Concurrency::accelerator_view &accl_vie
     int idxT = idt & (TILESIZE - 1);
     int idyT = idt/ TILESIZE;
     int block_k = 0;
+    float tempReal = 0.0;
+    float tempImg = 0.0;
     do
     {
       int colIndex = ( block_k * TILESIZE ) + idyT;
@@ -166,8 +168,12 @@ static void cgemm_NoTransAB_subMicroTile(Concurrency::accelerator_view &accl_vie
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
       if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = alpha.x * rCreal[col][row] + beta.x * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = alpha.y * rCimg[col][row] + beta.y * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].y;
+        tempReal = ((C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x * beta.x) - (C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y * beta.y));
+        tempImg  = ((C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x * beta.y) + (C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y * beta.x));
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal;
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg;
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x += ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y += ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
       }
       }
     }
@@ -208,6 +214,8 @@ static void cgemm_NoTransA_subMicroTile(Concurrency::accelerator_view &accl_view
     int idxT = idt & ( TILESIZE - 1);
     int idyT = idt >> shiftTS;
     int block_k = 0;
+    float tempReal = 0.0;
+    float tempImg = 0.0;
     do
     {
       int colIndex = ( block_k << shiftTS ) + idyT;
@@ -259,10 +267,13 @@ static void cgemm_NoTransA_subMicroTile(Concurrency::accelerator_view &accl_view
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N)
-      {
-        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = alpha.x * rCreal[col][row] + beta.x * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].y = alpha.y * rCimg[col][row] + beta.y * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].y;
+      if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N){
+         tempReal = ((C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x * beta.x) - (C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y * beta.y));
+         tempImg  = ((C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x * beta.y) + (C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y * beta.x));
+         C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal;
+         C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg;
+         C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x += ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+         C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y += ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
       }
       }
     }
@@ -303,6 +314,8 @@ static void cgemm_NoTransB_subMicroTile(Concurrency::accelerator_view &accl_view
     int idxT = idt % TILESIZE ;
     int idyT = idt / TILESIZE;
     int block_k = 0;
+    float tempReal = 0.0;
+    float tempImg = 0.0;
     do
     {
       int colIndex =( block_k << shiftTS )+ idyT;
@@ -355,10 +368,13 @@ static void cgemm_NoTransB_subMicroTile(Concurrency::accelerator_view &accl_view
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N)
-      {
-        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS ) * ldc].x = alpha.x * rCreal[col][row] + beta.x * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS ) * ldc].y = alpha.y * rCimg[col][row] + beta.y * C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].y;
+      if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N){
+         tempReal = ((C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x * beta.x) - (C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y * beta.y));
+         tempImg  = ((C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x * beta.y) + (C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y * beta.x));
+         C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal;
+         C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg;
+         C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x += ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+         C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y += ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
       }
       }
     }
@@ -399,6 +415,8 @@ static void cgemm_TransAB_subMicroTile(Concurrency::accelerator_view &accl_view,
     int idxT = idt & ( TILESIZE - 1);
     int idyT = idt >> shiftTS;
     int block_k = 0;
+    float tempReal = 0.0;
+    float tempImg = 0.0;
     do
     {
       int colIndex =( block_k << shiftTS )+ idyT;
@@ -450,11 +468,15 @@ static void cgemm_TransAB_subMicroTile(Concurrency::accelerator_view &accl_view,
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N)
-      {
-        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = alpha.x * rCreal[col][row] + beta.x * C[cOffset + (xIndex + (col<< shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].y = alpha.y * rCimg[col][row] + beta.y * C[cOffset + (xIndex + (col<< shiftTS)) + yIndex + (row << shiftTS) * ldc].y;
-      }
+      if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N){
+        tempReal = ((C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x * beta.x) - (C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y * beta.y));
+        tempImg  = ((C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x * beta.y) + (C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y * beta.x));
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal;
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg;
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x += ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+        C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y += ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+
+       }
       }
     }
  });
