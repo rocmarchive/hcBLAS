@@ -24,7 +24,7 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 ##Building and set up:    
 ######Need to be a super user
 
-(i)  ** C++ AMP Compiler installation**: Indepth details can be found [here](https://bitbucket.org/multicoreware/cppamp-driver-ng/overview)
+(i)  ** C++ AMP Compiler installation**: Indepth details can be found [here](https://bitbucket.org/multicoreware/cppamp-driver-ng/wiki/Home)
 
 Prepare a directory for work space.
 
@@ -34,16 +34,16 @@ Prepare a directory for work space.
    
    * git clone https://bitbucket.org/multicoreware/cppamp-driver-ng.git src
 
-   * git checkout gmac-exp-cache-kernel (gmac-exp-cache-kernel branch is tailor made for torch7 use case)
-(note that you can also use git checkout origin/gmac-exp-cache-kernel)
+   * git checkout torch-specific (torch-specific branch is tailor made for torch7 use case)
+(note that you can also use git checkout origin/torch-specific)
 
 Create a build directory and configure using CMake.
 
-  *  mkdir mcw_cppamp/gmac_exp_build_cache
+  *  mkdir mcw_cppamp/build
 
-  * cd mcw_cppamp/gmac_exp_build_cache
+  * cd mcw_cppamp/build
 
-  * cmake ../src -DCMAKE_BUILD_TYPE=Release (The gmac-exp-cache-kernel branch expects the AMDAPP SDK in the path /opt/AMDAPP)
+  * cmake ../src -DCMAKE_BUILD_TYPE=Release (The torch-specific branch expects the AMDAPP SDK in the path /opt/AMDAPP)
 
 Build the whole system. This will build clang and other libraries that require one time build.
 
@@ -59,7 +59,7 @@ Please do the following and rebuild the Compiler if any update is available
  # check updates from C++AMP Compiler
  cd mcw_cppamp/src
  git fetch --all
- git checkout origin/gmac-exp-cache-kernel
+ git checkout origin/torch-specific
 
  # check updates from C++AMP Compiler's dependency
  cd mcw_cppamp/src/compiler/tools/clang
@@ -72,3 +72,29 @@ Prior to building the library the following environment variables need to be set
 
 * AMDAPPSDKROOT=<path to AMD APP SDK>
 * MCWCPPAMPROOT=<path to mcw_cppamp dir>
+
+(ii)  ** AMPBLAS Library Installation **: 
+   
+   * git clone https://bitbucket.org/multicoreware/ampblas.git 
+
+   * cd ampblas
+
+   * git checkout Development
+   
+  For Linux:  
+
+     * cd Build/linux
+     * sh build.sh
+     * make
+
+  For 32-bit Windows Systems: ( It requires Visual Studio 12 version )
+
+     * cd Build/vc11-x86
+     * make-solutions.bat (This creates a Visual studio solution for ampblas Library) 
+
+  For 64-bit Windows Systems: ( It requires Visual Studio 12 version )
+
+     * cd Build/vc11-x86_64
+     * make-solutions.bat (This creates a Visual Studio solution for ampblas Library)
+
+ 
