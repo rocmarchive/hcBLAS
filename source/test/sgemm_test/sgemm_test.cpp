@@ -78,7 +78,7 @@ int main(int argc,char* argv[])
         ldb = N;
     }
  
-   for(int k = 0; k < 300; k++) {
+   for(int k = 0; k < 1; k++) {
         for(int i = 0; i < M * K; i++){
             A_mat[i] = rand()%100;
             Asgemm[i] = A_mat[i];
@@ -109,7 +109,8 @@ int main(int argc,char* argv[])
                continue;
     }
 
-    cout << " SGEMM Status "<<status << endl;
+    if (status == 0 )
+    cout << " Test Passed "<< endl;
     if(Imple_type ==1){
 		free(Asgemm);
     	free(Bsgemm);
