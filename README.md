@@ -21,54 +21,78 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 * **AMD Driver installer**: amd-driver-installer-14.301.1001-x86.x86_64
 
 
-##Building and set up:    
-######Need to be a super user
+## Installation Steps:    
 
-(i)  ** C++ AMP Compiler installation**: Indepth details can be found [here](https://bitbucket.org/multicoreware/cppamp-driver-ng/overview)
+### A. C++ AMP Compiler Installation: 
 
-Prepare a directory for work space.
+Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
 
-   * mkdir mcw_cppamp
+  (a) Prepare a directory for work space
 
-   * cd mcw_cppamp 
+       * mkdir ~/mcw_cppamp
+
+       * cd ~/mcw_cppamp 
    
-   * git clone https://bitbucket.org/multicoreware/cppamp-driver-ng.git src
+       * git clone https://bitbucket.org/multicoreware/cppamp-driver-ng.git src
 
-   * git checkout gmac-exp-cache-kernel (gmac-exp-cache-kernel branch is tailor made for torch7 use case)
-(note that you can also use git checkout origin/gmac-exp-cache-kernel)
+       * cd ~/mcw_cppamp/src/
 
-Create a build directory and configure using CMake.
+       * git checkout origin/torch-specific
 
-  *  mkdir mcw_cppamp/gmac_exp_build_cache
+  (b) Create a build directory and configure using CMake.
 
-  * cd mcw_cppamp/gmac_exp_build_cache
+       * mkdir ~/mcw_cppamp/build
 
-  * cmake ../src -DCMAKE_BUILD_TYPE=Release (The gmac-exp-cache-kernel branch expects the AMDAPP SDK in the path /opt/AMDAPP)
+       * cd ~/mcw_cppamp/build
 
-Build the whole system. This will build clang and other libraries that require one time build.
+       * export CLAMP_NOTILECHECK=ON
 
-  * make [-j #] world           (# is the number of parallel builds. Generally it is # of CPU cores)
-
-  * make                        (this builds llvm utilities)
-
-Note that you might need to manually check updates from C++ AMP Compiler.
-Please do the following and rebuild the Compiler if any update is available
-
-```
-#!python
- # check updates from C++AMP Compiler
- cd mcw_cppamp/src
- git fetch --all
- git checkout origin/gmac-exp-cache-kernel
-
- # check updates from C++AMP Compiler's dependency
- cd mcw_cppamp/src/compiler/tools/clang
- git fetch --all
- git checkout origin/master
-```
+       * cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON -DOPENCL_HEADER_DIR=<path to SDK's OpenCL headers> -DOPENCL_LIBRARY_DIR=<path to SDK's OpenCL library> 
+  
+       * For example, cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON  -DOPENCL_HEADER_DIR=/opt/AMDAPPSDK-3.0.0-Beta/include/CL -DOPENCL_LIBRARY_DIR=/opt/AMDAPPSDK-3.0-0-Beta/lib/x86_64
 
 
-Prior to building the library the following environment variables need to be set using export command
+  (c) Build AMP
 
-* AMDAPPSDKROOT=<path to AMD APP SDK>
-* MCWCPPAMPROOT=<path to mcw_cppamp dir>
+       * cd ~/mcw_cppamp/build
+
+       * make [-j #] world && make          (# is the number of parallel builds. Generally it is # of CPU cores)
+
+With this the C++ AMP Compiler installation is complete.
+
+### B. AMPBLAS Installation 
+
+(i) Clone MCW AMPBLAS source codes
+
+       * cd ~/
+   
+       * git clone https://bitbucket.org/multicoreware/ampblas.git 
+
+       * cd ~/ampblas
+
+       * git checkout Development
+   
+
+(ii) Platform-specific build
+
+(a) For Linux:  
+
+       * cd ~/ampblas/Build/linux
+
+       * sh build.sh
+
+       * make
+
+(b)  For Windows: (Prerequisite: Visual Studio 12 version )
+
+1. For 32 Bit:
+
+       * cd Build/vc11-x86
+
+       * make-solutions.bat (This creates a Visual studio solution for ampblas Library) 
+
+ 2. For 64-bit:
+
+       * cd Build/vc11-x86_64
+
+       * make-solutions.bat (This creates a Visual Studio solution for ampblas Library)
