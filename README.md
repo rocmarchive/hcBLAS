@@ -77,11 +77,13 @@ With this the C++ AMP Compiler installation is complete.
 
 (a) For Linux:  
 
-     * cd ~/ampblas/Build/linux
+       * cd ~/ampblas/Build/linux
+       
+       * export MCWCPPAMPBUILD=<path_to>/mcw_cppamp/build (Here path_to points to parent folder of mcw_cppamp. ~/ in our case)
 
-     * sh build.sh
+       * sh build.sh
 
-     * make
+       * make
 
 (b)  For Windows: (Prerequisite: Visual Studio 12 version )
 
