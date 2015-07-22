@@ -1,14 +1,15 @@
 #include "sgemm_kernels.h"
+
 // Sgemm Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
 	                   char TransA, char TransB, const int M, const int N, const int K,
                        const float alpha, Concurrency::array_view<float> &A_mat, 
-                       long aOffset, long A_batchOffset, long lda,
+                       long aOffset, long lda,
                        Concurrency::array_view<float> &B_mat, 
-                       long bOffset, long B_batchOffset, long ldb, const float beta,
+                       long bOffset, long ldb, const float beta,
                        Concurrency::array_view<float> &C_mat, 
-                       long cOffset, long C_batchOffset, long ldc,
-                       Concurrency::array_view<float> &temp_buf, int batchSize)
+                       long cOffset, long ldc,
+                       Concurrency::array_view<float> &temp_buf, long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset=0, int batchSize =0)
 {
   int i, j;
   ampblasStatus status = AMPBLAS_SUCCESS;
@@ -33,6 +34,8 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
     return status;
   }
   // Start the operations
+  if(batchSize > 0)
+  {
     if (TransB == 'n')
     {
       if (TransA == 'n')
@@ -45,53 +48,25 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
     else
       status = gemm_TransAB(accl_view, A_mat, aOffset, A_batchOffset, B_mat, bOffset, B_batchOffset, C_mat, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
 
-  return status;
-}
-
-ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
-	     char TransA, char TransB, const int M, const int N, const int K,
-             const float alpha, Concurrency::array_view<float> &A_mat, long aOffset, long lda,
-             Concurrency::array_view<float> &B_mat, long bOffset, long ldb, const float beta,
-             Concurrency::array_view<float> &C_mat, long cOffset, long ldc,
-             Concurrency::array_view<float> &temp_buf)
-{
-  int i, j;
-  ampblasStatus status = AMPBLAS_SUCCESS;
-  // Quick return if possible
-  if (!M || !N || ((alpha == 0 || !K) && beta == 1))
-    return status;
-  // For alpha = 0
-  if (alpha == 0)
-  {
-    if (beta == 0)
-    {
-      for (j = 0; j < N; ++j)
-        for (i = 0; i < M; ++i)
-          C_mat[i + j * ldc] = 0;
-    }
-    else
-    {
-      for (j = 0; j < N; ++j)
-        for (i = 0; i < M; ++i)
-          C_mat[i + j * ldc] *= beta;
-    }
-    return status;
   }
-  // Start the operations
+  else
+  {
     if (TransB == 'n')
     {
-      if (TransA == 'n')
-        status = gemm_NoTransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
-      else
-        status = gemm_NoTransB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+       if (TransA == 'n')
+         status = gemm_NoTransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+       else
+         status = gemm_NoTransB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
     else if (TransA == 'n')
       status = gemm_NoTransA(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     else
       status = gemm_TransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
 
   return status;
 }
+
 
 // Sgemm Call Type 1: Inputs and Outputs are host float pointers
 ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_TRANS typeA,
@@ -156,8 +131,8 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &acc
 
 {
     Concurrency::array_view<float> *temp_buf = NULL;
-    gemm_AMP(accl_view, typeA, typeB, M, N, K, alpha, A, aOffset, A_batchOffset, lda, B,
-             bOffset, B_batchOffset, ldb, beta, C, cOffset, C_batchOffset, ldc, *temp_buf, batchSize);
+    gemm_AMP(accl_view, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
+             bOffset, ldb, beta, C, cOffset, ldc, *temp_buf, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);
 
     C.synchronize();
     return AMPBLAS_SUCCESS;
