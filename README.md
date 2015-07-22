@@ -64,13 +64,13 @@ With this the C++ AMP Compiler installation is complete.
 
 (i) Clone MCW AMPBLAS source codes
 
-   * cd ~/
+      * cd ~/
    
-   * git clone https://bitbucket.org/multicoreware/ampblas.git 
+      * git clone https://bitbucket.org/multicoreware/ampblas.git 
 
-   * cd ~/ampblas
+      * cd ~/ampblas
 
-   * git checkout Development
+      * git checkout Development
    
 
 (ii) Platform-specific build
