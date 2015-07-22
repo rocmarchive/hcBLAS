@@ -89,12 +89,46 @@ With this the C++ AMP Compiler installation is complete.
 
 1. For 32 Bit:
 
-       * cd Build/vc11-x86
+       * cd ~/ampblas/Build/vc11-x86
 
        * make-solutions.bat (This creates a Visual studio solution for ampblas Library) 
 
  2. For 64-bit:
 
-       * cd Build/vc11-x86_64
+       * cd ~/ampblas/Build/vc11-x86_64
 
        * make-solutions.bat (This creates a Visual Studio solution for ampblas Library)
+       
+
+### C. Unit testing
+
+1. Install CBLAS CPU library: (Prerequisite: libblas-dev ubuntu package)
+     
+      * cd ~/
+      
+      * wget http://www.netlib.org/blas/blast-forum/cblas.tgz.
+     
+      * tar -xvzf cblas.tgz
+      
+      * cd ~/CBLAS
+      
+      * rm Makefile.in
+      
+      * ln -s Makefile.LINUX Makefile.in
+      
+      * make
+      
+2. Sgemm Testing: 
+
+     * export AMPBLAS_LIBRARY_PATH = ~/ampblas/Build/linux
+     
+     * export CBLASPATH=~/CBLAS
+     
+     * export LD_LIBRARY_PATH=$AMPBLAS_LIBRARY_PATH:$LD_LIBRARY_PATH
+     
+     * cd ~/ampblas/source/test/sgemm_test/
+     
+     * make
+     
+     * To test ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type takes 1, 2 or 3)
+      
