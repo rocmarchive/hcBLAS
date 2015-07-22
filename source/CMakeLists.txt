@@ -9,8 +9,7 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
 #Setting a variable for source files
 SET (SRCS
-    ampblaslib.h 
-    saxpy.cpp sgemm.cpp cgemm.cpp sgemv.cpp sger.cpp
+    saxpy.cpp sgemm_wrapper.cpp sgemm_kernels.cpp cgemm.cpp sgemv.cpp sger.cpp
     )
 
 IF(WIN32)
