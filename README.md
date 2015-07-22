@@ -60,27 +60,39 @@ Make sure the parent directory chosen is say ~/ or any other folder of your choi
 
 With this the C++ AMP Compiler installation is complete.
 
+### B. AMPBLAS Installation 
 
-(ii)  ** AMPBLAS Library Installation **: 
+(i) Clone MCW AMPBLAS source codes
+
+   * cd ~/
    
    * git clone https://bitbucket.org/multicoreware/ampblas.git 
 
-   * cd ampblas
+   * cd ~/ampblas
 
    * git checkout Development
    
-  For Linux:  
 
-     * cd Build/linux
+(ii) Platform-specific build
+
+(a) For Linux:  
+
+     * cd ~/ampblas/Build/linux
+
      * sh build.sh
+
      * make
 
-  For 32-bit Windows Systems: ( It requires Visual Studio 12 version )
+(b)  For Windows: (Prerequisite: Visual Studio 12 version )
+
+1. For 32 Bit:
 
      * cd Build/vc11-x86
+
      * make-solutions.bat (This creates a Visual studio solution for ampblas Library) 
 
-  For 64-bit Windows Systems: ( It requires Visual Studio 12 version )
+ 2. For 64-bit:
 
      * cd Build/vc11-x86_64
+
      * make-solutions.bat (This creates a Visual Studio solution for ampblas Library)
