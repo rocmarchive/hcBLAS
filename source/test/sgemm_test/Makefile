@@ -8,15 +8,13 @@ CFLAGS = `${MCWCPPAMPBUILD}/build/Release/bin/clamp-config --build --cxxflags --
 default: $(TARGET)
 all: default
 
-#HEADERS = ../../source/ampblaslib.h 
-
-
 .PRECIOUS: $(TARGET) 
 
 
-$(TARGET):sgemm_test.cpp $(HEADERS)
+$(TARGET):sgemm_test.cpp
 	$(CC) $(CFLAGS) $(INCLUDE) $(LIBS) $< -o $@
 	
 
 clean:
 	-rm -f $(TARGET)
+	-rm -f sgemm_test.o
