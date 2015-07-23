@@ -50,17 +50,18 @@ int main(int argc,char* argv[])
     float *Asgemm = (float*) calloc(M * K, sizeof(float));
     float *Bsgemm = (float*) calloc(K * N, sizeof(float));
     float *Csgemm = (float*) calloc(M * N, sizeof(float));
-    float *C = (float*) calloc(M * N, sizeof(float));
+    float *C_cblas = (float*) calloc(M * N, sizeof(float));
     Concurrency::array_view<float> A_mat(K * M, Asgemm);
     Concurrency::array_view<float> B_mat(N * K, Bsgemm);
     Concurrency::array_view<float> C_mat(M * N, Csgemm);
-    float *A_Batch = (float*) calloc(M * K * batchSize, sizeof(float));
-    float *B_Batch = (float*) calloc(K * N * batchSize, sizeof(float));
-    float *C_Batch = (float*) calloc(M * N * batchSize, sizeof(float));
+    
+    float *Asgemm_batch = (float*) calloc(M * K * batchSize, sizeof(float));
+    float *Bsgemm_batch = (float*) calloc(K * N * batchSize, sizeof(float));
+    float *Csgemm_batch = (float*) calloc(M * N * batchSize, sizeof(float));
     float *CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));                     
-    Concurrency::array_view<float> A_batch(K * M * batchSize, A_Batch);
-    Concurrency::array_view<float> B_batch(N * K * batchSize, B_Batch);
-    Concurrency::array_view<float> C_batch(M * N * batchSize, C_Batch);
+    Concurrency::array_view<float> A_batch(K * M * batchSize, Asgemm_batch);
+    Concurrency::array_view<float> B_batch(N * K * batchSize, Bsgemm_batch);
+    Concurrency::array_view<float> C_batch(M * N * batchSize, Csgemm_batch);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view()); 
  
@@ -96,15 +97,16 @@ int main(int argc,char* argv[])
         }
         for(int i = 0; i < M * N;i++)  {
             C_mat[i] = rand() % 25;
-            C[i] = C_mat[i];
+            C_cblas[i] = C_mat[i];
+            Csgemm[i] = C_mat[i];
         }
         if(Imple_type ==1){    /* SINGLE GPU CALL   */
             status = amp.ampblas_sgemm(typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-            cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C, ldc );
+            cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc );
             for(int i = 0 ; i < M * N ; i++){ 
-                if( C[i] != (Csgemm[i])){
+                if( C_cblas[i] != (Csgemm[i])){
                     ispassed = 0;
-                    cout << "At k = "<< K <<" Csgemm["<<i<<"] = "<<Csgemm[i]<<" doesnot match with C["<<i<<"] =" << C[i] << endl;
+                    cout << " AMPSGEMM["<<i<<"] = "<<Csgemm[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i] << endl;
                     break;
                 }
                 else
@@ -114,15 +116,15 @@ int main(int argc,char* argv[])
             free(Asgemm);
     	    free(Bsgemm);
     	    free(Csgemm);
-    	    free(C);
+    	    free(C_cblas);
         }
         else if(Imple_type ==2){/* MULTIPLE GPU CALL */
             status = amp.ampblas_sgemm(accl_view, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat,ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-            cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C, ldc );
+            cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc );
             for(int i = 0 ; i < M * N ; i++){ 
-                if( C[i] != (C_mat[i])){
+                if( C_cblas[i] != (C_mat[i])){
                     ispassed = 0;
-                    cout << "At k = "<< K <<" Csgemm["<<i<<"] = "<<C_mat[i]<<" doesnot match with C["<<i<<"] =" << C[i] << endl;
+                    cout << " AMPSGEMM["<<i<<"] = "<<C_mat[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i] << endl;
                     break;
                 }
                 else
@@ -136,34 +138,32 @@ int main(int argc,char* argv[])
 
             for(int i = 0; i < M * K * batchSize; i++){
                 A_batch[i] = rand()%100;
-                A_Batch[i] = A_batch[i];
+                Asgemm_batch[i] = A_batch[i];
             }
             for(int i = 0; i < K * N * batchSize;i++){
                 B_batch[i] = rand() % 15;
-                B_Batch[i] = B_batch[i];
+                Bsgemm_batch[i] = B_batch[i];
             }
             for(int i = 0; i < M * N * batchSize;i++)  {
                 C_batch[i] = rand() % 25;
-                C_Batch[i] = C_batch[i];
+                Csgemm_batch[i] = C_batch[i];
+                CCblasbatch[i] = Csgemm_batch[i];
             } 
             status = amp.ampblas_sgemm(accl_view, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch,ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
             for(int i = 0; i < batchSize; i++)
-                cblas_sgemm( order, transa, transb, M, N, K, alpha, A_Batch + i * M * K , lda, B_Batch + i * K * N, ldb, beta, CCblasbatch + i * M * N, ldc );
-            for(int i = 0 ; i < M * N * batchSize ; i++){ 
+                cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm_batch + i * M * K , lda, Bsgemm_batch + i * K * N, ldb, beta, CCblasbatch  + i * M * N ,ldc );
+
+            for(int i = 0 ; i < M * N * batchSize; i++){ 
                 if( C_batch[i] != (CCblasbatch[i])){
                     ispassed = 0;
-                    cout << "At k = "<< K <<" Csgemm["<<i<<"] = "<<C_batch[i]<<" doesnot match with C["<<i<<"] =" << CCblasbatch[i] << endl;
+                    cout << " AMPSGEMM["<<i<<"] = "<<C_batch[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << CCblasbatch[i] << endl;
                     break;
                 }
                 else
                    continue;
             }
             cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
-
     	}
-
-	
-	
     }
 
    

@@ -1,4 +1,4 @@
-TARGET = sgemm
+TARGET = saxpy
 LIBS = -lblas -L/usr/lib/libblas/ -lampblas -L ${AMPBLAS_LIBRARY_PATH}
 CC = ${MCWCPPAMPBUILD}/compiler/bin/clang++
 CFLAGS = `${MCWCPPAMPBUILD}/build/Release/bin/clamp-config --build --cxxflags --ldflags`
@@ -11,10 +11,10 @@ all: default
 .PRECIOUS: $(TARGET) 
 
 
-$(TARGET):sgemm_test.cpp
+$(TARGET):saxpy_test.cpp
 	$(CC) $(CFLAGS) $(INCLUDE) $(LIBS) $< -o $@
 	
 
 clean:
 	-rm -f $(TARGET)
-	-rm -f sgemm_test.o
+	-rm -f saxpy_test.o
