@@ -1212,27 +1212,29 @@ ampblasStatus gemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_v
 
 // Kernel 1
 
-/* 
+/*
+ * Inputs and Outputs are processed in Column major form 
  * Matrix-Matrix-Multiplication using local memory as a buffer
- * that has [OPENCL_BLOCK_SIZE x OPENCL_BLOCK_SIZE] elements
+ * that has [TILESIZE x TILESIZE] elements
  * 
  * Dimensions:
- *   Matrix A is [MxK] and A is not transposed
- *   Matrix B is [KxN] and B is not transposed
+ *   Matrix A is [MxK] and A is transposed
+ *   Matrix B is [KxN] and B is transposed
  *   Matrix C is [MxN]
  * 
  * Global Index Space
- *   global_size[0] := global_size[0] % OPENCL_BLOCK_SIZE == 0 && global_size[0] >= N
- *   global_size[1] := global_size[1] % OPENCL_BLOCK_SIZE == 0 && global_size[1] >= M
+ *   global_size[0] := global_size[0] % TILESIZE == 0 && global_size[0] >= N
+ *   global_size[1] := global_size[1] % TILESIZE == 0 && global_size[1] >= M
  *   
  * Local Index Space
- *   local_size[0] := OPENCL_BLOCK_SIZE
- *   local_size[1] := OPENCL_BLOCK_SIZE
+ *   local_size[0] := TILESIZE
+ *   local_size[1] := TILESIZE
  *  
  * Number of Threads in each local workgroup
- *   localThreadCount := OPENCL_BLOCK_SIZE*OPENCL_BLOCK_SIZE
+ *   localThreadCount := TILESIZE*TILESIZE
  */
-ampblasStatus gemm_NoTransAB_K1(Concurrency::accelerator_view &accl_view,
+
+ampblasStatus gemm_TransAB_K1(Concurrency::accelerator_view &accl_view,
                                     Concurrency::array_view<float, 1> &A, long aOffset,
                                     Concurrency::array_view<float, 1> &B, long bOffset,
                                     Concurrency::array_view<float, 1> &C, long cOffset,
@@ -1244,7 +1246,7 @@ ampblasStatus gemm_NoTransAB_K1(Concurrency::accelerator_view &accl_view,
       Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
       Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
       {
-        // coordinates for each tile of [OPENCL_BLOCK_SIZE x OPENCL_BLOCK_SIZE]
+        // coordinates for each tile of [TILESIZE x TILESIZE]
         int tile_x = tidx.tile[0];
         int tile_y = tidx.tile[1];
  
