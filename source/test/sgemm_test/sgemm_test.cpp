@@ -19,7 +19,7 @@ int main(int argc,char* argv[])
     int isTransA = (atoi(argv[4]));
     int isTransB = (atoi(argv[5])); 
     int Imple_type = (atoi(argv[6])); 
-	      
+    bool ispassed = 1;
     float alpha = 1;
     float beta = 1;
     long lda;
@@ -30,10 +30,10 @@ int main(int argc,char* argv[])
     long aOffset = 0;
     long bOffset = 0;
     long cOffset = 0;
-    long A_batchOffset = 1;
-    long B_batchOffset = 1;
-    long C_batchOffset = 1;
-    int batchSize =1;
+    long A_batchOffset = K * M;
+    long B_batchOffset = N * K;
+    long C_batchOffset = M * N;
+    int batchSize =128;
     AMPBLAS_TRANS typeA,typeB ;
     ampblasStatus status;
     if((isTransA == 0 || isTransA == 1) && (isTransB == 0 || isTransB == 1)){ 
@@ -54,6 +54,13 @@ int main(int argc,char* argv[])
     Concurrency::array_view<float> A_mat(K * M, Asgemm);
     Concurrency::array_view<float> B_mat(N * K, Bsgemm);
     Concurrency::array_view<float> C_mat(M * N, Csgemm);
+    float *A_Batch = (float*) calloc(M * K * batchSize, sizeof(float));
+    float *B_Batch = (float*) calloc(K * N * batchSize, sizeof(float));
+    float *C_Batch = (float*) calloc(M * N * batchSize, sizeof(float));
+    float *CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));                     
+    Concurrency::array_view<float> A_batch(K * M * batchSize, A_Batch);
+    Concurrency::array_view<float> B_batch(N * K * batchSize, B_Batch);
+    Concurrency::array_view<float> C_batch(M * N * batchSize, C_Batch);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view()); 
  
@@ -78,7 +85,7 @@ int main(int argc,char* argv[])
         ldb = N;
     }
  
-   for(int k = 0; k < 1; k++) {
+    {
         for(int i = 0; i < M * K; i++){
             A_mat[i] = rand()%100;
             Asgemm[i] = A_mat[i];
@@ -91,32 +98,75 @@ int main(int argc,char* argv[])
             C_mat[i] = rand() % 25;
             C[i] = C_mat[i];
         }
-        if(Imple_type ==1)     /* SINGLE GPU CALL   */
+        if(Imple_type ==1){    /* SINGLE GPU CALL   */
             status = amp.ampblas_sgemm(typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-        else if(Imple_type ==2)/* MULTIPLE GPU CALL */
-            status = amp.ampblas_sgemm(accl_view, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat,ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-        else                   /* BATCH PROCESSING  */
-            status = amp.ampblas_sgemm(accl_view, typeA, typeB, M, N, K, alpha, A_mat, lda, A_batchOffset, B_mat,ldb, B_batchOffset, beta, C_mat, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-		
-		
-	cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C, ldc );
-        for(int i = 0 ; i< M* N ; i++) 
-            if( C_mat[i] != (Csgemm[i])){
-                cout << "At k = "<< k <<" Csgemm["<<i<<"] = "<<C_mat[i]<<" doesnot match with C["<<i<<"] =" << C[i] << endl;
-                break;
+            cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C, ldc );
+            for(int i = 0 ; i < M * N ; i++){ 
+                if( C[i] != (Csgemm[i])){
+                    ispassed = 0;
+                    cout << "At k = "<< K <<" Csgemm["<<i<<"] = "<<Csgemm[i]<<" doesnot match with C["<<i<<"] =" << C[i] << endl;
+                    break;
+                }
+                else
+                   continue;
             }
-            else
-               continue;
+            cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
+            free(Asgemm);
+    	    free(Bsgemm);
+    	    free(Csgemm);
+    	    free(C);
+        }
+        else if(Imple_type ==2){/* MULTIPLE GPU CALL */
+            status = amp.ampblas_sgemm(accl_view, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat,ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
+            cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C, ldc );
+            for(int i = 0 ; i < M * N ; i++){ 
+                if( C[i] != (C_mat[i])){
+                    ispassed = 0;
+                    cout << "At k = "<< K <<" Csgemm["<<i<<"] = "<<C_mat[i]<<" doesnot match with C["<<i<<"] =" << C[i] << endl;
+                    break;
+                }
+                else
+                   continue;
+            }
+            cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
+ 
+        }
+        else{         
+           /* BATCH PROCESSING  */
+
+            for(int i = 0; i < M * K * batchSize; i++){
+                A_batch[i] = rand()%100;
+                A_Batch[i] = A_batch[i];
+            }
+            for(int i = 0; i < K * N * batchSize;i++){
+                B_batch[i] = rand() % 15;
+                B_Batch[i] = B_batch[i];
+            }
+            for(int i = 0; i < M * N * batchSize;i++)  {
+                C_batch[i] = rand() % 25;
+                C_Batch[i] = C_batch[i];
+            } 
+            status = amp.ampblas_sgemm(accl_view, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch,ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+            for(int i = 0; i < batchSize; i++)
+                cblas_sgemm( order, transa, transb, M, N, K, alpha, A_Batch + i * M * K , lda, B_Batch + i * K * N, ldb, beta, CCblasbatch + i * M * N, ldc );
+            for(int i = 0 ; i < M * N * batchSize ; i++){ 
+                if( C_batch[i] != (CCblasbatch[i])){
+                    ispassed = 0;
+                    cout << "At k = "<< K <<" Csgemm["<<i<<"] = "<<C_batch[i]<<" doesnot match with C["<<i<<"] =" << CCblasbatch[i] << endl;
+                    break;
+                }
+                else
+                   continue;
+            }
+            cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
+
+    	}
+
+	
+	
     }
 
-    if (status == 0 )
-    cout << " Test Passed "<< endl;
-    if(Imple_type ==1){
-		free(Asgemm);
-    	free(Bsgemm);
-    	free(Csgemm);
-    	free(C);
-    }
+   
     return 0;   
 }
    

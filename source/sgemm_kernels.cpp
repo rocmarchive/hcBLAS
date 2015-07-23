@@ -1,17 +1,15 @@
 #include "sgemm_kernels.h"
 
-ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
+ampblasStatus gemm_NoTransAB_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                     Concurrency::array_view<float, 1> &A, long aOffset,
                                     Concurrency::array_view<float, 1> &B, long bOffset,
                                     Concurrency::array_view<float, 1> &C, long cOffset,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float alpha, float beta)
 {
-  if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600)) 
-  {
 #define TILESIZE 8
 #define STEPSIZE 8
-      cout<<"\nSTEP NBK 8 8"<<endl;
+      cout<<"\nSTEP NBK" <<TILESIZE<<" "<<STEPSIZE<<endl;
       Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
       Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
       Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -70,13 +68,19 @@ ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
       });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
-  }
-  else if ((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10))))
-  {
-#define TILESIZE 16
+      return AMPBLAS_SUCCESS;
+}
+
+ampblasStatus gemm_NoTransAB_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
+#define TILESIZE 16 
 #define STEPSIZE 16
-      cout<<"\nSTEP NBK 16 16"<<endl;
+      cout<<"\nSTEP NBK" <<TILESIZE<<" "<<STEPSIZE<<endl;
       Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
       Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
       Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -135,10 +139,17 @@ ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
       });
 #undef TILESIZE
 #undef STEPSIZE
-     return AMPBLAS_SUCCESS;
-  }
-  else if (M < 1800 && N < 1800 && K < 1800)
-  {
+      return AMPBLAS_SUCCESS;
+
+}
+
+ampblasStatus gemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
 #define TILESIZE 16
 #define MICROTILESIZE 2
       cout<<"\n MICRO 16 2"<<endl;
@@ -208,22 +219,17 @@ ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef MICROTILESIZE
     return AMPBLAS_SUCCESS;
-  }
-  else {
-    cout<<"Input matrix Size  "<<"M = "<<M<<"N = "<<N<<"K = "<<K<<"doesnot comes under wrapper sizes"<<endl;
-    return AMPBLAS_ERROR;
-  }
 }
 
-ampblasStatus gemm_NoTransA(Concurrency::accelerator_view &accl_view,
+
+
+ampblasStatus gemm_NoTransA_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
 	                           Concurrency::array_view<float, 1> &A, long aOffset,
                                    Concurrency::array_view<float, 1> &B, long bOffset,
                                    Concurrency::array_view<float, 1> &C, long cOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float alpha, float beta)
 {
-  if ((M < 10 && N < 1800 && K < 600) || (M < 600 && ((N < 600 && K < 1800) || (N < 1800 && K < 10))))
-  {
 #define TILESIZE 16
 #define STEPSIZE 16
       cout<<"\nSTEP NBK 16 16"<<endl;
@@ -297,9 +303,16 @@ ampblasStatus gemm_NoTransA(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef STEPSIZE
     return AMPBLAS_SUCCESS;
-  }
-  else if ((M < 10 && N < 1800 && K < 1800) || (M < 600 && N < 10 && K < 1800) || (M < 1800 && N < 10 && K < 1800))
-  {
+
+}
+
+ampblasStatus gemm_NoTransA_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
+	                           Concurrency::array_view<float, 1> &A, long aOffset,
+                                   Concurrency::array_view<float, 1> &B, long bOffset,
+                                   Concurrency::array_view<float, 1> &C, long cOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float alpha, float beta)
+{
 #define TILESIZE 16
 #define STEPSIZE 16
         cout<<"\nSTEP 16 16"<<endl;
@@ -367,9 +380,16 @@ ampblasStatus gemm_NoTransA(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef STEPSIZE
     return AMPBLAS_SUCCESS;
-  }
-  else if ((M < 600 && N < 1800 && K < 1800) || (M < 1800 && N < 1800 && K < 600))
-  {
+
+}
+
+ampblasStatus gemm_NoTransA_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+	                           Concurrency::array_view<float, 1> &A, long aOffset,
+                                   Concurrency::array_view<float, 1> &B, long bOffset,
+                                   Concurrency::array_view<float, 1> &C, long cOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float alpha, float beta)
+{
 #define TILESIZE 16
 #define MICROTILESIZE 2
     cout<<"\n MICRO NBK 16 2"<<endl;
@@ -447,9 +467,16 @@ ampblasStatus gemm_NoTransA(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef MICROTILESIZE
     return AMPBLAS_SUCCESS;
-  }
-  else if (M < 1800 && N < 1800 && K < 1800)
-  {
+}
+
+
+ampblasStatus gemm_NoTransA_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+	                           Concurrency::array_view<float, 1> &A, long aOffset,
+                                   Concurrency::array_view<float, 1> &B, long bOffset,
+                                   Concurrency::array_view<float, 1> &C, long cOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float alpha, float beta)
+{
 #define TILESIZE 16
 #define MICROTILESIZE 2
       cout<<"\n MICRO 16 2"<<endl;
@@ -519,22 +546,16 @@ ampblasStatus gemm_NoTransA(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE 
 #undef MICROTILESIZE
     return AMPBLAS_SUCCESS;
-  }
-  else {
-      cout<<"Input matrix Size  "<<"M = "<<M<<"N = "<<N<<"K = "<<K<<"doesnot comes under wrapper sizes"<<endl;
-      return AMPBLAS_ERROR;
-  }
 }
 
-ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
+
+ampblasStatus gemm_NoTransB_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
           		  Concurrency::array_view<float, 1> &A, long aOffset,
                           Concurrency::array_view<float, 1> &B, long bOffset,
                           Concurrency::array_view<float, 1> &C, long cOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta)
 {
-  if ((M > 10 && M < 600) && N < 10 && K < 10)
-  {
 #define TILESIZE 8
 #define STEPSIZE 8
       cout<<"\n STEP NBK 8 8"<<endl;
@@ -616,9 +637,15 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef STEPSIZE
     return AMPBLAS_SUCCESS;
-  }
-  else if ((M > 10 && M < 600) && N < 600 && K < 10)
-  {
+}
+
+ampblasStatus gemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+          		  Concurrency::array_view<float, 1> &A, long aOffset,
+                          Concurrency::array_view<float, 1> &B, long bOffset,
+                          Concurrency::array_view<float, 1> &C, long cOffset,
+                          int M, int N, int K, int lda, int ldb, int ldc,
+                          float alpha, float beta)
+{
 #define TILESIZE 8
 #define STEPSIZE 8
     cout<<"\n STEP 8 8"<<endl;
@@ -688,9 +715,15 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef STEPSIZE
     return AMPBLAS_SUCCESS;
-  }
-  else if (((M < 10 && N < 1800) || (M < 1800 && N < 10) || (M < 600 && N < 1800) || (M < 1800 && N < 10)) && K < 1800)
-  {
+}
+
+ampblasStatus gemm_NoTransB_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
+          		  Concurrency::array_view<float, 1> &A, long aOffset,
+                          Concurrency::array_view<float, 1> &B, long bOffset,
+                          Concurrency::array_view<float, 1> &C, long cOffset,
+                          int M, int N, int K, int lda, int ldb, int ldc,
+                          float alpha, float beta)
+{
 #define TILESIZE 16
 #define STEPSIZE 16
     cout<<"\n STEP NBK 16 16"<<endl;
@@ -772,9 +805,16 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef STEPSIZE
     return AMPBLAS_SUCCESS;
-  }
-  else if (M < 1800 && N < 1800 && K < 600)  
-  {
+}
+
+
+ampblasStatus gemm_NoTransB_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+          		  Concurrency::array_view<float, 1> &A, long aOffset,
+                          Concurrency::array_view<float, 1> &B, long bOffset,
+                          Concurrency::array_view<float, 1> &C, long cOffset,
+                          int M, int N, int K, int lda, int ldb, int ldc,
+                          float alpha, float beta)
+{
 #define TILESIZE 16
 #define MICROTILESIZE 2
     cout<<"\n MICRO NBK 16 2"<<endl;
@@ -853,9 +893,17 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef MICROTILESIZE
     return AMPBLAS_SUCCESS;
-  }
-  else if (M < 1800 && N < 1800 && K < 1800)
-  {
+}
+
+
+ampblasStatus gemm_NoTransB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+          		  Concurrency::array_view<float, 1> &A, long aOffset,
+                          Concurrency::array_view<float, 1> &B, long bOffset,
+                          Concurrency::array_view<float, 1> &C, long cOffset,
+                          int M, int N, int K, int lda, int ldb, int ldc,
+                          float alpha, float beta)
+{
+
 #define TILESIZE 16
 #define MICROTILESIZE 2
     cout<<"\n MICRO 16 2"<<endl;
@@ -925,21 +973,19 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef MICROTILESIZE
     return AMPBLAS_SUCCESS;
-  }
-  else {
-     cout<<"Input matrix Size "<<"M = "<<M<<"N = "<<N<<"K = "<<K<<"is not covered under wrapper sizes"<<endl;
-     return AMPBLAS_ERROR;
-  }
+
 }
-ampblasStatus gemm_TransAB(Concurrency::accelerator_view &accl_view,
+
+
+
+
+ampblasStatus gemm_TransAB_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                   Concurrency::array_view<float, 1> &A, long aOffset,
                                   Concurrency::array_view<float, 1> &B, long bOffset,
                                   Concurrency::array_view<float, 1> &C, long cOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta)
 {
-  if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600))
-  {
 #define TILESIZE 8
 #define STEPSIZE 8
       cout<<"\n STEP NBK 8 8"<<endl;
@@ -1005,9 +1051,16 @@ ampblasStatus gemm_TransAB(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef STEPSIZE
      return AMPBLAS_SUCCESS;
-  }
-  if ((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10))))
-  {
+}
+
+ampblasStatus gemm_TransAB_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
+                                  Concurrency::array_view<float, 1> &A, long aOffset,
+                                  Concurrency::array_view<float, 1> &B, long bOffset,
+                                  Concurrency::array_view<float, 1> &C, long cOffset,
+                                  int M, int N, int K, int lda, int ldb, int ldc,
+                                  float alpha, float beta)
+{
+
 #define TILESIZE 16
 #define STEPSIZE 16
       cout<<"\n STEP NBK 16 16"<<endl;
@@ -1073,10 +1126,16 @@ ampblasStatus gemm_TransAB(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef STEPSIZE
     return AMPBLAS_SUCCESS;
-  }
-  
-  else if (M < 1800 && N < 1800 && K < 1800)
-  {
+
+}
+
+ampblasStatus gemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+                                  Concurrency::array_view<float, 1> &A, long aOffset,
+                                  Concurrency::array_view<float, 1> &B, long bOffset,
+                                  Concurrency::array_view<float, 1> &C, long cOffset,
+                                  int M, int N, int K, int lda, int ldb, int ldc,
+                                  float alpha, float beta)
+{
 #define TILESIZE 16
 #define MICROTILESIZE 2
       cout<<"\n MICRO 16 2"<<endl;
@@ -1146,8 +1205,120 @@ ampblasStatus gemm_TransAB(Concurrency::accelerator_view &accl_view,
 #undef TILESIZE
 #undef MICROTILESIZE 
     return AMPBLAS_SUCCESS;
+}
+
+
+ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
+  if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600)) 
+  {
+    return gemm_NoTransAB_STEP_NBK_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else  {
+  else if ((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10))))
+  {
+    return gemm_NoTransAB_STEP_NBK_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if (M < 1800 && N < 1800 && K < 1800)
+  {
+    return gemm_NoTransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else {
+    cout<<"Input matrix Size  "<<"M = "<<M<<"N = "<<N<<"K = "<<K<<"doesnot comes under wrapper sizes"<<endl;
+    return AMPBLAS_ERROR;
+  }
+}
+
+
+ampblasStatus gemm_NoTransA(Concurrency::accelerator_view &accl_view,
+	                           Concurrency::array_view<float, 1> &A, long aOffset,
+                                   Concurrency::array_view<float, 1> &B, long bOffset,
+                                   Concurrency::array_view<float, 1> &C, long cOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float alpha, float beta)
+{
+  if ((M < 10 && N < 1800 && K < 600) || (M < 600 && ((N < 600 && K < 1800) || (N < 1800 && K < 10))))
+  {
+    return gemm_NoTransA_STEP_NBK_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if ((M < 10 && N < 1800 && K < 1800) || (M < 600 && N < 10 && K < 1800) || (M < 1800 && N < 10 && K < 1800))
+  {
+    return gemm_NoTransA_STEP_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if ((M < 600 && N < 1800 && K < 1800) || (M < 1800 && N < 1800 && K < 600))
+  {
+    return gemm_NoTransA_MICRO_NBK_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if (M < 1800 && N < 1800 && K < 1800)
+  {
+    return gemm_NoTransA_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else {
+      cout<<"Input matrix Size  "<<"M = "<<M<<"N = "<<N<<"K = "<<K<<"doesnot comes under wrapper sizes"<<endl;
+      return AMPBLAS_ERROR;
+  }
+}
+
+
+ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
+          		  Concurrency::array_view<float, 1> &A, long aOffset,
+                          Concurrency::array_view<float, 1> &B, long bOffset,
+                          Concurrency::array_view<float, 1> &C, long cOffset,
+                          int M, int N, int K, int lda, int ldb, int ldc,
+                          float alpha, float beta)
+{
+  if ((M > 10 && M < 600) && N < 10 && K < 10)
+  {
+    return gemm_NoTransB_STEP_NBK_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if ((M > 10 && M < 600) && N < 600 && K < 10)
+  {
+    return gemm_NoTransB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if (((M < 10 && N < 1800) || (M < 1800 && N < 10) || (M < 600 && N < 1800) || (M < 1800 && N < 10)) && K < 1800)
+  {
+    return gemm_NoTransB_STEP_NBK_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if (M < 1800 && N < 1800 && K < 600)  
+  {
+    return  gemm_NoTransB_MICRO_NBK_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if (M < 1800 && N < 1800 && K < 1800)
+  {
+    return  gemm_NoTransB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else {
+     cout<<"Input matrix Size "<<"M = "<<M<<"N = "<<N<<"K = "<<K<<"is not covered under wrapper sizes"<<endl;
+     return AMPBLAS_ERROR;
+  }
+}
+
+ampblasStatus gemm_TransAB(Concurrency::accelerator_view &accl_view,
+                                  Concurrency::array_view<float, 1> &A, long aOffset,
+                                  Concurrency::array_view<float, 1> &B, long bOffset,
+                                  Concurrency::array_view<float, 1> &C, long cOffset,
+                                  int M, int N, int K, int lda, int ldb, int ldc,
+                                  float alpha, float beta)
+{
+  if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600))
+  {
+    return gemm_TransAB_STEP_NBK_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  if ((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10))))
+  {
+    return gemm_TransAB_STEP_NBK_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  
+  else if (M < 1800 && N < 1800 && K < 1800)
+  {
+    return gemm_TransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else  
+  {
      cout<<"Input matrix Size "<<"M = "<<M<<"N = "<<N<<"K = "<<K<<" not covered under wrapper sizes"<<endl; 
      return AMPBLAS_ERROR;
   }

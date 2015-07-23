@@ -4,6 +4,9 @@
 
 using namespace Concurrency;
 
+#define TILESIZE 8
+#define STEPSIZE 8
+#define MICROTILESIZE 2
 #define BANKTILESIZE (TILESIZE + 1)
 #define STEPTILERATIO STEPSIZE/TILESIZE 
 #define STEPTILEPROD STEPSIZE*TILESIZE
