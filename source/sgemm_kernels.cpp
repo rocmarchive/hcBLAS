@@ -1484,10 +1484,10 @@ ampblasStatus gemm_TransAB_K1(Concurrency::accelerator_view &accl_view,
        // write all results back to global memory
        if ( tidx.global[0] < N && tidx.global[1] < M ) 
        {
-         int c = N * TILESIZE * tile_y + TILESIZE * tile_x;
-         if (c + cOffset + N * thread_y + thread_x < M*N ) 
+         int c = TILESIZE * tile_y + TILESIZE * tile_x * M;
+         if (c + cOffset + thread_y + thread_x * M < M*N ) 
          {
-           C[c + cOffset +  N * thread_y + thread_x] = sum + beta * C[c + cOffset + N * thread_y + thread_x];
+           C[c + cOffset + thread_y + thread_x * M] = sum + beta * C[c + cOffset + thread_y + thread_x * M];
          }
        }
    });
@@ -1605,10 +1605,10 @@ ampblasStatus gemm_NoTransAB_K2(Concurrency::accelerator_view &accl_view,
         // write all results back to global memory
         if ( tidx.global[0] < N && tidx.global[1] < M ) 
         {
-          int c = N * TILESIZE * tile_y + TILESIZE * tile_x;
-          if (c + cOffset + N * thread_y + thread_x < M*N ) 
+          int c = TILESIZE * tile_y + TILESIZE * tile_x * M;
+          if (c + cOffset + thread_y + thread_x * M < M*N ) 
           {
-            C[c + cOffset +  N * thread_y + thread_x] = sum + beta * C[c + cOffset +  N * thread_y + thread_x];
+            C[c + cOffset + thread_y + thread_x * M ] = sum + beta * C[c + cOffset +  thread_y + thread_x * M];
           }
         }
     });
@@ -1734,10 +1734,10 @@ ampblasStatus gemm_TransAB_K3(Concurrency::accelerator_view &accl_view,
     //if ( get_global_id(0) < N && get_global_id(1) < M ) {
     for (int w = 0; w < AMP_WPT; w++) 
     {
-      int c = N * TILESIZE * tile_y + TILESIZE * tile_x;
-      if (c + cOffset + N * thread_y + thread_x + w * AMP_RTS < M * N ) 
+      int c = TILESIZE * tile_y + TILESIZE * tile_x * M;
+      if (c + cOffset + thread_y + thread_x * M + w * AMP_RTS < M * N ) 
       {
-        C[c + cOffset + N * thread_y + thread_x + w * AMP_RTS] = acc[w] + beta * C[c + cOffset + N * thread_y + thread_x + w * AMP_RTS];
+        C[c + cOffset + thread_y + thread_x * M + w * AMP_RTS] = acc[w] + beta * C[c + cOffset + thread_y + thread_x * M + w * AMP_RTS];
       }
     }
   //}
@@ -1855,10 +1855,10 @@ ampblasStatus gemm_NoTransA_K4(Concurrency::accelerator_view &accl_view,
     // write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) 
     {
-      int c = N * TILESIZE * tile_y + TILESIZE * tile_x;
-      if (c + cOffset + N * thread_y + thread_x < M*N ) 
+      int c = TILESIZE * tile_y + TILESIZE * tile_x * M;
+      if (c + cOffset + thread_y + thread_x  * M < M*N ) 
       {
-        C[c + cOffset + N * thread_y + thread_x] = sum + beta * C[c + cOffset +  N * thread_y + thread_x];
+        C[c + cOffset + thread_y + thread_x * M] = sum + beta * C[c + cOffset + thread_y + thread_x * M];
       }
     }
   });
@@ -1938,9 +1938,9 @@ ampblasStatus gemm_NoTransB_K5(Concurrency::accelerator_view &accl_view,
       tile_static float localMemB[TILESIZE][TILESIZE];
      
       // each thread in workgroup reads one element of matrix A from global to local memory
-      if ( thread_x + global_x < K ) 
+      if ( thread_y + global_y < K ) 
       {
-        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + K * thread_y + thread_x];
+        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + thread_y + thread_x * K];
       } 
       else 
       { 
@@ -1949,9 +1949,9 @@ ampblasStatus gemm_NoTransB_K5(Concurrency::accelerator_view &accl_view,
       }
 
       // each thread in workgroup reads one element of matrix B from global to local memory
-      if ( thread_y + global_y < K ) 
+      if ( thread_x + global_x < K ) 
       {
-        localMemB[thread_y][thread_x] = B[b + bOffset + K * thread_x + thread_y];
+        localMemB[thread_y][thread_x] = B[b + bOffset + thread_x + thread_y * K];
       } 
       else 
       { 
@@ -1965,7 +1965,7 @@ ampblasStatus gemm_NoTransB_K5(Concurrency::accelerator_view &accl_view,
       // multiply matrix A and B using local memory
       for (int k = 0; k < TILESIZE; k++) 
       {
-         sum += localMemA[thread_y][k] * localMemB[k][thread_x];
+         sum += localMemA[k][thread_y] * localMemB[thread_x][k];
       }
 
       // Synchronize all sub-results
@@ -1973,12 +1973,12 @@ ampblasStatus gemm_NoTransB_K5(Concurrency::accelerator_view &accl_view,
     }
 
     // write all results back to global memory
-    if ( get_global_id(0) < N && get_global_id(1) < M ) 
+    if ( tidx.global[0] < N && tidx.global[1] < M ) 
     {
-      int c = N * TILESIZE * tile_y + TILESIZE * tile_x;
-      if (c + cOffset + N * thread_y + thread_x < M*N ) 
+      int c = TILESIZE * tile_y + TILESIZE * tile_x * M;
+      if (c + cOffset + thread_y + thread_x * M < M*N ) 
       {
-        C[c + cOffset + N * thread_y + thread_x] = sum + beta * C[c + cOffset + N * thread_y + thread_x];
+        C[c + cOffset + thread_y + thread_x * M ] = sum + beta * C[c + cOffset + thread_y + thread_x * M];
       }
     }
 
