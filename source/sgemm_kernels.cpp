@@ -1208,8 +1208,6 @@ ampblasStatus gemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_v
 }
 
 
-/*------------------------------------------- New Kernels from Greg Stoner-------------------------------------------*/
-
 // Kernel 1
 
 /*
@@ -1440,7 +1438,7 @@ ampblasStatus gemm_NoTransAB_K2(Concurrency::accelerator_view &accl_view,
         }
 
         // write all results back to global memory
-        if ( get_global_id(0) < N && get_global_id(1) < M ) 
+        if ( tidx.global[0] < N && tidx.global[1] < M ) 
         {
           int c = N * TILESIZE * tile_y + TILESIZE * tile_x;
           if (c + N * thread_y + thread_x < M*N ) 
@@ -1450,6 +1448,139 @@ ampblasStatus gemm_NoTransAB_K2(Concurrency::accelerator_view &accl_view,
         }
     });
     return AMPBLAS_SUCCESS;
+}
+
+
+/* 
+ * Matrix-Matrix-Multiplication using local memory as a buffer
+ * that has [TILESIZE x TILESIZE] elements
+ * 
+ * Dimensions:
+ *   Matrix A is [MxK] and A is transposed
+ *   Matrix B is [KxN] and B is transposed
+ *   Matrix C is [MxN]
+ * 
+ * Global Index Space
+ *   global_size[0] := global_size[0] % TILESIZE == 0 && global_size[0] >= N
+ *   global_size[1] := global_size[1] % TILESIZE == 0 && global_size[1] >= M
+ *   
+ * Local Index Space
+ *   local_size[0] := TILESIZE
+ *   local_size[1] := TILESIZE
+ *  
+ * Number of Threads in each local workgroup
+ *   localThreadCount := TILESIZE*TILESIZE
+ */
+ampblasStatus gemm_TransAB_K3(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
+#undef  TILESIZE
+#define TILESIZE 16
+#define AMP_WPT 4
+#define AMP_RTS 8
+  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  {
+    // coordinates for each tile of [TILESIZE x TILESIZE]
+    int tile_x = tidx.tile[0];
+    int tile_y = tidx.tile[1];
+ 
+    // local index of each thread
+    int thread_x = tidx.local[0];
+    int thread_y = tidx.local[1];
+
+    // first index of first thread reading A in local workgroup
+    int a_bgn = K * TILESIZE * tile_y;
+
+    // last index to first thread reading A in local workgroup
+    int a_end   = a_bgn + K - 1;
+
+    // step taken by each thread reading A
+    int a_stp  = TILESIZE;
+
+    // first index of first thread reading B in local workgroup
+    int b_bgn = TILESIZE * tile_x;
+  
+    // step taken by each thread reading B in local workgroup
+    int b_stp  = TILESIZE * N;
+      
+    int global_x = 0;
+    int global_y = 0;
+
+    // local memory for matrix A
+    tile_static float localMemA[TILESIZE][TILESIZE];
+
+    // local memory for matrix B
+    tile_static float localMemB[TILESIZE][TILESIZE];
+
+    // Initialise the accumulation registers
+    float acc[AMP_WPT];
+    for (int w = 0; w < AMP_WPT; w++) 
+    {
+      acc[w] = 0.0;
+    }
+  
+    for (int a = a_bgn, b = b_bgn; a <= a_end; a += a_stp, b += b_stp, global_x += TILESIZE, global_y += TILESIZE)  
+    {
+      for (int w = 0; w < AMP_WPT; w++) 
+      {
+        // each thread in workgroup reads one element of matrix A from global to local memory
+        if ( thread_x + w * AMP_RTS + global_x < K ) 
+        {
+          localMemA[thread_y][thread_x + w * AMP_RTS] = alpha * A[a + aOffset + K * thread_y + thread_x + w * AMP_RTS];
+        } 
+        else 
+        { 
+          // needed on AMD
+          localMemA[thread_y][thread_x + w * AMP_RTS] = 0.0;
+        }
+      
+        // each thread in workgroup reads one element of matrix B from global to local memory
+        if ( thread_y + global_y < K ) 
+        {
+          localMemB[thread_y][thread_x + w * AMP_RTS] = B[b + bOffset + N * thread_y + thread_x + w * AMP_RTS];
+        }  
+        else 
+        { // needed on AMD
+          localMemB[thread_y][thread_x + w * AMP_RTS] = 0.0;
+        }
+      } 
+      // Synchronize the reads of A and B
+      tidx.barrier.wait();
+
+      // multiply matrix A and B using local memory
+      for (int k = 0; k < TILESIZE; k++) 
+      {
+        for (int w = 0; w < AMP_WPT; w++) 
+        {
+          acc[w] += localMemA[thread_y][k] * localMemB[k][thread_x + w * AMP_RTS];
+        }
+      }
+      // Synchronize all sub-results
+      tidx.barrier.wait();
+    }
+
+    // write all results back to global memory
+    //if ( get_global_id(0) < N && get_global_id(1) < M ) {
+    for (int w = 0; w < AMP_WPT; w++) 
+    {
+      int c = N * TILESIZE * tile_y + TILESIZE * tile_x;
+      if (c + cOffset + N * thread_y + thread_x + w * AMP_RTS < M * N ) 
+      {
+        C[c + cOffset + N * thread_y + thread_x + w * AMP_RTS] = acc[w] + beta * C[c + cOffset + N * thread_y + thread_x + w * AMP_RTS];
+      }
+    }
+  //}
+  });
+#undef TILESIZE
+#undef AMP_RTS
+#undef AMP_WPT
+  return AMPBLAS_SUCCESS;
 }
 
 
