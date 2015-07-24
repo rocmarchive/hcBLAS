@@ -1320,7 +1320,7 @@ ampblasStatus gemm_TransAB_K1(Concurrency::accelerator_view &accl_view,
        if ( tidx.global[0] < N && tidx.global[1] < M ) 
        {
          int c = N * TILESIZE * tile_y + TILESIZE * tile_x;
-         if (c + N * thread_y + thread_x < M*N ) 
+         if (c + cOffset + N * thread_y + thread_x < M*N ) 
          {
            C[c + cOffset +  N * thread_y + thread_x] = sum + beta * C[c + cOffset + N * thread_y + thread_x];
          }
@@ -1441,7 +1441,7 @@ ampblasStatus gemm_NoTransAB_K2(Concurrency::accelerator_view &accl_view,
         if ( tidx.global[0] < N && tidx.global[1] < M ) 
         {
           int c = N * TILESIZE * tile_y + TILESIZE * tile_x;
-          if (c + N * thread_y + thread_x < M*N ) 
+          if (c + cOffset + N * thread_y + thread_x < M*N ) 
           {
             C[c + cOffset +  N * thread_y + thread_x] = sum + beta * C[c + cOffset +  N * thread_y + thread_x];
           }
