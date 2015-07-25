@@ -2478,6 +2478,66 @@ ampblasStatus gemm_TransAB_K10(Concurrency::accelerator_view &accl_view,
 }
 
 
+/* 
+ * Matrix-Matrix-Multiplication using local memory as a buffer
+ * that has [TILESIZE x TILESIZE] elements
+ * 
+ * Dimensions:
+ *   Matrix A is [MxK] and A is transposed
+ *   Matrix B is [KxN] and B is transposed
+ *   Matrix C is [MxN]
+ * 
+ * Global Index Space
+ *   global_size[0] := global_size[0] % TILESIZE == 0 && global_size[0] >= N
+ *   global_size[1] := global_size[1] % TILESIZE == 0 && global_size[1] >= M
+ *   
+ * Local Index Space
+ *   local_size[0] := TILESIZE
+ *   local_size[1] := TILESIZE
+ *  
+ * Number of Threads in each local workgroup
+ *   localThreadCount := TILESIZE*TILESIZE
+ */
+
+ampblasStatus gemm_TransAB_11(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
+#define TILESIZE 16
+  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  {
+    int global_idx_i = tidx.global[0];
+    
+    float privateMemA[256];
+    for( int k = 0; k < 256; k++ ) {
+      privateMemA[k] = alpha*A[global_idx_i*K + k];
+    }
+
+    for( int idx_n = 0; idx_n < N; idx_n++ ) {
+      
+      // multiply matrix A and B using local memory
+      float sum = 0.0;
+      
+      for (int k = 0; k < K; k++) 
+      {
+        int idx_k = global_idx_i;
+        int idx_B = idx_k*N + k;
+        sum += privateMemA[k] * B[idx_B];
+      }
+      C[ global_idx_i + idx_n * M ] = sum + beta * C[ global_idx_i  + idx_n * M];
+    }
+  });
+#undef TILESIZE
+  return AMPBLAS_SUCCESS;
+}
+  
+
+
 
 ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
                                     Concurrency::array_view<float, 1> &A, long aOffset,
