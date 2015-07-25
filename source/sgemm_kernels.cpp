@@ -2408,6 +2408,75 @@ ampblasStatus gemm_TransAB_K9(Concurrency::accelerator_view &accl_view,
   return AMPBLAS_SUCCESS;
 }
 
+/* 
+ * Matrix-Matrix-Multiplication using local memory as a buffer
+ * that has [TILESIZE x TILESIZE] elements
+ * 
+ * Dimensions:
+ *   Matrix A is [MxK] and A is transposed
+ *   Matrix B is [KxN] and B is transposed
+ *   Matrix C is [MxN]
+ * 
+ * Global Index Space
+ *   global_size[0] := global_size[0] % TILESIZE == 0 && global_size[0] >= N
+ *   global_size[1] := global_size[1] % TILESIZE == 0 && global_size[1] >= M
+ *   
+ * Local Index Space
+ *   local_size[0] := TILESIZE
+ *   local_size[1] := TILESIZE
+ *  
+ * Number of Threads in each local workgroup
+ *   localThreadCount := TILESIZE*TILESIZE
+ */
+
+ampblasStatus gemm_TransAB_K10(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
+#define TILESIZE 8
+  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  {  
+    int global_idx_i = tidx.global[0];
+    
+    // local registers
+    float privateMemA[256];
+
+    for( int k = 0; k < 256; k++ ) 
+    {
+      privateMemA[k] = alpha*A[global_idx_i*K + k];
+    }
+
+    tile_static float localMemB[256];
+
+    for( int idx_n = 0; idx_n < N; idx_n++ ) 
+    {
+      for( int i = 0; i < t_ext[0]; i++ ) 
+      {
+        int idx_k = i * tidx.tile_dim0 + tidx.local[0];
+        int idx_B = idx_k*N + idx_n;  
+        localMemB[ idx_k ] = B[ idx_B ];    
+      }
+
+      tidx.barrier.wait();   
+    
+      // multiply matrix A and B using local memory
+      float sum = 0.0;
+      
+      for (int k = 0; k < K; k++) {
+        sum += privateMemA[k] * localMemB[k];
+      }
+      C[ global_idx_i + idx_n * M ] = sum + beta * C[ global_idx_i + idx_n * M];
+    }
+  });
+#undef TILESIZE
+  return AMPBLAS_SUCCESS;
+}
+
 
 
 ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
