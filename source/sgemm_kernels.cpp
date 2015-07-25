@@ -2319,7 +2319,7 @@ ampblasStatus gemm_TransAB_K8(Concurrency::accelerator_view &accl_view,
     idx = tidx.global[1];
     if ( thread_x == 0 ) {
       if ( idx < M ) {
-        localMemA[thread_y]= alpha*A[idx];
+        localMemA[thread_y]= alpha*A[aOffset + idx];
       } else { // needed on AMD
         localMemA[thread_y] = 0.0;
       }
@@ -2329,7 +2329,7 @@ ampblasStatus gemm_TransAB_K8(Concurrency::accelerator_view &accl_view,
     idx = tidx.global[0];
     if ( thread_y == 0 ) {
       if ( idx < N ) {
-        localMemB[thread_x] = B[idx];
+        localMemB[thread_x] = B[bOffset + idx];
       } else { // needed on AMD
         localMemB[thread_x] = 0.0;
       }
@@ -2341,7 +2341,7 @@ ampblasStatus gemm_TransAB_K8(Concurrency::accelerator_view &accl_view,
     // multiply matrix A and matrix B and write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) {
       idx = tidx.global[1] + tidx.global[0] * M;
-      C[idx] = localMemA[thread_y] * localMemB[thread_x] + beta * C[idx];
+      C[cOffset + idx] = localMemA[thread_y] * localMemB[thread_x] + beta * C[cOffset + idx];
     }
   });
 #undef TILESIZE_1D_Y
@@ -2391,14 +2391,14 @@ ampblasStatus gemm_TransAB_K9(Concurrency::accelerator_view &accl_view,
     int gx = tidx.global[0];
     int gy = tidx.global[1];
    
-    float localVarA = alpha*A[gy];
+    float localVarA = alpha*A[aOffset + gy];
 
     // Synchronize the reads of A
     tidx.barrier.wait();
 
     // multiply matrix A and matrix B and write all results back to global memory
     if ( gx < N && gy < M ) {
-      C[gy + gx * M] = localVarA*B[gx] + beta*C[gy + gx * M];
+      C[cOffset + gy + gx * M] = localVarA*B[bOffset + gx] + beta*C[cOffset + gy + gx * M];
     }
   });
 #undef TILESIZE_1D_Y
@@ -2448,7 +2448,7 @@ ampblasStatus gemm_TransAB_K10(Concurrency::accelerator_view &accl_view,
 
     for( int k = 0; k < 256; k++ ) 
     {
-      privateMemA[k] = alpha*A[global_idx_i*K + k];
+      privateMemA[k] = alpha*A[aOffset +global_idx_i*K + k];
     }
 
     tile_static float localMemB[256];
@@ -2459,7 +2459,7 @@ ampblasStatus gemm_TransAB_K10(Concurrency::accelerator_view &accl_view,
       {
         int idx_k = i * tidx.tile_dim0 + tidx.local[0];
         int idx_B = idx_k*N + idx_n;  
-        localMemB[ idx_k ] = B[ idx_B ];    
+        localMemB[bOffset + idx_k ] = B[bOffset + idx_B ];    
       }
 
       tidx.barrier.wait();   
@@ -2470,7 +2470,7 @@ ampblasStatus gemm_TransAB_K10(Concurrency::accelerator_view &accl_view,
       for (int k = 0; k < K; k++) {
         sum += privateMemA[k] * localMemB[k];
       }
-      C[ global_idx_i + idx_n * M ] = sum + beta * C[ global_idx_i + idx_n * M];
+      C[cOffset + global_idx_i + idx_n * M ] = sum + beta * C[cOffset + global_idx_i + idx_n * M];
     }
   });
 #undef TILESIZE
@@ -2515,7 +2515,7 @@ ampblasStatus gemm_TransAB_11(Concurrency::accelerator_view &accl_view,
     
     float privateMemA[256];
     for( int k = 0; k < 256; k++ ) {
-      privateMemA[k] = alpha*A[global_idx_i*K + k];
+      privateMemA[k] = alpha*A[aOffset + global_idx_i*K + k];
     }
 
     for( int idx_n = 0; idx_n < N; idx_n++ ) {
@@ -2527,9 +2527,9 @@ ampblasStatus gemm_TransAB_11(Concurrency::accelerator_view &accl_view,
       {
         int idx_k = global_idx_i;
         int idx_B = idx_k*N + k;
-        sum += privateMemA[k] * B[idx_B];
+        sum += privateMemA[k] * B[ bOffset + idx_B];
       }
-      C[ global_idx_i + idx_n * M ] = sum + beta * C[ global_idx_i  + idx_n * M];
+      C[cOffset + global_idx_i + idx_n * M ] = sum + beta * C[cOffset + global_idx_i  + idx_n * M];
     }
   });
 #undef TILESIZE
