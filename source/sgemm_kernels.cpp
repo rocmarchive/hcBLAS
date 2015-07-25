@@ -2264,6 +2264,93 @@ ampblasStatus gemm_TransAB_K7(Concurrency::accelerator_view &accl_view,
   return AMPBLAS_SUCCESS;
 }
 
+/* 
+ * Matrix-Matrix-Multiplication for the case when K == 1 using 
+ * two local memory buffers of size TILESIZE_1D_X and 
+ * TILESIZE_1D_Y]
+ * 
+ * Dimensions:
+ *   Matrix A is [Mx1] and A is transposed
+ *   Matrix B is [1xN] and B is transposed
+ *   Matrix C is [MxN]
+ * 
+ * Global Index Space
+ *   global_size[0] := global_size[0] % TILESIZE_1D_X == 0 && global_size[0] >= N
+ *   global_size[1] := global_size[1] % TILESIZE_1D_Y == 0 && global_size[1] >= M
+ *   
+ * Local Index Space
+ *   local_size[0] := TILESIZE_1D_X
+ *   local_size[1] := TILESIZE_1D_Y
+ *  
+ * Number of Threads in each local workgroup
+ *   localThreadCount := TILESIZE_1D_X*TILESIZE_1D_Y
+ */
+
+ampblasStatus gemm_TransAB_K8(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
+
+#define TILESIZE_1D_Y 1
+#define TILESIZE_1D_X 256
+#define TILESIZE_X 16
+#define TILESIZE_Y 16
+  Concurrency::extent<2> grdExt((N + (TILESIZE_1D_X - 1)) & ~(TILESIZE_1D_X - 1), (M + (TILESIZE_1D_Y - 1)) & ~(TILESIZE_1D_Y - 1));
+  Concurrency::tiled_extent<TILESIZE_1D_X, TILESIZE_1D_Y> t_ext(grdExt);
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE_1D_X, TILESIZE_1D_Y> tidx) restrict(amp)
+  {
+    // local index of each thread
+    int thread_x = tidx.local[0];
+    int thread_y = tidx.local[1];
+
+
+    unsigned int idx = 0;
+       
+    // local memory for matrix A
+    tile_static float localMemA[TILESIZE_1D_Y];
+     
+    // local memory for matrix B
+    tile_static float localMemB[TILESIZE_1D_X];
+     
+    // each thread in workgroup reads one element of matrix A from global to local memory
+    idx = tidx.global[1];
+    if ( thread_x == 0 ) {
+      if ( idx < M ) {
+        localMemA[thread_y]= alpha*A[idx];
+      } else { // needed on AMD
+        localMemA[thread_y] = 0.0;
+      }
+    }
+
+    // each thread in workgroup reads one element of matrix B from global to local memory
+    idx = tidx.global[0];
+    if ( thread_y == 0 ) {
+      if ( idx < N ) {
+        localMemB[thread_x] = B[idx];
+      } else { // needed on AMD
+        localMemB[thread_x] = 0.0;
+      }
+    }
+      
+    // Synchronize the reads of A and B
+    tidx.barrier.wait();
+     
+    // multiply matrix A and matrix B and write all results back to global memory
+    if ( tidx.global[0] < N && tidx.global[1] < M ) {
+      idx = tidx.global[1] + tidx.global[0] * M;
+      C[idx] = localMemA[thread_y] * localMemB[thread_x] + beta * C[idx];
+    }
+  });
+#undef TILESIZE_1D_Y
+#undef TILESIZE_1D_X
+#undef TILESIZE_X
+#undef TILESIZE_Y
+  return AMPBLAS_SUCCESS;
+}
+
 
 
 
