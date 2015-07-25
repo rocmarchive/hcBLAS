@@ -2398,7 +2398,7 @@ ampblasStatus gemm_TransAB_K9(Concurrency::accelerator_view &accl_view,
 
     // multiply matrix A and matrix B and write all results back to global memory
     if ( gx < N && gy < M ) {
-      C[N * gy + gx] = localVarA*B[gx] + beta*C[N * gy + gx];
+      C[gy + gx * M] = localVarA*B[gx] + beta*C[gy + gx * M];
     }
   });
 #undef TILESIZE_1D_Y
