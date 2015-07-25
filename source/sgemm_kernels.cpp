@@ -2536,6 +2536,119 @@ ampblasStatus gemm_TransAB_11(Concurrency::accelerator_view &accl_view,
   return AMPBLAS_SUCCESS;
 }
   
+/* 
+ * Matrix-Matrix-Multiplication using local memory as a buffer
+ * that has [TILESIZE x TILESIZE] elements
+ * 
+ * Dimensions:
+ *   Matrix A is [MxK] and A is transposed
+ *   Matrix B is [KxN] and B is transposed
+ *   Matrix C is [MxN]
+ * 
+ * Global Index Space
+ *   global_size[0] := global_size[0] % TILESIZE == 0 && global_size[0] >= N
+ *   global_size[1] := global_size[1] % TILESIZE == 0 && global_size[1] >= M
+ *   
+ * Local Index Space
+ *   local_size[0] := TILESIZE
+ *   local_size[1] := TILESIZE
+ *  
+ * Number of Threads in each local workgroup
+ *   localThreadCount := TILESIZE*TILESIZE
+ */
+
+ampblasStatus gemm_TransAB_12(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
+#define TILESIZE 8
+#define GN N/32 //(N has to be in power of 32)
+  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  {
+    // coordinates for each tile of [TILESIZE x TILESIZE]
+    int tile_y = tidx.tile[1];
+     
+    // local index of each thread inside tile
+    int thread_x = tidx.local[0];
+    int thread_y = tidx.local[1];
+
+    // global coordinates for each elemnt in C
+    int x = tidx.global[0];
+    int y = tidx.global[1];
+    
+    int group_size_n  = N / GN;
+    int group_n       = x / group_size_n;
+
+    // first index of first thread reading A in local workgroup
+    int a_bgn = K * TILESIZE * tile_y;
+
+    // last index to first thread reading A in local workgroup
+    int a_end   = a_bgn + K - 1;
+
+    // step taken by each thread reading A
+    int a_stp  = TILESIZE;
+        
+    // accumulates the result
+    float sum = 0.0;
+
+    int global_x = 0;
+    int global_y = 0;
+    int addr;
+    // local memory for matrix A
+    tile_static float localMemA[TILESIZE][TILESIZE];
+
+    // local memory for matrix B
+    tile_static float localMemB[TILESIZE][TILESIZE];
+    
+    for (int a = a_bgn; a <= a_end; a += a_stp, global_x += TILESIZE, global_y += TILESIZE)  {
+      
+      // each thread in workgroup reads one element of matrix A from global to local memory
+      addr = a + K * thread_y + thread_x;
+
+      if ( (thread_x + global_x) < K && addr < M*K ) {
+        localMemA[thread_y][thread_x] = alpha*A[aOffset + addr];
+      } else { // needed on AMD
+        localMemA[thread_y][thread_x] = 0.0;
+      }
+
+      // each thread in workgroup reads one element of matrix B from global to local memory
+      addr = group_n*(group_size_n*K) + ( x % group_size_n ) + (thread_y+global_y)*group_size_n;
+      if ( thread_y + global_y < K  && addr < K*N ) {      
+        localMemB[thread_y][thread_x] = B[bOffset + addr];
+      } else { // needed on AMD
+        localMemB[thread_y][thread_x] = 0.0;
+      }
+
+      // Synchronize the reads of A and B
+      tidx.barrier.wait();
+
+      // multiply matrix A and B using local memory
+      for (int k = 0; k < TILESIZE; k++) {
+        sum += localMemA[thread_y][k] * localMemB[k][thread_x];
+
+      }
+
+      // Synchronize all sub-results
+      tidx.barrier.wait(); 
+    }
+
+    // write all results back to global memory
+    if ( x < N && y < M ) {
+
+      addr = group_n*group_size_n*M + y*group_size_n + ( x % group_size_n );
+      if (addr < M*N ) {
+        C[cOffset + addr] = sum + beta*C[cOffset + addr];
+      }
+    }
+  });
+#undef TILESIZE
+  return AMPBLAS_SUCCESS;
+}
 
 
 
