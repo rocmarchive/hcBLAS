@@ -2014,10 +2014,10 @@ ampblasStatus gemm_TransAB_K6(Concurrency::accelerator_view &accl_view,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float alpha, float beta)
 {
-#define TILESIZE_1D_Y 1
-#define TILESIZE_1D_X 256
-#define TILESIZE_X 16
-#define TILESIZE_Y 16
+#define TILESIZE_1D_Y 32
+#define TILESIZE_1D_X 8
+#define TILESIZE_X 8
+#define TILESIZE_Y 32
   Concurrency::extent<2> grdExt((N + (TILESIZE_1D_X - 1)) & ~(TILESIZE_1D_X - 1), (M + (TILESIZE_1D_Y - 1)) & ~(TILESIZE_1D_Y - 1));
   Concurrency::tiled_extent<TILESIZE_1D_X, TILESIZE_1D_Y> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE_1D_X, TILESIZE_1D_Y> tidx) restrict(amp)
@@ -2115,7 +2115,7 @@ ampblasStatus gemm_TransAB_K6(Concurrency::accelerator_view &accl_view,
     // write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) 
     {
-      int c = N * TILESIZE_Y * tile_y + TILESIZE_X * tile_x;
+      int c = TILESIZE_Y * tile_y + TILESIZE_X * tile_x * M;
       if (c + cOffset + M * thread_x + thread_y < M*N ) 
       {
         C[c + cOffset + M * thread_x + thread_y] = sum + beta * C[c + cOffset + M * thread_x + thread_y];
@@ -2751,7 +2751,7 @@ ampblasStatus gemm_TransAB(Concurrency::accelerator_view &accl_view,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta)
 {
-/*  if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600))
+  if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600))
   {
     return gemm_TransAB_STEP_NBK_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
@@ -2762,8 +2762,7 @@ ampblasStatus gemm_TransAB(Concurrency::accelerator_view &accl_view,
   else 
   {
     return gemm_TransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
-  }*/
-  gemm_TransAB_K3(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
 }
 
 
