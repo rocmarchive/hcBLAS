@@ -2352,6 +2352,62 @@ ampblasStatus gemm_TransAB_K8(Concurrency::accelerator_view &accl_view,
 }
 
 
+/* 
+ * Matrix-Matrix-Multiplication for the case when K == 1 without using a single local variable
+ * 
+ * Dimensions:
+ *   Matrix A is [Mx1] and A is transposed
+ *   Matrix B is [1xN] and B is transposed
+ *   Matrix C is [MxN]
+ * 
+ * Global Index Space
+ *   global_size[0] := global_size[0] % TILESIZE_1D_X == 0 && global_size[0] >= N
+ *   global_size[1] := global_size[1] % TILESIZE_1D_Y == 0 && global_size[1] >= M
+ *   
+ * Local Index Space
+ *   local_size[0] := TILESIZE_1D_X
+ *   local_size[1] := TILESIZE_1D_Y
+ *  
+ * Number of Threads in each local workgroup
+ *   localThreadCount := TILESIZE_1D_X*TILESIZE_1D_Y
+ */
+
+ampblasStatus gemm_TransAB_K9(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta)
+{
+#define TILESIZE_1D_Y 1
+#define TILESIZE_1D_X 256
+#define TILESIZE_X 16
+#define TILESIZE_Y 16
+  Concurrency::extent<2> grdExt((N + (TILESIZE_1D_X - 1)) & ~(TILESIZE_1D_X - 1), (M + (TILESIZE_1D_Y - 1)) & ~(TILESIZE_1D_Y - 1));
+  Concurrency::tiled_extent<TILESIZE_1D_X, TILESIZE_1D_Y> t_ext(grdExt);
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE_1D_X, TILESIZE_1D_Y> tidx) restrict(amp)
+  {
+    // global index of each thread
+    int gx = tidx.global[0];
+    int gy = tidx.global[1];
+   
+    float localVarA = alpha*A[gy];
+
+    // Synchronize the reads of A
+    tidx.barrier.wait();
+
+    // multiply matrix A and matrix B and write all results back to global memory
+    if ( gx < N && gy < M ) {
+      C[N * gy + gx] = localVarA*B[gx] + beta*C[N * gy + gx];
+    }
+  });
+#undef TILESIZE_1D_Y
+#undef TILESIZE_1D_X
+#undef TILESIZE_X
+#undef TILESIZE_Y
+  return AMPBLAS_SUCCESS;
+}
+
 
 
 ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
