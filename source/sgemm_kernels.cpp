@@ -2160,10 +2160,10 @@ ampblasStatus gemm_TransAB_K7(Concurrency::accelerator_view &accl_view,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float alpha, float beta)
 {
-#define TILESIZE_1D_Y 1
-#define TILESIZE_1D_X 256
-#define TILESIZE_X 16
-#define TILESIZE_Y 16
+#define TILESIZE_1D_Y 8
+#define TILESIZE_1D_X 32
+#define TILESIZE_X 32
+#define TILESIZE_Y 8
   Concurrency::extent<2> grdExt((N + (TILESIZE_1D_X - 1)) & ~(TILESIZE_1D_X - 1), (M + (TILESIZE_1D_Y - 1)) & ~(TILESIZE_1D_Y - 1));
   Concurrency::tiled_extent<TILESIZE_1D_X, TILESIZE_1D_Y> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE_1D_X, TILESIZE_1D_Y> tidx) restrict(amp)
