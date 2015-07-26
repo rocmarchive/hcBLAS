@@ -34,6 +34,7 @@ int main(int argc,char* argv[])
     long B_batchOffset = N * K;
     long C_batchOffset = M * N;
     int batchSize =128;
+    AMPBLAS_ORDER ampOrder = colMajor;
     AMPBLAS_TRANS typeA,typeB ;
     ampblasStatus status;
     if((isTransA == 0 || isTransA == 1) && (isTransB == 0 || isTransB == 1)){ 
@@ -101,7 +102,7 @@ int main(int argc,char* argv[])
             Csgemm[i] = C_mat[i];
         }
         if(Imple_type ==1){    /* SINGLE GPU CALL   */
-            status = amp.ampblas_sgemm(typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
+            status = amp.ampblas_sgemm(ampOrder, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
             cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc );
             for(int i = 0 ; i < M * N ; i++){ 
                 if( C_cblas[i] != (Csgemm[i])){
@@ -119,7 +120,7 @@ int main(int argc,char* argv[])
     	    free(C_cblas);
         }
         else if(Imple_type ==2){/* MULTIPLE GPU CALL */
-            status = amp.ampblas_sgemm(accl_view, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat,ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
+            status = amp.ampblas_sgemm(accl_view, ampOrder, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat,ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
             cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc );
             for(int i = 0 ; i < M * N ; i++){ 
                 if( C_cblas[i] != (C_mat[i])){
@@ -149,7 +150,7 @@ int main(int argc,char* argv[])
                 Csgemm_batch[i] = C_batch[i];
                 CCblasbatch[i] = Csgemm_batch[i];
             } 
-            status = amp.ampblas_sgemm(accl_view, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch,ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+            status = amp.ampblas_sgemm(accl_view, ampOrder, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch,ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
             for(int i = 0; i < batchSize; i++)
                 cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm_batch + i * M * K , lda, Bsgemm_batch + i * K * N, ldb, beta, CCblasbatch  + i * M * N ,ldc );
 
