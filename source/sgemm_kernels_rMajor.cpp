@@ -1,5 +1,10 @@
 #include "sgemm_kernels.h"
 
+/* 
+* SGEMM - NoTransAB case - Row major Access
+* STEP with Non Bank Conflict Implmentation
+* TILESIZE = 8 STEPSIZE = 8
+*/
 ampblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                                      Concurrency::array_view<float, 1> &A, long aOffset,
                                                      Concurrency::array_view<float, 1> &B, long bOffset,
@@ -9,7 +14,6 @@ ampblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_vi
 {
 #define TILESIZE 8
 #define STEPSIZE 8
-  cout<<"step nbk no trans AB row"<< endl;
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -74,6 +78,11 @@ ampblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_vi
     return AMPBLAS_SUCCESS;
 
 }
+/* 
+* SGEMM - NoTransAB case - Row major Access
+* STEP with Non Bank Conflict Implmentation
+* TILESIZE = 16 STEPSIZE = 16
+*/
 
 ampblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
                                                      Concurrency::array_view<float, 1> &A, long aOffset,
@@ -84,7 +93,6 @@ ampblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_
 {
 #define TILESIZE 16
 #define STEPSIZE 16
-  cout<<"step nbk no trans AB row 16"<< endl;
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -150,6 +158,11 @@ ampblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_
 
 }
 
+/* 
+* SGEMM - NoTransAB case - Row major Access
+* SUBMICROTILE Implmentation
+* TILESIZE = 16 MICROTILESIZE = 2
+*/
 ampblasStatus gemm_NoTransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                   Concurrency::array_view<float, 1> &A, long aOffset,
                                   Concurrency::array_view<float, 1> &B, long bOffset,
@@ -228,6 +241,12 @@ ampblasStatus gemm_NoTransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_vie
 
 }
 
+/* 
+* SGEMM - NoTransA case - Row major Access
+* STEP Implmentation
+* TILESIZE = 8 STEPSIZE = 8
+*/
+
 ampblasStatus gemm_NoTransA_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                        Concurrency::array_view<float, 1> &A, long aOffset,
                                        Concurrency::array_view<float, 1> &B, long bOffset,
@@ -305,6 +324,12 @@ ampblasStatus gemm_NoTransA_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &a
     return AMPBLAS_SUCCESS;
 }
 
+/* 
+* SGEMM - NoTransA case - Row major Access
+* STEP with Non Bank Conflict Implmentation
+* TILESIZE = 8 STEPSIZE = 8
+*/
+
 ampblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                           Concurrency::array_view<float, 1> &A, long aOffset,
                           Concurrency::array_view<float, 1> &B, long bOffset,
@@ -314,7 +339,6 @@ ampblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_vie
 {
 #define TILESIZE 8
 #define STEPSIZE 8
-      cout<<"\n STEP NBK 8 8"<<endl;
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -395,6 +419,12 @@ ampblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_vie
     return AMPBLAS_SUCCESS;
 }
 
+/* 
+* SGEMM - NoTransA case - Row major Access
+* STEP with Non Bank Conflict Implmentation
+* TILESIZE = 16 STEPSIZE = 16
+*/
+
 ampblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
                           Concurrency::array_view<float, 1> &A, long aOffset,
                           Concurrency::array_view<float, 1> &B, long bOffset,
@@ -404,7 +434,6 @@ ampblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_v
 {
 #define TILESIZE 16
 #define STEPSIZE 16
-      cout<<"\n STEP NBK 16 16"<<endl;
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -486,6 +515,12 @@ ampblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_v
     return AMPBLAS_SUCCESS;
 }
 
+/* 
+* SGEMM - NoTransA case - Row major Access
+* SUBMICROTILE with Non Bank Conflict Implmentation
+* TILESIZE = 16 MICROTILESIZE = 8
+*/
+
 ampblasStatus gemm_NoTransA_rMajor_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                           Concurrency::array_view<float, 1> &A, long aOffset,
                           Concurrency::array_view<float, 1> &B, long bOffset,
@@ -495,7 +530,6 @@ ampblasStatus gemm_NoTransA_rMajor_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-    cout<<"\n MICRO NBK 16 2"<<endl;
 
   Concurrency::extent<2> grdExt(((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -575,6 +609,12 @@ ampblasStatus gemm_NoTransA_rMajor_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_
 
 }
 
+/* 
+* SGEMM - NoTransA case - Row major Access
+* SUBMICROTILE Implmentation
+* TILESIZE = 16 MICROTILESIZE = 2
+*/
+
 ampblasStatus gemm_NoTransA_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                           Concurrency::array_view<float, 1> &A, long aOffset,
                           Concurrency::array_view<float, 1> &B, long bOffset,
@@ -585,7 +625,6 @@ ampblasStatus gemm_NoTransA_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view
 
 #define TILESIZE 16
 #define MICROTILESIZE 2
-    cout<<"\n MICRO 16 2"<<endl;
   Concurrency::extent<2> grdExt(((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -653,6 +692,11 @@ ampblasStatus gemm_NoTransA_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view
 #undef MICROTILESIZE
     return AMPBLAS_SUCCESS;
 }
+/* 
+* SGEMM - NoTransB case - Row major Access
+* STEP with Non Bank Conflict Implmentation
+* TILESIZE = 16 STEPSIZE = 16
+*/
 
 ampblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
                                    Concurrency::array_view<float, 1> &A, long aOffset,
@@ -663,7 +707,6 @@ ampblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_v
 {
 #define TILESIZE 16
 #define STEPSIZE 16
-      cout<<"\nSTEP NBK 16 16"<<endl;
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -736,6 +779,12 @@ ampblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_v
     return AMPBLAS_SUCCESS;
 }
 
+/* 
+* SGEMM - NoTransB case - Row major Access
+* SUBMICROTILE with Non Bank Conflict Implmentation
+* TILESIZE = 16 MICROTILESIZE = 2
+*/
+
 ampblasStatus gemm_NoTransB_rMajor_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                    Concurrency::array_view<float, 1> &A, long aOffset,
                                    Concurrency::array_view<float, 1> &B, long bOffset,
@@ -745,7 +794,7 @@ ampblasStatus gemm_NoTransB_rMajor_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-    cout<<"\n MICRO NBK 16 2"<<endl;
+    
   Concurrency::extent<2> grdExt(((M >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N >> 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -822,6 +871,11 @@ ampblasStatus gemm_NoTransB_rMajor_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_
     return AMPBLAS_SUCCESS;
 
 }
+/* 
+* SGEMM - NoTransB case - Row major Access
+* STEP Implmentation
+* TILESIZE = 16 STEPSIZE = 16
+*/
 
 ampblasStatus gemm_NoTransB_rMajor_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
                                    Concurrency::array_view<float, 1> &A, long aOffset,
@@ -832,7 +886,6 @@ ampblasStatus gemm_NoTransB_rMajor_STEP_TS16XSS16(Concurrency::accelerator_view 
 {
 #define TILESIZE 16
 #define STEPSIZE 16
-        std::cout<<"\nSTEP 16 16"<<std::endl;
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -898,6 +951,12 @@ ampblasStatus gemm_NoTransB_rMajor_STEP_TS16XSS16(Concurrency::accelerator_view 
     return AMPBLAS_SUCCESS;
 }
 
+/* 
+* SGEMM - NoTransB case - Row major Access
+* SUBMICORTILE Implmentation
+* TILESIZE = 16 STEPSIZE = 2
+*/
+
 ampblasStatus gemm_NoTransB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                    Concurrency::array_view<float, 1> &A, long aOffset,
                                    Concurrency::array_view<float, 1> &B, long bOffset,
@@ -907,7 +966,7 @@ ampblasStatus gemm_NoTransB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-      cout<<"\n MICRO 16 2"<<endl;
+     
   Concurrency::extent<2> grdExt(((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -976,6 +1035,12 @@ ampblasStatus gemm_NoTransB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view
     return AMPBLAS_SUCCESS;
 }
 
+/* 
+* SGEMM - NoTransB case - Row major Access
+* STEP with Non Bank Concflict Implmentation
+* TILESIZE = 8 STEPSIZE = 8
+*/
+
 ampblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                    Concurrency::array_view<float, 1> &A, long aOffset,
                                    Concurrency::array_view<float, 1> &B, long bOffset,
@@ -985,7 +1050,7 @@ ampblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_vie
 {
 #define TILESIZE 8
 #define STEPSIZE 8
-      cout<<"\nSTEP NBK 8 8"<<endl;
+
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -1057,6 +1122,11 @@ ampblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_vie
 #undef STEPSIZE
     return AMPBLAS_SUCCESS;
 }
+/* 
+* SGEMM - TransAB case - Row major Access
+* STEP with Non Bank Conflict Implmentation
+* TILESIZE = 8 STEPSIZE = 8
+*/
 
 ampblasStatus gemm_TransAB_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                     Concurrency::array_view<float, 1> &A, long aOffset,
@@ -1067,7 +1137,7 @@ ampblasStatus gemm_TransAB_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_view
 {
 #define TILESIZE 8
 #define STEPSIZE 8
-      cout<<"\nSTEP NBK" <<TILESIZE<<" "<<STEPSIZE<<endl;
+    
 
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -1131,6 +1201,11 @@ ampblasStatus gemm_TransAB_rMajor_STEP_NBK_TS8XSS8(Concurrency::accelerator_view
     return AMPBLAS_SUCCESS;
 
 }
+/* 
+* SGEMM - TransAB case - Row major Access
+* STEP with Non Bank Conflict Implmentation
+* TILESIZE = 16 STEPSIZE = 16
+*/
 
 ampblasStatus gemm_TransAB_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
                                     Concurrency::array_view<float, 1> &A, long aOffset,
@@ -1141,7 +1216,6 @@ ampblasStatus gemm_TransAB_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_vi
 {
 #define TILESIZE 16
 #define STEPSIZE 16
-      cout<<"\nSTEP NBK" <<TILESIZE<<" "<<STEPSIZE<<endl;
 
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
@@ -1206,6 +1280,12 @@ ampblasStatus gemm_TransAB_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_vi
 
 }
 
+/* 
+* SGEMM - TransAB case - Row major Access
+* SUBMICROTILE with Non Bank Concflict Implmentation
+* TILESIZE = 16 MICROITLESIZE = 2
+*/
+
 ampblasStatus gemm_TransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                     Concurrency::array_view<float, 1> &A, long aOffset,
                                     Concurrency::array_view<float, 1> &B, long bOffset,
@@ -1215,7 +1295,7 @@ ampblasStatus gemm_TransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view 
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-      cout<<"\n MICRO 16 2"<<endl;
+     
   Concurrency::extent<2> grdExt(((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -1285,6 +1365,12 @@ ampblasStatus gemm_TransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view 
 
 }
 
+/* 
+* SGEMM - TransAB case - Row major Access
+* STEP Implmentation
+* TILESIZE = 8 STEPSIZE = 8
+*/
+
 ampblasStatus gemm_TransAB_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                     Concurrency::array_view<float, 1> &A, long aOffset,
                                     Concurrency::array_view<float, 1> &B, long bOffset,
@@ -1294,7 +1380,7 @@ ampblasStatus gemm_TransAB_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &ac
 {
 #define TILESIZE 8
 #define STEPSIZE 8
-  std::cout << "STEP 8 8" << std::endl;
+
  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
@@ -1359,6 +1445,7 @@ ampblasStatus gemm_TransAB_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &ac
 
 }
 
+/*  TOP LEVEL FUNCITONS */
 ampblasStatus gemm_NoTransAB_rMajor(Concurrency::accelerator_view &accl_view,
                                     Concurrency::array_view<float, 1> &A, long aOffset,
                                     Concurrency::array_view<float, 1> &B, long bOffset,
@@ -1470,6 +1557,5 @@ ampblasStatus gemm_TransAB_rMajor(Concurrency::accelerator_view &accl_view,
   else {
     return gemm_TransAB_rMajor_STEP_NBK_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-
  
 }
