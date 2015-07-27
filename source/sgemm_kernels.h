@@ -168,3 +168,36 @@ ampblasStatus gemm_TransAB_rMajor(Concurrency::accelerator_view &accl_view,
                                   float alpha, float beta);
 
 
+
+/*
+* SGEMM Kernels for Batch-processing in Row major order
+*/
+
+ampblasStatus gemm_NoTransAB_rMajor(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float, 1> &A, long aOffset, long A_batchOffset,
+                                    Concurrency::array_view<float, 1> &B, long bOffset, long B_batchOffset,
+                                    Concurrency::array_view<float, 1> &C, long cOffset, long C_batchOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float alpha, float beta, int batchSize);
+
+ampblasStatus gemm_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
+                                   Concurrency::array_view<float, 1> &A, long aOffset, long A_batchOffset,
+                                   Concurrency::array_view<float, 1> &B, long bOffset, long B_batchOffset,
+                                   Concurrency::array_view<float, 1> &C, long cOffset, long C_batchOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float alpha, float beta, int batchSize);
+
+ampblasStatus gemm_NoTransB_rMajor(Concurrency::accelerator_view &accl_view,
+                                   Concurrency::array_view<float, 1> &A, long aOffset, long A_batchOffset,
+                                   Concurrency::array_view<float, 1> &B, long bOffset, long B_batchOffset,
+                                   Concurrency::array_view<float, 1> &C, long cOffset, long C_batchOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float alpha, float beta, int batchSize);
+
+ampblasStatus gemm_TransAB_rMajor(Concurrency::accelerator_view &accl_view,
+                                  Concurrency::array_view<float, 1> &A, long aOffset, long A_batchOffset,
+                                  Concurrency::array_view<float, 1> &B, long bOffset, long B_batchOffset,
+                                  Concurrency::array_view<float, 1> &C, long cOffset, long C_batchOffset,
+                                  int M, int N, int K, int lda, int ldb, int ldc,
+                                  float alpha, float beta, int batchSize);
+
