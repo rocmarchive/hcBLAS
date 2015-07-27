@@ -172,13 +172,12 @@ ampblasStatus gemm_NoTransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_vie
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  std::cout << "Micro 16 2" << std::endl;
   Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
 
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
+    float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
     tile_static float lA[TILESIZE * TILESIZE * MICROTILESIZE];
@@ -442,7 +441,6 @@ ampblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS16XSS16(Concurrency::accelerator_v
   {
     int tilemulshift = (int)Concurrency::fast_math::log2(TILESIZE);
     int shiftfactor = (int)Concurrency::fast_math::log2(STEPSIZE);
-    int numtilesfact = (int)Concurrency::fast_math::log2(NUMTILEELMTS);
     int block_k =((K + (STEPSIZE - 1)) & ~(STEPSIZE - 1)) >> shiftfactor;
     float rC[1][1] = {{0.0}};
     float rA[1][STEPTILERATIO];
@@ -631,7 +629,7 @@ ampblasStatus gemm_NoTransA_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view
 
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
+    float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
     tile_static float lA[TILESIZE * TILESIZE * MICROTILESIZE];
@@ -973,7 +971,7 @@ ampblasStatus gemm_NoTransB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view
 
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
+    float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
     tile_static float lA[TILESIZE * TILESIZE * MICROTILESIZE];
@@ -1302,7 +1300,7 @@ ampblasStatus gemm_TransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view 
 
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
-    float rC[MICROTILESIZE][MICROTILESIZE] = {(float)0};
+    float rC[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rA[1][MICROTILESIZE];
     float rB[1][MICROTILESIZE];
     tile_static float lA[TILESIZE * TILESIZE * MICROTILESIZE];
