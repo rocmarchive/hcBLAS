@@ -30,10 +30,10 @@ int main(int argc,char* argv[])
     long aOffset = 0;
     long bOffset = 0;
     long cOffset = 0;
-    long A_batchOffset = K * M;
-    long B_batchOffset = N * K;
+    long A_batchOffset = 0;
+    long B_batchOffset = 0;
     long C_batchOffset = M * N;
-    int batchSize =128;
+    int batchSize = 128;
     AMPBLAS_ORDER ampOrder = colMajor;
     AMPBLAS_TRANS typeA,typeB ;
     ampblasStatus status;
@@ -55,13 +55,19 @@ int main(int argc,char* argv[])
     Concurrency::array_view<float> A_mat(K * M, Asgemm);
     Concurrency::array_view<float> B_mat(N * K, Bsgemm);
     Concurrency::array_view<float> C_mat(M * N, Csgemm);
+    if(M > 3000 && N > 3000){
+	batchSize = 25;
+    }
+    if(M > 9000 && N > 9000){
+        batchSize = 1;
+    }
     
-    float *Asgemm_batch = (float*) calloc(M * K * batchSize, sizeof(float));
-    float *Bsgemm_batch = (float*) calloc(K * N * batchSize, sizeof(float));
+    float *Asgemm_batch = (float*) calloc(M * K, sizeof(float));
+    float *Bsgemm_batch = (float*) calloc(K * N, sizeof(float));
     float *Csgemm_batch = (float*) calloc(M * N * batchSize, sizeof(float));
     float *CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));                     
-    Concurrency::array_view<float> A_batch(K * M * batchSize, Asgemm_batch);
-    Concurrency::array_view<float> B_batch(N * K * batchSize, Bsgemm_batch);
+    Concurrency::array_view<float> A_batch(K * M, Asgemm_batch);
+    Concurrency::array_view<float> B_batch(N * K, Bsgemm_batch);
     Concurrency::array_view<float> C_batch(M * N * batchSize, Csgemm_batch);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view()); 
@@ -130,18 +136,20 @@ int main(int argc,char* argv[])
                 }
                 else
                    continue;
-            }
+            } 
+       
             cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
  
         }
+     
         else{         
            /* BATCH PROCESSING  */
-
-            for(int i = 0; i < M * K * batchSize; i++){
+            
+            for(int i = 0; i < M * K; i++){
                 A_batch[i] = rand()%100;
                 Asgemm_batch[i] = A_batch[i];
             }
-            for(int i = 0; i < K * N * batchSize;i++){
+            for(int i = 0; i < K * N;i++){
                 B_batch[i] = rand() % 15;
                 Bsgemm_batch[i] = B_batch[i];
             }
@@ -152,7 +160,7 @@ int main(int argc,char* argv[])
             } 
             status = amp.ampblas_sgemm(accl_view, ampOrder, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch,ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
             for(int i = 0; i < batchSize; i++)
-                cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm_batch + i * M * K , lda, Bsgemm_batch + i * K * N, ldb, beta, CCblasbatch  + i * M * N ,ldc );
+                cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm_batch, lda, Bsgemm_batch, ldb, beta, CCblasbatch  + i * M * N ,ldc );
 
             for(int i = 0 ; i < M * N * batchSize; i++){ 
                 if( C_batch[i] != (CCblasbatch[i])){
@@ -165,9 +173,7 @@ int main(int argc,char* argv[])
             }
             cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
     	}
-    }
-
-   
+      }
     return 0;   
 }
    
