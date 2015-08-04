@@ -217,7 +217,7 @@ ampblasStatus cgemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_v
   std::cout << "STEP 8 8 - NoTransAB" << std::endl;
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(/*accl_view,*/ t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
     float rCreal[1][1];
@@ -1129,8 +1129,6 @@ ampblasStatus cgemm_NoTransAB(Concurrency::accelerator_view &accl_view,
   else{
      return cgemm_NoTransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-
-
 }
 
 ampblasStatus cgemm_NoTransA(Concurrency::accelerator_view &accl_view,
