@@ -43,7 +43,47 @@ void ger_AMP(Concurrency::accelerator_view &accl_view,
   });
 }
 
-ampblasStatus Ampblaslibrary :: ampblas_sger(const int M, const int N,
+void ger_AMP_rMajor(Concurrency::accelerator_view &accl_view,
+             long m, long n, float alpha,
+             Concurrency::array_view<float> &x, long xOffset, long incx,
+             Concurrency::array_view<float> &y, long yOffset, long incy,
+             Concurrency::array_view<float> &a, long aOffset, long lda)
+{
+  long M = (m + 15) & ~15;
+  long N = (n + 15) & ~15;
+  Concurrency::extent<2> compute_domain(N, M);
+  Concurrency::parallel_for_each(accl_view, compute_domain.tile<16, 16>(),[=] (Concurrency::tiled_index<16, 16> tidx) restrict(amp)
+  {
+    int i = tidx.global[1];
+    int j = tidx.global[0];
+    if(i < m && j < n)
+      a[aOffset + j + i * n] += x[xOffset + i] * y[yOffset + j] * alpha;
+  });
+}
+
+void ger_AMP_rMajor(Concurrency::accelerator_view &accl_view,
+             long m, long n, float alpha,
+             Concurrency::array_view<float> &x,
+             long xOffset, long X_batchOffset, long incx,
+             Concurrency::array_view<float> &y,
+             long yOffset, long Y_batchOffset, long incy,
+             Concurrency::array_view<float> &a,
+             long aOffset, long A_batchOffset, long lda, int batchSize)
+{
+  long M = (m + 15) & ~15;
+  long N = (n + 15) & ~15;
+  Concurrency::extent<3> compute_domain(batchSize, N, M);
+  Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, 16, 16>(),[=] (Concurrency::tiled_index<1, 16, 16> tidx) restrict(amp)
+  {
+    int elt = tidx.tile[0];
+    int i = tidx.global[2];
+    int j = tidx.global[1];
+    if(i < m && j < n)
+      a[aOffset + A_batchOffset * elt + j + i * n] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
+  });
+}
+
+ampblasStatus Ampblaslibrary :: ampblas_sger(const int order, const int M, const int N,
                                              const float *alpha, float *X,
                                              const long xOffset, const int incX,
                                              float *Y, const long yOffset,
@@ -64,8 +104,10 @@ ampblasStatus Ampblaslibrary :: ampblas_sger(const int M, const int N,
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
-    
-    ger_AMP(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
+    if(order)
+    	ger_AMP(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
+    else
+        ger_AMP_rMajor(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
     aMat.synchronize();
 
     /* Debug purpose */
@@ -77,7 +119,7 @@ ampblasStatus Ampblaslibrary :: ampblas_sger(const int M, const int N,
 }
 
 
-ampblasStatus Ampblaslibrary ::ampblas_sger(Concurrency::accelerator_view &accl_view,
+ampblasStatus Ampblaslibrary ::ampblas_sger(Concurrency::accelerator_view &accl_view, const int order,
                                             const int M, const int N, const float &alpha,
                                             Concurrency::array_view<float> &X, const long xOffset, const int incX,
                                             Concurrency::array_view<float> &Y, const long yOffset, const int incY,
@@ -91,12 +133,15 @@ ampblasStatus Ampblaslibrary ::ampblas_sger(Concurrency::accelerator_view &accl_
     if(alpha == 0)
 	return AMPBLAS_SUCCESS;
 
-    ger_AMP(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, M);
+    if(order)
+	ger_AMP(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, M);
+    else
+        ger_AMP_rMajor(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, M);
     A.synchronize();
     return AMPBLAS_SUCCESS;
 }
 
-ampblasStatus Ampblaslibrary :: ampblas_sger(Concurrency::accelerator_view &accl_view,
+ampblasStatus Ampblaslibrary :: ampblas_sger(Concurrency::accelerator_view &accl_view, const int order,
                                              const int M, const int N, const float &alpha,
                                		     Concurrency::array_view<float> &X,
                                              const long xOffset, const long X_batchOffset, const int incX,
@@ -113,8 +158,12 @@ ampblasStatus Ampblaslibrary :: ampblas_sger(Concurrency::accelerator_view &accl
 
     if(alpha == 0)
         return AMPBLAS_SUCCESS;
+   
+    if(order)
+        ger_AMP(accl_view, M, N, alpha, X, xOffset, X_batchOffset, incX, Y, yOffset, Y_batchOffset, incY, A, aOffset, A_batchOffset, M, batchSize);
+    else
+        ger_AMP_rMajor(accl_view, M, N, alpha, X, xOffset, X_batchOffset, incX, Y, yOffset, Y_batchOffset, incY, A, aOffset, A_batchOffset, M, batchSize);
 
-    ger_AMP(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, M);
     A.synchronize();
     return AMPBLAS_SUCCESS;
 }

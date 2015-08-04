@@ -71,7 +71,7 @@ class Ampblaslibrary
 
 
 /*                  A = alpha * X * Y' + A                               */
-    ampblasStatus ampblas_sger(const int M, const int N, const float *alpha,
+    ampblasStatus ampblas_sger(const int order, const int M, const int N, const float *alpha,
                                float *X, const long xOffset, const int incX,
                                float *Y, const long yOffset, const int incY,
                                float *A, const long aOffset, const int lda);
@@ -79,7 +79,7 @@ class Ampblaslibrary
 /* SGER - Overloaded function with arguments of type Concurrency::array_view */
 
     ampblasStatus ampblas_sger(Concurrency::accelerator_view &accl_view,
-			       const int M, const int N, const float &alpha,
+			       const int order, const int M, const int N, const float &alpha,
                                Concurrency::array_view<float> &X, const long xOffset, const int incX,
                                Concurrency::array_view<float> &Y, const long yOffset, const int incY,
                                Concurrency::array_view<float> &A, const long aOffset, const int lda);
@@ -87,7 +87,7 @@ class Ampblaslibrary
 /* SGER - Overloaded function with arguments related to batch processing */
 
     ampblasStatus ampblas_sger(Concurrency::accelerator_view &accl_view,
-                               const int M, const int N, const float &alpha,
+                               const int order, const int M, const int N, const float &alpha,
                                Concurrency::array_view<float> &X, 
                                const long xOffset, const long X_batchOffset, const int incX,
                                Concurrency::array_view<float> &Y, 
