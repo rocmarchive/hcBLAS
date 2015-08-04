@@ -73,28 +73,58 @@ ampblasStatus cgemm_NoTransAB(Concurrency::accelerator_view &accl_view,
                               float_2 alpha, float_2 beta);
 
 ampblasStatus cgemm_NoTransA(Concurrency::accelerator_view &accl_view,
-		              Concurrency::array_view<float_2, 1> &A, long aOffset,
-                              Concurrency::array_view<float_2, 1> &B, long bOffset,
-                              Concurrency::array_view<float_2, 1> &C, long cOffset,
-                              int M, int N, int K, int lda, int ldb, int ldc,
-                              float_2 alpha, float_2 beta);
+		             Concurrency::array_view<float_2, 1> &A, long aOffset,
+                             Concurrency::array_view<float_2, 1> &B, long bOffset,
+                             Concurrency::array_view<float_2, 1> &C, long cOffset,
+                             int M, int N, int K, int lda, int ldb, int ldc,
+                             float_2 alpha, float_2 beta);
 
 ampblasStatus cgemm_NoTransB(Concurrency::accelerator_view &accl_view,
-		              Concurrency::array_view<float_2, 1> &A, long aOffset,
-                              Concurrency::array_view<float_2, 1> &B, long bOffset,
-                              Concurrency::array_view<float_2, 1> &C, long cOffset,
-                              int M, int N, int K, int lda, int ldb, int ldc,
-                              float_2 alpha, float_2 beta);
+		             Concurrency::array_view<float_2, 1> &A, long aOffset,
+                             Concurrency::array_view<float_2, 1> &B, long bOffset,
+                             Concurrency::array_view<float_2, 1> &C, long cOffset,
+                             int M, int N, int K, int lda, int ldb, int ldc,
+                             float_2 alpha, float_2 beta);
 
 ampblasStatus cgemm_TransAB(Concurrency::accelerator_view &accl_view,
-		              Concurrency::array_view<float_2, 1> &A, long aOffset,
-                              Concurrency::array_view<float_2, 1> &B, long bOffset,
-                              Concurrency::array_view<float_2, 1> &C, long cOffset,
+		            Concurrency::array_view<float_2, 1> &A, long aOffset,
+                            Concurrency::array_view<float_2, 1> &B, long bOffset,
+                            Concurrency::array_view<float_2, 1> &C, long cOffset,
+                            int M, int N, int K, int lda, int ldb, int ldc,
+                            float_2 alpha, float_2 beta);
+
+
+/*
+* CGEMM Kernels for Batch processing in column major order
+*/
+
+ampblasStatus cgemm_NoTransAB(Concurrency::accelerator_view &accl_view,
+		              Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
+                              Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
+                              Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
                               int M, int N, int K, int lda, int ldb, int ldc,
-                              float_2 alpha, float_2 beta);
+                              float_2 alpha, float_2 beta, int batchSize);
 
+ampblasStatus cgemm_NoTransA(Concurrency::accelerator_view &accl_view,
+		             Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
+                             Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
+                             Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
+                             int M, int N, int K, int lda, int ldb, int ldc,
+                             float_2 alpha, float_2 beta, int batchSize);
 
+ampblasStatus cgemm_NoTransB(Concurrency::accelerator_view &accl_view,
+		             Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
+                             Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
+                             Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
+                             int M, int N, int K, int lda, int ldb, int ldc,
+                             float_2 alpha, float_2 beta, int batchSize);
 
+ampblasStatus cgemm_TransAB(Concurrency::accelerator_view &accl_view,
+		            Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
+                            Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
+                            Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
+                            int M, int N, int K, int lda, int ldb, int ldc,
+                            float_2 alpha, float_2 beta, int batchSize);
 
 
 

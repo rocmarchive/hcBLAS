@@ -10,8 +10,8 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 #Setting a variable for source files
 SET (SRCS
     sgemm_wrapper.cpp sgemm_kernels.cpp sgemm_kernels_batch.cpp sgemm_kernels_rMajor.cpp 
-    sgemm_kernels_rMajor_batch.cpp cgemm_wrapper.cpp cgemm_kernels.cpp saxpy.cpp 
-    sgemv.cpp sger.cpp
+    sgemm_kernels_rMajor_batch.cpp cgemm_wrapper.cpp cgemm_kernels.cpp cgemm_kernels_batch.cpp 
+    saxpy.cpp sgemv.cpp sger.cpp
     )
 
 IF(WIN32)

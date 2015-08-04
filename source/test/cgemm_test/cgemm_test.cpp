@@ -32,10 +32,10 @@ int main(int argc, char* argv[])
     long aOffset = 0;
     long bOffset = 0;
     long cOffset = 0;
-    long A_batchOffset = M * K;
-    long B_batchOffset = K * N;
+    long A_batchOffset = 0;
+    long B_batchOffset = 0;
     long C_batchOffset = M * N;
-    int batchSize =128;
+    int batchSize = 128;
 
     ampblasStatus status; 
     AMPBLAS_TRANS typeA,typeB ;
@@ -96,12 +96,19 @@ int main(int argc, char* argv[])
     float* a = (float *)malloc(sizeof(float )* M * K * 2);
     float* b = (float *)malloc(sizeof(float )* K * N * 2);
     float* c = (float *)malloc(sizeof(float )* M * N * 2);
+   
+    if(M > 3000 && N > 3000){
+        batchSize = 25;
+    }
+    if(M > 9000 && N > 9000){
+        batchSize = 1;
+    }
 
-    Concurrency::array_view<float_2> Abatch(M * K * 2 * batchSize);
-    Concurrency::array_view<float_2> Bbatch(N * K * 2 * batchSize);
+    Concurrency::array_view<float_2> Abatch(M * K * 2);
+    Concurrency::array_view<float_2> Bbatch(N * K * 2);
     Concurrency::array_view<float_2> Cbatch(M * N * 2 * batchSize);
-    float* abatch = (float *)malloc(sizeof(float )* M * K * 2 * batchSize);
-    float* bbatch = (float *)malloc(sizeof(float )* K * N * 2 * batchSize);
+    float* abatch = (float *)malloc(sizeof(float )* M * K * 2);
+    float* bbatch = (float *)malloc(sizeof(float )* K * N * 2);
     float* cbatch = (float *)malloc(sizeof(float )* M * N * 2 * batchSize);
 
   
@@ -153,7 +160,7 @@ int main(int argc, char* argv[])
         free(Camp);
     }
 
-    else /*if(Imple_type ==2)*/{
+    else if(Imple_type ==2){
     	status = amp.ampblas_cgemm(accl_view, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
         cblas_cgemm( order, transa, transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
@@ -170,10 +177,10 @@ int main(int argc, char* argv[])
         cout << (isPassed ? "TEST PASSED" : "TEST FAILED") << endl;
     }
 
-    /*else{
+    else{
         
         int k = 0;
-        for (int i = 0;i < M * K * batchSize; i++) {
+        for (int i = 0;i < M * K; i++) {
            Abatch[i].x = rand() % 10;
            Abatch[i].y = rand() % 20;
            abatch[k++] = Abatch[i].x;
@@ -189,7 +196,7 @@ int main(int argc, char* argv[])
         }
 
         k = 0;
-        for (int i = 0;i < M * N; i++) {
+        for (int i = 0;i < M * N * batchSize; i++) {
            Cbatch[i].x = rand() % 18;
            Cbatch[i].y = rand() % 28;
            cbatch[k++] = Cbatch[i].x ;
@@ -198,8 +205,8 @@ int main(int argc, char* argv[])
 
     	status = amp.ampblas_cgemm(accl_view, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
         for(int i = 0; i < batchSize;i++)
-	     cblas_cgemm( order, transa, transb, M, N, K, &alpha, abatch + i * M * K, lda, bbatch + i * N * K, ldb, &beta, cbatch + i * M * N, ldc );
-        for(int i = 0,k = 0; ((i < M * N)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
+	     cblas_cgemm( order, transa, transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
+        for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
             if ((Cbatch[i].x != cbatch[k]) || (Cbatch[i].y != cbatch[k+1])){
                 isPassed = 0;
                 cout <<" AMPCGEMM_REAL[" << i<< "] " << Cbatch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
@@ -210,7 +217,7 @@ int main(int argc, char* argv[])
 
         }
         cout << (isPassed ? "TEST PASSED" : "TEST FAILED") << endl;
-    }*/
+    }
     return 0;
  
 }
