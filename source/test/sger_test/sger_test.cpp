@@ -30,11 +30,14 @@ int main(int argc, char** argv)
     int batchSize = 128;
     long lenx,  leny; 
     ampblasStatus status;
- 
+    AMPBLAS_ORDER ampOrder = colMajor; 
     /* CBLAS implementation */
     enum CBLAS_ORDER order;
     order = CblasColMajor;
-    lda = M;
+    if(ampOrder)
+       lda = M;
+    else
+       lda = N;
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
     float *xSger = (float*)calloc( lenx , sizeof(float));
@@ -73,7 +76,7 @@ int main(int argc, char** argv)
             ASger[i] = Acblas[i];
         }
         if(Imple_type == 1){
-            status = amp.ampblas_sger(M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
+            status = amp.ampblas_sger(ampOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
             for(int i =0; i < M * N ; i++){
                 if (ASger[i] != Acblas[i]){
@@ -93,7 +96,7 @@ int main(int argc, char** argv)
         }
 
         else if(Imple_type == 2){
-            status = amp.ampblas_sger(accl_view, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
+            status = amp.ampblas_sger(accl_view, ampOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
             for(int i =0; i < M * N ; i++){
                 if (aMat[i] != Acblas[i]){
@@ -109,20 +112,20 @@ int main(int argc, char** argv)
         }
 
         else{
-            for(int i = 0;i < M;i++){
+            for(int i = 0;i < M * batchSize;i++){
                 xbatchView[i] = rand() % 10;
                 xSgerbatch[i] = xbatchView[i];
             }
-            for(int i = 0;i < N;i++){
+            for(int i = 0;i < N * batchSize;i++){
                 ybatchView[i] = rand() % 15;
                 ySgerbatch[i] = ybatchView[i];
             }
-            for(int i = 0;i< M * N ;i++){
+            for(int i = 0;i< M * N * batchSize;i++){
                 abatchMat[i] = rand() % 25;
                 Acblasbatch[i] = abatchMat[i];
                 ASgerbatch[i] = Acblasbatch[i];
             }
-            status = amp.ampblas_sger(accl_view, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
+            status = amp.ampblas_sger(accl_view, ampOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
             for(int i = 0; i < batchSize; i++)
                cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda); 
             for(int i =0; i < M * N * batchSize; i++){
