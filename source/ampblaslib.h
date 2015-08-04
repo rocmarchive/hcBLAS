@@ -6,6 +6,9 @@
 *
 */
 
+#ifndef AMPBLASLIB_H
+#define AMPBLASLIB_H
+
 #include <iostream>
 #include <amp.h>
 #include <amp_short_vectors.h>
@@ -188,3 +191,5 @@ class Ampblaslibrary
 			       const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 
 };
+
+#endif
