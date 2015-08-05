@@ -9,7 +9,6 @@ ampblasStatus cgemm_NoTransAB_loopunroll(Concurrency::accelerator_view &accl_vie
 {
 #define THREADS   16
 #define TILE_DIM  16
-  std::cout << " LOOP UNROLL - NoTransAB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<1, THREADS, THREADS> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, THREADS, THREADS> tidx) restrict(amp)
@@ -108,7 +107,6 @@ ampblasStatus cgemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &acc
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  std::cout << " MICRO 16 2 - NoTransAB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -216,7 +214,6 @@ ampblasStatus cgemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_v
 {
 #define TILESIZE 8
 #define STEPSIZE 8
-  std::cout << "STEP 8 8 - NoTransAB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -315,7 +312,6 @@ ampblasStatus cgemm_NoTransAB_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl
 {  
 #define TILESIZE 8
 #define MICROTILESIZE 2
-  std::cout << " MICRO 8 2 - NoTransAB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -422,7 +418,6 @@ ampblasStatus cgemm_NoTransA_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  std::cout << " MICRO 16 2 - NoTransA" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -528,7 +523,6 @@ ampblasStatus cgemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vi
 {
 #define TILESIZE 8
 #define STEPSIZE 8
-  std::cout << "STEP 8 8 - NoTransB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -624,7 +618,6 @@ ampblasStatus cgemm_NoTransB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  std::cout << " MICRO 16 2 - NoTransB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -731,7 +724,6 @@ ampblasStatus cgemm_NoTransB_loopunroll(Concurrency::accelerator_view &accl_view
 {
 #define THREADS   16
 #define TILE_DIM  16
-  std::cout << "LOOP UNROLL - NoTransB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<1, THREADS, THREADS> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, THREADS, THREADS> tidx) restrict(amp)
@@ -833,7 +825,6 @@ ampblasStatus cgemm_TransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vie
 {
 #define TILESIZE 8
 #define STEPSIZE 8
-  std::cout << "STEP 8 8 - TransAB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -925,7 +916,6 @@ ampblasStatus cgemm_TransAB_STEP_TS16XSS16(Concurrency::accelerator_view &accl_v
 {
 #define TILESIZE 16
 #define STEPSIZE 16
-  std::cout << "STEP 16 16 - TransAB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
@@ -1017,7 +1007,6 @@ ampblasStatus cgemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  std::cout << " MICRO 16 2 - TransAB" << std::endl;
   Concurrency::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
