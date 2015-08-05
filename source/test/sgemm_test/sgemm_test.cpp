@@ -37,16 +37,42 @@ int main(int argc,char* argv[])
     AMPBLAS_ORDER ampOrder = colMajor;
     AMPBLAS_TRANS typeA,typeB ;
     ampblasStatus status;
-    if((isTransA == 0 || isTransA == 1) && (isTransB == 0 || isTransB == 1)){ 
-        if( isTransA == 0) typeA = noTrans;
-        else typeA = trans;
-        if( isTransB == 0) typeB = noTrans;
-        else typeB = trans;
+    
+    /* CBLAS implementation */
+    enum CBLAS_ORDER order;
+    enum CBLAS_TRANSPOSE transa, transb;
+    order = CblasColMajor;
+    if((isTransA == 0 || isTransA == 1) && (isTransB == 0 || isTransB == 1)) {
+        if( isTransA == 0){
+            typeA = noTrans;
+            transa = CblasNoTrans;
+            (ampOrder)?(lda = M):(lda = K);
+        }
+        else{
+            typeA = trans;
+            transa = CblasTrans;
+            (ampOrder)?(lda = K):(lda = M);
+        }
+        if( isTransB == 0){
+            typeB = noTrans;
+            transb = CblasNoTrans;
+            (ampOrder)?(ldb = K):(ldb = N);
+        }
+        else{
+            typeB = trans;
+            transb = CblasTrans;
+            (ampOrder)?(ldb = N):(ldb = K);
+        }
     }
-    else{
+    else {
         cout<< "Invalid transpose type specified"<<endl;
         return -1;
-    } 
+    }
+
+    if(ampOrder)
+       ldc = M;
+    else
+       ldc = N;
 
     float *Asgemm = (float*) calloc(M * K, sizeof(float));
     float *Bsgemm = (float*) calloc(K * N, sizeof(float));
@@ -71,27 +97,6 @@ int main(int argc,char* argv[])
     Concurrency::array_view<float> C_batch(M * N * batchSize, Csgemm_batch);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view()); 
- 
-   /* CBLAS implementation */
-    enum CBLAS_ORDER order;
-    enum CBLAS_TRANSPOSE transa, transb;  
-    order = CblasColMajor;
-    if(typeA == noTrans){
-        transa = CblasNoTrans;
-        lda = M;
-    }
-    else{
-        transa = CblasTrans; 
-        lda = K;
-    }
-    if(typeB == noTrans){
-        transb = CblasNoTrans;
-        ldb = K;
-    }
-    else{
-        transb = CblasTrans;
-        ldb = N;
-    }
  
     {
         for(int i = 0; i < M * K; i++){
