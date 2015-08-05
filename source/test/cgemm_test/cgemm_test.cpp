@@ -36,43 +36,45 @@ int main(int argc, char* argv[])
     long B_batchOffset = 0;
     long C_batchOffset = M * N;
     int batchSize = 128;
-
+    AMPBLAS_ORDER ampOrder = colMajor;
     ampblasStatus status; 
     AMPBLAS_TRANS typeA,typeB ;
+    
+    /* CBLAS implementation */
+    CBLAS_ORDER order = CblasColMajor;
+    enum CBLAS_TRANSPOSE transa, transb;
+
     if((isTransA == 0 || isTransA == 1) && (isTransB == 0 || isTransB == 1)) {
-        if( isTransA == 0)    typeA = noTrans;
-        else typeA = trans;
-        if( isTransB == 0) typeB = noTrans;
-        else typeB = trans;
+        if( isTransA == 0){
+	    typeA = noTrans;
+            transa = CblasNoTrans;
+            (ampOrder)?(lda = M):(lda = K);
+        }
+        else{
+	    typeA = trans;
+            transa = CblasTrans;
+            (ampOrder)?(lda = K):(lda = M);
+        }
+        if( isTransB == 0){
+            typeB = noTrans;
+            transb = CblasNoTrans;
+            (ampOrder)?(ldb = K):(ldb = N);
+        }
+        else{
+            typeB = trans;
+            transb = CblasTrans;
+            (ampOrder)?(ldb = N):(ldb = K);
+        }
     }
     else {
         cout<< "Invalid transpose type specified"<<endl;
         return -1;
     }
 
-    /* CBLAS implementation */
-    CBLAS_ORDER order = CblasColMajor;
-    enum CBLAS_TRANSPOSE transa, transb;
-
-    if(typeA == noTrans){
-       lda = M;
-       transa = CblasNoTrans;
-       }
-    else{
-       lda = K;
-       transa = CblasTrans;
-       }
-
-    if(typeB == noTrans){
-       ldb = K;
-       transb = CblasNoTrans;
-       }
-    else{
-       ldb = N;
-       transb = CblasTrans;
-        }
-
-    ldc = M;
+    if(ampOrder)
+       ldc = M;
+    else
+       ldc = N;
     
     struct ampComplex calpha,cbeta;
 
@@ -138,7 +140,7 @@ int main(int argc, char* argv[])
     }
 
     if(Imple_type == 1){
-    	status = amp.ampblas_cgemm(typeA, typeB, M, N, K, &calpha, Aamp, aOffset, lda, Bamp, bOffset, ldb, &cbeta, Camp, cOffset, ldc);
+    	status = amp.ampblas_cgemm(ampOrder, typeA, typeB, M, N, K, &calpha, Aamp, aOffset, lda, Bamp, bOffset, ldb, &cbeta, Camp, cOffset, ldc);
         cblas_cgemm( order, transa, transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && (k < M * N * 2)) ; i++, k = k + 2){
             if ((Camp[i].real != c[k]) || (Camp[i].img != c[k+1])){
@@ -161,7 +163,7 @@ int main(int argc, char* argv[])
     }
 
     else if(Imple_type ==2){
-    	status = amp.ampblas_cgemm(accl_view, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
+    	status = amp.ampblas_cgemm(accl_view, ampOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
         cblas_cgemm( order, transa, transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((C[i].x != c[k]) || (C[i].y != c[k+1])){
@@ -203,7 +205,7 @@ int main(int argc, char* argv[])
            cbatch[k++] = Cbatch[i].y;
         }  
 
-    	status = amp.ampblas_cgemm(accl_view, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
+    	status = amp.ampblas_cgemm(accl_view, ampOrder, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
         for(int i = 0; i < batchSize;i++)
 	     cblas_cgemm( order, transa, transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){

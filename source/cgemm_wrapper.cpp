@@ -2,7 +2,7 @@
 
 // CGEMM Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 // CGEMM Call Type 1: Inputs and Outputs are host float pointers
-ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
+ampblasStatus Ampblaslibrary:: ampblas_cgemm(const int order, const enum AMPBLAS_TRANS typeA,
                                              const enum AMPBLAS_TRANS typeB,
                                              const int M, const int N,
                                              const int K, const ampComplex *alpha,
@@ -48,22 +48,39 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
     
    ampblasStatus status;
    // Start the operations
-
-   if (typeB == noTrans) {
-        if (typeA == noTrans) {
-            status = cgemm_NoTransAB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-	}
+   if(order){
+   	if (typeB == noTrans) {
+        	if (typeA == noTrans) {
+        	    	status = cgemm_NoTransAB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+		}
+        	else {
+            		status = cgemm_NoTransB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        	}
+    	}
+    	else if (typeA == noTrans) {
+        	status = cgemm_NoTransA(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+    	}
+    	else {
+        	status = cgemm_TransAB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+    	}
+    }
+    else{
+        if (typeB == noTrans) {
+                if (typeA == noTrans) {
+                        status = cgemm_NoTransAB_rMajor(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+                }
+                else {
+                        status = cgemm_NoTransB_rMajor(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+                }
+        }
+        else if (typeA == noTrans) {
+                status = cgemm_NoTransA_rMajor(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        }
         else {
-            status = cgemm_NoTransB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+                status = cgemm_TransAB_rMajor(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
         }
     }
-    else if (typeA == noTrans) {
-        status = cgemm_NoTransA(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-    }
-    else {
-        status = cgemm_TransAB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-    }
-   
+
     for ( int i = 0 ;i <  M * N;i++) {
         C[i].real = Ccmplx[i].x;
         C[i].img = Ccmplx[i].y;
@@ -75,7 +92,7 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_TRANS typeA,
 
 // CGEMM Call Type II: Inputs and outputs are C++ AMP float array_View containers
 ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &accl_view,
-					      const enum AMPBLAS_TRANS typeA,
+					      const int order, const enum AMPBLAS_TRANS typeA,
                                               const enum AMPBLAS_TRANS typeB, const int M,
                                               const int N, const int K,
                                               const Concurrency::graphics::float_2 &Calpha,
@@ -108,28 +125,46 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &acc
     }
     return status;
   }
-
-    if (typeB == noTrans) {
-        if (typeA == noTrans) {
-            status = cgemm_NoTransAB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-	}
+  
+  if(order){
+    	if (typeB == noTrans) {
+        	if (typeA == noTrans) {
+           		status = cgemm_NoTransAB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+		}
+        	else {
+            		status = cgemm_NoTransB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        	}
+    	}
+   	else if (typeA == noTrans) {
+        	status = cgemm_NoTransA(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+   	}
+    	else {
+        	status = cgemm_TransAB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+    	}
+   }
+   else{
+        if (typeB == noTrans) {
+                if (typeA == noTrans) {
+                        status = cgemm_NoTransAB_rMajor(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+                }
+                else {
+                        status = cgemm_NoTransB_rMajor(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+                }
+        }
+        else if (typeA == noTrans) {
+                status = cgemm_NoTransA_rMajor(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+        }
         else {
-            status = cgemm_NoTransB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
+                status = cgemm_TransAB_rMajor(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
         }
     }
-    else if (typeA == noTrans) {
-        status = cgemm_NoTransA(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-    }
-    else {
-        status = cgemm_TransAB(accl_view, Acmplx, aOffset,Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-    }
-   
+
     return status;
 }
 
 /* CGEMM Call Type III - Overloaded function with arguments related to batch processing */
 ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &accl_view,
-                                              const enum AMPBLAS_TRANS typeA,
+                                              const int order, const enum AMPBLAS_TRANS typeA,
                                               const enum AMPBLAS_TRANS typeB, const int M,
                                               const int N, const int K,
                                               const Concurrency::graphics::float_2 &Calpha,
@@ -166,21 +201,22 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &acc
     return status;
   }
 
-    if (typeB == noTrans) {
-        if (typeA == noTrans) {
-            status = cgemm_NoTransAB(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
-	}
-        else {
-            status = cgemm_NoTransB(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
-        }
-    }
-    else if (typeA == noTrans) {
-        status = cgemm_NoTransA(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
-    }
-    else {
-        status = cgemm_TransAB(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
-    }
-   
+  if(order){
+  	if (typeB == noTrans){
+        	if (typeA == noTrans){
+            		status = cgemm_NoTransAB(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
+		}
+        	else{
+            		status = cgemm_NoTransB(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
+        	}
+    	}
+   	else if (typeA == noTrans) {
+        	status = cgemm_NoTransA(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
+    	}
+    	else {
+        	status = cgemm_TransAB(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
+    	}
+   }
     return status;
 }
 

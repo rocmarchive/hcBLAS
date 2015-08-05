@@ -127,4 +127,35 @@ ampblasStatus cgemm_TransAB(Concurrency::accelerator_view &accl_view,
                             float_2 alpha, float_2 beta, int batchSize);
 
 
+/*
+* CGEMM Kernels - Row major order
+*/
+
+ampblasStatus cgemm_NoTransAB_rMajor(Concurrency::accelerator_view &accl_view,
+                                     Concurrency::array_view<float_2, 1> &A, long aOffset,
+                                     Concurrency::array_view<float_2, 1> &B, long bOffset,
+                                     Concurrency::array_view<float_2, 1> &C, long cOffset,
+                                     int M, int N, int K, int lda, int ldb, int ldc,
+                                     float_2 alpha, float_2 beta);
+
+ampblasStatus cgemm_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float_2, 1> &A, long aOffset,
+                                    Concurrency::array_view<float_2, 1> &B, long bOffset,
+                                    Concurrency::array_view<float_2, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float_2 alpha, float_2 beta);
+
+ampblasStatus cgemm_NoTransB_rMajor(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array_view<float_2, 1> &A, long aOffset,
+                                    Concurrency::array_view<float_2, 1> &B, long bOffset,
+                                    Concurrency::array_view<float_2, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float_2 alpha, float_2 beta);
+
+ampblasStatus cgemm_TransAB_rMajor(Concurrency::accelerator_view &accl_view,
+                                   Concurrency::array_view<float_2, 1> &A, long aOffset,
+                                   Concurrency::array_view<float_2, 1> &B, long bOffset,
+                                   Concurrency::array_view<float_2, 1> &C, long cOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float_2 alpha, float_2 beta);
 
