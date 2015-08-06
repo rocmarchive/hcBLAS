@@ -107,6 +107,7 @@ int main(int argc,char* argv[])
             B_mat[i] = rand() % 15;
             Bsgemm[i] = B_mat[i];
         }
+        for(int iter = 0; iter < 100; iter++) { 
         for(int i = 0; i < M * N;i++)  {
             C_mat[i] = rand() % 25;
             C_cblas[i] = C_mat[i];
@@ -125,10 +126,10 @@ int main(int argc,char* argv[])
                    continue;
             }
             cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
-            free(Asgemm);
-    	    free(Bsgemm);
-    	    free(Csgemm);
-    	    free(C_cblas);
+            //free(Asgemm);
+    	    //free(Bsgemm);
+    	    //free(Csgemm);
+    	    //free(C_cblas);
         }
         else if(Imple_type ==2){/* MULTIPLE GPU CALL */
             status = amp.ampblas_sgemm(accl_view, ampOrder, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat,ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
@@ -178,6 +179,7 @@ int main(int argc,char* argv[])
             }
             cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
     	}
+       }
       }
     return 0;   
 }

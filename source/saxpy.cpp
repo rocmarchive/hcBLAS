@@ -131,7 +131,6 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     axpy_AMP(accl_view, N, *alpha, xView, xOffset, incX, yView, yOffset, incY);
-    yView.synchronize();
 
     return AMPBLAS_SUCCESS;
 }
@@ -153,7 +152,6 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
         return AMPBLAS_SUCCESS;
     }
     axpy_AMP(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY);
-    Y.synchronize();
 
     return AMPBLAS_SUCCESS;
 
@@ -176,7 +174,6 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
         return AMPBLAS_SUCCESS;
     }
     axpy_AMP(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY, X_batchOffset, Y_batchOffset, batchSize);
-    Y.synchronize();
 
     return AMPBLAS_SUCCESS;
 

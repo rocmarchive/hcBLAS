@@ -108,12 +108,6 @@ ampblasStatus Ampblaslibrary :: ampblas_sger(const int order, const int M, const
     	ger_AMP(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
     else
         ger_AMP_rMajor(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
-    aMat.synchronize();
-
-    /* Debug purpose */
-    /*for (int i = 0 ; i < M * N ;i++ )
-      cout<< "A[" << i << "]" << A[i] << "\n" << endl; 
-    */
 
     return AMPBLAS_SUCCESS;
 }
@@ -137,7 +131,6 @@ ampblasStatus Ampblaslibrary ::ampblas_sger(Concurrency::accelerator_view &accl_
 	ger_AMP(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, M);
     else
         ger_AMP_rMajor(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, M);
-    A.synchronize();
     return AMPBLAS_SUCCESS;
 }
 
@@ -164,7 +157,6 @@ ampblasStatus Ampblaslibrary :: ampblas_sger(Concurrency::accelerator_view &accl
     else
         ger_AMP_rMajor(accl_view, M, N, alpha, X, xOffset, X_batchOffset, incX, Y, yOffset, Y_batchOffset, incY, A, aOffset, A_batchOffset, M, batchSize);
 
-    A.synchronize();
     return AMPBLAS_SUCCESS;
 }
 
