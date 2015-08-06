@@ -129,7 +129,6 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_ORDER order,
                                     A_mat, aOffset, lda, B_mat, bOffset, ldb,
                                     *beta, C_mat, cOffset, ldc, *temp_buf);
 
-    C_mat.synchronize();
     return status;
 }
 
@@ -152,7 +151,6 @@ ampblasStatus  Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &ac
                                     aOffset, lda, B, bOffset, ldb, beta, C,
                                     cOffset, ldc, *temp_buf);
 
-    C.synchronize();
     return status;
 }
 
@@ -173,7 +171,6 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &acc
     gemm_AMP(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
              bOffset, ldb, beta, C, cOffset, ldc, *temp_buf, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);
 
-    C.synchronize();
     return AMPBLAS_SUCCESS;
 }
 
