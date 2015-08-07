@@ -37,10 +37,10 @@ ampblasStatus gemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vi
       for (int sec =0; sec < STEPSIZE/TILESIZE; ++sec)
       {
         // Load Section 'sec' from global memory B onto shared lB
-        if(gidy*TILESIZE+idxT  < N && (idyT + i * STEPSIZE + (TILESIZE * sec)) < K)
-          lB[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = B[bOffset + (gidy*TILESIZE+ idxT) * ldb + idyT + i * STEPSIZE + (TILESIZE * sec)];
+        if(gidy*TILESIZE+idyT  < N && (idxT + i * STEPSIZE + (TILESIZE * sec)) < K)
+          lB[idyT*TILESIZE+idxT + (TILESIZE * TILESIZE * sec)] = B[bOffset + (gidy*TILESIZE+ idyT) * ldb + idxT + i * STEPSIZE + (TILESIZE * sec)];
         else
-          lB[idxT*TILESIZE+idyT + (TILESIZE * TILESIZE * sec)] = 0;
+          lB[idyT*TILESIZE+idxT + (TILESIZE * TILESIZE * sec)] = 0;
 
         // Load Section 'sec' from global memory A onto shared lA
         if(gidx * TILESIZE + idxT < M && (i * STEPSIZE + idyT + (TILESIZE * sec)) < K)
@@ -2973,7 +2973,7 @@ ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
   {
     return gemm_NoTransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if (M < 10000 && N < 600 && K < 10)
+  else if(M < 10000 && N < 600 && K < 10)
   {
     return gemm_NoTransAB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
