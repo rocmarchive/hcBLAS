@@ -245,14 +245,14 @@ ampblasStatus gemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl
           tidx.barrier.wait();
           for(int sec = 0; sec < MICROTILESIZE; ++sec)
           {
-            if(gidy * TILESIZE * MICROTILESIZE + idxT + (sec * TILESIZE) < N && block_k * TILESIZE + idyT < K)
+            if(gidy * TILESIZE * MICROTILESIZE + idyT + (sec * TILESIZE) < N && block_k * TILESIZE + idxT < K)
             {
-              lB[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = B[bOffset + (gidy * TILESIZE * MICROTILESIZE + idxT + sec * TILESIZE) * ldb + idyT + block_k * TILESIZE];
+              lB[(idxT * TILESIZE * MICROTILESIZE) + idyT + (sec * TILESIZE)] = B[bOffset + (gidy * TILESIZE * MICROTILESIZE + idyT + sec * TILESIZE) * ldb + idxT + block_k * TILESIZE];
             }
             else
             {
-              lB[(idyT * TILESIZE * MICROTILESIZE) + idxT + (sec * TILESIZE)] = 0;
-	        }
+              lB[(idxT * TILESIZE * MICROTILESIZE) + idyT + (sec * TILESIZE)] = 0;
+	    }
 
             if(gidx * TILESIZE * MICROTILESIZE + idxT + (sec * TILESIZE) < M && block_k * TILESIZE + idyT < K)
             {
@@ -816,22 +816,22 @@ ampblasStatus gemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vie
       tidx.barrier.wait();
       for(int sec = 0; sec < STEPSIZE / TILESIZE; ++sec)
       {
-        if(gidy * TILESIZE + idxT < N && i * STEPSIZE + idyT + (sec * TILESIZE) < K)
+        if(gidy * TILESIZE + idyT < N && i * STEPSIZE + idxT + (sec * TILESIZE) < K)
         {
-          lB[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = B[bOffset + (gidy * TILESIZE + idxT) * ldb + idyT + i * STEPSIZE + (sec * TILESIZE)];
+          lB[(sec * TILESIZE * TILESIZE) + idxT + idyT * TILESIZE] = B[bOffset + (gidy * TILESIZE + idyT) * ldb + idxT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
-          lB[(sec * TILESIZE * TILESIZE ) + idyT + idxT * TILESIZE] = 0;
+          lB[(sec * TILESIZE * TILESIZE ) + idxT + idyT * TILESIZE] = 0;
         }
 
-        if(gidx * TILESIZE + idxT < M && i * STEPSIZE + idyT + (sec * TILESIZE ) < K)
+        if(gidx * TILESIZE + idyT < M && i * STEPSIZE + idxT + (sec * TILESIZE ) < K)
         {
-          lA[(sec * TILESIZE * TILESIZE) + idyT + idxT * TILESIZE] = A[aOffset + (gidx * TILESIZE + idxT) * lda + idyT + i * STEPSIZE + (sec * TILESIZE)];
+          lA[(sec * TILESIZE * TILESIZE) + idxT + idyT * TILESIZE] = A[aOffset + (gidx * TILESIZE + idyT) * lda + idxT + i * STEPSIZE + (sec * TILESIZE)];
         }
         else
         {
-          lA[(sec * TILESIZE * TILESIZE ) + idyT + idxT * TILESIZE] = 0;
+          lA[(sec * TILESIZE * TILESIZE ) + idxT + idyT * TILESIZE] = 0;
         }
       }
 
@@ -2961,7 +2961,7 @@ ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float alpha, float beta)
 {
-  if (M < 600 && N < 600 && K < 10) 
+  /*if (M < 600 && N < 600 && K < 10) 
   {
     return gemm_NoTransAB_STEP_NBK_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
@@ -2969,7 +2969,7 @@ ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
   {
     return gemm_NoTransAB_STEP_NBK_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if (M < 1800 && N < 1800 && K < 1800)
+  else*/ if (1) //(M < 1800 && N < 1800 && K < 1800)
   {
     return gemm_NoTransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
@@ -3026,7 +3026,7 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta)
 {
-  if (((M >=10 && M < 600) && N < 600 && K < 10) || (M >=6000 && M < 10000 && N < 600 && K < 10))
+  if (1) //((M >=10 && M < 600) && N < 600 && K < 10) || (M >=6000 && M < 10000 && N < 600 && K < 10))
   {
     return gemm_NoTransB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
