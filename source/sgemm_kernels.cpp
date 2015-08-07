@@ -976,15 +976,15 @@ ampblasStatus gemm_NoTransB_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &a
     int block_k = 0;
     do
     {
-      int colIndex =( block_k << shiftTS )+ idyT;
-      int lIndex = (idyT * BANKMICROTILESIZE) + idxT;
+      int colIndex =( block_k << shiftTS )+ idxT;
+      int lIndex = (idxT * BANKMICROTILESIZE) + idyT;
 
       tidx.barrier.wait();
       for(int sec = 0; sec < MICROTILESIZE; ++sec)
       {
         int secVal = sec << shiftTS;
-        int BrowIndex = ( gidy * MICROTILEPROD) + idxT + secVal;
-        int ArowIndex = ( gidx * MICROTILEPROD) + idxT + secVal;
+        int BrowIndex = ( gidy * MICROTILEPROD) + idyT + secVal;
+        int ArowIndex = ( gidx * MICROTILEPROD) + idyT + secVal;
 
         tidx.barrier.wait();
         if( BrowIndex < N && colIndex < K)
@@ -3026,7 +3026,7 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta)
 {
-  if (1) //((M >=10 && M < 600) && N < 600 && K < 10) || (M >=6000 && M < 10000 && N < 600 && K < 10))
+ /* if ((M >=10 && M < 600) && N < 600 && K < 10) || (M >=6000 && M < 10000 && N < 600 && K < 10))
   {
     return gemm_NoTransB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
@@ -3038,7 +3038,7 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
   {
     return gemm_NoTransB_STEP_NBK_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if (M < 1800 && N < 1800 && K < 600)  
+  else*/ if (1) //(M < 1800 && N < 1800 && K < 600)  
   {
     return  gemm_NoTransB_MICRO_NBK_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
