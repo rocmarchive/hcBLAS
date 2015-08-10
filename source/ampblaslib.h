@@ -190,16 +190,21 @@ class Ampblaslibrary
                                Concurrency::array_view<float_2> &C, 
 			       const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 
+/* SSCAL - X = alpha * X*/
    ampblasStatus ampblas_sscal(const int N, const float *alpha,
                                float *X, const int incX, const long xOffset);
 
-
+/* DSCAL - X = alpha * X*/
    ampblasStatus ampblas_dscal(const int N, const double *alpha,
                                double *X, const int incX, const long xOffset);
 
+/* SCOPY - Copies a vector X to a vector Y */
    ampblasStatus ampblas_scopy(const int N, float *X, const int incX, const long xOffset, 
                                float *Y, const int incY, const long yOffset);
 
+/* DCOPY - Copies a vector X to a vector Y */
+   ampblasStatus ampblas_dcopy(const int N, double *X, const int incX, const long xOffset, 
+                               double *Y, const int incY, const long yOffset);
 };
 
 
