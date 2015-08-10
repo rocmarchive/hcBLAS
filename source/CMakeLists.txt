@@ -12,7 +12,7 @@ SET (SRCS
     sgemm_wrapper.cpp sgemm_kernels.cpp sgemm_kernels_batch.cpp sgemm_kernels_rMajor.cpp 
     sgemm_kernels_rMajor_batch.cpp cgemm_wrapper.cpp cgemm_kernels.cpp cgemm_kernels_batch.cpp 
     cgemm_kernels_rMajor.cpp cgemm_kernels_rMajor_batch.cpp saxpy.cpp sgemv.cpp sger.cpp
-    sscal.cpp dscal.cpp
+    sscal.cpp dscal.cpp scopy.cpp
     )
 
 IF(WIN32)
