@@ -190,6 +190,11 @@ class Ampblaslibrary
                                Concurrency::array_view<float_2> &C, 
 			       const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 
+   ampblasStatus ampblas_sscal(const int N, const float *alpha,
+                               float *X, const int incX, const long xOffset);
+
+
 };
+
 
 #endif
