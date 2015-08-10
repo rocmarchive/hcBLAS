@@ -194,6 +194,11 @@ class Ampblaslibrary
                                float *X, const int incX, const long xOffset);
 
 
+   ampblasStatus ampblas_dscal(const int N, const double *alpha,
+                               double *X, const int incX, const long xOffset);
+
+
+
 };
 
 
