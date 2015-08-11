@@ -2,7 +2,7 @@
 
 // CGEMM Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 // CGEMM Call Type 1: Inputs and Outputs are host float pointers
-ampblasStatus Ampblaslibrary:: ampblas_cgemm(const int order, const enum AMPBLAS_TRANS typeA,
+ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA,
                                              const enum AMPBLAS_TRANS typeB,
                                              const int M, const int N,
                                              const int K, const ampComplex *alpha,
@@ -92,7 +92,7 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const int order, const enum AMPBLAS
 
 // CGEMM Call Type II: Inputs and outputs are C++ AMP float array_View containers
 ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &accl_view,
-					      const int order, const enum AMPBLAS_TRANS typeA,
+					      const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA,
                                               const enum AMPBLAS_TRANS typeB, const int M,
                                               const int N, const int K,
                                               const Concurrency::graphics::float_2 &Calpha,
@@ -164,7 +164,7 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &acc
 
 /* CGEMM Call Type III - Overloaded function with arguments related to batch processing */
 ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &accl_view,
-                                              const int order, const enum AMPBLAS_TRANS typeA,
+                                              const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA,
                                               const enum AMPBLAS_TRANS typeB, const int M,
                                               const int N, const int K,
                                               const Concurrency::graphics::float_2 &Calpha,

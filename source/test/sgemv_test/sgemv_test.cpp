@@ -31,6 +31,7 @@ int main(int argc, char** argv)
     long lenx,  leny;
     ampblasStatus status;
     AMPBLAS_TRANS typeA;
+    AMPBLAS_ORDER ampOrder = colMajor;
 
     /* clBLAS Implementation */
     enum CBLAS_ORDER order;
@@ -87,8 +88,11 @@ int main(int argc, char** argv)
         ASgemv[i] = aMat[i];}
 
     if(Imple_type ==1){
-        status =  amp.ampblas_sgemv(typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-        lda = M;
+        status =  amp.ampblas_sgemv(ampOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
+        if(ampOrder)
+        	lda = M;
+        else
+                lda = N;
         cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
         for(int i =0; i < col; i ++){
             if (ySgemv[i] != ycblas[i]){
@@ -106,8 +110,11 @@ int main(int argc, char** argv)
         free(ASgemv);
     }
     else if(Imple_type ==2){
-        status =  amp.ampblas_sgemv(accl_view, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-        lda = M;
+        status =  amp.ampblas_sgemv(accl_view, ampOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
+        if(ampOrder)
+                lda = M;
+        else
+                lda = N;
         cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
         for(int i =0; i < col; i ++){
             if (yView[i] != ycblas[i]){
@@ -132,8 +139,11 @@ int main(int argc, char** argv)
             abatchMat[i] = rand() % 25;
             ASgemvbatch[i] = abatchMat[i];}
 
-        status =  amp.ampblas_sgemv(accl_view, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-        lda = M;
+        status =  amp.ampblas_sgemv(accl_view, ampOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
+        if(ampOrder)
+                lda = M;
+        else
+                lda = N;
         for(int i =0 ; i < batchSize; i++)
             cblas_sgemv( order, transa, M, N, alpha, ASgemvbatch + i * M * N, lda , xSgemvbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
         for(int i =0; i < col * batchSize; i ++){

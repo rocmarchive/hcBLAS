@@ -71,7 +71,7 @@ class Ampblaslibrary
 
 
 /*                  A = alpha * X * Y' + A                               */
-    ampblasStatus ampblas_sger(const int order, const int M, const int N, const float *alpha,
+    ampblasStatus ampblas_sger(const enum AMPBLAS_ORDER order, const int M, const int N, const float *alpha,
                                float *X, const long xOffset, const int incX,
                                float *Y, const long yOffset, const int incY,
                                float *A, const long aOffset, const int lda);
@@ -79,7 +79,7 @@ class Ampblaslibrary
 /* SGER - Overloaded function with arguments of type Concurrency::array_view */
 
     ampblasStatus ampblas_sger(Concurrency::accelerator_view &accl_view,
-			       const int order, const int M, const int N, const float &alpha,
+			       const enum AMPBLAS_ORDER order, const int M, const int N, const float &alpha,
                                Concurrency::array_view<float> &X, const long xOffset, const int incX,
                                Concurrency::array_view<float> &Y, const long yOffset, const int incY,
                                Concurrency::array_view<float> &A, const long aOffset, const int lda);
@@ -87,7 +87,7 @@ class Ampblaslibrary
 /* SGER - Overloaded function with arguments related to batch processing */
 
     ampblasStatus ampblas_sger(Concurrency::accelerator_view &accl_view,
-                               const int order, const int M, const int N, const float &alpha,
+                               const enum AMPBLAS_ORDER order, const int M, const int N, const float &alpha,
                                Concurrency::array_view<float> &X, 
                                const long xOffset, const long X_batchOffset, const int incX,
                                Concurrency::array_view<float> &Y, 
@@ -96,7 +96,7 @@ class Ampblaslibrary
                                const long aOffset, const long A_batchOffset, const int lda, const int batchSize);
 
 /*                  Y = alpha * op(A) * X + beta * Y                     */
-    ampblasStatus ampblas_sgemv(const enum AMPBLAS_TRANS type, const int M,
+    ampblasStatus ampblas_sgemv(const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS type, const int M,
                                 const int N, const float *alpha, float *A,
                                 const long aOffset,const int lda, float *X,
                                 const long xOffset, const int incX,
@@ -105,7 +105,7 @@ class Ampblaslibrary
 
 /* SGEMV- Overloaded function with arguments of type Concurrency::array_view */
     ampblasStatus ampblas_sgemv(Concurrency::accelerator_view &accl_view,
-				const enum AMPBLAS_TRANS type, const int M,
+				const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS type, const int M,
                                 const int N, const float &alpha, 
                                 Concurrency::array_view<float> &A, const long aOffset, const int lda, 
 				Concurrency::array_view<float> &X, const long xOffset, const int incX,
@@ -114,7 +114,7 @@ class Ampblaslibrary
 
 /* SGEMV- Overloaded function with arguments related to batch processing */
     ampblasStatus ampblas_sgemv(Concurrency::accelerator_view &accl_view,
-                                const enum AMPBLAS_TRANS type, const int M,
+                                const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS type, const int M,
                                 const int N, const float &alpha, Concurrency::array_view<float> &A, 
                                 const long aOffset, const long A_batchOffset, const int lda,
                                 Concurrency::array_view<float> &X, 
@@ -156,7 +156,7 @@ class Ampblaslibrary
 
 
 /*                  C = alpha * op(A) * op(B) + beta * C                   */
-    ampblasStatus ampblas_cgemm(const int order, const enum AMPBLAS_TRANS typeA,
+    ampblasStatus ampblas_cgemm(const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA,
                                 const enum AMPBLAS_TRANS typeB, const int M, 
                                 const int N, const int K,
                                 const ampComplex *alpha,
@@ -167,7 +167,7 @@ class Ampblaslibrary
 
 /* CGEMM - Overloaded function with arguments of type Concurrency::array_view */     
    ampblasStatus ampblas_cgemm(Concurrency::accelerator_view &accl_view,
-			       const int order, const enum AMPBLAS_TRANS typeA,
+			       const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA,
                                const enum AMPBLAS_TRANS typeB, const int M,
                                const int N, const int K,
                                const Concurrency::graphics::float_2 &alpha,
@@ -178,7 +178,7 @@ class Ampblaslibrary
 
 /* CGEMM - Overloaded function with arguments related to batch processing */
    ampblasStatus ampblas_cgemm(Concurrency::accelerator_view &accl_view,
-                               const int order, const enum AMPBLAS_TRANS typeA,
+                               const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA,
                                const enum AMPBLAS_TRANS typeB, const int M,
                                const int N, const int K,
                                const Concurrency::graphics::float_2 &alpha,
