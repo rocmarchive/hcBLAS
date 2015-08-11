@@ -190,11 +190,11 @@ class Ampblaslibrary
                                Concurrency::array_view<float_2> &C, 
 			       const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 
-/* SSCAL - X = alpha * X*/
+/* SSCAL - X = alpha * X */
    ampblasStatus ampblas_sscal(const int N, const float *alpha,
                                float *X, const int incX, const long xOffset);
 
-/* DSCAL - X = alpha * X*/
+/* DSCAL - X = alpha * X */
    ampblasStatus ampblas_dscal(const int N, const double *alpha,
                                double *X, const int incX, const long xOffset);
 
@@ -205,6 +205,21 @@ class Ampblaslibrary
 /* DCOPY - Copies a vector X to a vector Y */
    ampblasStatus ampblas_dcopy(const int N, double *X, const int incX, const long xOffset, 
                                double *Y, const int incY, const long yOffset);
+
+/* Single Precision Dot product */
+   ampblasStatus ampblas_sdot(const int N, float *X, const int incX, const long xOffset, 
+                              float *Y, const int incY, const long yOffset, float *dot);
+
+/* Double Precision Dot product */
+   ampblasStatus ampblas_ddot(const int N, double *X, const int incX, const long xOffset,
+                              double *Y, const int incY, const long yOffset, double *dot);
+
+/* Absolute value of a Vector - Single Precision */
+   ampblasStatus ampblas_sasum(const int N, float *X, const int incX, const long xOffset, float *Y);    
+   
+/* Absolute value of a Vector - Double Precision */
+   ampblasStatus ampblas_dasum(const int N, double *X, const int incX, const long xOffset, double *Y);
+
 };
 
 
