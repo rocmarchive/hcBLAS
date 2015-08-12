@@ -241,6 +241,17 @@ class Ampblaslibrary
    ampblasStatus ampblas_dcopy(const int N, double *X, const int incX, const long xOffset, 
                                double *Y, const int incY, const long yOffset);
 
+/* DCOPY - Overloaded function with arguments of type Concurrency::array_view */
+   ampblasStatus ampblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
+                               Concurrency::array_view<double> &X, const int incX, const long xOffset,
+                               Concurrency::array_view<double> &Y, const int incY, const long yOffset);
+
+/* DCOPY - Overloaded function with arguments related to batch processing */
+   ampblasStatus ampblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
+                               Concurrency::array_view<double> &X, const int incX, const long xOffset,
+                               Concurrency::array_view<double> &Y, const int incY, const long yOffset,
+                               const long X_batchOffset, const long Y_batchOffset, const int batchSize);
+
 /* Single Precision Dot product */
    ampblasStatus ampblas_sdot(const int N, float *X, const int incX, const long xOffset, 
                               float *Y, const int incY, const long yOffset, float *dot);
