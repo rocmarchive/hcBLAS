@@ -282,9 +282,19 @@ class Ampblaslibrary
                               Concurrency::array_view<double> &Y, const int incY, const long yOffset, double &dot,
                               const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
-/* Absolute value of a Vector - Single Precision */
+/* SASUM - Absolute value of a Vector - Single Precision */
    ampblasStatus ampblas_sasum(const int N, float *X, const int incX, const long xOffset, float *Y);    
    
+/* SASUM - Overloaded function with arguments of type Concurrency::array_view */
+   ampblasStatus ampblas_sasum(Concurrency::accelerator_view &accl_view, const int N,
+                               Concurrency::array_view<float> &X, const int incX,
+                               const long xOffset, float &Y);
+
+/* SASUM - Overloaded function with arguments related to batch processing */
+   ampblasStatus ampblas_sasum(Concurrency::accelerator_view &accl_view, const int N,
+                               Concurrency::array_view<float> &X, const int incX,
+                               const long xOffset, float &Y, const long X_batchOffset, const int batchSize);
+
 /* Absolute value of a Vector - Double Precision */
    ampblasStatus ampblas_dasum(const int N, double *X, const int incX, const long xOffset, double *Y);
 
