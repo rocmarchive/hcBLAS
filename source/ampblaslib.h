@@ -267,9 +267,20 @@ class Ampblaslibrary
                               Concurrency::array_view<float> &Y, const int incY, const long yOffset, float &dot,
                               const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
-/* Double Precision Dot product */
+/* DDOT - Double Precision Dot product */
    ampblasStatus ampblas_ddot(const int N, double *X, const int incX, const long xOffset,
                               double *Y, const int incY, const long yOffset, double *dot);
+
+/* DDOT - Overloaded function with arguments of type Concurrency::array_view */
+   ampblasStatus ampblas_ddot(Concurrency::accelerator_view &accl_view, const int N,
+                              Concurrency::array_view<double> &X, const int incX, const long xOffset,
+                              Concurrency::array_view<double> &Y, const int incY, const long yOffset, double &dot);
+
+/* DDOT - Overloaded function with arguments related to batch processing */
+   ampblasStatus ampblas_ddot(Concurrency::accelerator_view &accl_view, const int N,
+                              Concurrency::array_view<double> &X, const int incX, const long xOffset,
+                              Concurrency::array_view<double> &Y, const int incY, const long yOffset, double &dot,
+                              const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
 /* Absolute value of a Vector - Single Precision */
    ampblasStatus ampblas_sasum(const int N, float *X, const int incX, const long xOffset, float *Y);    
