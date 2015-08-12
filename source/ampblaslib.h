@@ -194,6 +194,18 @@ class Ampblaslibrary
    ampblasStatus ampblas_sscal(const int N, const float *alpha,
                                float *X, const int incX, const long xOffset);
 
+/* SSCAL - Overloaded function with arguments of type Concurrency::array_view */
+   ampblasStatus ampblas_sscal(Concurrency::accelerator_view &accl_view,
+                               const int N, const float &alpha,
+                               Concurrency::array_view<float> &X, const int incX,
+                               const long xOffset);
+
+/* SSCAL - Overloaded function with arguments related to batch processing */
+   ampblasStatus ampblas_sscal(Concurrency::accelerator_view &accl_view,
+                               const int N,const float &alpha,
+                               Concurrency::array_view<float> &X, const int incX,
+                               const long xOffset, const long X_batchOffset, const int batchSize);
+
 /* DSCAL - X = alpha * X */
    ampblasStatus ampblas_dscal(const int N, const double *alpha,
                                double *X, const int incX, const long xOffset);
