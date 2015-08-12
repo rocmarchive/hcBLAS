@@ -210,6 +210,18 @@ class Ampblaslibrary
    ampblasStatus ampblas_dscal(const int N, const double *alpha,
                                double *X, const int incX, const long xOffset);
 
+/* DSCAL - Overloaded function with arguments of type Concurrency::array_view */
+   ampblasStatus ampblas_dscal(Concurrency::accelerator_view &accl_view,
+                               const int N, const double &alpha,
+                               Concurrency::array_view<double> &X, const int incX,
+                               const long xOffset);
+
+/* DSCAL - Overloaded function with arguments related to batch processing */
+   ampblasStatus ampblas_dscal(Concurrency::accelerator_view &accl_view,
+                               const int N,const double &alpha,
+                               Concurrency::array_view<double> &X, const int incX,
+                               const long xOffset, const long X_batchOffset, const int batchSize);
+
 /* SCOPY - Copies a vector X to a vector Y */
    ampblasStatus ampblas_scopy(const int N, float *X, const int incX, const long xOffset, 
                                float *Y, const int incY, const long yOffset);
