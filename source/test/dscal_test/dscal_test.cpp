@@ -48,7 +48,7 @@ int main(int argc, char** argv)
         for(int i = 0; i < N ; i++){
             if (X[i] != Xcblas[i]){
                 ispassed = 0;
-                cout <<" AMPSSCAL[" << i<< "] " << X[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblas[i] << endl;
+                cout <<" AMPDSCAL[" << i<< "] " << X[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
                 break;
             }
             else
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
         for(int i = 0; i < N ; i++){
             if (xView[i] != Xcblas[i]){
                 ispassed = 0;
-                cout <<" AMPSSCAL[" << i<< "] " << xView[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblas[i] << endl;
+                cout <<" AMPDSCAL[" << i<< "] " << xView[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
                 break;
             }
             else
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
         for(int i =0; i < N * batchSize; i ++){
             if (xbatchView[i] != Xcblasbatch[i]){
                 ispassed = 0;
-                cout <<" AMPSSCAL[" << i<< "] " << xbatchView[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
+                cout <<" AMPDSCAL[" << i<< "] " << xbatchView[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
                 break;
             }
             else 

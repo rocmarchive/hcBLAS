@@ -226,6 +226,17 @@ class Ampblaslibrary
    ampblasStatus ampblas_scopy(const int N, float *X, const int incX, const long xOffset, 
                                float *Y, const int incY, const long yOffset);
 
+/* SCOPY - Overloaded function with arguments of type Concurrency::array_view */
+   ampblasStatus ampblas_scopy(Concurrency::accelerator_view &accl_view, const int N,
+                               Concurrency::array_view<float> &X, const int incX, const long xOffset,
+                               Concurrency::array_view<float> &Y, const int incY, const long yOffset);
+
+/* SCOPY - Overloaded function with arguments related to batch processing */
+   ampblasStatus ampblas_scopy(Concurrency::accelerator_view &accl_view, const int N,
+                               Concurrency::array_view<float> &X, const int incX, const long xOffset,
+                               Concurrency::array_view<float> &Y, const int incY, const long yOffset,
+                               const long X_batchOffset, const long Y_batchOffset, const int batchSize);
+
 /* DCOPY - Copies a vector X to a vector Y */
    ampblasStatus ampblas_dcopy(const int N, double *X, const int incX, const long xOffset, 
                                double *Y, const int incY, const long yOffset);
