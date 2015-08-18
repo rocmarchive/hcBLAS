@@ -136,10 +136,10 @@ class Ampblaslibrary
  				const enum AMPBLAS_ORDER order,const enum AMPBLAS_TRANS typeA,
                                 const enum AMPBLAS_TRANS typeB, const int M,
                                 const int N, const int K, const float &alpha,
-                                Concurrency::array_view<float> &A, const long lda, 
-		                Concurrency::array_view<float> &B, const long ldb, 
+                                Concurrency::array<float> &A, const long lda, 
+		                Concurrency::array<float> &B, const long ldb, 
 				const float &beta,  
-				Concurrency::array_view<float> &C, const long ldc, 
+				Concurrency::array<float> &C, const long ldc, 
 				const long aOffset, const long bOffset, const long cOffset);
 
 

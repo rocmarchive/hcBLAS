@@ -4,13 +4,13 @@
 ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
                        const int order, char TransA, char TransB, 
                        const int M, const int N, const int K,
-                       const float alpha, Concurrency::array_view<float> &A_mat, 
+                       const float alpha, Concurrency::array<float> &A_mat, 
                        long aOffset, long lda,
-                       Concurrency::array_view<float> &B_mat, 
+                       Concurrency::array<float> &B_mat, 
                        long bOffset, long ldb, const float beta,
-                       Concurrency::array_view<float> &C_mat, 
+                       Concurrency::array<float> &C_mat, 
                        long cOffset, long ldc,
-                       Concurrency::array_view<float> &temp_buf, long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset=0, int batchSize =0)
+                       Concurrency::array<float> &temp_buf, long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset=0, int batchSize =0)
 {
   int i, j;
   ampblasStatus status = AMPBLAS_SUCCESS;
@@ -38,7 +38,7 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
    
   if (order)
   {
-    if(batchSize > 0)
+/*    if(batchSize > 0)
     {
       if (TransB == 'n')
       {
@@ -54,7 +54,7 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
 
     }
     else
-    {
+    {*/
       if (TransB == 'n')
       {
          if (TransA == 'n')
@@ -63,12 +63,12 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
            status = gemm_NoTransB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       }
       else if (TransA == 'n')
-        status = gemm_NoTransA(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+         status = gemm_NoTransA(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       else
         status = gemm_TransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
-  }
-  else
+ // }
+/*  else
   {
    if(batchSize > 0)
    {
@@ -99,7 +99,7 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
       else
         status = gemm_TransAB_rMajor(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
-  }
+  }*/
   return status;
 }
 
@@ -117,10 +117,10 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_ORDER order,
                                               const long bOffset,
                                               const long cOffset)
 {
-    Concurrency::array_view<float> A_mat(K * M, A);
-    Concurrency::array_view<float> B_mat(N * K, B);
-    Concurrency::array_view<float> C_mat(M * N, C);
-    Concurrency::array_view<float> *temp_buf = NULL;
+    Concurrency::array<float> A_mat(K * M, A);
+    Concurrency::array<float> B_mat(N * K, B);
+    Concurrency::array<float> C_mat(M * N, C);
+    Concurrency::array<float> *temp_buf = NULL;
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
@@ -139,38 +139,38 @@ ampblasStatus  Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &ac
                                  	       const enum AMPBLAS_TRANS typeA,
                                                const enum AMPBLAS_TRANS typeB, const int M,
                                                const int N, const int K, const float &alpha,
-                                               Concurrency::array_view<float> &A, const long lda,
-                                               Concurrency::array_view<float> &B, const long ldb,
+                                               Concurrency::array<float> &A, const long lda,
+                                               Concurrency::array<float> &B, const long ldb,
                                                const float &beta,
-                                               Concurrency::array_view<float> &C, const long ldc,
+                                               Concurrency::array<float> &C, const long ldc,
                                                const long aOffset, const long bOffset, const long cOffset)
 
 {
-    Concurrency::array_view<float> *temp_buf = NULL;
+    Concurrency::array<float> *temp_buf = NULL;
     ampblasStatus status = gemm_AMP(accl_view, order, typeA, typeB, M, N, K, alpha, A,
                                     aOffset, lda, B, bOffset, ldb, beta, C,
                                     cOffset, ldc, *temp_buf);
 
     return status;
 }
-
-/* SGEMM- Overloaded function with arguments related to batch processing */
+/*
+* SGEMM- Overloaded function with arguments related to batch processing *
 ampblasStatus Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &accl_view,
                                               const enum AMPBLAS_ORDER order,
                                               const enum AMPBLAS_TRANS typeA,
                                               const enum AMPBLAS_TRANS typeB, const int M,
                                               const int N, const int K, const float &alpha,
-                                              Concurrency::array_view<float> &A, const long lda, const long A_batchOffset,
-                                              Concurrency::array_view<float> &B, const long ldb, const long B_batchOffset,
+                                              Concurrency::array<float> &A, const long lda, const long A_batchOffset,
+                                              Concurrency::array<float> &B, const long ldb, const long B_batchOffset,
                                               const float &beta,
-                                              Concurrency::array_view<float> &C, const long ldc, const long C_batchOffset,
+                                              Concurrency::array<float> &C, const long ldc, const long C_batchOffset,
                                               const long aOffset, const long bOffset, const long cOffset, const int batchSize)
 
 {
-    Concurrency::array_view<float> *temp_buf = NULL;
+    Concurrency::array<float> *temp_buf = NULL;
     gemm_AMP(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
              bOffset, ldb, beta, C, cOffset, ldc, *temp_buf, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);
 
     return AMPBLAS_SUCCESS;
 }
-
+*/

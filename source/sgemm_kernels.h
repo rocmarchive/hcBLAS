@@ -75,30 +75,30 @@ using namespace Concurrency;
 *  SGEMM kernels - column major Order
 */
 ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
-                                    Concurrency::array_view<float, 1> &A, long aOffset,
-                                    Concurrency::array_view<float, 1> &B, long bOffset,
-                                    Concurrency::array_view<float, 1> &C, long cOffset,
+                                    Concurrency::array<float, 1> &A, long aOffset,
+                                    Concurrency::array<float, 1> &B, long bOffset,
+                                    Concurrency::array<float, 1> &C, long cOffset,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float alpha, float beta);
 
 ampblasStatus gemm_NoTransA(Concurrency::accelerator_view &accl_view,
-	                           Concurrency::array_view<float, 1> &A, long aOffset,
-                                   Concurrency::array_view<float, 1> &B, long bOffset,
-                                   Concurrency::array_view<float, 1> &C, long cOffset,
+	                           Concurrency::array<float, 1> &A, long aOffset,
+                                   Concurrency::array<float, 1> &B, long bOffset,
+                                   Concurrency::array<float, 1> &C, long cOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float alpha, float beta);
 
 ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
-          		  Concurrency::array_view<float, 1> &A, long aOffset,
-                          Concurrency::array_view<float, 1> &B, long bOffset,
-                          Concurrency::array_view<float, 1> &C, long cOffset,
+          		  Concurrency::array<float, 1> &A, long aOffset,
+                          Concurrency::array<float, 1> &B, long bOffset,
+                          Concurrency::array<float, 1> &C, long cOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta);
 
 ampblasStatus gemm_TransAB(Concurrency::accelerator_view &accl_view,
-                                  Concurrency::array_view<float, 1> &A, long aOffset,
-                                  Concurrency::array_view<float, 1> &B, long bOffset,
-                                  Concurrency::array_view<float, 1> &C, long cOffset,
+                                  Concurrency::array<float, 1> &A, long aOffset,
+                                  Concurrency::array<float, 1> &B, long bOffset,
+                                  Concurrency::array<float, 1> &C, long cOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta);
 
