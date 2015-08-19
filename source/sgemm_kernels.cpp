@@ -3128,7 +3128,7 @@ ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
   {
     return gemm_NoTransAB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if ((M < 600 && N < 600 && K < 6000) || (M < 6000 && K > 600 && K < 1800 && N < 10) || (M < 10 && N > 600 && N < 1800 && K < 6000 ))
+  else if ((M < 600 && N < 600 && K < 6000) || (M > 1800 && M < 10000 && K > 600 && K < 10000 && N < 10) || (M < 10 && N > 600 && N < 1800 && K < 6000 ))
   {
     return gemm_NoTransAB_STEP_NBK_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
@@ -3185,19 +3185,19 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta)
 {
-  if(M < 6000 && N < 600 && K < 10)
+  if((M < 6000 && N < 600 && K < 10)||(M < 1800 && N < 80 &&  K > 1800 && K < 6000))
   {
     return gemm_NoTransB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if  ((M < 600 && N < 600 && K < 6000) || ( M > 1800 && M < 6000 && K < 600 && N < 10 ) || (M < 10 && N < 600 && K < 1800 ) || (M <600 && N < 1800 && K < 10 ))
+  else if  ((M < 600 && N < 600 && K < 6000) || ( M > 1800 && M < 6000 && (K < 600 || (K > 1800 && K < 10000)) && N < 10 ) || (M < 10 && N < 600 && K < 1800 ) || (M <600 && N < 1800 && K < 10 ))
   {
     return gemm_NoTransB_STEP_NBK_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if ((M > 1800 && M < 6000 && N > 100 && N < 600 && (K < 600  ||  (K < 6000 && K > 1800))) || ( M < 1800 && N < 600 && K < 10))
+  else if ((M > 1800 && M < 6000 && N > 100 && N < 600 && (K < 600  ||  (K < 6000 && K > 1800))) || ( M < 1800 && N < 600 && K < 10)|| (M > 1800 && M < 6000 && K > 1800 &&  K < 6000 && N < 300 && M == K))
   {
     return gemm_NoTransB_MICRO_NBK_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if ((M == K && M < 10000 && N < 200 ) || (M < 600 && N < 1800 && K < 600 ) || ( M < 1800 && N < 100 && K < 1800)) 
+  else if ((M == K && M < 10000 && N < 200 ) || (M < 600 && N < 1800 && K < 600 ) || ( M < 1800 && N < 100 && K < 1800) || (M > 600 && M < 6000 && K > 1800 &&  K < 10000 && N < 300 && M < K)) 
   {
     return gemm_NoTransB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
