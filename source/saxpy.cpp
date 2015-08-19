@@ -6,14 +6,14 @@ using namespace concurrency;
 
 void axpy_AMP(Concurrency::accelerator_view &accl_view, 
 	      long n, float alpha,
-              Concurrency::array_view<float> &X, long xOffset, long incx,
-              Concurrency::array_view<float> &Y, long yOffset, long incy)
+              Concurrency::array<float> &X, long xOffset, long incx,
+              Concurrency::array<float> &Y, long yOffset, long incy)
 {
   if(n <= 102400)
   {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     Concurrency::extent<1> compute_domain(size);
-    Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(),[=] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
+    Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
     {
       if(tidx.global[0] < n)
         Y[yOffset + tidx.global[0]] += X[xOffset + tidx.global[0]] * alpha;
@@ -34,7 +34,7 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
     long size = (n/step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size/BLOCK_SIZE;
     Concurrency::extent<1> compute_domain(size);
-    Concurrency::parallel_for_each(compute_domain.tile<BLOCK_SIZE>(),[=] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
+    Concurrency::parallel_for_each(compute_domain.tile<BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
     {
       if(tidx.tile[0] != nBlocks -1)
       {
@@ -58,8 +58,8 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
 
 void axpy_AMP(Concurrency::accelerator_view &accl_view,
               long n, float alpha,
-              Concurrency::array_view<float> &X, long xOffset, long incx,
-              Concurrency::array_view<float> &Y, long yOffset, long incy,
+              Concurrency::array<float> &X, long xOffset, long incx,
+              Concurrency::array<float> &Y, long yOffset, long incy,
               long X_batchOffset, long Y_batchOffset, int batchSize)
 {
 
@@ -67,7 +67,7 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
   {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     Concurrency::extent<2> compute_domain(batchSize, size);
-    Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(),[=] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
+    Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
     {
       int elt = tidx.tile[0];
       if(tidx.global[1] < n)
@@ -89,7 +89,7 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
     long size = (n/step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size/BLOCK_SIZE;
     Concurrency::extent<2> compute_domain(batchSize, size);
-    Concurrency::parallel_for_each(compute_domain.tile<1, BLOCK_SIZE>(),[=] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
+    Concurrency::parallel_for_each(compute_domain.tile<1, BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
     {
       int elt = tidx.tile[0];
       if(tidx.tile[1] != nBlocks -1)
@@ -126,20 +126,30 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
     int lenX = 1 + (N - 1) * abs(incX);
     int lenY = 1 + (N - 1) * abs(incY);
    
-    array_view<float> xView(lenX, X);
-    array_view<float> yView(lenY, Y);
+    Concurrency::array<float> xView(lenX, X);
+    Concurrency::array<float> yView(lenY, Y);
+    std::vector<float> HostX(lenX);
+    std::vector<float> HostY(lenY);
+    for( int i = 0; i < lenX; i++)
+	HostX[i] = X[i];
+    for( int i = 0; i < lenY; i++)
+        HostY[i] = Y[i];
+    Concurrency::copy(begin(HostX), end(HostX), xView);
+    Concurrency::copy(begin(HostY), end(HostY), yView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     axpy_AMP(accl_view, N, *alpha, xView, xOffset, incX, yView, yOffset, incY);
-
+    Concurrency::copy(yView, begin(HostY));   
+    for(int i = 0 ; i < lenY; i++)
+	Y[i] = HostY[i];
     return AMPBLAS_SUCCESS;
 }
 
 
  ampblasStatus Ampblaslibrary :: ampblas_saxpy(Concurrency::accelerator_view &accl_view,
                                                const int N, const float &alpha,
-                                               Concurrency::array_view<float> &X, const int incX,
-                                               Concurrency::array_view<float> &Y, const int incY,
+                                               Concurrency::array<float> &X, const int incX,
+                                               Concurrency::array<float> &Y, const int incY,
                                                const long xOffset, const long yOffset)
 
 {
@@ -160,8 +170,8 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
 
  ampblasStatus  Ampblaslibrary :: ampblas_saxpy(Concurrency::accelerator_view &accl_view,
                                                 const int N,const float &alpha,
-                                                Concurrency::array_view<float> &X, const int incX, const long X_batchOffset,
-                                                Concurrency::array_view<float> &Y, const int incY, const long Y_batchOffset,
+                                                Concurrency::array<float> &X, const int incX, const long X_batchOffset,
+                                                Concurrency::array<float> &Y, const int incY, const long Y_batchOffset,
                                                 const long xOffset, const long yOffset, const int batchSize)
 
 {

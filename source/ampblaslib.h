@@ -57,16 +57,16 @@ class Ampblaslibrary
 
     ampblasStatus ampblas_saxpy(Concurrency::accelerator_view &accl_view,
 				const int N, const float &alpha,
-				Concurrency::array_view<float> &X, const int incX,
-                                Concurrency::array_view<float> &Y, const int incY, 
+				Concurrency::array<float> &X, const int incX,
+                                Concurrency::array<float> &Y, const int incY, 
 				const long xOffset, const long yOffset);
 
 /* SAXPY - Overloaded function with arguments related to batch processing */
 
     ampblasStatus ampblas_saxpy(Concurrency::accelerator_view &accl_view,
                                 const int N, const float &alpha,
-                                Concurrency::array_view<float> &X, const int incX, const long X_batchOffset,
-                                Concurrency::array_view<float> &Y, const int incY, const long Y_batchOffset,
+                                Concurrency::array<float> &X, const int incX, const long X_batchOffset,
+                                Concurrency::array<float> &Y, const int incY, const long Y_batchOffset,
                                 const long xOffset, const long yOffset, const int batchSize);
 
 

@@ -38,21 +38,25 @@ int main(int argc, char** argv)
     float *Ycblasbatch = (float*)calloc(N * batchSize, sizeof(float));
 
 
-    Concurrency::array_view<float> xView(lenx, X);
-    Concurrency::array_view<float> yView(leny, Y);
-    Concurrency::array_view<float> xbatchView(lenx * batchSize, Xbatch);
-    Concurrency::array_view<float> ybatchView(leny * batchSize, Ybatch);
-
+    Concurrency::array<float> xView(lenx, X);
+    Concurrency::array<float> yView(leny, Y);
+    Concurrency::array<float> xbatchView(lenx * batchSize, Xbatch);
+    Concurrency::array<float> ybatchView(leny * batchSize, Ybatch);
+    std::vector<float> HostX(lenx);
+    std::vector<float> HostY(leny);
+    std::vector<float> HostX_batch(lenx * batchSize);
+    std::vector<float> HostY_batch(leny * batchSize);
+   
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     
     for(int i = 0;i < N;i++){
-        xView[i] = rand() % 10;
-        X[i] = xView[i];
+        HostX[i] = rand() % 10;
+        X[i] = HostX[i];
     }
     for(int i = 0;i < N;i++){
-        yView[i] =  rand() % 15;
-        Y[i] = yView[i];
+        HostY[i] =  rand() % 15;
+        Y[i] = HostY[i];
         Ycblas[i] = Y[i];
     }
         
@@ -74,14 +78,17 @@ int main(int argc, char** argv)
         free(Ycblas);
      }
   
-      
-    else if (Imple_type ==2){
+     
+    else if(Imple_type ==2){
+        Concurrency::copy(begin(HostX), end(HostX), xView);
+        Concurrency::copy(begin(HostY), end(HostY), yView);
         status = amp.ampblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
+        Concurrency::copy(yView, begin(HostY));
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
         for(int i = 0; i < N ; i++){
-            if (yView[i] != Ycblas[i]){
+            if (HostY[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" AMPSAXPY[" << i<< "] " << yView[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" AMPSAXPY[" << i<< "] " << HostY[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
@@ -92,22 +99,25 @@ int main(int argc, char** argv)
 
     else{ 
         for(int i = 0;i < N * batchSize;i++){
-            xbatchView[i] = rand() % 10;
-            Xbatch[i] = xbatchView[i];
+            HostX_batch[i] = rand() % 10;
+            Xbatch[i] = HostX_batch[i];
          }
        for(int i = 0;i < N * batchSize;i++){
-            ybatchView[i] =  rand() % 15;
-            Ybatch[i] = ybatchView[i];
+            HostY_batch[i] =  rand() % 15;
+            Ybatch[i] = HostY_batch[i];
             Ycblasbatch[i] = Ybatch[i];
          }
-
+        Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
+        Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
         status= amp.ampblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
+        Concurrency::copy(ybatchView, begin(HostY_batch));
+
         for(int i = 0; i < batchSize; i++)
         	cblas_saxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
         for(int i =0; i < N * batchSize; i ++){
-            if (ybatchView[i] != Ycblasbatch[i]){
+            if (HostY_batch[i] != Ycblasbatch[i]){
                 ispassed = 0;
-                cout <<" AMPSAXPY[" << i<< "] " << ybatchView[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblasbatch[i] << endl;
+                cout <<" AMPSAXPY[" << i<< "] " << HostY_batch[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblasbatch[i] << endl;
                 break;
             }
             else 
