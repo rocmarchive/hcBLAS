@@ -38,7 +38,7 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
    
   if (order)
   {
-/*    if(batchSize > 0)
+    if(batchSize > 0)
     {
       if (TransB == 'n')
       {
@@ -54,7 +54,7 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
 
     }
     else
-    {*/
+    {
       if (TransB == 'n')
       {
          if (TransA == 'n')
@@ -67,7 +67,7 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
       else
         status = gemm_TransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
- // }
+ }
 /*  else
   {
    if(batchSize > 0)
@@ -123,12 +123,29 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_ORDER order,
     Concurrency::array<float> *temp_buf = NULL;
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-
- 
+    std::vector<float> HostA(M * K);
+    std::vector<float> HostB(K * N);
+    std::vector<float> HostC(M * N);
+    for(int i = 0; i < M * K; i++){
+            HostA[i] = A[i];
+    }
+    for(int i = 0; i < K * N;i++){
+            HostB[i] = B[i];
+    }
+    for(int i = 0; i < M * N;i++)  {
+            HostC[i] = C[i];
+    }
+    Concurrency::copy(begin(HostA), end(HostA), A_mat);
+    Concurrency::copy(begin(HostB), end(HostB), B_mat);
+    Concurrency::copy(begin(HostC), end(HostC), C_mat); 
     ampblasStatus status = gemm_AMP(accl_view, order, typeA, typeB, M, N, K, *alpha,
                                     A_mat, aOffset, lda, B_mat, bOffset, ldb,
                                     *beta, C_mat, cOffset, ldc, *temp_buf);
-
+    Concurrency::copy(C_mat, begin(HostC));
+//    Concurrency::copy(C, C_mat);
+    for(int i = 0; i < M * N;i++)  {
+            C[i] = HostC[i];
+    }
     return status;
 }
 
@@ -153,8 +170,8 @@ ampblasStatus  Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &ac
 
     return status;
 }
-/*
-* SGEMM- Overloaded function with arguments related to batch processing *
+
+/* SGEMM- Overloaded function with arguments related to batch processing */
 ampblasStatus Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &accl_view,
                                               const enum AMPBLAS_ORDER order,
                                               const enum AMPBLAS_TRANS typeA,
@@ -173,4 +190,4 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &acc
 
     return AMPBLAS_SUCCESS;
 }
-*/
+
