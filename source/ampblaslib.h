@@ -243,13 +243,13 @@ class Ampblaslibrary
 
 /* DCOPY - Overloaded function with arguments of type Concurrency::array_view */
    ampblasStatus ampblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
-                               Concurrency::array_view<double> &X, const int incX, const long xOffset,
-                               Concurrency::array_view<double> &Y, const int incY, const long yOffset);
+                               Concurrency::array<double> &X, const int incX, const long xOffset,
+                               Concurrency::array<double> &Y, const int incY, const long yOffset);
 
 /* DCOPY - Overloaded function with arguments related to batch processing */
    ampblasStatus ampblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
-                               Concurrency::array_view<double> &X, const int incX, const long xOffset,
-                               Concurrency::array_view<double> &Y, const int incY, const long yOffset,
+                               Concurrency::array<double> &X, const int incX, const long xOffset,
+                               Concurrency::array<double> &Y, const int incY, const long yOffset,
                                const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
 /* SDOT - Single Precision Dot product */

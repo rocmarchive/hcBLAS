@@ -36,20 +36,24 @@ int main(int argc, char** argv)
     double *Ybatch = (double*)calloc(leny * batchSize, sizeof(double));
     double *Ycblasbatch = (double*)calloc(N * batchSize, sizeof(double));
 
-    Concurrency::array_view<double> xView(lenx, X);
-    Concurrency::array_view<double> yView(leny, Y);
-    Concurrency::array_view<double> xbatchView(lenx * batchSize, Xbatch);
-    Concurrency::array_view<double> ybatchView(leny * batchSize, Ybatch);
+    Concurrency::array<double> xView(lenx, X);
+    Concurrency::array<double> yView(leny, Y);
+    Concurrency::array<double> xbatchView(lenx * batchSize, Xbatch);
+    Concurrency::array<double> ybatchView(leny * batchSize, Ybatch);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
+    std::vector<double> HostX(lenx);
+    std::vector<double> HostY(leny);
+    std::vector<double> HostX_batch(lenx * batchSize);
+    std::vector<double> HostY_batch(leny * batchSize);
     
     for(int i = 0;i < N;i++){
-        xView[i] = rand() % 10;
-        X[i] = xView[i];
+        HostX[i] = rand() % 10;
+        X[i] =  HostX[i];
     }
     for(int i = 0;i < N;i++){
-        yView[i] =  rand() % 15;
-        Y[i] = yView[i];
+        HostY[i] =  rand() % 15;
+        Y[i] = HostY[i];
         Ycblas[i] = Y[i];
     }
     
@@ -72,12 +76,15 @@ int main(int argc, char** argv)
     }
     
     else if (Imple_type ==2){
+        Concurrency::copy(begin(HostX), end(HostX), xView);
+        Concurrency::copy(begin(HostY), end(HostY), yView);
         status = amp.ampblas_dcopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
+        Concurrency::copy(yView, begin(HostY));
         cblas_dcopy( N, X, incX, Ycblas, incY );
         for(int i = 0; i < N ; i++){
-            if (yView[i] != Ycblas[i]){
+            if (HostY[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" AMPDCOPY[" << i<< "] " << yView[i] << " does not match with CBLASDCOPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" AMPDCOPY[" << i<< "] " << HostY[i] << " does not match with CBLASDCOPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
@@ -88,22 +95,23 @@ int main(int argc, char** argv)
 
     else{ 
         for(int i = 0;i < N * batchSize;i++){
-            xbatchView[i] = rand() % 10;
-            Xbatch[i] = xbatchView[i];
+            HostX_batch[i] = rand() % 10;
+            Xbatch[i] = HostX_batch[i];
          }
        for(int i = 0;i < N * batchSize;i++){
-            ybatchView[i] =  rand() % 15;
-            Ybatch[i] = ybatchView[i];
-            Ycblasbatch[i] = Ybatch[i];
+            HostY_batch[i] =  rand() % 15;
+            Ycblasbatch[i] = HostY_batch[i];
          }
-
+        Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
+        Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
         status= amp.ampblas_dcopy(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
+        Concurrency::copy(ybatchView, begin(HostY_batch));
         for(int i = 0; i < batchSize; i++)
         	cblas_dcopy( N, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
         for(int i =0; i < N * batchSize; i ++){
-            if (ybatchView[i] != Ycblasbatch[i]){
+            if (HostY_batch[i] != Ycblasbatch[i]){
                 ispassed = 0;
-                cout <<" AMPDCOPY[" << i<< "] " << ybatchView[i] << " does not match with CBLASDCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;
+                cout <<" AMPDCOPY[" << i<< "] " <<  HostY_batch[i] << " does not match with CBLASDCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;
                 break;
             }
             else 
