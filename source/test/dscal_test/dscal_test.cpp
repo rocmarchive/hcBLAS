@@ -31,14 +31,16 @@ int main(int argc, char** argv)
     double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
     double *Xcblasbatch = (double*)calloc(N * batchSize, sizeof(double));
 
-    Concurrency::array_view<double> xView(lenx, X);
-    Concurrency::array_view<double> xbatchView(lenx * batchSize, Xbatch);
+    Concurrency::array<double> xView(lenx, X);
+    Concurrency::array<double> xbatchView(lenx * batchSize, Xbatch);
+    std::vector<double> HostX(lenx);
+    std::vector<double> HostX_batch(lenx * batchSize);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     
     for(int i = 0;i < N;i++){
-        xView[i] = rand() % 10;
-        X[i] = xView[i];
+        HostX[i] = rand() % 10;
+        X[i] = HostX[i];
         Xcblas[i] = X[i];
     }
         
@@ -60,12 +62,14 @@ int main(int argc, char** argv)
     }
     
     else if (Imple_type ==2){
+        Concurrency::copy(begin(HostX), end(HostX), xView);
         status = amp.ampblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
+        Concurrency::copy(xView, begin(HostX));  
         cblas_dscal( N, alpha, Xcblas, incX );
         for(int i = 0; i < N ; i++){
-            if (xView[i] != Xcblas[i]){
+            if (HostX[i] != Xcblas[i]){
                 ispassed = 0;
-                cout <<" AMPDSCAL[" << i<< "] " << xView[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
+                cout <<" AMPDSCAL[" << i<< "] " << HostX[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
                 break;
             }
             else
@@ -76,18 +80,18 @@ int main(int argc, char** argv)
 
     else{ 
         for(int i = 0;i < N * batchSize;i++){
-            xbatchView[i] = rand() % 10;
-            Xbatch[i] = xbatchView[i];
-            Xcblasbatch[i] = Xbatch[i];
+            HostX_batch[i] = rand() % 10;
+            Xcblasbatch[i] = HostX_batch[i];
          }
-
+        Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         status= amp.ampblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
+        Concurrency::copy(xbatchView, begin(HostX_batch));  
         for(int i = 0; i < batchSize; i++)
         	cblas_dscal( N, alpha, Xcblasbatch + i * N, incX);
         for(int i =0; i < N * batchSize; i ++){
-            if (xbatchView[i] != Xcblasbatch[i]){
+            if (HostX_batch[i] != Xcblasbatch[i]){
                 ispassed = 0;
-                cout <<" AMPDSCAL[" << i<< "] " << xbatchView[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
+                cout <<" AMPDSCAL[" << i<< "] " << HostX_batch[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
                 break;
             }
             else 

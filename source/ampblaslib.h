@@ -197,13 +197,13 @@ class Ampblaslibrary
 /* SSCAL - Overloaded function with arguments of type Concurrency::array_view */
    ampblasStatus ampblas_sscal(Concurrency::accelerator_view &accl_view,
                                const int N, const float &alpha,
-                               Concurrency::array_view<float> &X, const int incX,
+                               Concurrency::array<float> &X, const int incX,
                                const long xOffset);
 
 /* SSCAL - Overloaded function with arguments related to batch processing */
    ampblasStatus ampblas_sscal(Concurrency::accelerator_view &accl_view,
                                const int N,const float &alpha,
-                               Concurrency::array_view<float> &X, const int incX,
+                               Concurrency::array<float> &X, const int incX,
                                const long xOffset, const long X_batchOffset, const int batchSize);
 
 /* DSCAL - X = alpha * X */
@@ -213,13 +213,13 @@ class Ampblaslibrary
 /* DSCAL - Overloaded function with arguments of type Concurrency::array_view */
    ampblasStatus ampblas_dscal(Concurrency::accelerator_view &accl_view,
                                const int N, const double &alpha,
-                               Concurrency::array_view<double> &X, const int incX,
+                               Concurrency::array<double> &X, const int incX,
                                const long xOffset);
 
 /* DSCAL - Overloaded function with arguments related to batch processing */
    ampblasStatus ampblas_dscal(Concurrency::accelerator_view &accl_view,
                                const int N,const double &alpha,
-                               Concurrency::array_view<double> &X, const int incX,
+                               Concurrency::array<double> &X, const int incX,
                                const long xOffset, const long X_batchOffset, const int batchSize);
 
 /* SCOPY - Copies a vector X to a vector Y */
@@ -228,13 +228,13 @@ class Ampblaslibrary
 
 /* SCOPY - Overloaded function with arguments of type Concurrency::array_view */
    ampblasStatus ampblas_scopy(Concurrency::accelerator_view &accl_view, const int N,
-                               Concurrency::array_view<float> &X, const int incX, const long xOffset,
-                               Concurrency::array_view<float> &Y, const int incY, const long yOffset);
+                               Concurrency::array<float> &X, const int incX, const long xOffset,
+                               Concurrency::array<float> &Y, const int incY, const long yOffset);
 
 /* SCOPY - Overloaded function with arguments related to batch processing */
    ampblasStatus ampblas_scopy(Concurrency::accelerator_view &accl_view, const int N,
-                               Concurrency::array_view<float> &X, const int incX, const long xOffset,
-                               Concurrency::array_view<float> &Y, const int incY, const long yOffset,
+                               Concurrency::array<float> &X, const int incX, const long xOffset,
+                               Concurrency::array<float> &Y, const int incY, const long yOffset,
                                const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
 /* DCOPY - Copies a vector X to a vector Y */
