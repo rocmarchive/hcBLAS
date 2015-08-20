@@ -80,19 +80,19 @@ class Ampblaslibrary
 
     ampblasStatus ampblas_sger(Concurrency::accelerator_view &accl_view,
 			       const enum AMPBLAS_ORDER order, const int M, const int N, const float &alpha,
-                               Concurrency::array_view<float> &X, const long xOffset, const int incX,
-                               Concurrency::array_view<float> &Y, const long yOffset, const int incY,
-                               Concurrency::array_view<float> &A, const long aOffset, const int lda);
+                               Concurrency::array<float> &X, const long xOffset, const int incX,
+                               Concurrency::array<float> &Y, const long yOffset, const int incY,
+                               Concurrency::array<float> &A, const long aOffset, const int lda);
 
 /* SGER - Overloaded function with arguments related to batch processing */
 
     ampblasStatus ampblas_sger(Concurrency::accelerator_view &accl_view,
                                const enum AMPBLAS_ORDER order, const int M, const int N, const float &alpha,
-                               Concurrency::array_view<float> &X, 
+                               Concurrency::array<float> &X, 
                                const long xOffset, const long X_batchOffset, const int incX,
-                               Concurrency::array_view<float> &Y, 
+                               Concurrency::array<float> &Y, 
                                const long yOffset, const long Y_batchOffset, const int incY,
-                               Concurrency::array_view<float> &A, 
+                               Concurrency::array<float> &A, 
                                const long aOffset, const long A_batchOffset, const int lda, const int batchSize);
 
 /*                  Y = alpha * op(A) * X + beta * Y                     */

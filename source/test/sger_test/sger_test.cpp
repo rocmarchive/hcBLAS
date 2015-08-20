@@ -44,10 +44,12 @@ int main(int argc, char** argv)
     float *ySger = (float*)calloc( leny , sizeof(float));
     float *ASger = (float *)calloc( M * N , sizeof(float));
     float *Acblas = (float *)calloc( M * N , sizeof(float));
-
-    array_view<float> xView(lenx, xSger);
-    array_view<float> yView(leny, ySger);
-    array_view<float> aMat( M * N, ASger);
+    std::vector<float> HostX(lenx);
+    std::vector<float> HostY(leny);
+    std::vector<float> HostA(M * N);
+    Concurrency::array<float> xView(lenx, xSger);
+    Concurrency::array<float> yView(leny, ySger);
+    Concurrency::array<float> aMat( M * N, ASger);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
    
@@ -55,24 +57,26 @@ int main(int argc, char** argv)
     float *ySgerbatch = (float*)calloc( leny * batchSize, sizeof(float));
     float *ASgerbatch = (float *)calloc( M * N * batchSize, sizeof(float));
     float *Acblasbatch = (float *)calloc( M * N * batchSize, sizeof(float));
-
-    array_view<float> xbatchView(lenx * batchSize, xSgerbatch);
-    array_view<float> ybatchView(leny * batchSize, ySgerbatch);
-    array_view<float> abatchMat( M * N * batchSize, ASgerbatch);
+    std::vector<float> HostX_batch(lenx * batchSize);
+    std::vector<float> HostY_batch(leny * batchSize);
+    std::vector<float> HostA_batch(M * N * batchSize);
+    Concurrency::array<float> xbatchView(lenx * batchSize, xSgerbatch);
+    Concurrency::array<float> ybatchView(leny * batchSize, ySgerbatch);
+    Concurrency::array<float> abatchMat( M * N * batchSize, ASgerbatch);
 
     
     {
         for(int i = 0;i < M;i++){
-            xView[i] = rand() % 10;
-            xSger[i] = xView[i];
+            HostX[i] = rand() % 10;
+            xSger[i] = HostX[i];
         }
         for(int i = 0;i < N;i++){
-            yView[i] = rand() % 15;
-            ySger[i] = yView[i];
+            HostY[i] = rand() % 15;
+            ySger[i] = HostY[i];
         }
         for(int i = 0;i< M * N ;i++){
-            aMat[i] = rand() % 25;
-            Acblas[i] = aMat[i];
+            HostA[i] = rand() % 25;
+            Acblas[i] = HostA[i];
             ASger[i] = Acblas[i];
         }
         if(Imple_type == 1){
@@ -96,12 +100,16 @@ int main(int argc, char** argv)
         }
 
         else if(Imple_type == 2){
+            Concurrency::copy(begin(HostX), end(HostX), xView);
+            Concurrency::copy(begin(HostY), end(HostY), yView);
+            Concurrency::copy(begin(HostA), end(HostA), aMat);
             status = amp.ampblas_sger(accl_view, ampOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
+            Concurrency::copy(aMat, begin(HostA));
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
             for(int i =0; i < M * N ; i++){
-                if (aMat[i] != Acblas[i]){
+                if (HostA[i] != Acblas[i]){
                     ispassed = 0;
-                    cout <<" AMPSGER[" << i<< "] " << aMat[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
+                    cout <<" AMPSGER[" << i<< "] " << HostA[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
                     break;
                 }
                 else
@@ -113,25 +121,29 @@ int main(int argc, char** argv)
 
         else{
             for(int i = 0;i < M * batchSize;i++){
-                xbatchView[i] = rand() % 10;
-                xSgerbatch[i] = xbatchView[i];
+                HostX_batch[i] = rand() % 10;
+                xSgerbatch[i] = HostX_batch[i];
             }
             for(int i = 0;i < N * batchSize;i++){
-                ybatchView[i] = rand() % 15;
-                ySgerbatch[i] = ybatchView[i];
+                HostY_batch[i] = rand() % 15;
+                ySgerbatch[i] =  HostY_batch[i];
             }
             for(int i = 0;i< M * N * batchSize;i++){
-                abatchMat[i] = rand() % 25;
-                Acblasbatch[i] = abatchMat[i];
+                HostA_batch[i] = rand() % 25;
+                Acblasbatch[i] = HostA_batch[i];
                 ASgerbatch[i] = Acblasbatch[i];
             }
+            Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
+            Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
+            Concurrency::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
             status = amp.ampblas_sger(accl_view, ampOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
+            Concurrency::copy(abatchMat, begin(HostA_batch));
             for(int i = 0; i < batchSize; i++)
                cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda); 
             for(int i =0; i < M * N * batchSize; i++){
-               if (abatchMat[i] != Acblasbatch[i]){
+               if (HostA_batch[i] != Acblasbatch[i]){
                    ispassed = 0;
-                   cout <<" AMPSGER[" << i<< "] " << abatchMat[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblasbatch[i] << endl;
+                   cout <<" AMPSGER[" << i<< "] " << HostA_batch[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblasbatch[i] << endl;
                    break;
                }
             else 
