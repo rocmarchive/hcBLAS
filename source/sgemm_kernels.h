@@ -70,8 +70,22 @@ using namespace Concurrency;
            offA += BANKMICROTILESIZE;                              \
            offB += BANKMICROTILESIZE;                              \
 
-
-/* 
+#define  MTS_AB                                                                \
+           for (int iter = 0; iter < MICROTILESIZE_A ; iter++) {               \
+             rA[0][iter] = lA[offA + (iter * TILESIZE_A)];                     \
+           }                                                                   \
+           for (int iter = 0; iter < MICROTILESIZE_B ; iter++) {               \
+             rB[0][iter] = lB[offB + (iter * TILESIZE_B)];                     \
+           }                                                                   \
+           for (int rowIndex = 0; rowIndex < MICROTILESIZE_A ; rowIndex++) {   \
+             for (int colIndex = 0; colIndex < MICROTILESIZE_B ; colIndex++) { \
+               rC[rowIndex][colIndex] = rA[0][rowIndex] * rB[0][colIndex] +    \
+                                        rC[rowIndex][colIndex];                \
+             }                                                                 \
+           }                                                                   \
+           offA += (MICROTILESIZE_A * TILESIZE_A);                             \
+           offB += (MICROTILESIZE_B * TILESIZE_B);                             \
+	/* 
 *  SGEMM kernels - column major Order
 */
 ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,

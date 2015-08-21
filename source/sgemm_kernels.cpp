@@ -3111,6 +3111,132 @@ ampblasStatus gemm_NoTransB_K3(Concurrency::accelerator_view &accl_view,
   return AMPBLAS_SUCCESS;
 }
 
+ampblasStatus gemm_NoTransAB_largeK(Concurrency::accelerator_view &accl_view,
+                          Concurrency::array<float, 1> &A, long aOffset,
+                          Concurrency::array<float, 1> &B, long bOffset,
+                          Concurrency::array<float, 1> &C, long cOffset,
+                          int M, int N, int K, int lda, int ldb, int ldc,
+                          float alpha, float beta)
+{
+#define GEMM_BLOCK 256
+    Concurrency::extent<2> grdExt(N, M * GEMM_BLOCK);
+    Concurrency::tiled_extent<1, GEMM_BLOCK> t_ext(grdExt);
+    Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, GEMM_BLOCK> tidx) restrict(amp) {
+      int threadIdx = tidx.local[1];
+      int Row = tidx.tile[0];
+      int Col = tidx.tile[1];
+      tile_static float sh[GEMM_BLOCK];
+      sh[threadIdx] = 0;
+
+      for (int tileId = 0; tileId < ((K + GEMM_BLOCK - 1) & ~(GEMM_BLOCK - 1)) / GEMM_BLOCK; tileId++) {
+        if (tileId * GEMM_BLOCK + threadIdx < K && Col < M && Row < N) {
+          sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * M] * B[bOffset + Row * K + tileId * GEMM_BLOCK + threadIdx];
+        }
+      }
+
+      tidx.barrier.wait();
+
+      for (int stride = GEMM_BLOCK / 2; stride >= 1; stride /= 2) {
+        if (threadIdx < stride) {
+          sh[threadIdx] += sh[threadIdx + stride];
+        }
+
+        tidx.barrier.wait();
+      }
+
+      if (threadIdx == 0 && Col < M && Row < N) {
+        C[cOffset + Row * M + Col] *= beta;
+        C[cOffset + Row * M + Col] += sh[0] * alpha;
+      }
+    });
+#undef GEMM_BLOCK
+        return AMPBLAS_SUCCESS;
+}
+
+ampblasStatus gemm_NoTransA_largeK(Concurrency::accelerator_view &accl_view,
+                          Concurrency::array<float, 1> &A, long aOffset,
+                          Concurrency::array<float, 1> &B, long bOffset,
+                          Concurrency::array<float, 1> &C, long cOffset,
+                          int M, int N, int K, int lda, int ldb, int ldc,
+                          float alpha, float beta)
+{
+#define GEMM_BLOCK 256
+    Concurrency::extent<2> grdExt(N, M * GEMM_BLOCK);
+    Concurrency::tiled_extent<1, GEMM_BLOCK> t_ext(grdExt);
+    Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, GEMM_BLOCK> tidx) restrict(amp) {
+      int threadIdx = tidx.local[1];
+      int Row = tidx.tile[0];
+      int Col = tidx.tile[1];
+      tile_static float sh[GEMM_BLOCK];
+      sh[threadIdx] = 0;
+
+      for (int tileId = 0; tileId < ((K + GEMM_BLOCK - 1) & ~(GEMM_BLOCK - 1)) / GEMM_BLOCK; tileId++) {
+        if (tileId * GEMM_BLOCK + threadIdx < K && Col < M && Row < N) {
+          sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * M] * B[bOffset + Row + (tileId * GEMM_BLOCK + threadIdx) * N];
+        }
+      }
+
+      tidx.barrier.wait();
+
+      for (int stride = GEMM_BLOCK / 2; stride >= 1; stride /= 2) {
+        if (threadIdx < stride) {
+          sh[threadIdx] += sh[threadIdx + stride];
+        }
+
+        tidx.barrier.wait();
+      }
+
+      if (threadIdx == 0 && Col < M && Row < N) {
+        C[cOffset + Row * M + Col] *= beta;
+        C[cOffset + Row * M + Col] += sh[0] * alpha;
+      }
+    });
+#undef GEMM_BLOCK
+        return AMPBLAS_SUCCESS;
+}
+
+
+ampblasStatus gemm_NoTransB_largeK(Concurrency::accelerator_view &accl_view,
+          		  Concurrency::array<float, 1> &A, long aOffset,
+                          Concurrency::array<float, 1> &B, long bOffset,
+                          Concurrency::array<float, 1> &C, long cOffset,
+                          int M, int N, int K, int lda, int ldb, int ldc,
+                          float alpha, float beta)
+{
+#define GEMM_BLOCK 256
+    Concurrency::extent<2> grdExt(N, M * GEMM_BLOCK);
+    Concurrency::tiled_extent<1, GEMM_BLOCK> t_ext(grdExt);
+    Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, GEMM_BLOCK> tidx) restrict(amp) {
+      int threadIdx = tidx.local[1];
+      int Row = tidx.tile[0];
+      int Col = tidx.tile[1];
+      tile_static float sh[GEMM_BLOCK];
+      sh[threadIdx] = 0;
+
+      for (int tileId = 0; tileId < ((K + GEMM_BLOCK - 1) & ~(GEMM_BLOCK - 1)) / GEMM_BLOCK; tileId++) {
+        if (tileId * GEMM_BLOCK + threadIdx < K && Col < M && Row < N) {
+          sh[threadIdx] += A[aOffset + Col * K + tileId * GEMM_BLOCK + threadIdx] * B[bOffset + Row * K + tileId * GEMM_BLOCK + threadIdx];
+        }
+      }
+
+      tidx.barrier.wait();
+
+      for (int stride = GEMM_BLOCK / 2; stride >= 1; stride /= 2) {
+        if (threadIdx < stride) {
+          sh[threadIdx] += sh[threadIdx + stride];
+        }
+
+        tidx.barrier.wait();
+      }
+
+      if (threadIdx == 0 && Col < M && Row < N) {
+        C[cOffset + Row * M + Col] *= beta;
+        C[cOffset + Row * M + Col] += sh[0] * alpha;
+      }
+    });
+#undef GEMM_BLOCK
+	return AMPBLAS_SUCCESS;
+}
 
 
 ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
@@ -3120,7 +3246,11 @@ ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float alpha, float beta)
 {
-  if ( M > 600 && M < 1800 && N < 200 && K > 600 && K < 1800)
+  if(M < 1000 && N < 1000 && K > 10000)
+  {
+    return gemm_NoTransAB_largeK(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if ( M > 600 && M < 1800 && N < 200 && K > 600 && K < 1800)
   {
     return gemm_NoTransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
@@ -3153,7 +3283,11 @@ ampblasStatus gemm_NoTransA(Concurrency::accelerator_view &accl_view,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float alpha, float beta)
 {
-  if( M > 1800 && M < 6000 && N > 600 && N < 1800 && K < 600 )
+  if(M < 1000 && N < 1000 && K > 10000)
+  {
+    return gemm_NoTransA_largeK(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if( M > 1800 && M < 6000 && N > 600 && N < 1800 && K < 600 )
   {
     return gemm_NoTransA_MICRO_NBK_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
@@ -3184,8 +3318,12 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
                           Concurrency::array<float, 1> &C, long cOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta)
-{
-  if((M < 6000 && N < 600 && K < 10)||(M < 1800 && N < 80 &&  K > 1800 && K < 6000))
+{ 
+  if(M < 1000 && N < 1000 && K > 10000)
+  {
+    return gemm_NoTransB_largeK(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if((M < 6000 && N < 600 && K < 10)||(M < 1800 && N < 80 &&  K > 1800 && K < 6000))
   {
     return gemm_NoTransB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
