@@ -4,8 +4,8 @@
 using namespace concurrency;
 
 float ddot_AMP(Concurrency::accelerator_view &accl_view, long n,
-               Concurrency::array_view<double, 1> &xView, long incx, long xOffset,
-               Concurrency::array_view<double, 1> &yView, long incy, long yOffset, double out)
+               Concurrency::array<double, 1> &xView, long incx, long xOffset,
+               Concurrency::array<double, 1> &yView, long incy, long yOffset, double out)
 {
   out = 0.0;
   // runtime sizes
@@ -19,7 +19,7 @@ float ddot_AMP(Concurrency::accelerator_view &accl_view, long n,
   concurrency::extent<1> extent(thread_count);
   concurrency::parallel_for_each(
     extent.tile<TILE_SIZE>(),
-    [=] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp)
+    [=, &xView, &yView] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp)
   {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
@@ -65,8 +65,8 @@ float ddot_AMP(Concurrency::accelerator_view &accl_view, long n,
 }
 
 float ddot_AMP(Concurrency::accelerator_view &accl_view, long n,
-               Concurrency::array_view<double, 1> &xView, long incx, long xOffset,
-               Concurrency::array_view<double, 1> &yView, long incy, long yOffset, double out,
+               Concurrency::array<double, 1> &xView, long incx, long xOffset,
+               Concurrency::array<double, 1> &yView, long incy, long yOffset, double out,
                const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 
 {
@@ -82,7 +82,7 @@ float ddot_AMP(Concurrency::accelerator_view &accl_view, long n,
   concurrency::extent<2> extent(batchSize, thread_count);
   concurrency::parallel_for_each(
     extent.tile<1, TILE_SIZE>(),
-    [=] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp)
+    [=, &xView, &yView] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp)
   {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
@@ -129,7 +129,7 @@ float ddot_AMP(Concurrency::accelerator_view &accl_view, long n,
 }
 
 
-// DDOT Call Type II: Inputs and outputs are C++ AMP float array_View containers
+// DDOT Call Type II: Inputs and outputs are C++ AMP float array containers
 ampblasStatus Ampblaslibrary :: ampblas_ddot(const int N, double *X, const int incX, const long xOffset, 
                                              double *Y, const int incY, const long yOffset, double *dot)
 {
@@ -140,18 +140,26 @@ ampblasStatus Ampblaslibrary :: ampblas_ddot(const int N, double *X, const int i
 
     int lenX = 1 + (N - 1) * abs(incX);
     int lenY = 1 + (N - 1) * abs(incY);
-    array_view<double> xView(lenX, X);
-    array_view<double> yView(lenY, Y);
+    Concurrency::array<double, 1> xView(lenX, X);
+    Concurrency::array<double, 1> yView(lenY, Y);
+    std::vector<double> HostX(lenX);
+    std::vector<double> HostY(lenY);
+    for( int i = 0; i < lenX; i++)
+	HostX[i] = X[i];
+    for( int i = 0; i < lenY; i++)
+        HostY[i] = Y[i];
+    Concurrency::copy(begin(HostX), end(HostX), xView);
+    Concurrency::copy(begin(HostY), end(HostY), yView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     *dot = ddot_AMP(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, *dot);
     return AMPBLAS_SUCCESS;
 }
 
-// DDOT Call Type II: Inputs and outputs are C++ AMP float array_View containers
+// DDOT Call Type II: Inputs and outputs are C++ AMP float array containers
 ampblasStatus Ampblaslibrary :: ampblas_ddot(Concurrency::accelerator_view &accl_view, const int N,
-                                             Concurrency::array_view<double> &X, const int incX, const long xOffset,
-                                             Concurrency::array_view<double> &Y, const int incY, const long yOffset, double &dot)
+                                             Concurrency::array<double> &X, const int incX, const long xOffset,
+                                             Concurrency::array<double> &Y, const int incY, const long yOffset, double &dot)
 
 {
     /*Check the conditions*/
@@ -165,8 +173,8 @@ ampblasStatus Ampblaslibrary :: ampblas_ddot(Concurrency::accelerator_view &accl
 
 // DDOT TYpe III - Overloaded function with arguments related to batch processing 
  ampblasStatus Ampblaslibrary :: ampblas_ddot(Concurrency::accelerator_view &accl_view, const int N,
-                                              Concurrency::array_view<double> &X, const int incX, const long xOffset,
-                                              Concurrency::array_view<double> &Y, const int incY, const long yOffset, double &dot,
+                                              Concurrency::array<double> &X, const int incX, const long xOffset,
+                                              Concurrency::array<double> &Y, const int incY, const long yOffset, double &dot,
                                               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 {
     /*Check the conditions*/

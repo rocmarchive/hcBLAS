@@ -37,21 +37,25 @@ int main(int argc, char** argv)
     float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
     float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
     float *dotcblastemp =(float*)calloc(batchSize, sizeof(float)); 
-    Concurrency::array_view<float> xView(lenx, X);
-    Concurrency::array_view<float> yView(leny, Y);
-    Concurrency::array_view<float> xbatchView(lenx * batchSize, Xbatch);
-    Concurrency::array_view<float> ybatchView(leny * batchSize, Ybatch);
+    Concurrency::array<float> xView(lenx, X);
+    Concurrency::array<float> yView(leny, Y);
+    Concurrency::array<float> xbatchView(lenx * batchSize, Xbatch);
+    Concurrency::array<float> ybatchView(leny * batchSize, Ybatch);
+    std::vector<float> HostX(lenx);
+    std::vector<float> HostY(leny);
+    std::vector<float> HostX_batch(lenx * batchSize);
+    std::vector<float> HostY_batch(leny * batchSize);
 
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     
     for(int i = 0;i < N;i++){
-        xView[i] = rand() % 10;
-        X[i] = xView[i];
+        HostX[i] = rand() % 10;
+        X[i] = HostX[i];
     }
     for(int i = 0;i < N;i++){
-        yView[i] = rand() % 15;
-        Y[i] = yView[i];
+        HostY[i] = rand() % 15;
+        Y[i] = HostY[i];
     }
     
     if (Imple_type == 1){
@@ -72,6 +76,8 @@ int main(int argc, char** argv)
     }
     
     else if (Imple_type ==2){
+        Concurrency::copy(begin(HostX), end(HostX), xView);
+        Concurrency::copy(begin(HostY), end(HostY), yView);
         status = amp.ampblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dotampblas);
         dotcblas = cblas_sdot( N, X, incX, Y, incY);
         for(int i = 0; i < N ; i++){
@@ -88,14 +94,15 @@ int main(int argc, char** argv)
 
     else{ 
         for(int i = 0;i < N * batchSize;i++){
-            xbatchView[i] = rand() % 10;
-            Xbatch[i] = xbatchView[i];
+            HostX_batch[i] = rand() % 10;
+            Xbatch[i] = HostX_batch[i];
          }
        for(int i = 0;i < N * batchSize;i++){
-            ybatchView[i] =  rand() % 15;
-            Ybatch[i] = ybatchView[i];
+            HostY_batch[i] =  rand() % 15;
+            Ybatch[i] = HostY_batch[i];
          }
-
+        Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
+        Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
         status= amp.ampblas_sdot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dotampblas, X_batchOffset, Y_batchOffset, batchSize);
         for(int i = 0; i < batchSize; i++){
         	dotcblastemp[i] = cblas_sdot( N, Xbatch + i * N, incX, Ybatch + i * N, incY);

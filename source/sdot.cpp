@@ -4,8 +4,8 @@
 using namespace concurrency;
 
 float sdot_AMP(Concurrency::accelerator_view &accl_view, long n,
-               Concurrency::array_view<float, 1> &xView, long incx, long xOffset,
-               Concurrency::array_view<float, 1> &yView, long incy, long yOffset, float out)
+               Concurrency::array<float, 1> &xView, long incx, long xOffset,
+               Concurrency::array<float, 1> &yView, long incy, long yOffset, float out)
 {
   out = 0.0;
   // runtime sizes
@@ -19,7 +19,7 @@ float sdot_AMP(Concurrency::accelerator_view &accl_view, long n,
   concurrency::extent<1> extent(thread_count);
   concurrency::parallel_for_each(
     extent.tile<TILE_SIZE>(),
-    [=] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp)
+    [=, &xView, &yView] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp)
   {
     // shared tile buffer
     tile_static float local_buffer[TILE_SIZE];
@@ -65,8 +65,8 @@ float sdot_AMP(Concurrency::accelerator_view &accl_view, long n,
 }
 
 float sdot_AMP(Concurrency::accelerator_view &accl_view, long n,
-               Concurrency::array_view<float, 1> &xView, long incx, long xOffset,
-               Concurrency::array_view<float, 1> &yView, long incy, long yOffset, float out, 
+               Concurrency::array<float, 1> &xView, long incx, long xOffset,
+               Concurrency::array<float, 1> &yView, long incy, long yOffset, float out, 
                const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 
 {
@@ -82,7 +82,7 @@ float sdot_AMP(Concurrency::accelerator_view &accl_view, long n,
   concurrency::extent<2> extent(batchSize, thread_count);
   concurrency::parallel_for_each(
     extent.tile<1, TILE_SIZE>(),
-    [=] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp)
+    [=, &xView, &yView] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp)
   {
     // shared tile buffer
     tile_static float local_buffer[TILE_SIZE];
@@ -137,21 +137,28 @@ ampblasStatus Ampblaslibrary :: ampblas_sdot(const int N, float *X, const int in
     if (Y == NULL || X == NULL || N <= 0 ) {
         return AMPBLAS_INVALID;
     }
-
     int lenX = 1 + (N - 1) * abs(incX);
     int lenY = 1 + (N - 1) * abs(incY);
-    array_view<float, 1> xView(lenX, X);
-    array_view<float, 1> yView(lenY, Y);
+    Concurrency::array<float, 1> xView(lenX, X);
+    Concurrency::array<float, 1> yView(lenY, Y);
+    std::vector<float> HostX(lenX);
+    std::vector<float> HostY(lenY);
+    for( int i = 0; i < lenX; i++)
+	HostX[i] = X[i];
+    for( int i = 0; i < lenY; i++)
+        HostY[i] = Y[i];
+    Concurrency::copy(begin(HostX), end(HostX), xView);
+    Concurrency::copy(begin(HostY), end(HostY), yView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     *dot = sdot_AMP(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, *dot);
     return AMPBLAS_SUCCESS;
 }
 
-// SDOT Call Type II: Inputs and outputs are C++ AMP float array_View containers
+// SDOT Call Type II: Inputs and outputs are C++ AMP float array containers
 ampblasStatus Ampblaslibrary :: ampblas_sdot(Concurrency::accelerator_view &accl_view, const int N,
-                                             Concurrency::array_view<float> &X, const int incX, const long xOffset,
-                                             Concurrency::array_view<float> &Y, const int incY, const long yOffset, float &dot)
+                                             Concurrency::array<float> &X, const int incX, const long xOffset,
+                                             Concurrency::array<float> &Y, const int incY, const long yOffset, float &dot)
 
 {
     /*Check the conditions*/
@@ -165,8 +172,8 @@ ampblasStatus Ampblaslibrary :: ampblas_sdot(Concurrency::accelerator_view &accl
 
 // SDOT TYpe III - Overloaded function with arguments related to batch processing 
  ampblasStatus Ampblaslibrary :: ampblas_sdot(Concurrency::accelerator_view &accl_view, const int N, 
-                                              Concurrency::array_view<float> &X, const int incX, const long xOffset,
-                                              Concurrency::array_view<float> &Y, const int incY, const long yOffset, float &dot, 
+                                              Concurrency::array<float> &X, const int incX, const long xOffset,
+                                              Concurrency::array<float> &Y, const int incY, const long yOffset, float &dot, 
                                               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 {
     /*Check the conditions*/
