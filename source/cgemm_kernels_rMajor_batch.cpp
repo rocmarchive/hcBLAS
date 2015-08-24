@@ -1,17 +1,17 @@
 #include "cgemm_kernels.h"
 
-ampblasStatus cgemm_TransAB_rMajor_loopunroll(Concurrency::accelerator_view &accl_view,
-				              Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                              Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                              Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                              int M, int N, int K, int lda, int ldb, int ldc,
-                                              float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_TransAB_rMajor_batch_loopunroll(Concurrency::accelerator_view &accl_view,
+				                    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                                    float_2 alpha, float_2 beta, int batchSize)
 {
 #define THREADS   16
 #define TILE_DIM  16
   Concurrency::extent<3> grdExt(batchSize, (M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<1, THREADS, THREADS> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, THREADS, THREADS> tidx) restrict(amp)
   {
     float CValue = 0, CValue1 = 0;
     int elt = tidx.tile[0];
@@ -98,18 +98,18 @@ ampblasStatus cgemm_TransAB_rMajor_loopunroll(Concurrency::accelerator_view &acc
 }
 
 
-ampblasStatus cgemm_TransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-				              Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                              Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                              Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                              int M, int N, int K, int lda, int ldb, int ldc,
-                                              float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+				                         Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                         Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                         Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                         int M, int N, int K, int lda, int ldb, int ldc,
+                                                         float_2 alpha, float_2 beta, int batchSize)
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -204,19 +204,19 @@ ampblasStatus cgemm_TransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view
 	return AMPBLAS_SUCCESS;
 }
 
-ampblasStatus cgemm_TransAB_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-				           Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                           Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                           Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                           int M, int N, int K, int lda, int ldb, int ldc,
-                                           float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_TransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+				                      Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                      Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                      Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                      int M, int N, int K, int lda, int ldb, int ldc,
+                                                      float_2 alpha, float_2 beta, int batchSize)
 
 {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
@@ -303,18 +303,18 @@ ampblasStatus cgemm_TransAB_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &a
 
 
 
-ampblasStatus cgemm_TransAB_rMajor_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_view,
-				             Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                             Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                             Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                             int M, int N, int K, int lda, int ldb, int ldc,
-                                             float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_view,
+				                        Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                        Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                        Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                        int M, int N, int K, int lda, int ldb, int ldc,
+                                                        float_2 alpha, float_2 beta, int batchSize)
 {  
 #define TILESIZE 8
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -409,18 +409,18 @@ ampblasStatus cgemm_TransAB_rMajor_MICRO_TS8XMTS2(Concurrency::accelerator_view 
 	return AMPBLAS_SUCCESS;
 }
 
-ampblasStatus cgemm_NoTransB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-				             Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                             Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                             Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                             int M, int N, int K, int lda, int ldb, int ldc,
-                                             float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+				                          Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                          Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                          Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                          int M, int N, int K, int lda, int ldb, int ldc,
+                                                          float_2 alpha, float_2 beta, int batchSize)
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -514,18 +514,18 @@ ampblasStatus cgemm_NoTransB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_vie
 	return AMPBLAS_SUCCESS;
 }
 
-ampblasStatus cgemm_NoTransA_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-				          Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                          Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                          Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                          int M, int N, int K, int lda, int ldb, int ldc,
-                                          float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+				                       Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                       Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                       Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                       int M, int N, int K, int lda, int ldb, int ldc,
+                                                       float_2 alpha, float_2 beta, int batchSize)
 {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
@@ -609,18 +609,18 @@ ampblasStatus cgemm_NoTransA_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &
         return AMPBLAS_SUCCESS;
 }
 
-ampblasStatus cgemm_NoTransA_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-				             Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                             Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                             Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                             int M, int N, int K, int lda, int ldb, int ldc,
-                                             float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+				                          Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                          Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                          Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                          int M, int N, int K, int lda, int ldb, int ldc,
+                                                          float_2 alpha, float_2 beta, int batchSize)
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -715,18 +715,18 @@ ampblasStatus cgemm_NoTransA_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_vie
 	return AMPBLAS_SUCCESS;
 }
 
-ampblasStatus cgemm_NoTransA_rMajor_loopunroll(Concurrency::accelerator_view &accl_view,
-				        Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                        Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                        Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                        int M, int N, int K, int lda, int ldb, int ldc,
-                                        float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_NoTransA_rMajor_batch_loopunroll(Concurrency::accelerator_view &accl_view,
+				                     Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                     Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                     Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                     int M, int N, int K, int lda, int ldb, int ldc,
+                                                     float_2 alpha, float_2 beta, int batchSize)
 {
 #define THREADS   16
 #define TILE_DIM  16
   Concurrency::extent<3> grdExt(batchSize, (M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<1, THREADS, THREADS> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, THREADS, THREADS> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, THREADS, THREADS> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     float CValue = 0, CValue1 = 0;
@@ -816,18 +816,18 @@ ampblasStatus cgemm_NoTransA_rMajor_loopunroll(Concurrency::accelerator_view &ac
 	return AMPBLAS_SUCCESS;
 }
 
-ampblasStatus cgemm_NoTransAB_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-				         Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                         Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                         Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                         int M, int N, int K, int lda, int ldb, int ldc,
-                                         float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+				                        Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                        Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                        Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                        int M, int N, int K, int lda, int ldb, int ldc,
+                                                        float_2 alpha, float_2 beta, int batchSize)
 {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
@@ -907,18 +907,18 @@ ampblasStatus cgemm_NoTransAB_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view 
         return AMPBLAS_SUCCESS;
 }
 
-ampblasStatus cgemm_NoTransAB_rMajor_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
-				           Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                           Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                           Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                           int M, int N, int K, int lda, int ldb, int ldc,
-                                           float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
+				                          Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                          Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                          Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                          int M, int N, int K, int lda, int ldb, int ldc,
+                                                          float_2 alpha, float_2 beta, int batchSize)
 {
 #define TILESIZE 16
 #define STEPSIZE 16
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
@@ -998,18 +998,18 @@ ampblasStatus cgemm_NoTransAB_rMajor_STEP_TS16XSS16(Concurrency::accelerator_vie
         return AMPBLAS_SUCCESS;
 }
 
-ampblasStatus cgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-				            Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                            Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                            Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
-                                            int M, int N, int K, int lda, int ldb, int ldc,
-                                            float_2 alpha, float_2 beta, int batchSize)
+ampblasStatus cgemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+				                           Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                                           Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                                           Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                                           int M, int N, int K, int lda, int ldb, int ldc,
+                                                           float_2 alpha, float_2 beta, int batchSize)
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
-  Concurrency::parallel_for_each(accl_view, t_ext, [=] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
+  Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {
     int elt = tidx.tile[0];
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -1104,43 +1104,43 @@ ampblasStatus cgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_vi
 }
 
 ampblasStatus cgemm_TransAB_rMajor(Concurrency::accelerator_view &accl_view,
-                                   Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                   Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                   Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                   Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                   Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                   Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float_2 alpha, float_2 beta, int batchSize)
 {
   if (M < 600 && N < 600 && K >= 600 && K < 1800)
   {
-     return cgemm_TransAB_rMajor_loopunroll(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_TransAB_rMajor_batch_loopunroll(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
   else if (M >= 600 && M < 6000 && N < 600 && K < 1800)
   {
-     return cgemm_TransAB_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
   else if (M >= 1800 && M < 6000 && N < 10 && K >= 600 && K < 6000)
   {
-     return cgemm_TransAB_rMajor_STEP_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_TransAB_rMajor_batch_STEP_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
   else if (M >= 6000 && M < 10000 && N < 10 && K >= 1800 && K < 6000)
   {
-     return cgemm_TransAB_rMajor_MICRO_TS8XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_TransAB_rMajor_batch_MICRO_TS8XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
   else{
-     return cgemm_TransAB_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
 }
 
 ampblasStatus cgemm_NoTransB_rMajor(Concurrency::accelerator_view &accl_view,
-                                    Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                    Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                    Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float_2 alpha, float_2 beta, int batchSize)
 {
   /*if ((M < 600 && N >= 600 && N < 1800 && K < 600)||(M >= 600 && M < 6000 && N <6000 && K < 600))
   { */
-     return cgemm_NoTransB_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   //}
 
 
@@ -1148,48 +1148,48 @@ ampblasStatus cgemm_NoTransB_rMajor(Concurrency::accelerator_view &accl_view,
 }
 
 ampblasStatus cgemm_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
-                                    Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                    Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                    Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float_2 alpha, float_2 beta, int batchSize)
 {
   if ((M >= 10 && M < 6000 && N < 600 && K < 10) ||(  M >= 600 && M < 1800 && N < 10 && K >= 1800 && K < 6000) || ( M < 600 && N < 600 && K > 1800 && K < 6000))
   {
-     return cgemm_NoTransA_rMajor_STEP_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_NoTransA_rMajor_batch_STEP_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
   else if (M >= 600 && M < 6000 && N < 600 && K < 600)
   {
-     return cgemm_NoTransA_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
   else if (M > 1800 && M < 6000 && N < 600 && K >= 1800 && K<10000 )
   {
-     return cgemm_NoTransA_rMajor_loopunroll(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_NoTransA_rMajor_batch_loopunroll(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
   else {
-     return cgemm_NoTransA_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+     return cgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
 
 }
 
 ampblasStatus cgemm_NoTransAB_rMajor(Concurrency::accelerator_view &accl_view,
-                                     Concurrency::array_view<float_2, 1> &A, long aOffset, long A_batchOffset,
-                                     Concurrency::array_view<float_2, 1> &B, long bOffset, long B_batchOffset,
-                                     Concurrency::array_view<float_2, 1> &C, long cOffset, long C_batchOffset,
+                                     Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+                                     Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+                                     Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
                                      int M, int N, int K, int lda, int ldb, int ldc,
                                      float_2 alpha, float_2 beta, int batchSize)
 {
   if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600))
   {
-    return cgemm_NoTransAB_rMajor_STEP_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+    return cgemm_NoTransAB_rMajor_batch_STEP_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
   else if ((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10))))
   {
-    return cgemm_NoTransAB_rMajor_STEP_TS16XSS16(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+    return cgemm_NoTransAB_rMajor_batch_STEP_TS16XSS16(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
   else /*if (M < 1800 && N < 1800 && K < 1800)*/
   {
-    return cgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+    return cgemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
 }
 

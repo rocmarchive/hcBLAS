@@ -171,10 +171,10 @@ class Ampblaslibrary
                                const enum AMPBLAS_TRANS typeB, const int M,
                                const int N, const int K,
                                const Concurrency::graphics::float_2 &alpha,
-                               Concurrency::array_view<float_2> &A, const long aOffset, const long lda,
-                               Concurrency::array_view<float_2> &B, const long bOffset, const long ldb,
+                               Concurrency::array<float_2> &A, const long aOffset, const long lda,
+                               Concurrency::array<float_2> &B, const long bOffset, const long ldb,
                                const Concurrency::graphics::float_2 &beta, 
-                               Concurrency::array_view<float_2> &C, const long cOffset, const long ldc);
+                               Concurrency::array<float_2> &C, const long cOffset, const long ldc);
 
 /* CGEMM - Overloaded function with arguments related to batch processing */
    ampblasStatus ampblas_cgemm(Concurrency::accelerator_view &accl_view,
@@ -182,12 +182,12 @@ class Ampblaslibrary
                                const enum AMPBLAS_TRANS typeB, const int M,
                                const int N, const int K,
                                const Concurrency::graphics::float_2 &alpha,
-                               Concurrency::array_view<float_2> &A, 
+                               Concurrency::array<float_2> &A, 
                                const long aOffset, const long A_batchOffset, const long lda,
-                               Concurrency::array_view<float_2> &B, 
+                               Concurrency::array<float_2> &B, 
 			       const long bOffset, const long B_batchOffset, const long ldb,
                                const Concurrency::graphics::float_2 &beta,
-                               Concurrency::array_view<float_2> &C, 
+                               Concurrency::array<float_2> &C, 
 			       const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 
 /* SSCAL - X = alpha * X */
