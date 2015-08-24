@@ -1749,7 +1749,7 @@ ampblasStatus gemm_NoTransAB(Concurrency::accelerator_view &accl_view,
                              int M, int N, int K, int lda, int ldb, int ldc,
                              float alpha, float beta, int batchSize)
 {
-  if (M > 10000 && N < 100)
+  if (M > 10000 && N < 500)
   {
     return gemm_NoTransAB_batch_largeM(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
@@ -1789,7 +1789,7 @@ ampblasStatus gemm_NoTransA(Concurrency::accelerator_view &accl_view,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float alpha, float beta, int batchSize)
 {
-  if (M > 10000 && N < 100)
+  if (M > 10000 && N < 500)
   {
     return gemm_NoTransA_batch_largeM(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }
@@ -1829,7 +1829,7 @@ ampblasStatus gemm_NoTransB(Concurrency::accelerator_view &accl_view,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float alpha, float beta, int batchSize)
 {
-  if (M > 10000 && N < 100)
+  if (M > 10000 && N < 500)
   {
     return gemm_NoTransB_batch_largeM(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   }

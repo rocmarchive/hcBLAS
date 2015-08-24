@@ -68,7 +68,7 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
         status = gemm_TransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
  }
-/*  else
+  else
   {
    if(batchSize > 0)
    {
@@ -99,7 +99,7 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
       else
         status = gemm_TransAB_rMajor(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
-  }*/
+  }
   return status;
 }
 
