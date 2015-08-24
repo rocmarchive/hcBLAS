@@ -5,7 +5,7 @@
 using namespace concurrency;
 
 double dasum_AMP(Concurrency::accelerator_view &accl_view,
-               long n, Concurrency::array_view<double, 1> &xView, long incx, long xOffset, double Y)
+               long n, Concurrency::array<double, 1> &xView, long incx, long xOffset, double Y)
 {
   Y = 0.0;
   // runtime sizes
@@ -19,7 +19,7 @@ double dasum_AMP(Concurrency::accelerator_view &accl_view,
   concurrency::extent<1> extent(thread_count);
   concurrency::parallel_for_each(
     extent.tile<TILE_SIZE>(),
-    [=] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp)
+    [=, &xView] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp)
   {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
@@ -65,7 +65,7 @@ double dasum_AMP(Concurrency::accelerator_view &accl_view,
 }
 
 double dasum_AMP(Concurrency::accelerator_view &accl_view,
-               long n, Concurrency::array_view<double, 1> &xView, long incx, long xOffset, double Y,
+               long n, Concurrency::array<double, 1> &xView, long incx, long xOffset, double Y,
 	       long X_batchOffset, int batchSize)
 {
   Y = 0.0;
@@ -80,7 +80,7 @@ double dasum_AMP(Concurrency::accelerator_view &accl_view,
   concurrency::extent<2> extent(batchSize, thread_count);
   concurrency::parallel_for_each(
     extent.tile<1, TILE_SIZE>(),
-    [=] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp)
+    [=, &xView] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp)
   {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
@@ -135,7 +135,11 @@ ampblasStatus Ampblaslibrary :: ampblas_dasum(const int N, double *X, const int 
     }
 
     int lenX = 1 + (N - 1) * abs(incX);
-    array_view<double, 1> xView(lenX, X);
+    Concurrency::array<double, 1> xView(lenX, X);
+    std::vector<double> HostX(lenX);
+    for( int i = 0; i < lenX; i++)
+	HostX[i] = X[i];
+    Concurrency::copy(begin(HostX), end(HostX), xView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     *Y = dasum_AMP(accl_view, N, xView, incX, xOffset, *Y);
@@ -143,9 +147,9 @@ ampblasStatus Ampblaslibrary :: ampblas_dasum(const int N, double *X, const int 
 
 }
 
-// DASUM Call Type II: Inputs and outputs are C++ AMP float array_View containers
+// DASUM Call Type II: Inputs and outputs are C++ AMP float array containers
 ampblasStatus Ampblaslibrary :: ampblas_dasum(Concurrency::accelerator_view &accl_view, const int N,
-                                              Concurrency::array_view<double> &X, const int incX,
+                                              Concurrency::array<double> &X, const int incX,
                                               const long xOffset, double &Y)
 {
     /*Check the conditions*/
@@ -159,7 +163,7 @@ ampblasStatus Ampblaslibrary :: ampblas_dasum(Concurrency::accelerator_view &acc
 
 // SASUM TYpe III - Overloaded function with arguments related to batch processing 
 ampblasStatus Ampblaslibrary :: ampblas_dasum(Concurrency::accelerator_view &accl_view, const int N,
-                                              Concurrency::array_view<double> &X, const int incX,
+                                              Concurrency::array<double> &X, const int incX,
                                               const long xOffset, double &Y, const long X_batchOffset, const int batchSize)
 {
     /*Check the conditions*/

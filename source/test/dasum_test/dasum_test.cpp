@@ -31,14 +31,16 @@ int main(int argc, char** argv)
     double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
     double *asumcblastemp = (double*)calloc(batchSize, sizeof(double));
 
-    Concurrency::array_view<double> xView(lenx, X);
-    Concurrency::array_view<double> xbatchView(lenx * batchSize, Xbatch);
+    Concurrency::array<double> xView(lenx, X);
+    Concurrency::array<double> xbatchView(lenx * batchSize, Xbatch);
+    std::vector<double> HostX(lenx);
+    std::vector<double> HostX_batch(lenx * batchSize);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     
     for(int i = 0;i < N;i++){
-        xView[i] = rand() % 10;
-        X[i] = xView[i];
+        HostX[i] = rand() % 10;
+        X[i] = HostX[i];
     }
         
     if (Imple_type == 1){
@@ -58,6 +60,7 @@ int main(int argc, char** argv)
     }
       
     else if (Imple_type ==2){
+        Concurrency::copy(begin(HostX), end(HostX), xView);
         status = amp.ampblas_dasum(accl_view, N, xView, incX, xOffset, asumampblas);
         asumcblas = cblas_dasum( N, X, incX);
         for(int i = 0; i < N ; i++){
@@ -74,10 +77,10 @@ int main(int argc, char** argv)
 
     else{ 
         for(int i = 0;i < N * batchSize;i++){
-            xbatchView[i] = rand() % 10;
-            Xbatch[i] = xbatchView[i];
+            HostX_batch[i] = rand() % 10;
+            Xbatch[i] = HostX_batch[i];
          }
-
+        Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         status= amp.ampblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumampblas, X_batchOffset, batchSize);
         for(int i = 0; i < batchSize; i++){
         	asumcblastemp[i] = cblas_dasum( N, Xbatch + i * N, incX);

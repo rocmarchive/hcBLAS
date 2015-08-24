@@ -5,7 +5,7 @@
 using namespace concurrency;
 
 float sasum_AMP(Concurrency::accelerator_view &accl_view,
-               long n, Concurrency::array_view<float, 1> &xView, long incx, long xOffset, float Y)
+               long n, Concurrency::array<float, 1> &xView, long incx, long xOffset, float Y)
 {
   Y = 0.0;
   // runtime sizes
@@ -19,7 +19,7 @@ float sasum_AMP(Concurrency::accelerator_view &accl_view,
   concurrency::extent<1> extent(thread_count);
   concurrency::parallel_for_each(
     extent.tile<TILE_SIZE>(),
-    [=] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp)
+    [=, &xView] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp)
   {
     // shared tile buffer
     tile_static float local_buffer[TILE_SIZE];
@@ -66,7 +66,7 @@ float sasum_AMP(Concurrency::accelerator_view &accl_view,
 }
 
 float sasum_AMP(Concurrency::accelerator_view &accl_view,
-               long n, Concurrency::array_view<float, 1> &xView, long incx, long xOffset, float Y, 
+               long n, Concurrency::array<float, 1> &xView, long incx, long xOffset, float Y, 
                long X_batchOffset, int batchSize)
 {
   Y = 0.0;
@@ -81,7 +81,7 @@ float sasum_AMP(Concurrency::accelerator_view &accl_view,
   concurrency::extent<2> extent(batchSize, thread_count);
   concurrency::parallel_for_each(
     extent.tile<1, TILE_SIZE>(),
-    [=] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp)
+    [=, &xView] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp)
   {
     // shared tile buffer
     tile_static float local_buffer[TILE_SIZE];
@@ -137,7 +137,11 @@ ampblasStatus Ampblaslibrary :: ampblas_sasum(const int N, float *X, const int i
     }
 
     int lenX = 1 + (N - 1) * abs(incX);
-    array_view<float, 1> xView(lenX, X);
+    Concurrency::array<float, 1> xView(lenX, X);
+    std::vector<float> HostX(lenX);
+    for( int i = 0; i < lenX; i++)
+	HostX[i] = X[i];
+    Concurrency::copy(begin(HostX), end(HostX), xView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     *Y = sasum_AMP(accl_view, N, xView, incX, xOffset, *Y);
@@ -145,9 +149,9 @@ ampblasStatus Ampblaslibrary :: ampblas_sasum(const int N, float *X, const int i
 
 }
 
-// SASUM Call Type II: Inputs and outputs are C++ AMP float array_View containers
+// SASUM Call Type II: Inputs and outputs are C++ AMP float array containers
 ampblasStatus Ampblaslibrary :: ampblas_sasum(Concurrency::accelerator_view &accl_view, const int N, 
-                                              Concurrency::array_view<float> &X, const int incX, 
+                                              Concurrency::array<float> &X, const int incX, 
                                               const long xOffset, float &Y)
 {
     /*Check the conditions*/
@@ -162,7 +166,7 @@ ampblasStatus Ampblaslibrary :: ampblas_sasum(Concurrency::accelerator_view &acc
 
 // SASUM TYpe III - Overloaded function with arguments related to batch processing 
 ampblasStatus Ampblaslibrary :: ampblas_sasum(Concurrency::accelerator_view &accl_view, const int N,
-                                              Concurrency::array_view<float> &X, const int incX,
+                                              Concurrency::array<float> &X, const int incX,
                                               const long xOffset, float &Y, const long X_batchOffset, const int batchSize)
 {
     /*Check the conditions*/
