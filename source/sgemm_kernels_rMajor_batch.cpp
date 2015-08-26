@@ -1,5 +1,7 @@
 #include "sgemm_kernels.h"
+#include "amp_math.h"
 
+using namespace concurrency::fast_math;
 /* 
 * SGEMM - NoTransAB case - Row major Access
 * STEP with Non Bank Conflict Implmentation
@@ -71,7 +73,11 @@ ampblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelera
 
     tidx.barrier.wait();
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N)
-        C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy)] = alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy)];
+    {
+      long C_index = cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy);
+      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    } 
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -150,7 +156,11 @@ ampblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accele
 
     tidx.barrier.wait();
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N)
-        C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy)] = alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy)];
+    {
+      long C_index = cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy);
+      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    } 
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -230,8 +240,12 @@ ampblasStatus gemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerat
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if((xIndex/ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
-        C[cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row)] = alpha * rC[col][row] + beta * C[cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row)];
+        if((xIndex/ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
+        {
+          long C_index = cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row);
+          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = alpha * rC[col][row] + beta * C[C_index];
+        } 
       }
     }
  });
@@ -316,7 +330,11 @@ ampblasStatus gemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_v
 
     tidx.barrier.wait();
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N)
-        C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy)] = alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy)];
+    {
+      long C_index = cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy);
+      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 
 #undef TILESIZE
@@ -412,7 +430,11 @@ ampblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerat
     int crow = (gidxOffset + idx) * ldc;
     int ccolprod = (gidyOffset + idy);
     if(crow/ldc < M && ccolprod < N)
-        C[cOffset + C_batchOffset * elt + crow + ccolprod] = alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + crow + ccolprod];
+    {
+      long C_index = cOffset + C_batchOffset * elt + crow + ccolprod;
+      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -507,7 +529,11 @@ ampblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::acceler
     int crow = (gidxOffset + idx) * ldc;
     int ccolprod = (gidyOffset + idy);
     if(crow/ldc < M && ccolprod < N)
-        C[cOffset + C_batchOffset * elt + crow + ccolprod] = alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + crow + ccolprod];
+    {
+      long C_index = cOffset + C_batchOffset * elt + crow + ccolprod;
+      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -596,8 +622,12 @@ ampblasStatus gemm_NoTransA_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accele
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if((xIndex/ldc) + (col << shiftTS) < M && (yIndex) + (row << shiftTS) < N)
-        C[cOffset + C_batchOffset * elt + (xIndex + ((col << shiftTS) * N)) + yIndex + (row << shiftTS )] = alpha * rC[col][row] + beta * C[cOffset + C_batchOffset * elt + (xIndex + ((col << shiftTS) * N)) + yIndex + (row << shiftTS)];
+        if((xIndex/ldc) + (col << shiftTS) < M && (yIndex) + (row << shiftTS) < N)
+        {
+          long C_index = cOffset + C_batchOffset * elt + (xIndex + ((col << shiftTS) * N)) + yIndex + (row << shiftTS);
+          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = alpha * rC[col][row] + beta * C[C_index];
+        }
       }
     }
  });
@@ -681,8 +711,12 @@ ampblasStatus gemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerato
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if((xIndex / ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
-        C[cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row)] = alpha * rC[col][row] + beta * C[cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) *  N) + yIndex + (TILESIZE * row)];
+      	if((xIndex / ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
+        {
+          long C_index = cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row);
+          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = alpha * rC[col][row] + beta * C[C_index];
+        }
       }
     }
  });
@@ -771,7 +805,11 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::acceler
     int crow = (gidxOffset + idx)*ldc;
     int ccolprod = (gidyOffset + idy);
     if(crow/ldc < M && ccolprod < N)
-      C[cOffset + C_batchOffset * elt + crow + ccolprod] =  alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + crow + ccolprod];
+    {
+          long C_index = cOffset + C_batchOffset * elt + crow + ccolprod;
+          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -859,8 +897,12 @@ ampblasStatus gemm_NoTransB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accele
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if((xIndex / ldc) + (col << shiftTS) < M && (yIndex) + (row << shiftTS) < N)
-        C[cOffset + C_batchOffset * elt + (xIndex + ((col << shiftTS) * N)) + yIndex + (row << shiftTS)] = alpha * rC[col][row] + beta * C[cOffset + C_batchOffset * elt + (xIndex + ((col << shiftTS) * N)) + yIndex + (row << shiftTS)];
+        if((xIndex / ldc) + (col << shiftTS) < M && (yIndex) + (row << shiftTS) < N)
+        {
+          long C_index = cOffset + C_batchOffset * elt + (xIndex + ((col << shiftTS) * N)) + yIndex + (row << shiftTS);
+          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = alpha * rC[col][row] + beta * C[C_index];
+        }
       }
     }
  });
@@ -943,7 +985,11 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_v
     } while (--block_k > 0);
     tidx.barrier.wait();
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N)
-      C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy)] =  alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy)];
+    {
+       long C_index = cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy);
+       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -1023,7 +1069,11 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerator
     } while (--block_k > 0);
     tidx.barrier.wait();
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N)
-      C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy)] =  alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy)];
+    {
+       long C_index = cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + (gidy * TILESIZE + idy);
+       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -1103,8 +1153,12 @@ ampblasStatus gemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerato
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if((xIndex/ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
-        C[cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col)*N) + yIndex + (TILESIZE * row)] = alpha * rC[col][row] + beta * C[cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) * N ) + yIndex + (TILESIZE * row)];
+        if((xIndex/ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
+        {
+          long C_index = cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col)*N) + yIndex + (TILESIZE * row);
+          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = alpha * rC[col][row] + beta * C[C_index];
+        }
       }
     }
  });
@@ -1194,7 +1248,11 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerat
     int crow = (gidxOffset + idx)*ldc;
     int ccolprod = (gidyOffset + idy);
     if(crow/ldc < M && ccolprod < N)
-      C[cOffset + C_batchOffset * elt + crow + ccolprod] =  alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + crow + ccolprod];
+    {
+      long C_index = cOffset + C_batchOffset * elt + crow + ccolprod;
+      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -1282,8 +1340,12 @@ ampblasStatus gemm_TransAB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::acceler
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if((xIndex/ldc) + (col << shiftTS) < M && yIndex  + (row << shiftTS) < N)
-        C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)] = alpha * rC[col][row] + beta * C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc)  + yIndex + (row << shiftTS)];
+        if((xIndex/ldc) + (col << shiftTS) < M && yIndex  + (row << shiftTS) < N)
+        {
+          long C_index = cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS);
+          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = alpha * rC[col][row] + beta * C[C_index];
+        }
       }
     }
  });
@@ -1361,7 +1423,11 @@ ampblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerato
 
     tidx.barrier.wait();
     if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N)
-        C[cOffset + C_batchOffset * elt + (gidx*TILESIZE +idx) * ldc + (gidy*TILESIZE + idy)] = alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + (gidx*TILESIZE+idx) * ldc + (gidy*TILESIZE + idy)];
+    {
+       long C_index = cOffset + C_batchOffset * elt + (gidx*TILESIZE +idx) * ldc + (gidy*TILESIZE + idy);
+       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -1438,7 +1504,11 @@ ampblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelera
 
     tidx.barrier.wait();
     if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N)
-        C[cOffset + C_batchOffset * elt + (gidx*TILESIZE +idx) * ldc + (gidy*TILESIZE + idy)] = alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + (gidx*TILESIZE+idx) * ldc + (gidy*TILESIZE + idy)];
+    {
+       long C_index = cOffset + C_batchOffset * elt + (gidx*TILESIZE +idx) * ldc + (gidy*TILESIZE + idy);
+       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -1519,8 +1589,12 @@ ampblasStatus gemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator
     {
       for( int col = 0; col < MICROTILESIZE ; col++)
       {
-      if((xIndex/ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
-        C[cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row)] = alpha * rC[col][row] + beta * C[cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row)];
+        if((xIndex/ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N)
+        {
+          long C_index = cOffset + C_batchOffset * elt + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row);
+          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = alpha * rC[col][row] + beta * C[C_index];
+        }
       }
     }
  });
@@ -1601,7 +1675,11 @@ ampblasStatus gemm_TransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_vi
 
     tidx.barrier.wait();
     if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N)
-        C[cOffset + C_batchOffset * elt + (gidx*TILESIZE +idx)*ldc + (gidy*TILESIZE + idy)] = alpha * rC[0][0] + beta * C[cOffset + C_batchOffset * elt + (gidx*TILESIZE+idx)*ldc + (gidy*TILESIZE + idy)];
+    {
+      long C_index = cOffset + C_batchOffset * elt + (gidx*TILESIZE +idx)*ldc + (gidy*TILESIZE + idy);
+      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = alpha * rC[0][0] + beta * C[C_index];
+    }
   });
 #undef TILESIZE
 #undef STEPSIZE
@@ -1677,6 +1755,7 @@ ampblasStatus gemm_TransAB_rMajor_batch_largeM(Concurrency::accelerator_view &ac
         for (int row = 0; row < MICROTILESIZE_B ; row++) {
           if (xIndex + (TILESIZE_A * col) < M && (yIndex) + (TILESIZE_B * row) < N) {
             long C_index = cOffset + C_batchOffset * elt + (xIndex + TILESIZE_A * col) * ldc + yIndex + TILESIZE_B * row;
+            C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
             C[C_index] = alpha * rC[col][row] + beta * C[C_index];
           }
         }
@@ -1761,6 +1840,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_largeM(Concurrency::accelerator_view &a
         for (int col = 0; col < MICROTILESIZE_A; col++) {
           if ((xIndex / ldc) + (TILESIZE_A * col) < M && yIndex + (TILESIZE_B * row) < N) {
             long C_index = cOffset + C_batchOffset * elt + (xIndex + (TILESIZE_A * col) * ldc) + yIndex + (TILESIZE_B * row);
+            C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
             C[C_index] = alpha * rC[col][row] + beta * C[C_index];
           }
         }
@@ -1842,6 +1922,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_largeM(Concurrency::accelerator_view &a
         for (int col = 0; col < MICROTILESIZE_A; col++) {
           if (xIndex + (TILESIZE_A * col) < M && (yIndex) + (TILESIZE_B * row) < N) {
             long C_index = cOffset + C_batchOffset * elt + (xIndex + TILESIZE_A * col) * ldc + yIndex + TILESIZE_B * row;
+            C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
             C[C_index] = alpha * rC[col][row] + beta * C[C_index];
           }
         }
