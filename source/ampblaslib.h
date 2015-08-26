@@ -107,19 +107,19 @@ class Ampblaslibrary
     ampblasStatus ampblas_sgemv(Concurrency::accelerator_view &accl_view,
 				const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS type, const int M,
                                 const int N, const float &alpha, 
-                                Concurrency::array_view<float> &A, const long aOffset, const int lda, 
-				Concurrency::array_view<float> &X, const long xOffset, const int incX,
+                                Concurrency::array<float> &A, const long aOffset, const int lda, 
+				Concurrency::array<float> &X, const long xOffset, const int incX,
                                 const float &beta,  
-				Concurrency::array_view<float> &Y, const long yOffset, const int incY);
+				Concurrency::array<float> &Y, const long yOffset, const int incY);
 
 /* SGEMV- Overloaded function with arguments related to batch processing */
     ampblasStatus ampblas_sgemv(Concurrency::accelerator_view &accl_view,
                                 const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS type, const int M,
-                                const int N, const float &alpha, Concurrency::array_view<float> &A, 
+                                const int N, const float &alpha, Concurrency::array<float> &A, 
                                 const long aOffset, const long A_batchOffset, const int lda,
-                                Concurrency::array_view<float> &X, 
+                                Concurrency::array<float> &X, 
                                 const long xOffset, const long X_batchOffset, const int incX,
-                                const float &beta, Concurrency::array_view<float> &Y, 
+                                const float &beta, Concurrency::array<float> &Y, 
                                 const long yOffset, const long Y_batchOffset, const int incY, const int batchSize);
 
 /*                  C = alpha * op(A) * op(B) + beta * C                 */

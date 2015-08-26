@@ -62,30 +62,35 @@ int main(int argc, char** argv)
     float *ySgemv = (float*)calloc( leny , sizeof(float));
     float *ASgemv = (float *)calloc( row * col , sizeof(float));
     float *ycblas = (float *)calloc( col , sizeof(float));
-    Concurrency::array_view<float> xView(lenx, xSgemv);
-    Concurrency::array_view<float> yView(leny, ySgemv);       
-    Concurrency::array_view<float> aMat(M * N, ASgemv);
+    Concurrency::array<float> xView(lenx, xSgemv);
+    Concurrency::array<float> yView(leny, ySgemv);       
+    Concurrency::array<float> aMat(M * N, ASgemv);
+    std::vector<float> HostX(lenx);
+    std::vector<float> HostY(leny);
+    std::vector<float> HostA(M * N);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
     float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));
     float *ySgemvbatch = (float*)calloc( leny * batchSize, sizeof(float));
     float *ASgemvbatch = (float *)calloc( row * col * batchSize, sizeof(float));
     float *ycblasbatch = (float *)calloc( col * batchSize, sizeof(float));
-    Concurrency::array_view<float> xbatchView(lenx * batchSize, xSgemvbatch);
-    Concurrency::array_view<float> ybatchView(leny * batchSize, ySgemvbatch);
-    Concurrency::array_view<float> abatchMat(M * N * batchSize, ASgemvbatch);
-  
+    Concurrency::array<float> xbatchView(lenx * batchSize, xSgemvbatch);
+    Concurrency::array<float> ybatchView(leny * batchSize, ySgemvbatch);
+    Concurrency::array<float> abatchMat(M * N * batchSize, ASgemvbatch);
+    std::vector<float> HostX_batch(lenx * batchSize);
+    std::vector<float> HostY_batch(leny * batchSize);
+    std::vector<float> HostA_batch(M * N * batchSize);
  {
     for(int i = 0;i < row;i++){
-        xView[i] = rand() % 10;
-        xSgemv[i] = xView[i];}
+        HostX[i] = rand() % 10;
+        xSgemv[i] = HostX[i];}
     for(int i = 0;i < col;i++){
-        yView[i] = rand() % 15;
-        ySgemv[i]= yView[i];
+        HostY[i] = rand() % 15;
+        ySgemv[i]= HostY[i];
         ycblas[i] = ySgemv[i];}
     for(int i = 0;i< row * col;i++){
-        aMat[i] = rand() % 25;
-        ASgemv[i] = aMat[i];}
+        HostA[i] = rand() % 25;
+        ASgemv[i] = HostA[i];}
 
     if(Imple_type ==1){
         status =  amp.ampblas_sgemv(ampOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
@@ -110,16 +115,20 @@ int main(int argc, char** argv)
         free(ASgemv);
     }
     else if(Imple_type ==2){
+        Concurrency::copy(begin(HostX), end(HostX), xView);
+        Concurrency::copy(begin(HostY), end(HostY), yView);
+        Concurrency::copy(begin(HostA), end(HostA), aMat);
         status =  amp.ampblas_sgemv(accl_view, ampOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
+        Concurrency::copy(yView, begin(HostY));
         if(ampOrder)
                 lda = M;
         else
                 lda = N;
         cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
         for(int i =0; i < col; i ++){
-            if (yView[i] != ycblas[i]){
+            if (HostY[i] != ycblas[i]){
                 ispassed = 0;
-                cout <<" AMPSGEMV[" << i<< "] " << yView[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
+                cout <<" AMPSGEMV[" << i<< "] " << HostY[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
                 break;
             }
             else
@@ -129,17 +138,20 @@ int main(int argc, char** argv)
     }
     else{
         for(int i = 0;i < row * batchSize;i++){
-            xbatchView[i] = rand() % 10;
-            xSgemvbatch[i] = xbatchView[i];}
+            HostX_batch[i] = rand() % 10;
+            xSgemvbatch[i] = HostX_batch[i];}
         for(int i = 0;i < col * batchSize;i++){
-            ybatchView[i] = rand() % 15;
-            ySgemvbatch[i]= ybatchView[i];
+            HostY_batch[i] = rand() % 15;
+            ySgemvbatch[i]= HostY_batch[i];
             ycblasbatch[i] = ySgemvbatch[i];}
         for(int i = 0;i< row * col * batchSize;i++){
-            abatchMat[i] = rand() % 25;
-            ASgemvbatch[i] = abatchMat[i];}
-
+            HostA_batch[i] = rand() % 25;
+            ASgemvbatch[i] = HostA_batch[i];}
+        Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
+        Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
+        Concurrency::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
         status =  amp.ampblas_sgemv(accl_view, ampOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
+        Concurrency::copy(ybatchView, begin(HostY_batch));
         if(ampOrder)
                 lda = M;
         else
@@ -147,9 +159,9 @@ int main(int argc, char** argv)
         for(int i =0 ; i < batchSize; i++)
             cblas_sgemv( order, transa, M, N, alpha, ASgemvbatch + i * M * N, lda , xSgemvbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
         for(int i =0; i < col * batchSize; i ++){
-            if (ybatchView[i] != ycblasbatch[i]){
+            if (HostY_batch[i] != ycblasbatch[i]){
                 ispassed = 0;
-                cout <<" AMPSGEMV[" << i<< "] " << ybatchView[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblasbatch[i] << endl;
+                cout <<" AMPSGEMV[" << i<< "] " << HostY_batch[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblasbatch[i] << endl;
                 break;
             }
             else
