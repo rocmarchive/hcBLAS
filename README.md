@@ -177,4 +177,3 @@ With this the C++ AMP Compiler installation is complete.
      * make
      
      * To test ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type takes 1, 2 or 3)
-      
