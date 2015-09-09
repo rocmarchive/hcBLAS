@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../ampblaslib.h"
+#include "../../hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
 #include <unistd.h>
@@ -7,8 +7,8 @@
 using namespace std;
 int main(int argc, char** argv)
 {
-    /*  AMPBLAS Implementation */
-    Ampblaslibrary amp;
+    /*  HCBLAS Implementation */
+    Hcblaslibrary hc;
     if (argc < 5){
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;
@@ -29,9 +29,9 @@ int main(int argc, char** argv)
     long aOffset = 0;
     int batchSize = 128;
     long lenx,  leny;
-    ampblasStatus status;
-    AMPBLAS_TRANS typeA;
-    AMPBLAS_ORDER ampOrder = colMajor;
+    hcblasStatus status;
+    HCBLAS_TRANS typeA;
+    HCBLAS_ORDER hcOrder = colMajor;
 
     /* clBLAS Implementation */
     enum CBLAS_ORDER order;
@@ -93,8 +93,8 @@ int main(int argc, char** argv)
         ASgemv[i] = HostA[i];}
 
     if(Imple_type ==1){
-        status =  amp.ampblas_sgemv(ampOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-        if(ampOrder)
+        status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
+        if(hcOrder)
         	lda = M;
         else
                 lda = N;
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
         for(int i =0; i < col; i ++){
             if (ySgemv[i] != ycblas[i]){
                 ispassed = 0;
-                cout <<" AMPSGEMV[" << i<< "] " << ySgemv[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
+                cout <<" HCSGEMV[" << i<< "] " << ySgemv[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
                 break;
             }
             else
@@ -118,9 +118,9 @@ int main(int argc, char** argv)
         Concurrency::copy(begin(HostX), end(HostX), xView);
         Concurrency::copy(begin(HostY), end(HostY), yView);
         Concurrency::copy(begin(HostA), end(HostA), aMat);
-        status =  amp.ampblas_sgemv(accl_view, ampOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
+        status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
         Concurrency::copy(yView, begin(HostY));
-        if(ampOrder)
+        if(hcOrder)
                 lda = M;
         else
                 lda = N;
@@ -128,7 +128,7 @@ int main(int argc, char** argv)
         for(int i =0; i < col; i ++){
             if (HostY[i] != ycblas[i]){
                 ispassed = 0;
-                cout <<" AMPSGEMV[" << i<< "] " << HostY[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
+                cout <<" HCSGEMV[" << i<< "] " << HostY[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
                 break;
             }
             else
@@ -150,9 +150,9 @@ int main(int argc, char** argv)
         Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
         Concurrency::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
-        status =  amp.ampblas_sgemv(accl_view, ampOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
+        status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
         Concurrency::copy(ybatchView, begin(HostY_batch));
-        if(ampOrder)
+        if(hcOrder)
                 lda = M;
         else
                 lda = N;
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
         for(int i =0; i < col * batchSize; i ++){
             if (HostY_batch[i] != ycblasbatch[i]){
                 ispassed = 0;
-                cout <<" AMPSGEMV[" << i<< "] " << HostY_batch[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblasbatch[i] << endl;
+                cout <<" HCSGEMV[" << i<< "] " << HostY_batch[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblasbatch[i] << endl;
                 break;
             }
             else

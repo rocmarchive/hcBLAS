@@ -1,9 +1,9 @@
-#include "ampblaslib.h"
+#include "hcblaslib.h"
 #include <amp.h>
 #define TILE_SIZE 256
 using namespace concurrency;
 
-float sdot_AMP(Concurrency::accelerator_view &accl_view, long n,
+float sdot_HC(Concurrency::accelerator_view &accl_view, long n,
                Concurrency::array<float, 1> &xView, long incx, long xOffset,
                Concurrency::array<float, 1> &yView, long incy, long yOffset, float out)
 {
@@ -64,7 +64,7 @@ float sdot_AMP(Concurrency::accelerator_view &accl_view, long n,
     return out;
 }
 
-float sdot_AMP(Concurrency::accelerator_view &accl_view, long n,
+float sdot_HC(Concurrency::accelerator_view &accl_view, long n,
                Concurrency::array<float, 1> &xView, long incx, long xOffset,
                Concurrency::array<float, 1> &yView, long incy, long yOffset, float out, 
                const long X_batchOffset, const long Y_batchOffset, const int batchSize)
@@ -130,12 +130,12 @@ float sdot_AMP(Concurrency::accelerator_view &accl_view, long n,
 
 
 // SDOT call Type I - SSCAL Inputs and Outputs are host float pointers 
-ampblasStatus Ampblaslibrary :: ampblas_sdot(const int N, float *X, const int incX, const long xOffset, 
+hcblasStatus Hcblaslibrary :: hcblas_sdot(const int N, float *X, const int incX, const long xOffset, 
                                              float *Y, const int incY, const long yOffset, float *dot)
 {
 
     if (Y == NULL || X == NULL || N <= 0 ) {
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
     int lenX = 1 + (N - 1) * abs(incX);
     int lenY = 1 + (N - 1) * abs(incY);
@@ -151,38 +151,38 @@ ampblasStatus Ampblaslibrary :: ampblas_sdot(const int N, float *X, const int in
     Concurrency::copy(begin(HostY), end(HostY), yView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    *dot = sdot_AMP(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, *dot);
-    return AMPBLAS_SUCCESS;
+    *dot = sdot_HC(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, *dot);
+    return HCBLAS_SUCCESS;
 }
 
-// SDOT Call Type II: Inputs and outputs are C++ AMP float array containers
-ampblasStatus Ampblaslibrary :: ampblas_sdot(Concurrency::accelerator_view &accl_view, const int N,
+// SDOT Call Type II: Inputs and outputs are C++ HC float array containers
+hcblasStatus Hcblaslibrary :: hcblas_sdot(Concurrency::accelerator_view &accl_view, const int N,
                                              Concurrency::array<float> &X, const int incX, const long xOffset,
                                              Concurrency::array<float> &Y, const int incY, const long yOffset, float &dot)
 
 {
     /*Check the conditions*/
     if (N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
-    dot = sdot_AMP(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot);
-    return AMPBLAS_SUCCESS;
+    dot = sdot_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot);
+    return HCBLAS_SUCCESS;
 
 }
 
 // SDOT TYpe III - Overloaded function with arguments related to batch processing 
- ampblasStatus Ampblaslibrary :: ampblas_sdot(Concurrency::accelerator_view &accl_view, const int N, 
+ hcblasStatus Hcblaslibrary :: hcblas_sdot(Concurrency::accelerator_view &accl_view, const int N, 
                                               Concurrency::array<float> &X, const int incX, const long xOffset,
                                               Concurrency::array<float> &Y, const int incY, const long yOffset, float &dot, 
                                               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 {
     /*Check the conditions*/
     if (  N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
-    dot = sdot_AMP(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot, X_batchOffset, Y_batchOffset, batchSize);
+    dot = sdot_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot, X_batchOffset, Y_batchOffset, batchSize);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 

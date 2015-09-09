@@ -3,14 +3,14 @@
 #include<iostream>
 #include<unistd.h>
 #include<amp_short_vectors.h>
-#include "../../ampblaslib.h"
+#include "../../hcblaslib.h"
 using namespace Concurrency::graphics;
 using namespace Concurrency;
 using namespace std;
  
 int main(int argc, char* argv[])
 {
-	  /* AMPBLAS implementation */
+	  /* HCBLAS implementation */
     
     if (argc < 7) {
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     int isTransB = (atoi(argv[5]));
     int Imple_type = (atoi(argv[6])); 
     
-    Ampblaslibrary amp;
+    Hcblaslibrary hc;
     bool isPassed = 1;
     float alpha[2], beta[2];
     long lda, ldb,ldc;
@@ -36,9 +36,9 @@ int main(int argc, char* argv[])
     long B_batchOffset = 0;
     long C_batchOffset = M * N;
     int batchSize = 128;
-    AMPBLAS_ORDER ampOrder = colMajor;
-    ampblasStatus status; 
-    AMPBLAS_TRANS typeA,typeB ;
+    HCBLAS_ORDER hcOrder = colMajor;
+    hcblasStatus status; 
+    HCBLAS_TRANS typeA,typeB ;
     
     /* CBLAS implementation */
     CBLAS_ORDER order = CblasColMajor;
@@ -48,22 +48,22 @@ int main(int argc, char* argv[])
         if( isTransA == 0){
 	    typeA = noTrans;
             transa = CblasNoTrans;
-            (ampOrder)?(lda = M):(lda = K);
+            (hcOrder)?(lda = M):(lda = K);
         }
         else{
 	    typeA = trans;
             transa = CblasTrans;
-            (ampOrder)?(lda = K):(lda = M);
+            (hcOrder)?(lda = K):(lda = M);
         }
         if( isTransB == 0){
             typeB = noTrans;
             transb = CblasNoTrans;
-            (ampOrder)?(ldb = K):(ldb = N);
+            (hcOrder)?(ldb = K):(ldb = N);
         }
         else{
             typeB = trans;
             transb = CblasTrans;
-            (ampOrder)?(ldb = N):(ldb = K);
+            (hcOrder)?(ldb = N):(ldb = K);
         }
     }
     else {
@@ -71,16 +71,16 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    if(ampOrder)
+    if(hcOrder)
        ldc = M;
     else
        ldc = N;
     
-    struct ampComplex calpha,cbeta;
+    struct hcComplex calpha,cbeta;
 
-    struct ampComplex *Aamp = (struct ampComplex *) calloc(M * K, sizeof(struct ampComplex ));
-    struct ampComplex *Bamp = (struct ampComplex *) calloc(K * N, sizeof(struct ampComplex ));
-    struct ampComplex *Camp = (struct ampComplex *) calloc(M * N, sizeof(struct ampComplex ));
+    struct hcComplex *Ahc = (struct hcComplex *) calloc(M * K, sizeof(struct hcComplex ));
+    struct hcComplex *Bhc = (struct hcComplex *) calloc(K * N, sizeof(struct hcComplex ));
+    struct hcComplex *Chc = (struct hcComplex *) calloc(M * N, sizeof(struct hcComplex ));
 
     Concurrency::graphics::float_2 cAlpha, cBeta;
     cAlpha.x = alpha[0] = calpha.real = 1;
@@ -123,34 +123,34 @@ int main(int argc, char* argv[])
 
       HostA[i].x = rand() % 10;
       HostA[i].y = rand() % 20;
-      a[k++] = Aamp[i].real = HostA[i].x;
-      a[k++] = Aamp[i].img = HostA[i].y;
+      a[k++] = Ahc[i].real = HostA[i].x;
+      a[k++] = Ahc[i].img = HostA[i].y;
     }
 
     k = 0;
     for (int i = 0;i < K * N; i++) {
       HostB[i].x = rand() % 15;
       HostB[i].y = rand() % 25;
-      b[k++] = Bamp[i].real = HostB[i].x;
-      b[k++] = Bamp[i].img = HostB[i].y;
+      b[k++] = Bhc[i].real = HostB[i].x;
+      b[k++] = Bhc[i].img = HostB[i].y;
     }
 
     k = 0;
     for (int i = 0;i < M * N; i++) {
       HostC[i].x = rand() % 18;
       HostC[i].y = rand() % 28;
-      c[k++] = Camp[i].real = HostC[i].x ;
-      c[k++] = Camp[i].img = HostC[i].y;
+      c[k++] = Chc[i].real = HostC[i].x ;
+      c[k++] = Chc[i].img = HostC[i].y;
     }
 
     if(Imple_type == 1){
-    	status = amp.ampblas_cgemm(ampOrder, typeA, typeB, M, N, K, &calpha, Aamp, aOffset, lda, Bamp, bOffset, ldb, &cbeta, Camp, cOffset, ldc);
+    	status = hc.hcblas_cgemm(hcOrder, typeA, typeB, M, N, K, &calpha, Ahc, aOffset, lda, Bhc, bOffset, ldb, &cbeta, Chc, cOffset, ldc);
         cblas_cgemm( order, transa, transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && (k < M * N * 2)) ; i++, k = k + 2){
-            if ((Camp[i].real != c[k]) || (Camp[i].img != c[k+1])){
+            if ((Chc[i].real != c[k]) || (Chc[i].img != c[k+1])){
                 isPassed = 0;
-                cout <<" AMPCGEMM_REAL[" << i<< "] " << C[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
-                cout <<" AMPCGEMM_IMG[" << i<< "] " << C[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
+                cout <<" HCCGEMM_REAL[" << i<< "] " << C[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
+                cout <<" HCCGEMM_IMG[" << i<< "] " << C[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
             }
             else
                continue;
@@ -161,23 +161,23 @@ int main(int argc, char* argv[])
         free(a);
         free(b);
         free(c);
-        free(Aamp);
-        free(Bamp);
-        free(Camp);
+        free(Ahc);
+        free(Bhc);
+        free(Chc);
     }
 
     else if(Imple_type ==2){
         Concurrency::copy(begin(HostA), end(HostA), A);
         Concurrency::copy(begin(HostB), end(HostB), B);
         Concurrency::copy(begin(HostC), end(HostC), C);
-    	status = amp.ampblas_cgemm(accl_view, ampOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
+    	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
         Concurrency::copy(C, begin(HostC));
         cblas_cgemm( order, transa, transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((HostC[i].x != c[k]) || (HostC[i].y != c[k+1])){
                 isPassed = 0;
-                cout <<" AMPCGEMM_REAL[" << i<< "] " << HostC[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
-                cout <<" AMPCGEMM_IMG[" << i<< "] " << HostC[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
+                cout <<" HCCGEMM_REAL[" << i<< "] " << HostC[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
+                cout <<" HCCGEMM_IMG[" << i<< "] " << HostC[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
             }
             else
                continue;
@@ -215,15 +215,15 @@ int main(int argc, char* argv[])
         Concurrency::copy(begin(HostA), end(HostA), Abatch);
         Concurrency::copy(begin(HostB), end(HostB), Bbatch);
         Concurrency::copy(begin(HostC_batch), end(HostC_batch), Cbatch);
-    	status = amp.ampblas_cgemm(accl_view, ampOrder, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
+    	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
         Concurrency::copy(Cbatch, begin(HostC_batch));  
         for(int i = 0; i < batchSize;i++)
 	     cblas_cgemm( order, transa, transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
             if ((HostC_batch[i].x != cbatch[k]) || (HostC_batch[i].y != cbatch[k+1])){
                 isPassed = 0;
-                cout <<" AMPCGEMM_REAL[" << i<< "] " << HostC_batch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
-                cout <<" AMPCGEMM_IMG[" << i<< "] " << HostC_batch[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[k + 1] << endl;
+                cout <<" HCCGEMM_REAL[" << i<< "] " << HostC_batch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
+                cout <<" HCCGEMM_IMG[" << i<< "] " << HostC_batch[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[k + 1] << endl;
             }
             else
                continue;

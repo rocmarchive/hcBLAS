@@ -7,7 +7,7 @@ using namespace concurrency::fast_math;
 * STEP with Non Bank Conflict Implmentation
 * TILESIZE = 8 STEPSIZE = 8
 */
-ampblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                                            Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                            Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                            Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -81,7 +81,7 @@ ampblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelera
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 /* 
@@ -90,7 +90,7 @@ ampblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelera
 * TILESIZE = 16 STEPSIZE = 16
 */
 
-ampblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
                                                              Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                              Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                              Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -164,7 +164,7 @@ ampblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accele
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
@@ -173,7 +173,7 @@ ampblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accele
 * SUBMICROTILE Implmentation
 * TILESIZE = 16 MICROTILESIZE = 2
 */
-ampblasStatus gemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                                           Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                           Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                           Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -251,7 +251,7 @@ ampblasStatus gemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerat
  });
 #undef TILESIZE
 #undef MICROTILESIZE 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
@@ -261,7 +261,7 @@ ampblasStatus gemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerat
 * TILESIZE = 8 STEPSIZE = 8
 */
 
-ampblasStatus gemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                                       Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                       Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                       Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -339,7 +339,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_v
 
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 /* 
@@ -348,7 +348,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_v
 * TILESIZE = 8 STEPSIZE = 8
 */
 
-ampblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                                           Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                           Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                           Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -438,7 +438,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerat
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 /* 
@@ -447,7 +447,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerat
 * TILESIZE = 16 STEPSIZE = 16
 */
 
-ampblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
                                                      Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                      Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                      Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -537,7 +537,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::acceler
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 /* 
@@ -546,7 +546,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::acceler
 * TILESIZE = 16 MICROTILESIZE = 8
 */
 
-ampblasStatus gemm_NoTransA_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                                      Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                      Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                      Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -633,7 +633,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accele
  });
 #undef TILESIZE
 #undef MICROTILESIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
@@ -643,7 +643,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accele
 * TILESIZE = 16 MICROTILESIZE = 2
 */
 
-ampblasStatus gemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                                    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -722,7 +722,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerato
  });
 #undef TILESIZE
 #undef MICROTILESIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 /* 
 * SGEMM - NoTransB case - Row major Access
@@ -730,7 +730,7 @@ ampblasStatus gemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerato
 * TILESIZE = 16 STEPSIZE = 16
 */
 
-ampblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
                                                       Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                       Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                       Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -813,7 +813,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::acceler
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 /* 
@@ -822,7 +822,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::acceler
 * TILESIZE = 16 MICROTILESIZE = 2
 */
 
-ampblasStatus gemm_NoTransB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                                        Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                        Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                        Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -908,7 +908,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accele
  });
 #undef TILESIZE
 #undef MICROTILESIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
@@ -918,7 +918,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accele
 * TILESIZE = 8 STEPSIZE = 8
 */
 
-ampblasStatus gemm_NoTransB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                                       Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                       Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                       Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -993,7 +993,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_v
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 /* 
@@ -1002,7 +1002,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_v
 * TILESIZE = 16 STEPSIZE = 16
 */
 
-ampblasStatus gemm_NoTransB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
                                                   Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                   Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                   Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1077,7 +1077,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerator
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 /* 
@@ -1086,7 +1086,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerator
 * TILESIZE = 16 STEPSIZE = 2
 */
 
-ampblasStatus gemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                                    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1164,7 +1164,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerato
  });
 #undef TILESIZE
 #undef MICROTILESIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 /* 
@@ -1173,7 +1173,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerato
 * TILESIZE = 8 STEPSIZE = 8
 */
 
-ampblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                                     Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                     Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                     Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1256,7 +1256,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerat
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 /* 
@@ -1265,7 +1265,7 @@ ampblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerat
 * TILESIZE = 16 MICROTILESIZE = 2
 */
 
-ampblasStatus gemm_TransAB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                                             Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset, 
                                                             Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset, 
                                                             Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1351,7 +1351,7 @@ ampblasStatus gemm_TransAB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::acceler
  });
 #undef TILESIZE
 #undef MICROTILESIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 /* 
 * SGEMM - TransAB case - Row major Access
@@ -1359,7 +1359,7 @@ ampblasStatus gemm_TransAB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::acceler
 * TILESIZE = 8 STEPSIZE = 8
 */
 
-ampblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                                    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1431,7 +1431,7 @@ ampblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerato
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 /* 
@@ -1440,7 +1440,7 @@ ampblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerato
 * TILESIZE = 16 STEPSIZE = 16
 */
 
-ampblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
                                                      Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                      Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                      Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1512,7 +1512,7 @@ ampblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelera
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
@@ -1522,7 +1522,7 @@ ampblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelera
 * TILESIZE = 16 MICROITLESIZE = 2
 */
 
-ampblasStatus gemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
                                                   Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                   Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                   Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1600,7 +1600,7 @@ ampblasStatus gemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator
  });
 #undef TILESIZE
 #undef MICROTILESIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
@@ -1610,7 +1610,7 @@ ampblasStatus gemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator
 * TILESIZE = 8 STEPSIZE = 8
 */
 
-ampblasStatus gemm_TransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
                                                Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1683,11 +1683,11 @@ ampblasStatus gemm_TransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_vi
   });
 #undef TILESIZE
 #undef STEPSIZE
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
-ampblasStatus gemm_TransAB_rMajor_batch_largeM(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_rMajor_batch_largeM(Concurrency::accelerator_view &accl_view,
                                                Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1765,10 +1765,10 @@ ampblasStatus gemm_TransAB_rMajor_batch_largeM(Concurrency::accelerator_view &ac
 #undef TILESIZE_B
 #undef MICROTILESIZE_A
 #undef MICROTILESIZE_B
-	return AMPBLAS_SUCCESS;
+	return HCBLAS_SUCCESS;
 }
 
-ampblasStatus gemm_NoTransB_rMajor_batch_largeM(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor_batch_largeM(Concurrency::accelerator_view &accl_view,
 	                                        Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                 Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                 Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1850,10 +1850,10 @@ ampblasStatus gemm_NoTransB_rMajor_batch_largeM(Concurrency::accelerator_view &a
 #undef TILESIZE_B
 #undef MICROTILESIZE_A
 #undef MICROTILESIZE_B
-	return AMPBLAS_SUCCESS;
+	return HCBLAS_SUCCESS;
 }
 
-ampblasStatus gemm_NoTransA_rMajor_batch_largeM(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_rMajor_batch_largeM(Concurrency::accelerator_view &accl_view,
                                                 Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                                 Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                                 Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1932,12 +1932,12 @@ ampblasStatus gemm_NoTransA_rMajor_batch_largeM(Concurrency::accelerator_view &a
 #undef TILESIZE_B
 #undef MICROTILESIZE_A
 #undef MICROTILESIZE_B
-	return AMPBLAS_SUCCESS;
+	return HCBLAS_SUCCESS;
 } 
 
 
 /*  TOP LEVEL FUNCITONS */
-ampblasStatus gemm_NoTransAB_rMajor(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_rMajor(Concurrency::accelerator_view &accl_view,
                                     Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                     Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                     Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1958,7 +1958,7 @@ ampblasStatus gemm_NoTransAB_rMajor(Concurrency::accelerator_view &accl_view,
   }
 }
 
-ampblasStatus gemm_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
                                    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -1992,7 +1992,7 @@ ampblasStatus gemm_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
 } 
 
 
-ampblasStatus gemm_NoTransB_rMajor(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor(Concurrency::accelerator_view &accl_view,
                                    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
@@ -2028,7 +2028,7 @@ ampblasStatus gemm_NoTransB_rMajor(Concurrency::accelerator_view &accl_view,
   }
 }
 
-ampblasStatus gemm_TransAB_rMajor(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_rMajor(Concurrency::accelerator_view &accl_view,
                                   Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
                                   Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
                                   Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,

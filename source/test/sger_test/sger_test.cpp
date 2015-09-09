@@ -1,13 +1,13 @@
 #include <iostream>
-#include "../../ampblaslib.h"
+#include "../../hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
 
 using namespace std;
 int main(int argc, char** argv)
 {
-    /* AMPBLAS implementation */
-    Ampblaslibrary amp;
+    /* HCBLAS implementation */
+    Hcblaslibrary hc;
     if (argc < 4){
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;
@@ -29,12 +29,12 @@ int main(int argc, char** argv)
     long A_batchOffset = M * N;
     int batchSize = 128;
     long lenx,  leny; 
-    ampblasStatus status;
-    AMPBLAS_ORDER ampOrder = colMajor; 
+    hcblasStatus status;
+    HCBLAS_ORDER hcOrder = colMajor; 
     /* CBLAS implementation */
     enum CBLAS_ORDER order;
     order = CblasColMajor;
-    if(ampOrder)
+    if(hcOrder)
        lda = M;
     else
        lda = N;
@@ -80,12 +80,12 @@ int main(int argc, char** argv)
             ASger[i] = Acblas[i];
         }
         if(Imple_type == 1){
-            status = amp.ampblas_sger(ampOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
+            status = hc.hcblas_sger(hcOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
             for(int i =0; i < M * N ; i++){
                 if (ASger[i] != Acblas[i]){
                     ispassed = 0;
-                    cout <<" AMPSGER[" << i<< "] " << ASger[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
+                    cout <<" HCSGER[" << i<< "] " << ASger[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
                     break;
                 }
                 else
@@ -103,13 +103,13 @@ int main(int argc, char** argv)
             Concurrency::copy(begin(HostX), end(HostX), xView);
             Concurrency::copy(begin(HostY), end(HostY), yView);
             Concurrency::copy(begin(HostA), end(HostA), aMat);
-            status = amp.ampblas_sger(accl_view, ampOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
+            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
             Concurrency::copy(aMat, begin(HostA));
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
             for(int i =0; i < M * N ; i++){
                 if (HostA[i] != Acblas[i]){
                     ispassed = 0;
-                    cout <<" AMPSGER[" << i<< "] " << HostA[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
+                    cout <<" HCSGER[" << i<< "] " << HostA[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
                     break;
                 }
                 else
@@ -136,14 +136,14 @@ int main(int argc, char** argv)
             Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
             Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
             Concurrency::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
-            status = amp.ampblas_sger(accl_view, ampOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
+            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
             Concurrency::copy(abatchMat, begin(HostA_batch));
             for(int i = 0; i < batchSize; i++)
                cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda); 
             for(int i =0; i < M * N * batchSize; i++){
                if (HostA_batch[i] != Acblasbatch[i]){
                    ispassed = 0;
-                   cout <<" AMPSGER[" << i<< "] " << HostA_batch[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblasbatch[i] << endl;
+                   cout <<" HCSGER[" << i<< "] " << HostA_batch[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblasbatch[i] << endl;
                    break;
                }
             else 

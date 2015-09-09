@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../ampblaslib.h"
+#include "../../hcblaslib.h"
 #include <cstdlib>
 #include "cblas.h"
 
@@ -7,8 +7,8 @@ using namespace std;
 
 int main(int argc,char* argv[])
 {  
-    /* AMPBLAS Implementation */
-    Ampblaslibrary amp; 
+    /* HCBLAS Implementation */
+    Hcblaslibrary hc; 
     if (argc < 7){
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;
@@ -34,9 +34,9 @@ int main(int argc,char* argv[])
     long B_batchOffset = 0;
     long C_batchOffset = M * N;
     int batchSize = 128;
-    AMPBLAS_ORDER ampOrder = colMajor;
-    AMPBLAS_TRANS typeA,typeB ;
-    ampblasStatus status;
+    HCBLAS_ORDER hcOrder = colMajor;
+    HCBLAS_TRANS typeA,typeB ;
+    hcblasStatus status;
     
     /* CBLAS implementation */
     enum CBLAS_ORDER order;
@@ -46,22 +46,22 @@ int main(int argc,char* argv[])
         if( isTransA == 0){
             typeA = noTrans;
             transa = CblasNoTrans;
-            (ampOrder)?(lda = M):(lda = K);
+            (hcOrder)?(lda = M):(lda = K);
         }
         else{
             typeA = trans;
             transa = CblasTrans;
-            (ampOrder)?(lda = K):(lda = M);
+            (hcOrder)?(lda = K):(lda = M);
         }
         if( isTransB == 0){
             typeB = noTrans;
             transb = CblasNoTrans;
-            (ampOrder)?(ldb = K):(ldb = N);
+            (hcOrder)?(ldb = K):(ldb = N);
         }
         else{
             typeB = trans;
             transb = CblasTrans;
-            (ampOrder)?(ldb = N):(ldb = K);
+            (hcOrder)?(ldb = N):(ldb = K);
         }
     }
     else {
@@ -69,7 +69,7 @@ int main(int argc,char* argv[])
         return -1;
     }
 
-    if(ampOrder)
+    if(hcOrder)
        ldc = M;
     else
        ldc = N;
@@ -119,12 +119,12 @@ int main(int argc,char* argv[])
             Csgemm[i] = HostC[i];
         }
        if(Imple_type ==1){    /* SINGLE GPU CALL   */
-            status = amp.ampblas_sgemm(ampOrder, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
+            status = hc.hcblas_sgemm(hcOrder, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
             cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc );
             for(int i = 0 ; i < M * N ; i++){ 
                 if( C_cblas[i] != (Csgemm[i])){
                     ispassed = 0;
-                    cout << " AMPSGEMM["<<i<<"] = "<<Csgemm[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i] << endl;
+                    cout << " HCSGEMM["<<i<<"] = "<<Csgemm[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i] << endl;
                     break;
                 }
                 else
@@ -140,13 +140,13 @@ int main(int argc,char* argv[])
             Concurrency::copy(begin(HostA), end(HostA), A_mat);
             Concurrency::copy(begin(HostB), end(HostB), B_mat);
             Concurrency::copy(begin(HostC), end(HostC), C_mat);
-            status = amp.ampblas_sgemm(accl_view, ampOrder, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat,ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
+            status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat,ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
             Concurrency::copy(C_mat, begin(HostC));
             cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc );
             for(int i = 0 ; i < M * N ; i++){ 
                 if( C_cblas[i] != (HostC[i])){
                     ispassed = 0;
-                    cout << " AMPSGEMM["<<i<<"] = "<<HostC[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i] << endl;
+                    cout << " HCSGEMM["<<i<<"] = "<<HostC[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i] << endl;
                     break;
                 }
                 else
@@ -176,7 +176,7 @@ int main(int argc,char* argv[])
             Concurrency::copy(begin(HostA), end(HostA), A_batch);
             Concurrency::copy(begin(HostB), end(HostB), B_batch);
             Concurrency::copy(begin(HostC_batch), end(HostC_batch), C_batch);
-            status = amp.ampblas_sgemm(accl_view, ampOrder, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch,ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+            status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch,ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
             Concurrency::copy(C_batch, begin(HostC_batch));          
             for(int i = 0; i < batchSize; i++)
                 cblas_sgemm( order, transa, transb, M, N, K, alpha, Asgemm_batch, lda, Bsgemm_batch, ldb, beta, CCblasbatch  + i * M * N ,ldc );
@@ -184,7 +184,7 @@ int main(int argc,char* argv[])
             for(int i = 0 ; i < M * N * batchSize; i++){ 
                 if( HostC_batch[i] != (CCblasbatch[i])){
                     ispassed = 0;
-                    cout << " AMPSGEMM["<<i<<"] = "<<HostC_batch[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << CCblasbatch[i] << endl;
+                    cout << " HCSGEMM["<<i<<"] = "<<HostC_batch[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << CCblasbatch[i] << endl;
                     break;
                 }
                 else

@@ -1,10 +1,10 @@
-#include "ampblaslib.h"
+#include "hcblaslib.h"
 #include <amp.h>
 
 using namespace concurrency;
 #define BLOCK_SIZE 8 
 
-void sscal_AMP(Concurrency::accelerator_view &accl_view,
+void sscal_HC(Concurrency::accelerator_view &accl_view,
                long n, float alpha,
                Concurrency::array<float> &X, long incx, long xOffset)
 {
@@ -17,7 +17,7 @@ void sscal_AMP(Concurrency::accelerator_view &accl_view,
     });
 }
 
-void sscal_AMP(Concurrency::accelerator_view &accl_view,
+void sscal_HC(Concurrency::accelerator_view &accl_view,
                long n, float alpha,
                Concurrency::array<float> &X, long incx, long xOffset,
                long X_batchOffset, int batchSize)
@@ -33,12 +33,12 @@ void sscal_AMP(Concurrency::accelerator_view &accl_view,
 }
 
 // SSCAL call Type I - SSCAL Inputs and Outputs are host float pointers 
-ampblasStatus Ampblaslibrary :: ampblas_sscal(const int N, const float *alpha,
+hcblasStatus Hcblaslibrary :: hcblas_sscal(const int N, const float *alpha,
                                               float *X, const int incX, const long xOffset)
 {
 
     if (alpha == NULL || X == NULL || N <= 0 ) {
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
 
     int lenX = 1 + (N - 1) * abs(incX);
@@ -49,49 +49,49 @@ ampblasStatus Ampblaslibrary :: ampblas_sscal(const int N, const float *alpha,
     Concurrency::copy(begin(HostX), end(HostX), xView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    sscal_AMP(accl_view, N, *alpha, xView, incX, xOffset);
+    sscal_HC(accl_view, N, *alpha, xView, incX, xOffset);
     Concurrency::copy(xView, begin(HostX));   
     for(int i = 0 ; i < lenX; i++)
 	X[i] = HostX[i];
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
-// SSCAL Call Type II: Inputs and outputs are C++ AMP float array containers
-ampblasStatus Ampblaslibrary :: ampblas_sscal(Concurrency::accelerator_view &accl_view,
+// SSCAL Call Type II: Inputs and outputs are C++ HC float array containers
+hcblasStatus Hcblaslibrary :: hcblas_sscal(Concurrency::accelerator_view &accl_view,
                                               const int N, const float &alpha,
                                               Concurrency::array<float> &X, const int incX,
                                               const long xOffset)
 {
     /*Check the conditions*/
     if (  N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
     if ( alpha == 0){
-        return AMPBLAS_SUCCESS;
+        return HCBLAS_SUCCESS;
     }
-    sscal_AMP(accl_view, N, alpha, X, incX, xOffset);
+    sscal_HC(accl_view, N, alpha, X, incX, xOffset);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
 // SSCAL TYpe III - Overloaded function with arguments related to batch processing 
-ampblasStatus Ampblaslibrary :: ampblas_sscal(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sscal(Concurrency::accelerator_view &accl_view,
                                                 const int N,const float &alpha,
                                                 Concurrency::array<float> &X, const int incX,
                                                 const long xOffset, const long X_batchOffset, const int batchSize)
 {
     /*Check the conditions*/
     if (  N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
     if ( alpha == 0){
-        return AMPBLAS_SUCCESS;
+        return HCBLAS_SUCCESS;
     }
-    sscal_AMP(accl_view, N, alpha, X, incX, xOffset, X_batchOffset, batchSize);
+    sscal_HC(accl_view, N, alpha, X, incX, xOffset, X_batchOffset, batchSize);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 

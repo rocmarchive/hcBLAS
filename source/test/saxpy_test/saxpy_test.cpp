@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../ampblaslib.h"
+#include "../../hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
 
@@ -7,8 +7,8 @@ using namespace std;
 int main(int argc, char** argv)
 {   
 
-    /* AMPBLAS implementation */
-    Ampblaslibrary amp;
+    /* HCBLAS implementation */
+    Hcblaslibrary hc;
     if (argc < 3){
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     long X_batchOffset = N;
     long Y_batchOffset = N;
     int batchSize = 128;
-    ampblasStatus status;
+    hcblasStatus status;
 
     /* CBLAS implementation */
     long lenx = 1 + (N-1) * abs(incX);
@@ -61,12 +61,12 @@ int main(int argc, char** argv)
     }
         
     if (Imple_type == 1){
-	status = amp.ampblas_saxpy(N, &alpha, X, incX, Y, incY , xOffset, yOffset);
+	status = hc.hcblas_saxpy(N, &alpha, X, incX, Y, incY , xOffset, yOffset);
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
         for(int i = 0; i < N ; i++){
             if (Y[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" AMPSAXPY[" << i<< "] " << Y[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" HCSAXPY[" << i<< "] " << Y[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
@@ -82,13 +82,13 @@ int main(int argc, char** argv)
     else if(Imple_type ==2){
         Concurrency::copy(begin(HostX), end(HostX), xView);
         Concurrency::copy(begin(HostY), end(HostY), yView);
-        status = amp.ampblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
+        status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
         Concurrency::copy(yView, begin(HostY));
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
         for(int i = 0; i < N ; i++){
             if (HostY[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" AMPSAXPY[" << i<< "] " << HostY[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" HCSAXPY[" << i<< "] " << HostY[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
@@ -109,7 +109,7 @@ int main(int argc, char** argv)
          }
         Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
-        status= amp.ampblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
+        status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
         Concurrency::copy(ybatchView, begin(HostY_batch));
 
         for(int i = 0; i < batchSize; i++)
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
         for(int i =0; i < N * batchSize; i ++){
             if (HostY_batch[i] != Ycblasbatch[i]){
                 ispassed = 0;
-                cout <<" AMPSAXPY[" << i<< "] " << HostY_batch[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblasbatch[i] << endl;
+                cout <<" HCSAXPY[" << i<< "] " << HostY_batch[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblasbatch[i] << endl;
                 break;
             }
             else 

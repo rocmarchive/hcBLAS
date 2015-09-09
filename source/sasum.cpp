@@ -1,10 +1,10 @@
-#include "ampblaslib.h"
+#include "hcblaslib.h"
 #include <amp.h>
 #include <amp_math.h>
 #define TILE_SIZE 256
 using namespace concurrency;
 
-float sasum_AMP(Concurrency::accelerator_view &accl_view,
+float sasum_HC(Concurrency::accelerator_view &accl_view,
                long n, Concurrency::array<float, 1> &xView, long incx, long xOffset, float Y)
 {
   Y = 0.0;
@@ -65,7 +65,7 @@ float sasum_AMP(Concurrency::accelerator_view &accl_view,
   return Y;
 }
 
-float sasum_AMP(Concurrency::accelerator_view &accl_view,
+float sasum_HC(Concurrency::accelerator_view &accl_view,
                long n, Concurrency::array<float, 1> &xView, long incx, long xOffset, float Y, 
                long X_batchOffset, int batchSize)
 {
@@ -129,11 +129,11 @@ float sasum_AMP(Concurrency::accelerator_view &accl_view,
 }
 
 // SASUM call Type I - Inputs and Outputs are host float pointers 
-ampblasStatus Ampblaslibrary :: ampblas_sasum(const int N, float *X, const int incX, const long xOffset, float *Y)
+hcblasStatus Hcblaslibrary :: hcblas_sasum(const int N, float *X, const int incX, const long xOffset, float *Y)
 {
 
     if ( X == NULL || N <= 0 ) {
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
 
     int lenX = 1 + (N - 1) * abs(incX);
@@ -144,38 +144,38 @@ ampblasStatus Ampblaslibrary :: ampblas_sasum(const int N, float *X, const int i
     Concurrency::copy(begin(HostX), end(HostX), xView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    *Y = sasum_AMP(accl_view, N, xView, incX, xOffset, *Y);
-    return AMPBLAS_SUCCESS;
+    *Y = sasum_HC(accl_view, N, xView, incX, xOffset, *Y);
+    return HCBLAS_SUCCESS;
 
 }
 
-// SASUM Call Type II: Inputs and outputs are C++ AMP float array containers
-ampblasStatus Ampblaslibrary :: ampblas_sasum(Concurrency::accelerator_view &accl_view, const int N, 
+// SASUM Call Type II: Inputs and outputs are C++ HC float array containers
+hcblasStatus Hcblaslibrary :: hcblas_sasum(Concurrency::accelerator_view &accl_view, const int N, 
                                               Concurrency::array<float> &X, const int incX, 
                                               const long xOffset, float &Y)
 {
     /*Check the conditions*/
     if (  N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
-    Y = sasum_AMP(accl_view, N, X, incX, xOffset, Y);
+    Y = sasum_HC(accl_view, N, X, incX, xOffset, Y);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
 // SASUM TYpe III - Overloaded function with arguments related to batch processing 
-ampblasStatus Ampblaslibrary :: ampblas_sasum(Concurrency::accelerator_view &accl_view, const int N,
+hcblasStatus Hcblaslibrary :: hcblas_sasum(Concurrency::accelerator_view &accl_view, const int N,
                                               Concurrency::array<float> &X, const int incX,
                                               const long xOffset, float &Y, const long X_batchOffset, const int batchSize)
 {
     /*Check the conditions*/
     if (  N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
-    Y = sasum_AMP(accl_view, N, X, incX, xOffset, Y, X_batchOffset, batchSize);
+    Y = sasum_HC(accl_view, N, X, incX, xOffset, Y, X_batchOffset, batchSize);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 

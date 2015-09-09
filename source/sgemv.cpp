@@ -1,4 +1,4 @@
-#include "ampblaslib.h"
+#include "hcblaslib.h"
 #include <amp.h>
 #define BLOCK_SIZE 256
 
@@ -705,7 +705,7 @@ static void gemv_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
   });
 }
 
-void gemv_AMP(Concurrency::accelerator_view &accl_view, 
+void gemv_HC(Concurrency::accelerator_view &accl_view, 
               char TransA, int M, int N, float alpha,
               Concurrency::array<float> &A, long aOffset,
               Concurrency::array<float> &X, long xOffset, long incX, float beta,
@@ -736,7 +736,7 @@ void gemv_AMP(Concurrency::accelerator_view &accl_view,
     gemv_NoTransA(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
 }
 
-void gemv_AMP(Concurrency::accelerator_view &accl_view,
+void gemv_HC(Concurrency::accelerator_view &accl_view,
               char TransA, int M, int N, float alpha,
               Concurrency::array<float> &A, long aOffset, long A_batchOffset,
               Concurrency::array<float> &X, long xOffset, long X_batchOffset, 
@@ -769,7 +769,7 @@ void gemv_AMP(Concurrency::accelerator_view &accl_view,
     gemv_NoTransA(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
 }
 
-void gemv_AMP_rMajor(Concurrency::accelerator_view &accl_view, 
+void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view, 
                      char TransA, int M, int N, float alpha,
                      Concurrency::array<float> &A, long aOffset,
                      Concurrency::array<float> &X, long xOffset, long incX, float beta,
@@ -800,7 +800,7 @@ void gemv_AMP_rMajor(Concurrency::accelerator_view &accl_view,
     gemv_NoTransA_rMajor(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
 }
 
-void gemv_AMP_rMajor(Concurrency::accelerator_view &accl_view,
+void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
                      char TransA, int M, int N, float alpha,
                      Concurrency::array<float> &A, long aOffset, long A_batchOffset,
                      Concurrency::array<float> &X, long xOffset, long X_batchOffset, 
@@ -835,7 +835,7 @@ void gemv_AMP_rMajor(Concurrency::accelerator_view &accl_view,
 
 
 
-ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS type,
+hcblasStatus Hcblaslibrary :: hcblas_sgemv(const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS type,
                                               const int M, const int N,
                                               const float *alpha, float *A, const long aOffset,
                                               const int lda, float *X, const long xOffset,
@@ -844,7 +844,7 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_ORDER order, co
 {
 
     if(alpha == NULL || X == NULL || Y == NULL || A == NULL || M <= 0 || N <= 0 || beta == NULL )
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
 
     long lenXn = 1 + (N - 1) * abs(incX);
     long lenXt = 1 + (M - 1) * abs(incX);
@@ -873,9 +873,9 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_ORDER order, co
     Concurrency::copy(begin(HostY), end(HostY), yView);
  
    	if(order)
-    		gemv_AMP(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
+    		gemv_HC(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
     	else
-        	gemv_AMP_rMajor(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
+        	gemv_HC_rMajor(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
     Concurrency::copy(yView, begin(HostY));
     for( int i = 0; i < lenYn; i++)
         Y[i] = HostY[i];
@@ -896,21 +896,21 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(const enum AMPBLAS_ORDER order, co
     Concurrency::copy(begin(HostY), end(HostY), yView);
 
     	if(order)
-    		gemv_AMP(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
+    		gemv_HC(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
         else
-                gemv_AMP_rMajor(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
+                gemv_HC_rMajor(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
     Concurrency::copy(yView, begin(HostY));
     for( int i = 0; i < lenYt; i++)
         Y[i] = HostY[i];
     }
     //tempBuf.~array();
    
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 
-ampblasStatus Ampblaslibrary :: ampblas_sgemv(Concurrency::accelerator_view &accl_view,
-                                              const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS type, const int M,
+hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_view,
+                                              const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS type, const int M,
                                               const int N, const float &alpha,
                                               Concurrency::array<float> &A, const long aOffset, const int lda,
                                               Concurrency::array<float> &X, const long xOffset, const int incX,
@@ -919,27 +919,27 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(Concurrency::accelerator_view &acc
 { 
   /*Check the conditions*/
   if(M <= 0 || N <= 0)
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
 
   if( alpha == 0 && beta == 1)
-        return AMPBLAS_SUCCESS;
+        return HCBLAS_SUCCESS;
 
 
 //     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
   //   accelerator_view accl_view = (acc[1].create_view());
 
     if(order){
-    	gemv_AMP(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY);
+    	gemv_HC(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY);
      }
     else{
-        gemv_AMP_rMajor(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY);
+        gemv_HC_rMajor(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY);
     }
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
-ampblasStatus Ampblaslibrary :: ampblas_sgemv(Concurrency::accelerator_view &accl_view,
-                                              const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS type, const int M,
+hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_view,
+                                              const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS type, const int M,
                                               const int N, const float &alpha, Concurrency::array<float> &A,
                                               const long aOffset, const long A_batchOffset, const int lda,
                                               Concurrency::array<float> &X, 
@@ -949,17 +949,17 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemv(Concurrency::accelerator_view &acc
 {
   /*Check the conditions*/
   if(M <= 0 || N <= 0)
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
 
   if( alpha == 0 && beta == 1)
-        return AMPBLAS_SUCCESS;
+        return HCBLAS_SUCCESS;
 
 
     	if(order)
-    		gemv_AMP(accl_view, type, M, N, alpha, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, incX, beta, Y, yOffset, Y_batchOffset, incY, batchSize);
+    		gemv_HC(accl_view, type, M, N, alpha, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, incX, beta, Y, yOffset, Y_batchOffset, incY, batchSize);
     	else
-        	gemv_AMP_rMajor(accl_view, type, M, N, alpha, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, incX, beta, Y, yOffset, Y_batchOffset, incY, batchSize);
-    return AMPBLAS_SUCCESS;
+        	gemv_HC_rMajor(accl_view, type, M, N, alpha, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, incX, beta, Y, yOffset, Y_batchOffset, incY, batchSize);
+    return HCBLAS_SUCCESS;
 }
 
 

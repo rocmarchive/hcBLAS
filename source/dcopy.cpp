@@ -1,10 +1,10 @@
-#include "ampblaslib.h"
+#include "hcblaslib.h"
 #include <amp.h>
 
 using namespace concurrency;
 #define BLOCK_SIZE 8 
 
-void dcopy_AMP(Concurrency::accelerator_view &accl_view, long n, 
+void dcopy_HC(Concurrency::accelerator_view &accl_view, long n, 
                Concurrency::array<double> &X, long incx, long xOffset,
                Concurrency::array<double> &Y, long incy, long yOffset)
 {
@@ -17,7 +17,7 @@ void dcopy_AMP(Concurrency::accelerator_view &accl_view, long n,
     });
 }
 
-void dcopy_AMP(Concurrency::accelerator_view &accl_view, long n,
+void dcopy_HC(Concurrency::accelerator_view &accl_view, long n,
                Concurrency::array<double> &X, long incx, long xOffset,
                Concurrency::array<double> &Y, long incy, long yOffset, 
                long X_batchOffset, long Y_batchOffset, int batchSize)
@@ -33,11 +33,11 @@ void dcopy_AMP(Concurrency::accelerator_view &accl_view, long n,
 }
 
 // DCOPY call Type I - SSCAL Inputs and Outputs are host float pointers
-ampblasStatus Ampblaslibrary :: ampblas_dcopy(const int N, double *X, const int incX, const long xOffset, double *Y, const int incY, const long yOffset)
+hcblasStatus Hcblaslibrary :: hcblas_dcopy(const int N, double *X, const int incX, const long xOffset, double *Y, const int incY, const long yOffset)
 {
 
     if (Y == NULL || X == NULL || N <= 0 ) {
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
 
     int lenX = 1 + (N - 1) * abs(incX);
@@ -54,42 +54,42 @@ ampblasStatus Ampblaslibrary :: ampblas_dcopy(const int N, double *X, const int 
     Concurrency::copy(begin(HostY), end(HostY), yView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    dcopy_AMP(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
+    dcopy_HC(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
     Concurrency::copy(yView, begin(HostY));   
     for(int i = 0 ; i < lenY; i++)
 	Y[i] = HostY[i];
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
-// DCOPY Call Type II: Inputs and outputs are C++ AMP float array containers
-ampblasStatus Ampblaslibrary :: ampblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
+// DCOPY Call Type II: Inputs and outputs are C++ HC float array containers
+hcblasStatus Hcblaslibrary :: hcblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
                                               Concurrency::array<double> &X, const int incX, const long xOffset,
                                               Concurrency::array<double> &Y, const int incY, const long yOffset)
 {
     /*Check the conditions*/
     if (  N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
-    dcopy_AMP(accl_view, N, X, incX, xOffset, Y, incY, yOffset);
+    dcopy_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
 // DCOPY TYpe III - Overloaded function with arguments related to batch processing 
-ampblasStatus Ampblaslibrary :: ampblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
+hcblasStatus Hcblaslibrary :: hcblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
                                               Concurrency::array<double> &X, const int incX, const long xOffset,
                                               Concurrency::array<double> &Y, const int incY, const long yOffset,
                                               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 {
     /*Check the conditions*/
     if (  N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
-    dcopy_AMP(accl_view, N, X, incX, xOffset, Y, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
+    dcopy_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 

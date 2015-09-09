@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../ampblaslib.h"
+#include "../../hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
 
@@ -7,8 +7,8 @@ using namespace std;
 int main(int argc, char** argv)
 {   
 
-    /* AMPBLAS implementation */
-    Ampblaslibrary amp;
+    /* HCBLAS implementation */
+    Hcblaslibrary hc;
     if (argc < 3){
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     const double alpha = 2;
     int incX = 1;
     long xOffset = 0;
-    ampblasStatus status;
+    hcblasStatus status;
     int batchSize = 128;
     long X_batchOffset = N; 
   
@@ -45,12 +45,12 @@ int main(int argc, char** argv)
     }
         
     if (Imple_type == 1){
-	status = amp.ampblas_dscal(N, &alpha, X, incX, xOffset);
+	status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
         cblas_dscal( N, alpha, Xcblas, incX);
         for(int i = 0; i < N ; i++){
             if (X[i] != Xcblas[i]){
                 ispassed = 0;
-                cout <<" AMPDSCAL[" << i<< "] " << X[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
+                cout <<" HCDSCAL[" << i<< "] " << X[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
                 break;
             }
             else
@@ -63,13 +63,13 @@ int main(int argc, char** argv)
     
     else if (Imple_type ==2){
         Concurrency::copy(begin(HostX), end(HostX), xView);
-        status = amp.ampblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
+        status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
         Concurrency::copy(xView, begin(HostX));  
         cblas_dscal( N, alpha, Xcblas, incX );
         for(int i = 0; i < N ; i++){
             if (HostX[i] != Xcblas[i]){
                 ispassed = 0;
-                cout <<" AMPDSCAL[" << i<< "] " << HostX[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
+                cout <<" HCDSCAL[" << i<< "] " << HostX[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
                 break;
             }
             else
@@ -84,14 +84,14 @@ int main(int argc, char** argv)
             Xcblasbatch[i] = HostX_batch[i];
          }
         Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-        status= amp.ampblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
+        status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
         Concurrency::copy(xbatchView, begin(HostX_batch));  
         for(int i = 0; i < batchSize; i++)
         	cblas_dscal( N, alpha, Xcblasbatch + i * N, incX);
         for(int i =0; i < N * batchSize; i ++){
             if (HostX_batch[i] != Xcblasbatch[i]){
                 ispassed = 0;
-                cout <<" AMPDSCAL[" << i<< "] " << HostX_batch[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
+                cout <<" HCDSCAL[" << i<< "] " << HostX_batch[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
                 break;
             }
             else 

@@ -1,7 +1,7 @@
 #include "sgemm_kernels.h"
 
 // Sgemm Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
-ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_HC(Concurrency::accelerator_view &accl_view,
                        const int order, char TransA, char TransB, 
                        const int M, const int N, const int K,
                        const float alpha, Concurrency::array<float> &A_mat, 
@@ -13,7 +13,7 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
                        long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset=0, int batchSize =0)
 {
   int i, j;
-  ampblasStatus status = AMPBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCESS;
   // Quick return if possible
   if (!M || !N || ((alpha == 0 || !K) && beta == 1))
     return status;
@@ -105,9 +105,9 @@ ampblasStatus gemm_AMP(Concurrency::accelerator_view &accl_view,
 
 
 // Sgemm Call Type 1: Inputs and Outputs are host float pointers
-ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_ORDER order,
- 					      const enum AMPBLAS_TRANS typeA,
-                                              const enum AMPBLAS_TRANS typeB,
+hcblasStatus Hcblaslibrary :: hcblas_sgemm(const enum HCBLAS_ORDER order,
+ 					      const enum HCBLAS_TRANS typeA,
+                                              const enum HCBLAS_TRANS typeB,
                                               const int M, const int N,
                                               const int K, const float *alpha,
                                               float *A, const long lda,
@@ -137,7 +137,7 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_ORDER order,
     Concurrency::copy(begin(HostA), end(HostA), A_mat);
     Concurrency::copy(begin(HostB), end(HostB), B_mat);
     Concurrency::copy(begin(HostC), end(HostC), C_mat); 
-    ampblasStatus status = gemm_AMP(accl_view, order, typeA, typeB, M, N, K, *alpha,
+    hcblasStatus status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, *alpha,
                                     A_mat, aOffset, lda, B_mat, bOffset, ldb,
                                     *beta, C_mat, cOffset, ldc);
     Concurrency::copy(C_mat, begin(HostC));
@@ -149,11 +149,11 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(const enum AMPBLAS_ORDER order,
 }
 
 
-// Sgemm Call Type II: Inputs and outputs are C++ AMP float array_View containers
-ampblasStatus  Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &accl_view,
- 					       const enum AMPBLAS_ORDER order,
-                                 	       const enum AMPBLAS_TRANS typeA,
-                                               const enum AMPBLAS_TRANS typeB, const int M,
+// Sgemm Call Type II: Inputs and outputs are C++ HC float array_View containers
+hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
+ 					       const enum HCBLAS_ORDER order,
+                                 	       const enum HCBLAS_TRANS typeA,
+                                               const enum HCBLAS_TRANS typeB, const int M,
                                                const int N, const int K, const float &alpha,
                                                Concurrency::array<float> &A, const long lda,
                                                Concurrency::array<float> &B, const long ldb,
@@ -162,7 +162,7 @@ ampblasStatus  Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &ac
                                                const long aOffset, const long bOffset, const long cOffset)
 
 {
-    ampblasStatus status = gemm_AMP(accl_view, order, typeA, typeB, M, N, K, alpha, A,
+    hcblasStatus status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A,
                                     aOffset, lda, B, bOffset, ldb, beta, C,
                                     cOffset, ldc);
 
@@ -170,10 +170,10 @@ ampblasStatus  Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &ac
 }
 
 /* SGEMM- Overloaded function with arguments related to batch processing */
-ampblasStatus Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &accl_view,
-                                              const enum AMPBLAS_ORDER order,
-                                              const enum AMPBLAS_TRANS typeA,
-                                              const enum AMPBLAS_TRANS typeB, const int M,
+hcblasStatus Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
+                                              const enum HCBLAS_ORDER order,
+                                              const enum HCBLAS_TRANS typeA,
+                                              const enum HCBLAS_TRANS typeB, const int M,
                                               const int N, const int K, const float &alpha,
                                               Concurrency::array<float> &A, const long lda, const long A_batchOffset,
                                               Concurrency::array<float> &B, const long ldb, const long B_batchOffset,
@@ -182,9 +182,9 @@ ampblasStatus Ampblaslibrary :: ampblas_sgemm(Concurrency::accelerator_view &acc
                                               const long aOffset, const long bOffset, const long cOffset, const int batchSize)
 
 {
-    gemm_AMP(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
+    gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
              bOffset, ldb, beta, C, cOffset, ldc, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 

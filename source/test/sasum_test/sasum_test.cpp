@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../ampblaslib.h"
+#include "../../hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
 
@@ -7,8 +7,8 @@ using namespace std;
 int main(int argc, char** argv)
 {   
 
-    /* AMPBLAS implementation */
-    Ampblaslibrary amp;
+    /* HCBLAS implementation */
+    Hcblaslibrary hc;
     if (argc < 3){
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;
@@ -17,10 +17,10 @@ int main(int argc, char** argv)
     int N = atoi(argv[1]);
     int Imple_type = atoi(argv[2]);
     bool ispassed = 1;
-    float asumampblas, asumcblas = 0.0;
+    float asumhcblas, asumcblas = 0.0;
     int incX = 1;
     long xOffset = 0;
-    ampblasStatus status;
+    hcblasStatus status;
     int batchSize = 128;
     long X_batchOffset = N;
     if(N > 10000)
@@ -44,12 +44,12 @@ int main(int argc, char** argv)
     }
         
     if (Imple_type == 1){
-	status = amp.ampblas_sasum(N, X, incX, xOffset, &asumampblas);
+	status = hc.hcblas_sasum(N, X, incX, xOffset, &asumhcblas);
         asumcblas = cblas_sasum( N, X, incX);
         for(int i = 0; i < N ; i++){
-            if (asumampblas != asumcblas){
+            if (asumhcblas != asumcblas){
                 ispassed = 0;
-                cout <<" AMPSASUM[" << i<< "] " << asumampblas << " does not match with CBLASSASUM[" << i <<"] "<< asumcblas << endl;
+                cout <<" HCSASUM[" << i<< "] " << asumhcblas << " does not match with CBLASSASUM[" << i <<"] "<< asumcblas << endl;
                 break;
             }
             else
@@ -61,12 +61,12 @@ int main(int argc, char** argv)
       
     else if (Imple_type ==2){
         Concurrency::copy(begin(HostX), end(HostX), xView);
-        status = amp.ampblas_sasum(accl_view, N, xView, incX, xOffset, asumampblas);
+        status = hc.hcblas_sasum(accl_view, N, xView, incX, xOffset, asumhcblas);
         asumcblas = cblas_sasum( N, X, incX);
         for(int i = 0; i < N ; i++){
-            if (asumampblas != asumcblas){
+            if (asumhcblas != asumcblas){
                 ispassed = 0;
-                cout <<" AMPSASUM[" << i<< "] " << asumampblas << " does not match with CBLASSASUM[" << i <<"] "<< asumcblas << endl;
+                cout <<" HCSASUM[" << i<< "] " << asumhcblas << " does not match with CBLASSASUM[" << i <<"] "<< asumcblas << endl;
                 break;
             }
             else
@@ -81,15 +81,15 @@ int main(int argc, char** argv)
             Xbatch[i] = HostX_batch[i];
          }
         Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-        status= amp.ampblas_sasum(accl_view, N, xbatchView, incX, xOffset, asumampblas, X_batchOffset, batchSize);
+        status= hc.hcblas_sasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
         for(int i = 0; i < batchSize; i++){
         	asumcblastemp[i] = cblas_sasum( N, Xbatch + i * N, incX);
                 asumcblas += asumcblastemp[i];
         }
         for(int i =0; i < N * batchSize; i ++){
-            if (asumampblas != asumcblas){
+            if (asumhcblas != asumcblas){
                 ispassed = 0;
-                cout <<" AMPSASUM[" << i<< "] " << asumampblas << " does not match with CBLASSASUM[" << i <<"] "<< asumcblas << endl;
+                cout <<" HCSASUM[" << i<< "] " << asumhcblas << " does not match with CBLASSASUM[" << i <<"] "<< asumcblas << endl;
                 break;
             }
             else 

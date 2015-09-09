@@ -1,5 +1,5 @@
 TARGET = sasum
-LIBS = -lblas -L/usr/lib/libblas/ -lampblas -L ${AMPBLAS_LIBRARY_PATH}
+LIBS = -lblas -L/usr/lib/libblas/ -lhcblas -L ${HCBLAS_LIBRARY_PATH}
 CC = ${MCWCPPAMPBUILD}/compiler/bin/clang++
 CFLAGS = `${MCWCPPAMPBUILD}/build/Release/bin/clamp-config --build --cxxflags --ldflags`
 

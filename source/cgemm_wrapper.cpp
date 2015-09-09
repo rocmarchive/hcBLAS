@@ -2,15 +2,15 @@
 
 // CGEMM Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 // CGEMM Call Type 1: Inputs and Outputs are host float pointers
-ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA,
-                                             const enum AMPBLAS_TRANS typeB,
+hcblasStatus Hcblaslibrary:: hcblas_cgemm(const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
+                                             const enum HCBLAS_TRANS typeB,
                                              const int M, const int N,
-                                             const int K, const ampComplex *alpha,
-                                             const ampComplex *A, long aOffset,
-                                             long lda, const ampComplex *B,
+                                             const int K, const hcComplex *alpha,
+                                             const hcComplex *A, long aOffset,
+                                             long lda, const hcComplex *B,
                                              long bOffset, long ldb,
-                                             const ampComplex *beta, 
-                                             ampComplex *C, long cOffset,
+                                             const hcComplex *beta, 
+                                             hcComplex *C, long cOffset,
                                              long ldc)
 {  
     Concurrency::array<float_2,1> Acmplx(M * K * 2);
@@ -43,7 +43,7 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_ORDER order, con
    Concurrency::copy(begin(HostA), end(HostA), Acmplx);
    Concurrency::copy(begin(HostB), end(HostB), Bcmplx);
    Concurrency::copy(begin(HostC), end(HostC), Ccmplx);
-   ampblasStatus status;
+   hcblasStatus status;
    // Start the operations
    if(order){
    	if (typeB == noTrans) {
@@ -88,10 +88,10 @@ ampblasStatus Ampblaslibrary:: ampblas_cgemm(const enum AMPBLAS_ORDER order, con
 
 }
 
-// CGEMM Call Type II: Inputs and outputs are C++ AMP float array containers
-ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &accl_view,
-					      const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA,
-                                              const enum AMPBLAS_TRANS typeB, const int M,
+// CGEMM Call Type II: Inputs and outputs are C++ HC float array containers
+hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
+					      const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
+                                              const enum HCBLAS_TRANS typeB, const int M,
                                               const int N, const int K,
                                               const Concurrency::graphics::float_2 &Calpha,
                                               Concurrency::array<float_2> &Acmplx, long aOffset, long lda,
@@ -100,10 +100,10 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &acc
                                               Concurrency::array<float_2> &Ccmplx, long cOffset, long ldc)
 {
   int i, j;
-  ampblasStatus status = AMPBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCESS;
     // Quick return if possible
   if (!M || !N || (((Calpha.x  == 0 && Calpha.y == 0) || !K) && (Cbeta.x == 1 && Cbeta.y == 1)))
-    return AMPBLAS_INVALID;
+    return HCBLAS_INVALID;
   // For alpha = 0
   if (!Calpha.x  && !Calpha.y)
   {
@@ -161,9 +161,9 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &acc
 }
 
 /* CGEMM Call Type III - Overloaded function with arguments related to batch processing */
-ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &accl_view,
-                                              const enum AMPBLAS_ORDER order, const enum AMPBLAS_TRANS typeA,
-                                              const enum AMPBLAS_TRANS typeB, const int M,
+hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
+                                              const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
+                                              const enum HCBLAS_TRANS typeB, const int M,
                                               const int N, const int K,
                                               const Concurrency::graphics::float_2 &Calpha,
                                               Concurrency::array<float_2> &Acmplx, 
@@ -175,10 +175,10 @@ ampblasStatus Ampblaslibrary :: ampblas_cgemm(Concurrency::accelerator_view &acc
 			                      const long cOffset, const long C_batchOffset, const long ldc, const int batchSize)
 {
   int i, j;
-  ampblasStatus status = AMPBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCESS;
     // Quick return if possible
   if (!M || !N || (((Calpha.x  == 0 && Calpha.y == 0) || !K) && (Cbeta.x == 1 && Cbeta.y == 1)))
-    return AMPBLAS_INVALID;
+    return HCBLAS_INVALID;
   // For alpha = 0
   if (!Calpha.x  && !Calpha.y)
   {

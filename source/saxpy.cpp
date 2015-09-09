@@ -1,10 +1,10 @@
-#include "ampblaslib.h"
+#include "hcblaslib.h"
 #include <amp.h>
 
 using namespace concurrency;
 #define BLOCK_SIZE 8 
 
-void axpy_AMP(Concurrency::accelerator_view &accl_view, 
+void axpy_HC(Concurrency::accelerator_view &accl_view, 
 	      long n, float alpha,
               Concurrency::array<float> &X, long xOffset, long incx,
               Concurrency::array<float> &Y, long yOffset, long incy)
@@ -56,7 +56,7 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
   } 
 }
 
-void axpy_AMP(Concurrency::accelerator_view &accl_view,
+void axpy_HC(Concurrency::accelerator_view &accl_view,
               long n, float alpha,
               Concurrency::array<float> &X, long xOffset, long incx,
               Concurrency::array<float> &Y, long yOffset, long incy,
@@ -114,13 +114,13 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
 
 
 
- ampblasStatus Ampblaslibrary :: ampblas_saxpy(const int N, const float *alpha,
+ hcblasStatus Hcblaslibrary :: hcblas_saxpy(const int N, const float *alpha,
                                               float *X, const int incX,
                                               float *Y, const int incY,
                                               const long xOffset, const long yOffset)
 {
     if (alpha == NULL || X == NULL || Y == NULL || N <= 0 ) {
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
 
     int lenX = 1 + (N - 1) * abs(incX);
@@ -138,15 +138,15 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
     Concurrency::copy(begin(HostY), end(HostY), yView);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    axpy_AMP(accl_view, N, *alpha, xView, xOffset, incX, yView, yOffset, incY);
+    axpy_HC(accl_view, N, *alpha, xView, xOffset, incX, yView, yOffset, incY);
     Concurrency::copy(yView, begin(HostY));   
     for(int i = 0 ; i < lenY; i++)
 	Y[i] = HostY[i];
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 }
 
 
- ampblasStatus Ampblaslibrary :: ampblas_saxpy(Concurrency::accelerator_view &accl_view,
+ hcblasStatus Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_view,
                                                const int N, const float &alpha,
                                                Concurrency::array<float> &X, const int incX,
                                                Concurrency::array<float> &Y, const int incY,
@@ -155,20 +155,20 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
 {
     /*Check the conditions*/
     if (  N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
 
     if ( alpha == 0){
-        return AMPBLAS_SUCCESS;
+        return HCBLAS_SUCCESS;
     }
-    axpy_AMP(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY);
+    axpy_HC(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 
 
- ampblasStatus  Ampblaslibrary :: ampblas_saxpy(Concurrency::accelerator_view &accl_view,
+ hcblasStatus  Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_view,
                                                 const int N,const float &alpha,
                                                 Concurrency::array<float> &X, const int incX, const long X_batchOffset,
                                                 Concurrency::array<float> &Y, const int incY, const long Y_batchOffset,
@@ -177,15 +177,15 @@ void axpy_AMP(Concurrency::accelerator_view &accl_view,
 {
     /*Check the conditions*/
     if (  N <= 0 ){
-        return AMPBLAS_INVALID;
+        return HCBLAS_INVALID;
     }
 
     if ( alpha == 0){
-        return AMPBLAS_SUCCESS;
+        return HCBLAS_SUCCESS;
     }
-    axpy_AMP(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY, X_batchOffset, Y_batchOffset, batchSize);
+    axpy_HC(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY, X_batchOffset, Y_batchOffset, batchSize);
 
-    return AMPBLAS_SUCCESS;
+    return HCBLAS_SUCCESS;
 
 }
 

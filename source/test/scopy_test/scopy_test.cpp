@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../ampblaslib.h"
+#include "../../hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
 
@@ -7,8 +7,8 @@ using namespace std;
 int main(int argc, char** argv)
 {   
 
-    /* AMPBLAS implementation */
-    Ampblaslibrary amp;
+    /* HCBLAS implementation */
+    Hcblaslibrary hc;
     if (argc < 3){
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;
@@ -21,7 +21,7 @@ int main(int argc, char** argv)
     long xOffset = 0;
     int incY = 1;
     long yOffset = 0;
-    ampblasStatus status;
+    hcblasStatus status;
     int batchSize = 128;
     long X_batchOffset = N;
     long Y_batchOffset = N;
@@ -58,12 +58,12 @@ int main(int argc, char** argv)
     }
     
     if (Imple_type == 1){
-	status = amp.ampblas_scopy(N, X, incX, xOffset, Y, incY, yOffset);
+	status = hc.hcblas_scopy(N, X, incX, xOffset, Y, incY, yOffset);
         cblas_scopy( N, X, incX, Ycblas, incY);
         for(int i = 0; i < N ; i++){
             if (Y[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" AMPSCOPY[" << i<< "] " << Y[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" HCSCOPY[" << i<< "] " << Y[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
@@ -78,13 +78,13 @@ int main(int argc, char** argv)
     else if (Imple_type ==2){
         Concurrency::copy(begin(HostX), end(HostX), xView);
         Concurrency::copy(begin(HostY), end(HostY), yView);
-        status = amp.ampblas_scopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
+        status = hc.hcblas_scopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
         Concurrency::copy(yView, begin(HostY));
         cblas_scopy( N, X, incX, Ycblas, incY );
         for(int i = 0; i < N ; i++){
             if (HostY[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" AMPSCOPY[" << i<< "] " << HostY[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" HCSCOPY[" << i<< "] " << HostY[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
@@ -104,14 +104,14 @@ int main(int argc, char** argv)
          }
         Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
-        status= amp.ampblas_scopy(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
+        status= hc.hcblas_scopy(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
         Concurrency::copy(ybatchView, begin(HostY_batch));
         for(int i = 0; i < batchSize; i++)
         	cblas_scopy( N, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
         for(int i =0; i < N * batchSize; i ++){
             if (HostY_batch[i] != Ycblasbatch[i]){
                 ispassed = 0;
-                cout <<" AMPSCOPY[" << i<< "] " <<HostY_batch[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;
+                cout <<" HCSCOPY[" << i<< "] " <<HostY_batch[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;
                 break;
             }
             else 
