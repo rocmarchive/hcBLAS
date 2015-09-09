@@ -1,15 +1,22 @@
-# ** C++ AMP BLAS ** #
+# ** HCBLAS ** #
 
 ##Introduction: ##
 
 This repository hosts the C++ AMP implementation of BLAS subroutines. The following are the sub-routines that are implemented
 
-1. Sgemm : Single Precision real valued general matrix-matrix multiplication
-2. Cgemm : Complex valued general matrix matrix multiplication
-2. Sgemv : Single Precision real valued general matrix-vector multiplication
-3. Sger : Single Precision General matrix rank 1 operation
-4. Saxpy : Scale vector X and add to vector Y
-
+1. Sgemm  : Single Precision real valued general matrix-matrix multiplication
+2. Cgemm  : Complex valued general matrix matrix multiplication
+3. Sgemv  : Single Precision real valued general matrix-vector multiplication
+4. Sger   : Single Precision General matrix rank 1 operation
+5. Saxpy  : Scale vector X and add to vector Y
+6. Sscal  : Single Precision scaling of Vector X 
+7. Dscal  : Double Precision scaling of Vector X
+8. Scopy  : Single Precision Copy 
+9. Dcopy  : Double Precision Copy
+10. Sasum : Single Precision sum of Absolute values
+11. Dasum : Double Precision sum of Absolute values
+12. Sdot  : Single Precision Dot product
+13. Ddot  : Double Precision Dot product
 
 ##Repository Structure: ##
 
@@ -24,26 +31,27 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 ## Installation Steps:    
 
 ### A. C++ AMP Compiler Installation: 
-
+ 
 Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
 
   (a) Prepare a directory for work space
 
-       * mkdir ~/mcw_cppamp
+       * mkdir ~/mcw_cppamp_kalmar
 
-       * cd ~/mcw_cppamp 
+       * cd ~/mcw_cppamp_kalmar 
    
-       * git clone https://bitbucket.org/multicoreware/cppamp-driver-ng.git src
+       * git clone https://bitbucket.org:/multicoreware/cppamp-driver-ng-35.git src
 
-       * cd ~/mcw_cppamp/src/
+       * cd ~/mcw_cppamp_kalmar/src/
 
-       * git checkout origin/torch-specific
-
+       * git checkout origin/master
+         (Stable commit  -   4fb5922)
+         
   (b) Create a build directory and configure using CMake.
 
-       * mkdir ~/mcw_cppamp/build
+       * mkdir ~/mcw_cppamp_kalmar/build
 
-       * cd ~/mcw_cppamp/build
+       * cd ~/mcw_cppamp_kalmar/build
 
        * export CLAMP_NOTILECHECK=ON
 
@@ -54,21 +62,21 @@ Make sure the parent directory chosen is say ~/ or any other folder of your choi
 
   (c) Build AMP
 
-       * cd ~/mcw_cppamp/build
+       * cd ~/mcw_cppamp_kalmar/build
 
        * make [-j #] world && make          (# is the number of parallel builds. Generally it is # of CPU cores)
 
 With this the C++ AMP Compiler installation is complete.
 
-### B. AMPBLAS Installation 
+### B. HCBLAS Installation 
 
-(i) Clone MCW AMPBLAS source codes
+(i) Clone MCW HCBLAS source codes
 
        * cd ~/
    
-       * git clone https://bitbucket.org/multicoreware/ampblas.git 
+       * git clone https://bitbucket.org/multicoreware/hcblas.git 
 
-       * cd ~/ampblas
+       * cd ~/hcblas
 
        * git checkout Development
    
@@ -77,9 +85,9 @@ With this the C++ AMP Compiler installation is complete.
 
 (a) For Linux:  
 
-       * cd ~/ampblas/Build/linux
+       * cd ~/hcblas/Build/linux
        
-       * export MCWCPPAMPBUILD=<path_to>/mcw_cppamp/build (Here path_to points to parent folder of mcw_cppamp. ~/ in our case)
+       * export MCWCPPAMPBUILD=<path_to>/mcw_cppamp_kalmar/build (Here path_to points to parent folder of mcw_cppamp_kalmar. ~/ in our case)
 
        * sh build.sh
 
@@ -89,15 +97,15 @@ With this the C++ AMP Compiler installation is complete.
 
 1. For 32 Bit:
 
-       * cd ~/ampblas/Build/vc11-x86
+       * cd ~/hcblas/Build/vc11-x86
 
-       * make-solutions.bat (This creates a Visual studio solution for ampblas Library) 
+       * make-solutions.bat (This creates a Visual studio solution for hcblas Library) 
 
  2. For 64-bit:
 
-       * cd ~/ampblas/Build/vc11-x86_64
+       * cd ~/hcblas/Build/vc11-x86_64
 
-       * make-solutions.bat (This creates a Visual Studio solution for ampblas Library)
+       * make-solutions.bat (This creates a Visual Studio solution for hcblas Library)
        
 
 ### C. Unit testing
@@ -120,13 +128,13 @@ With this the C++ AMP Compiler installation is complete.
       
 2. Sgemm Testing: 
 
-     * export AMPBLAS_LIBRARY_PATH = ~/ampblas/Build/linux
+     * export HCBLAS_LIBRARY_PATH = ~/hcblas/Build/linux
      
      * export CBLASPATH=~/CBLAS
      
-     * export LD_LIBRARY_PATH=$AMPBLAS_LIBRARY_PATH:$LD_LIBRARY_PATH
+     * export LD_LIBRARY_PATH=$HCBLAS_LIBRARY_PATH:$LD_LIBRARY_PATH
      
-     * cd ~/ampblas/source/test/sgemm_test/
+     * cd ~/hcblas/source/test/sgemm_test/
      
      * make
      
