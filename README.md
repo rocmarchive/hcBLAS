@@ -32,7 +32,7 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 
 ### A. C++ AMP Compiler Installation: 
  
-(1) Array-View Version: --- Branch: Development
+## (1) Array-View Version: --- Branch: Development
 
 Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
 
@@ -68,7 +68,7 @@ Make sure the parent directory chosen is say ~/ or any other folder of your choi
 
        * make [-j #] world && make          (# is the number of parallel builds. Generally it is # of CPU cores)
 
-(2) Array Version ( KALMAR): --- Branch : Array_KALMAR_wrapper
+## (2) Array Version ( KALMAR): --- Branch : Array_KALMAR_wrapper
 
 Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
 
