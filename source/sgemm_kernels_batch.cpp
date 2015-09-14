@@ -163,7 +163,7 @@ hcblasStatus gemm_NoTransAB_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_v
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<3> grdExt(batchSize, (((N >> 1) + 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M >> 1) + 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<3> grdExt(batchSize, (((N >> 1)) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M >> 1)) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<1, TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<1, TILESIZE, TILESIZE> tidx) restrict(amp)
   {

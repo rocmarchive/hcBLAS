@@ -183,7 +183,7 @@ hcblasStatus gemm_NoTransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt(((M/2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N/2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
@@ -557,7 +557,7 @@ hcblasStatus gemm_NoTransA_rMajor_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_v
 #define TILESIZE 16
 #define MICROTILESIZE 2
 
-  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt(((M/2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N/2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
@@ -654,7 +654,7 @@ hcblasStatus gemm_NoTransA_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view 
 
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N / 2 + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt(((M/2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
@@ -830,7 +830,7 @@ hcblasStatus gemm_NoTransB_rMajor_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_v
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt(((M/2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N/2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
@@ -1090,7 +1090,7 @@ hcblasStatus gemm_NoTransB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view 
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt(((M/2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N/2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
@@ -1268,7 +1268,7 @@ hcblasStatus gemm_TransAB_rMajor_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_vi
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((((M >> 1) + 1) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((N >> 1) + 1) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((((M >> 1)) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((N >> 1)) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
@@ -1524,7 +1524,7 @@ hcblasStatus gemm_TransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &
 {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt(((M/2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N/2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [=, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp)
   {
