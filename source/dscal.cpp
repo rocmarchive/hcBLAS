@@ -1,5 +1,7 @@
 #include "hcblaslib.h"
 #include <amp.h>
+#include "amp_math.h"
+using namespace concurrency::fast_math;
 
 using namespace concurrency;
 #define BLOCK_SIZE 8 
@@ -12,8 +14,11 @@ void dscal_HC(Concurrency::accelerator_view &accl_view,
     Concurrency::extent<1> compute_domain(size);
     Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(),[=, &X] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
     {
-      if(tidx.global[0] < n)
-        X[xOffset + tidx.global[0]] = X[xOffset + tidx.global[0]] * alpha;
+      if(tidx.global[0] < n){
+        long X_index = xOffset + tidx.global[0];
+        X[X_index] = (isnan(X[X_index]) || isinf(X[X_index])) ? 0 : X[X_index];
+        X[X_index] = X[X_index] * alpha;
+      }
     });
 }
 
@@ -27,8 +32,11 @@ void dscal_HC(Concurrency::accelerator_view &accl_view,
     Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(),[=, &X] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
     {
       int elt = tidx.tile[0];    
-      if(tidx.global[1] < n)
-        X[xOffset + X_batchOffset * elt + tidx.global[1]] = X[xOffset + X_batchOffset * elt + tidx.global[1]] * alpha;
+      if(tidx.global[1] < n){
+        long X_index = xOffset + X_batchOffset * elt + tidx.global[1];
+        X[X_index] = (isnan(X[X_index]) || isinf(X[X_index])) ? 0 : X[X_index];
+        X[X_index] = X[X_index] * alpha;
+      }
     });
 }
 

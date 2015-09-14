@@ -1,6 +1,7 @@
 #include "hcblaslib.h"
 #include <amp.h>
-
+#include "amp_math.h"
+using namespace concurrency::fast_math;
 using namespace concurrency;
 
 void ger_HC(Concurrency::accelerator_view &accl_view,
@@ -16,8 +17,11 @@ void ger_HC(Concurrency::accelerator_view &accl_view,
   {
     int i = tidx.global[0];
     int j = tidx.global[1];
-    if(i < m && j < n)
-      a[aOffset + j*m + i] += x[xOffset + i] * y[yOffset + j] * alpha;
+    if(i < m && j < n){
+      long a_index = aOffset + j*m + i;
+      a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];     
+      a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
+    }
   });
 }
 
@@ -38,8 +42,11 @@ void ger_HC(Concurrency::accelerator_view &accl_view,
     int elt = tidx.tile[0];
     int i = tidx.global[1];
     int j = tidx.global[2];
-    if(i < m && j < n)
-      a[aOffset + A_batchOffset * elt + j*m + i] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
+    if(i < m && j < n){
+      long a_index = aOffset + A_batchOffset * elt + j*m + i;
+      a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
+      a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
+    }
   });
 }
 
@@ -56,8 +63,11 @@ void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
   {
     int i = tidx.global[1];
     int j = tidx.global[0];
-    if(i < m && j < n)
-      a[aOffset + j + i * n] += x[xOffset + i] * y[yOffset + j] * alpha;
+    if(i < m && j < n){
+      long a_index = aOffset + j + i * n;
+      a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
+      a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
+    }
   });
 }
 
@@ -78,8 +88,11 @@ void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
     int elt = tidx.tile[0];
     int i = tidx.global[2];
     int j = tidx.global[1];
-    if(i < m && j < n)
-      a[aOffset + A_batchOffset * elt + j + i * n] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
+    if(i < m && j < n){
+      long a_index = aOffset + A_batchOffset * elt + j + i * n;
+      a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
+      a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
+    }
   });
 }
 

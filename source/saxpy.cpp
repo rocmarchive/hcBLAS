@@ -1,5 +1,7 @@
 #include "hcblaslib.h"
 #include <amp.h>
+#include "amp_math.h"
+using namespace concurrency::fast_math;
 
 using namespace concurrency;
 #define BLOCK_SIZE 8 
@@ -15,8 +17,11 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
     Concurrency::extent<1> compute_domain(size);
     Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
     {
-      if(tidx.global[0] < n)
-        Y[yOffset + tidx.global[0]] += X[xOffset + tidx.global[0]] * alpha;
+      if(tidx.global[0] < n){
+        long Y_index = yOffset + tidx.global[0];
+        Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+        Y[Y_index] += X[xOffset + tidx.global[0]] * alpha;
+      }
     });
   }
   else
@@ -40,7 +45,9 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
       {
         for(int iter = 0; iter < step_sz; iter++)
         {
-          Y[yOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter*256] += X[xOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter*256] * alpha;
+          long Y_index = yOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter*256;
+          Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+          Y[Y_index] += X[xOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter*256] * alpha;
         }
       }
       else
@@ -48,8 +55,11 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
         int n_iter = ((n - ((nBlocks - 1) * 256 * step_sz)) / 256) + 1;
         for(int iter = 0; iter < n_iter; iter++)
         {
-          if (((nBlocks - 1) * 256 * step_sz + iter * 256 + tidx.local[0]) < n)
-            Y[yOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter*256] += X[xOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter*256] * alpha;
+          if (((nBlocks - 1) * 256 * step_sz + iter * 256 + tidx.local[0]) < n){
+            long Y_index = yOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter*256;
+            Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+            Y[Y_index] += X[xOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter*256] * alpha;
+          }
         }
       }
     });
@@ -70,8 +80,11 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
     Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
     {
       int elt = tidx.tile[0];
-      if(tidx.global[1] < n)
-        Y[yOffset + Y_batchOffset * elt + tidx.global[1]] += X[xOffset + X_batchOffset * elt + tidx.global[1]] * alpha;
+      if(tidx.global[1] < n){
+        long Y_index = yOffset + Y_batchOffset * elt + tidx.global[1];
+        Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+        Y[Y_index] += X[xOffset + X_batchOffset * elt + tidx.global[1]] * alpha;
+      }
     });
   }
   else
@@ -96,7 +109,9 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
       {
         for(int iter = 0; iter < step_sz; iter++)
         {
-          Y[yOffset +  Y_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] += X[xOffset +  X_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] * alpha;
+          long Y_index = yOffset +  Y_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256;
+          Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+          Y[Y_index] += X[xOffset +  X_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] * alpha;
         }
       }
       else
@@ -104,8 +119,11 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
         int n_iter = ((n - ((nBlocks - 1) * 256 * step_sz)) / 256) + 1;
         for(int iter = 0; iter < n_iter; iter++)
         {
-          if (((nBlocks - 1) * 256 * step_sz + iter * 256 + tidx.local[1]) < n)
-            Y[yOffset +  Y_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] += X[xOffset +  X_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] * alpha;
+          if (((nBlocks - 1) * 256 * step_sz + iter * 256 + tidx.local[1]) < n){
+            long Y_index = yOffset +  Y_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256;
+            Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+            Y[Y_index] += X[xOffset +  X_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter*256] * alpha;
+          }
         }
       }
     });

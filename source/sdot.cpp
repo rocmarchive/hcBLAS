@@ -1,8 +1,9 @@
 #include "hcblaslib.h"
 #include <amp.h>
+#include <amp_math.h>
 #define TILE_SIZE 256
 using namespace concurrency;
-
+using namespace concurrency::fast_math;
 float sdot_HC(Concurrency::accelerator_view &accl_view, long n,
                Concurrency::array<float, 1> &xView, long incx, long xOffset,
                Concurrency::array<float, 1> &yView, long incy, long yOffset, float out)
@@ -59,6 +60,7 @@ float sdot_HC(Concurrency::accelerator_view &accl_view, long n,
   // 2nd pass reduction
     for(int i = 0; i< tile_count; i++)
     {
+        out = (isnan(out) || isinf(out)) ? 0 : out;
     	out += global_buffer_view[ i ] ;
     }
     return out;
@@ -123,6 +125,7 @@ float sdot_HC(Concurrency::accelerator_view &accl_view, long n,
   // 2nd pass reduction
   for(int i = 0; i< tile_count * batchSize; i++)
     {
+        out = (isnan(out) || isinf(out)) ? 0 : out;
         out += global_buffer_view[ i ] ;
     }
     return out;

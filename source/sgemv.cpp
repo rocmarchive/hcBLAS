@@ -1,7 +1,8 @@
 #include "hcblaslib.h"
 #include <amp.h>
+#include <amp_math.h>
 #define BLOCK_SIZE 256
-
+using namespace concurrency::fast_math;
 using namespace concurrency;
 
 static void gemv_TransA(Concurrency::accelerator_view &accl_view,
@@ -63,8 +64,10 @@ static void gemv_TransA(Concurrency::accelerator_view &accl_view,
               sh[threadId] += sh[threadId + stride];
           }
           tidx.barrier.wait();
-          Y_vec[yOffset + Col] *= beta;
-          Y_vec[yOffset + Col] += alpha * sh[0];
+          long Y_index = yOffset + Col;
+          Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+          Y_vec[Y_index] *= beta;
+          Y_vec[Y_index] += alpha * sh[0];          
         }
       }
     });
@@ -98,8 +101,10 @@ static void gemv_TransA(Concurrency::accelerator_view &accl_view,
 
       if(threadIdx == 0 && Col < lenY)
       {
-        Y_vec[yOffset + Col] *= beta;
-        Y_vec[yOffset + Col] += alpha * sh[0];
+        long Y_index = yOffset + Col;
+        Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+        Y_vec[Y_index] *= beta;
+        Y_vec[Y_index] += alpha * sh[0];
       }
     });
   }
@@ -166,8 +171,10 @@ static void gemv_TransA(Concurrency::accelerator_view &accl_view,
               sh[threadId] += sh[threadId + stride];
           }
           tidx.barrier.wait();
-          Y_vec[yOffset + Y_batchOffset * elt + Col] *= beta;
-          Y_vec[yOffset + Y_batchOffset * elt + Col] += alpha * sh[0];
+          long Y_index = yOffset + Y_batchOffset * elt + Col;
+          Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+          Y_vec[Y_index] *= beta;
+          Y_vec[Y_index] += alpha * sh[0];
         }
       }
     });
@@ -203,8 +210,10 @@ static void gemv_TransA(Concurrency::accelerator_view &accl_view,
 
       if(threadIdx == 0 && Col < lenY)
       {
-        Y_vec[yOffset + Y_batchOffset * elt + Col] *= beta;
-        Y_vec[yOffset + Y_batchOffset * elt + Col] += alpha * sh[0];
+        long Y_index = yOffset + Y_batchOffset * elt + Col;
+        Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+        Y_vec[Y_index] *= beta;
+        Y_vec[Y_index] += alpha * sh[0];
       }
     });
   }
@@ -270,8 +279,10 @@ static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
               sh[threadId] += sh[threadId + stride];
           }
           tidx.barrier.wait();
-          Y_vec[yOffset + Col] *= beta;
-          Y_vec[yOffset + Col] += alpha * sh[0];
+          long Y_index = yOffset + Col;
+          Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+          Y_vec[Y_index] *= beta;
+          Y_vec[Y_index] += alpha * sh[0];
         }
       }
     });
@@ -306,8 +317,10 @@ static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
 
       if(threadIdx == 0 && Col < lenY)
       {
-        Y_vec[yOffset + Col] *= beta;
-        Y_vec[yOffset + Col] += alpha * sh[0];
+        long Y_index = yOffset + Col;
+        Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+        Y_vec[Y_index] *= beta;
+        Y_vec[Y_index] += alpha * sh[0];
       }
     });
   }
@@ -374,8 +387,10 @@ static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
               sh[threadId] += sh[threadId + stride];
           }
           tidx.barrier.wait();
-          Y_vec[yOffset + Y_batchOffset * elt + Col] *= beta;
-          Y_vec[yOffset + Y_batchOffset * elt + Col] += alpha * sh[0];
+          long Y_index = yOffset + Y_batchOffset * elt + Col;
+          Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+          Y_vec[Y_index] *= beta;
+          Y_vec[Y_index] += alpha * sh[0];
         }
       }
     });
@@ -411,8 +426,10 @@ static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
 
       if(threadIdx == 0 && Col < lenY)
       {
-        Y_vec[yOffset + Y_batchOffset * elt + Col] *= beta;
-        Y_vec[yOffset + Y_batchOffset * elt + Col] += alpha * sh[0];
+        long Y_index = yOffset + Y_batchOffset * elt + Col;
+        Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+        Y_vec[Y_index] *= beta;
+        Y_vec[Y_index] += alpha * sh[0];
       }
     });
   }
@@ -570,8 +587,10 @@ static void gemv_NoTransA(Concurrency::accelerator_view &accl_view,
     }
     if (Col < lenY)
     {
-      Y[yOffset + Col] *= beta;
-      Y[yOffset + Col] += alpha * Pvalue;
+      long Y_index = yOffset + Col;
+      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] *= beta;
+      Y[Y_index] += alpha * Pvalue;
     }
     tidx.barrier.wait();
   });
@@ -612,8 +631,10 @@ static void gemv_NoTransA(Concurrency::accelerator_view &accl_view,
     }
     if (Col < lenY)
     {
-      Y[yOffset + Y_batchOffset * elt + Col] *= beta;
-      Y[yOffset + Y_batchOffset * elt + Col] += alpha * Pvalue;
+      long Y_index = yOffset + Y_batchOffset * elt + Col;
+      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] *= beta;
+      Y[Y_index] += alpha * Pvalue;
     }
     tidx.barrier.wait();
   });
@@ -653,8 +674,10 @@ static void gemv_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
     }
     if (Col < lenY)
     {
-      Y[yOffset + Col] *= beta;
-      Y[yOffset + Col] += alpha * Pvalue;
+      long Y_index = yOffset + Col;
+      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] *= beta;
+      Y[Y_index] += alpha * Pvalue;
     }
     tidx.barrier.wait();
   });
@@ -698,8 +721,10 @@ static void gemv_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
     }
     if (Col < lenY)
     {
-      Y[yOffset + Y_batchOffset * elt + Col] *= beta;
-      Y[yOffset + Y_batchOffset * elt + Col] += alpha * Pvalue;
+      long Y_index = yOffset + Y_batchOffset * elt + Col;
+      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] *= beta;
+      Y[Y_index] += alpha * Pvalue;
     }
     tidx.barrier.wait();
   });

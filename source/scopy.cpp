@@ -1,5 +1,7 @@
 #include "hcblaslib.h"
 #include <amp.h>
+#include "amp_math.h"
+using namespace concurrency::fast_math;
 
 using namespace concurrency;
 #define BLOCK_SIZE 8 
@@ -12,8 +14,11 @@ void scopy_HC(Concurrency::accelerator_view &accl_view, long n,
     Concurrency::extent<1> compute_domain(size);
     Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
     {
-      if(tidx.global[0] < n)
-        Y[yOffset + tidx.global[0]] = X[xOffset + tidx.global[0]];
+      if(tidx.global[0] < n){
+        long Y_index = yOffset + tidx.global[0];
+        Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+        Y[Y_index] = X[xOffset + tidx.global[0]];
+      }
     });
 }
 
@@ -27,8 +32,11 @@ void scopy_HC(Concurrency::accelerator_view &accl_view, long n,
     Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
     {
       int elt = tidx.tile[0];      
-      if(tidx.global[1] < n)
-        Y[yOffset + Y_batchOffset * elt + tidx.global[1]] = X[xOffset + X_batchOffset * elt + tidx.global[1]];
+      if(tidx.global[1] < n){
+        long Y_index = yOffset + Y_batchOffset * elt + tidx.global[1];
+        Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+        Y[Y_index] = X[xOffset + X_batchOffset * elt + tidx.global[1]];
+      }
     });
 }
 

@@ -2,6 +2,7 @@
 #include <amp.h>
 #include <amp_math.h>
 #define TILE_SIZE 256
+using namespace concurrency::fast_math;
 using namespace concurrency;
 
 double dasum_HC(Concurrency::accelerator_view &accl_view,
@@ -59,6 +60,7 @@ double dasum_HC(Concurrency::accelerator_view &accl_view,
   // 2nd pass reduction
    for(int i = 0; i< tile_count; i++)
     {
+        Y = (isnan(Y) || isinf(Y)) ? 0 : Y;
         Y += global_buffer_view[ i ] ;
     }
   return Y;
@@ -121,6 +123,7 @@ double dasum_HC(Concurrency::accelerator_view &accl_view,
   // 2nd pass reduction
    for(int i = 0; i< tile_count * batchSize ; i++)
     {
+        Y = (isnan(Y) || isinf(Y)) ? 0 : Y;
         Y += global_buffer_view[ i ] ;
     }
   return Y;
