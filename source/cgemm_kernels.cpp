@@ -1,5 +1,6 @@
 #include "cgemm_kernels.h"
-
+#include "amp_math.h"
+using namespace concurrency::fast_math;
 hcblasStatus cgemm_NoTransAB_loopunroll(Concurrency::accelerator_view &accl_view,
 				         Concurrency::array<float_2, 1> &A, long aOffset,
                                          Concurrency::array<float_2, 1> &B, long bOffset,
@@ -85,6 +86,8 @@ hcblasStatus cgemm_NoTransAB_loopunroll(Concurrency::accelerator_view &accl_view
    {
      CReal = C[cOffset + (tidx.global[0] * M) + tidx.global[1]].x;
      CImg = C[cOffset + (tidx.global[0] * M) + tidx.global[1]].y;
+     CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+     CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
      tempReal = ((CReal * beta.x) - (CImg * beta.y));
      tempImg = ((CReal * beta.y) + (CImg * beta.x));
      C[cOffset + (tidx.global[0] * M) + tidx.global[1]].x = tempReal + ((CValue * alpha.x)- (CValue1 * alpha.y));
@@ -188,7 +191,9 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl
       {
           if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
              CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-             CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y; 
+             CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+             CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+             CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg; 
              tempReal = ((CReal * beta.x) - (CImg * beta.y));
              tempImg  = ((CReal * beta.y) + (CImg * beta.x));
              C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -287,6 +292,8 @@ hcblasStatus cgemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vi
     if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N){
         CReal = C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x;
         CImg = C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].y;
+        CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+        CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
         tempReal = ((CReal * beta.x) - (CImg * beta.y));
         tempImg  = ((CReal * beta.y) + (CImg * beta.x));
         C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -392,6 +399,8 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_
           if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N){
              CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
              CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+             CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+             CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
              tempReal = ((CReal * beta.x) - (CImg * beta.y));
              tempImg  = ((CReal * beta.y) + (CImg * beta.x));
              C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -496,6 +505,8 @@ hcblasStatus cgemm_NoTransA_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
           if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N){
              CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
              CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+             CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+             CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
              tempReal = ((CReal * beta.x) - (CImg * beta.y));
              tempImg  = ((CReal * beta.y) + (CImg * beta.x));
              C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -592,6 +603,8 @@ hcblasStatus cgemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vie
     if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N){
         CReal = C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x;
         CImg = C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].y;
+        CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+        CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
         tempReal = ((CReal * beta.x) - (CImg * beta.y));
         tempImg  = ((CReal * beta.y) + (CImg * beta.x));
         C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -695,6 +708,8 @@ hcblasStatus cgemm_NoTransB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
          if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N){
              CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
              CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+             CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+             CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
              tempReal = ((CReal * beta.x) - (CImg * beta.y));
              tempImg  = ((CReal * beta.y) + (CImg * beta.x));
              C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -797,6 +812,8 @@ hcblasStatus cgemm_NoTransB_loopunroll(Concurrency::accelerator_view &accl_view,
    {
      CReal = C[cOffset + (tidx.global[0] * M) + tidx.global[1]].x;
      CImg = C[cOffset + (tidx.global[0] * M) + tidx.global[1]].y;
+     CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+     CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
      tempReal = ((CReal * beta.x) - (CImg * beta.y));
      tempImg = ((CReal * beta.y) + (CImg * beta.x));
      C[cOffset + (tidx.global[0] * M) + tidx.global[1]].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
@@ -887,6 +904,8 @@ hcblasStatus cgemm_TransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view
     if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N){
         CReal = C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x;
         CImg = C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].y;
+        CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+        CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
         tempReal = ((CReal * beta.x) - (CImg * beta.y));
         tempImg  = ((CReal * beta.y) + (CImg * beta.x));
         C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -977,6 +996,8 @@ hcblasStatus cgemm_TransAB_STEP_TS16XSS16(Concurrency::accelerator_view &accl_vi
     if(gidx*TILESIZE+idx < M && gidy*TILESIZE+idy < N){
         CReal = C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x;
         CImg = C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].y;
+        CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+        CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
         tempReal = ((CReal * beta.x) - (CImg * beta.y));
         tempImg  = ((CReal * beta.y) + (CImg * beta.x));
         C[cOffset + gidx*TILESIZE +idx + (gidy*TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -1079,6 +1100,8 @@ hcblasStatus cgemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_v
           if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N){
              CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
              CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+             CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
+             CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
              tempReal = ((CReal * beta.x) - (CImg * beta.y));
              tempImg  = ((CReal * beta.y) + (CImg * beta.x));
              C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
