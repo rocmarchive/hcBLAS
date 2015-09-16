@@ -35,11 +35,11 @@ ELSE(WIN32)
   SET (PREFIX "$ENV{MCWCPPAMPBUILD}")
   SET (CLANG_AMP "${PREFIX}/compiler/bin/clang++")
   SET (CLAMP_CONFIG "${PREFIX}/build/Release/bin/clamp-config")
-  execute_process(COMMAND ${CLAMP_CONFIG} --build --bolt --cxxflags
+  execute_process(COMMAND ${CLAMP_CONFIG} --build --cxxflags
     OUTPUT_VARIABLE CLAMP_CXXFLAGS)
   string(STRIP "${CLAMP_CXXFLAGS}" CLAMP_CXXFLAGS)
   set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS}")
-  execute_process(COMMAND ${CLAMP_CONFIG} --build --bolt --ldflags --shared
+  execute_process(COMMAND ${CLAMP_CONFIG} --build --ldflags --shared
     OUTPUT_VARIABLE CLAMP_LDFLAGS)
   string(STRIP "${CLAMP_LDFLAGS}" CLAMP_LDFLAGS)
   set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS} -Wall -Wno-deprecated-register -Wdeprecated-declarations")
