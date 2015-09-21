@@ -91,18 +91,8 @@ int main(int argc,char* argv[])
     std::vector<float> HostA(M * K);
     std::vector<float> HostB(K * N);
     std::vector<float> HostC(M * N);
-    std::vector<float> HostC_batch(M * N * batchSize);
-
-    float *Asgemm_batch = (float*) calloc(M * K, sizeof(float));
-    float *Bsgemm_batch = (float*) calloc(K * N, sizeof(float));
-    float *Csgemm_batch = (float*) calloc(M * N * batchSize, sizeof(float));
-    float *CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));                     
-    Concurrency::array<float> A_batch(K * M, Asgemm_batch);
-    Concurrency::array<float> B_batch(N * K, Bsgemm_batch);
-    Concurrency::array<float> C_batch(M * N * batchSize, Csgemm_batch);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view()); 
- 
     
         for(int i = 0; i < M * K; i++){
             HostA[i] = rand()%100;
@@ -112,7 +102,7 @@ int main(int argc,char* argv[])
             HostB[i] = rand() % 15;
             Bsgemm[i] = HostB[i];
         }
-        for(int iter = 0; iter < 100; iter++) { 
+        for(int iter = 0; iter < 10; iter++) { 
         for(int i = 0; i < M * N;i++)  {
             HostC[i] = rand() % 25;
             C_cblas[i] = HostC[i];
@@ -131,10 +121,6 @@ int main(int argc,char* argv[])
                    continue;
             }
             cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
-            //free(Asgemm);
-    	    //free(Bsgemm);
-    	    //free(Csgemm);
-    	    //free(C_cblas);
         }
         else if(Imple_type ==2){/* MULTIPLE GPU CALL */
             Concurrency::copy(begin(HostA), end(HostA), A_mat);
@@ -159,7 +145,14 @@ int main(int argc,char* argv[])
      
         else{         
            /* BATCH PROCESSING */
-            
+            float *Asgemm_batch = (float*) calloc(M * K, sizeof(float));
+            float *Bsgemm_batch = (float*) calloc(K * N, sizeof(float));
+            float *Csgemm_batch = (float*) calloc(M * N * batchSize, sizeof(float));
+            float *CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));                     
+            Concurrency::array<float> A_batch(K * M, Asgemm_batch);
+            Concurrency::array<float> B_batch(N * K, Bsgemm_batch);
+            Concurrency::array<float> C_batch(M * N * batchSize, Csgemm_batch);
+            std::vector<float> HostC_batch(M * N * batchSize);
             for(int i = 0; i < M * K; i++){
                 HostA[i] = rand()%100;
                 Asgemm_batch[i] = HostA[i];

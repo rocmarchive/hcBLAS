@@ -33,19 +33,10 @@ int main(int argc, char** argv)
     float *X = (float*)calloc(lenx, sizeof(float));
     float *Y = (float*)calloc(leny, sizeof(float));
     float *Ycblas = (float*)calloc(N, sizeof(float));
-    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-    float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
-    float *Ycblasbatch = (float*)calloc(N * batchSize, sizeof(float));
-
-
     Concurrency::array<float> xView(lenx, X);
     Concurrency::array<float> yView(leny, Y);
-    Concurrency::array<float> xbatchView(lenx * batchSize, Xbatch);
-    Concurrency::array<float> ybatchView(leny * batchSize, Ybatch);
     std::vector<float> HostX(lenx);
     std::vector<float> HostY(leny);
-    std::vector<float> HostX_batch(lenx * batchSize);
-    std::vector<float> HostY_batch(leny * batchSize);
    
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
@@ -54,6 +45,7 @@ int main(int argc, char** argv)
         HostX[i] = rand() % 10;
         X[i] = HostX[i];
     }
+    for(int iter=0; iter<10; iter++){
     for(int i = 0;i < N;i++){
         HostY[i] =  rand() % 15;
         Y[i] = HostY[i];
@@ -73,9 +65,6 @@ int main(int argc, char** argv)
                 continue;
         }
         cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
-        free(X);
-        free(Y);
-        free(Ycblas);
      }
   
      
@@ -97,7 +86,15 @@ int main(int argc, char** argv)
         cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
      }
 
-    else{ 
+    else{
+        float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
+        float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
+        float *Ycblasbatch = (float*)calloc(N * batchSize, sizeof(float));
+        Concurrency::array<float> xbatchView(lenx * batchSize, Xbatch);
+        Concurrency::array<float> ybatchView(leny * batchSize, Ybatch);
+        std::vector<float> HostX_batch(lenx * batchSize);
+        std::vector<float> HostY_batch(leny * batchSize);
+ 
         for(int i = 0;i < N * batchSize;i++){
             HostX_batch[i] = rand() % 10;
             Xbatch[i] = HostX_batch[i];
@@ -125,5 +122,6 @@ int main(int argc, char** argv)
         }
         cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
     }
+   }
     return 0;
 }

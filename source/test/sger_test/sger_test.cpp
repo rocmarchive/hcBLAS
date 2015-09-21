@@ -52,18 +52,6 @@ int main(int argc, char** argv)
     Concurrency::array<float> aMat( M * N, ASger);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-   
-    float *xSgerbatch = (float*)calloc( lenx * batchSize, sizeof(float));
-    float *ySgerbatch = (float*)calloc( leny * batchSize, sizeof(float));
-    float *ASgerbatch = (float *)calloc( M * N * batchSize, sizeof(float));
-    float *Acblasbatch = (float *)calloc( M * N * batchSize, sizeof(float));
-    std::vector<float> HostX_batch(lenx * batchSize);
-    std::vector<float> HostY_batch(leny * batchSize);
-    std::vector<float> HostA_batch(M * N * batchSize);
-    Concurrency::array<float> xbatchView(lenx * batchSize, xSgerbatch);
-    Concurrency::array<float> ybatchView(leny * batchSize, ySgerbatch);
-    Concurrency::array<float> abatchMat( M * N * batchSize, ASgerbatch);
-
     
     {
         for(int i = 0;i < M;i++){
@@ -74,6 +62,7 @@ int main(int argc, char** argv)
             HostY[i] = rand() % 15;
             ySger[i] = HostY[i];
         }
+        for(int iter=0; iter<10; iter++){
         for(int i = 0;i< M * N ;i++){
             HostA[i] = rand() % 25;
             Acblas[i] = HostA[i];
@@ -92,11 +81,6 @@ int main(int argc, char** argv)
                     continue;
             }
             cout << (ispassed? "TEST PASSED": "TEST FAILED") <<endl;
-            free(xSger);
-            free(ySger);
-            free(ASger);
-            free(Acblas);
-
         }
 
         else if(Imple_type == 2){
@@ -120,6 +104,16 @@ int main(int argc, char** argv)
         }
 
         else{
+            float *xSgerbatch = (float*)calloc( lenx * batchSize, sizeof(float));
+            float *ySgerbatch = (float*)calloc( leny * batchSize, sizeof(float));
+            float *ASgerbatch = (float *)calloc( M * N * batchSize, sizeof(float));
+            float *Acblasbatch = (float *)calloc( M * N * batchSize, sizeof(float));
+            std::vector<float> HostX_batch(lenx * batchSize);
+            std::vector<float> HostY_batch(leny * batchSize);
+            std::vector<float> HostA_batch(M * N * batchSize);
+            Concurrency::array<float> xbatchView(lenx * batchSize, xSgerbatch);
+            Concurrency::array<float> ybatchView(leny * batchSize, ySgerbatch);
+            Concurrency::array<float> abatchMat( M * N * batchSize, ASgerbatch);
             for(int i = 0;i < M * batchSize;i++){
                 HostX_batch[i] = rand() % 10;
                 xSgerbatch[i] = HostX_batch[i];
@@ -151,6 +145,7 @@ int main(int argc, char** argv)
             }
             cout << (ispassed? "TEST PASSED": "TEST FAILED") <<endl;
          }
+      }
     }
     return 0;
 }

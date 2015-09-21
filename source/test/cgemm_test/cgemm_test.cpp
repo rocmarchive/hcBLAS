@@ -106,17 +106,9 @@ int main(int argc, char* argv[])
         batchSize = 1;
     }
 
-    Concurrency::array<float_2> Abatch(M * K * 2);
-    Concurrency::array<float_2> Bbatch(N * K * 2);
-    Concurrency::array<float_2> Cbatch(M * N * 2 * batchSize);
-    float* abatch = (float *)malloc(sizeof(float )* M * K * 2);
-    float* bbatch = (float *)malloc(sizeof(float )* K * N * 2);
-    float* cbatch = (float *)malloc(sizeof(float )* M * N * 2 * batchSize);
     std::vector<float_2> HostA(M * K * 2);
     std::vector<float_2> HostB(K * N * 2);
     std::vector<float_2> HostC(M * N * 2);
-    std::vector<float_2> HostC_batch(M * N * 2 * batchSize);
-
   
     int k = 0;
     for (int i = 0;i < M * K; i++) {
@@ -134,7 +126,7 @@ int main(int argc, char* argv[])
       b[k++] = Bhc[i].real = HostB[i].x;
       b[k++] = Bhc[i].img = HostB[i].y;
     }
-
+    for(int iter=0; iter<10; iter++){
     k = 0;
     for (int i = 0;i < M * N; i++) {
       HostC[i].x = rand() % 18;
@@ -158,12 +150,6 @@ int main(int argc, char* argv[])
          }
    
         cout << (isPassed ? "TEST PASSED" : "TEST FAILED") << endl;
-        free(a);
-        free(b);
-        free(c);
-        free(Ahc);
-        free(Bhc);
-        free(Chc);
     }
 
     else if(Imple_type ==2){
@@ -188,7 +174,14 @@ int main(int argc, char* argv[])
     }
 
     else{
-        
+        Concurrency::array<float_2> Abatch(M * K * 2);
+        Concurrency::array<float_2> Bbatch(N * K * 2);
+        Concurrency::array<float_2> Cbatch(M * N * 2 * batchSize);
+        float* abatch = (float *)malloc(sizeof(float )* M * K * 2);
+        float* bbatch = (float *)malloc(sizeof(float )* K * N * 2);
+        float* cbatch = (float *)malloc(sizeof(float )* M * N * 2 * batchSize);
+        std::vector<float_2> HostC_batch(M * N * 2 * batchSize);
+
         int k = 0;
         for (int i = 0;i < M * K; i++) {
            HostA[i].x = rand() % 10;
@@ -231,6 +224,7 @@ int main(int argc, char* argv[])
         }
         cout << (isPassed ? "TEST PASSED" : "TEST FAILED") << endl;
     }
+}
     return 0;
  
 }

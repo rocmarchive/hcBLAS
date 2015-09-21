@@ -70,27 +70,18 @@ int main(int argc, char** argv)
     std::vector<float> HostA(M * N);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));
-    float *ySgemvbatch = (float*)calloc( leny * batchSize, sizeof(float));
-    float *ASgemvbatch = (float *)calloc( row * col * batchSize, sizeof(float));
-    float *ycblasbatch = (float *)calloc( col * batchSize, sizeof(float));
-    Concurrency::array<float> xbatchView(lenx * batchSize, xSgemvbatch);
-    Concurrency::array<float> ybatchView(leny * batchSize, ySgemvbatch);
-    Concurrency::array<float> abatchMat(M * N * batchSize, ASgemvbatch);
-    std::vector<float> HostX_batch(lenx * batchSize);
-    std::vector<float> HostY_batch(leny * batchSize);
-    std::vector<float> HostA_batch(M * N * batchSize);
  {
     for(int i = 0;i < row;i++){
         HostX[i] = rand() % 10;
         xSgemv[i] = HostX[i];}
+    for(int i = 0;i< row * col;i++){
+        HostA[i] = rand() % 25;
+        ASgemv[i] = HostA[i];}
+    for(int iter=0; iter<10; iter++){
     for(int i = 0;i < col;i++){
         HostY[i] = rand() % 15;
         ySgemv[i]= HostY[i];
         ycblas[i] = ySgemv[i];}
-    for(int i = 0;i< row * col;i++){
-        HostA[i] = rand() % 25;
-        ASgemv[i] = HostA[i];}
 
     if(Imple_type ==1){
         status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
@@ -109,10 +100,6 @@ int main(int argc, char** argv)
                 continue;
         }
         cout << (ispassed? "TEST PASSED": "TEST FAILED") << endl;
-        free(xSgemv);
-        free(ySgemv);
-        free(ycblas);
-        free(ASgemv);
     }
     else if(Imple_type ==2){
         Concurrency::copy(begin(HostX), end(HostX), xView);
@@ -137,6 +124,16 @@ int main(int argc, char** argv)
         cout << (ispassed? "TEST PASSED": "TEST FAILED") << endl;
     }
     else{
+        float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));
+        float *ySgemvbatch = (float*)calloc( leny * batchSize, sizeof(float));
+        float *ASgemvbatch = (float *)calloc( row * col * batchSize, sizeof(float));
+        float *ycblasbatch = (float *)calloc( col * batchSize, sizeof(float));
+        Concurrency::array<float> xbatchView(lenx * batchSize, xSgemvbatch);
+        Concurrency::array<float> ybatchView(leny * batchSize, ySgemvbatch);
+        Concurrency::array<float> abatchMat(M * N * batchSize, ASgemvbatch);
+        std::vector<float> HostX_batch(lenx * batchSize);
+        std::vector<float> HostY_batch(leny * batchSize);
+        std::vector<float> HostA_batch(M * N * batchSize);
         for(int i = 0;i < row * batchSize;i++){
             HostX_batch[i] = rand() % 10;
             xSgemvbatch[i] = HostX_batch[i];}
@@ -169,6 +166,7 @@ int main(int argc, char** argv)
         }
         cout << (ispassed? "TEST PASSED": "TEST FAILED") << endl;
     }
+   }
    }
     return 0;
 
