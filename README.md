@@ -78,7 +78,7 @@ With this the C++ AMP Compiler installation is complete.
 
        * cd ~/hcblas
 
-       * git checkout Development
+       * git checkout Array_KALMAR_wrapper(for Array version of KALMAR Compiler)
    
 
 (ii) Platform-specific build
@@ -107,36 +107,118 @@ With this the C++ AMP Compiler installation is complete.
 
        * make-solutions.bat (This creates a Visual Studio solution for hcblas Library)
        
-
 ### C. Unit testing
 
-1. Install CBLAS CPU library: (Prerequisite: libblas-dev ubuntu package)
-     
-      * cd ~/
-      
-      * wget http://www.netlib.org/blas/blast-forum/cblas.tgz.
-     
-      * tar -xvzf cblas.tgz
-      
-      * cd ~/CBLAS
-      
-      * rm Makefile.in
-      
-      * ln -s Makefile.LINUX Makefile.in
-      
-      * make
-      
-2. Sgemm Testing: 
+### 1. Install libblas-dev ubuntu package (Installs CBLAS library)
 
+     * sudo apt-get install libblas-dev
+
+### 2. Testing:
+    
      * export HCBLAS_LIBRARY_PATH = ~/hcblas/Build/linux
      
-     * export CBLASPATH=~/CBLAS
-     
      * export LD_LIBRARY_PATH=$HCBLAS_LIBRARY_PATH:$LD_LIBRARY_PATH
-     
+
+  (1) SGEMM - Single Precision real valued general matrix-matrix multiplication
+
      * cd ~/hcblas/source/test/sgemm_test/
      
      * make
      
-     * To test ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type takes 1, 2 or 3)
-      
+     * To test ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type (Itype) takes 1, 2 or 3)
+  
+  (2) CGEMM - Complex valued general matrix matrix multiplication
+
+     * cd ~/hcblas/source/test/cgemm_test/
+     
+     * make
+     
+     * To test ./cgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Itype takes 1, 2 or 3)
+
+  (3) SGEMV - Single Precision real valued general matrix-vector multiplication
+    
+     * cd ~/hcblas/source/test/sgemv_test/
+     
+     * make
+   
+     * To Test ./sgemv M N Trans Itype(Here Trans take binary values 0 or 1 while Itype takes 1, 2 or 3)
+
+  (4) SGER - Single Precision General matrix rank 1 operation
+
+     * cd ~/hcblas/source/test/sger_test/
+     
+     * make
+   
+     * To Test ./sger M N Itype(Itype takes 1, 2 or 3)
+
+  (5) SAXPY - Scale vector X and add to vector Y
+ 
+     * cd ~/hcblas/source/test/saxpy_test/
+     
+     * make
+   
+     * To Test ./saxpy N Itype(Itype takes 1, 2 or 3)
+
+  (6) SSCAL - Single Precision scaling of Vector X 
+
+     * cd ~/hcblas/source/test/sscal_test/
+     
+     * make
+   
+     * To Test ./sscal N Itype(Itype takes 1, 2 or 3)
+
+  (7) DSCAL - Double Precision scaling of Vector X
+
+     * cd ~/hcblas/source/test/dscal_test/
+     
+     * make
+   
+     * To Test ./dscal N Itype(Itype takes 1, 2 or 3)
+ 
+  (8) SCOPY - Single Precision Copy 
+
+     * cd ~/hcblas/source/test/scopy_test/
+     
+     * make
+   
+     * To Test ./scopy N Itype(Itype takes 1, 2 or 3)
+
+  (9) DCOPY - Double Precision Copy
+
+     * cd ~/hcblas/source/test/dcopy_test/
+     
+     * make
+   
+     * To Test ./dcopy N Itype(Itype takes 1, 2 or 3)
+
+  (10) SASUM - Single Precision sum of Absolute values
+
+     * cd ~/hcblas/source/test/sasum_test/
+     
+     * make
+   
+     * To Test ./sasum N Itype(Itype takes 1, 2 or 3)
+
+  (11) DASUM - Double Precision sum of Absolute values
+
+     * cd ~/hcblas/source/test/dasum_test/
+     
+     * make
+   
+     * To Test ./dasum N Itype(Itype takes 1, 2 or 3)
+
+  (12) SDOT - Single Precision Dot product
+
+     * cd ~/hcblas/source/test/sdot_test/
+     
+     * make
+   
+     * To Test ./sdot N Itype(Itype takes 1, 2 or 3)
+
+  (13) DDOT - Double Precision Dot product
+
+     * cd ~/hcblas/source/test/ddot_test/
+     
+     * make
+   
+     * To Test ./ddot N Itype(Itype takes 1, 2 or 3)
