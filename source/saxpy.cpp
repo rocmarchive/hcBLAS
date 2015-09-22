@@ -4,7 +4,7 @@
 using namespace concurrency::fast_math;
 
 using namespace concurrency;
-#define BLOCK_SIZE 8 
+#define BLOCK_SIZE 256 
 
 void axpy_HC(Concurrency::accelerator_view &accl_view, 
 	      long n, float alpha,
@@ -39,7 +39,7 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
     long size = (n/step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size/BLOCK_SIZE;
     Concurrency::extent<1> compute_domain(size);
-    Concurrency::parallel_for_each(compute_domain.tile<BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
+    Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp)
     {
       if(tidx.tile[0] != nBlocks -1)
       {
@@ -102,7 +102,7 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
     long size = (n/step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size/BLOCK_SIZE;
     Concurrency::extent<2> compute_domain(batchSize, size);
-    Concurrency::parallel_for_each(compute_domain.tile<1, BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
+    Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(),[=, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp)
     {
       int elt = tidx.tile[0];
       if(tidx.tile[1] != nBlocks -1)
