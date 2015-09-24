@@ -4,15 +4,15 @@
 using namespace concurrency::fast_math;
 /*
 * SGEMM - NoTransAB case - Row major Access
-* STEP with Non Bank Conflict Implmentation
+* STEP with Non Bank Conflict Implementation
 * TILESIZE = 8 STEPSIZE = 8
 */
 hcblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						          Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						          Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						          Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						          int M, int N, int K, int lda, int ldb, int ldc,	
+						          float alpha, float beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -77,16 +77,16 @@ hcblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerat
 }
 /*
 * SGEMM - NoTransAB case - Row major Access
-* STEP with Non Bank Conflict Implmentation
+* STEP with Non Bank Conflict Implementation
 * TILESIZE = 16 STEPSIZE = 16
 */
 
 hcblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+							    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+							    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+							    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+							    int M, int N, int K, int lda, int ldb, int ldc,
+							    float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -152,15 +152,15 @@ hcblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::acceler
 
 /*
 * SGEMM - NoTransAB case - Row major Access
-* SUBMICROTILE Implmentation
+* SUBMICROTILE Implementation
 * TILESIZE = 16 MICROTILESIZE = 2
 */
 hcblasStatus gemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						         Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						         Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						         Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						         int M, int N, int K, int lda, int ldb, int ldc,
+						         float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, ((M / 2)  + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -229,16 +229,16 @@ hcblasStatus gemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerato
 
 /*
 * SGEMM - NoTransA case - Row major Access
-* STEP Implmentation
+* STEP Implementation
 * TILESIZE = 8 STEPSIZE = 8
 */
 
 hcblasStatus gemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						     Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						     Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						     Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						     int M, int N, int K, int lda, int ldb, int ldc,
+						     float alpha, float beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -305,16 +305,16 @@ hcblasStatus gemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_vi
 
 /*
 * SGEMM - NoTransA case - Row major Access
-* STEP with Non Bank Conflict Implmentation
+* STEP with Non Bank Conflict Implementation
 * TILESIZE = 8 STEPSIZE = 8
 */
 
 hcblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						         Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						         Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						         Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						         int M, int N, int K, int lda, int ldb, int ldc,
+						         float alpha, float beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -392,16 +392,16 @@ hcblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerato
 
 /*
 * SGEMM - NoTransA case - Row major Access
-* STEP with Non Bank Conflict Implmentation
+* STEP with Non Bank Conflict Implementation
 * TILESIZE = 16 STEPSIZE = 16
 */
 
 hcblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						           Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						           Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						           Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						           int M, int N, int K, int lda, int ldb, int ldc,
+						           float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -479,16 +479,16 @@ hcblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelera
 
 /*
 * SGEMM - NoTransA case - Row major Access
-* SUBMICROTILE with Non Bank Conflict Implmentation
+* SUBMICROTILE with Non Bank Conflict Implementation
 * TILESIZE = 16 MICROTILESIZE = 8
 */
 
 hcblasStatus gemm_NoTransA_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+							    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+							    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+							    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+							    int M, int N, int K, int lda, int ldb, int ldc,
+							    float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -565,16 +565,16 @@ hcblasStatus gemm_NoTransA_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::acceler
 
 /*
 * SGEMM - NoTransA case - Row major Access
-* SUBMICROTILE Implmentation
+* SUBMICROTILE Implementation
 * TILESIZE = 16 MICROTILESIZE = 2
 */
 
 hcblasStatus gemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						        Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						        Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						        Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						        int M, int N, int K, int lda, int ldb, int ldc,
+						        float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -642,16 +642,16 @@ hcblasStatus gemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator
 }
 /*
 * SGEMM - NoTransB case - Row major Access
-* STEP with Non Bank Conflict Implmentation
+* STEP with Non Bank Conflict Implementation
 * TILESIZE = 16 STEPSIZE = 16
 */
 
 hcblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						           Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						           Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						           Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						           int M, int N, int K, int lda, int ldb, int ldc,
+						           float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -728,16 +728,16 @@ hcblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelera
 
 /*
 * SGEMM - NoTransB case - Row major Access
-* SUBMICROTILE with Non Bank Conflict Implmentation
+* SUBMICROTILE with Non Bank Conflict Implementation
 * TILESIZE = 16 MICROTILESIZE = 2
 */
 
 hcblasStatus gemm_NoTransB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+							    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+							    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+							    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+							    int M, int N, int K, int lda, int ldb, int ldc,
+							    float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -818,11 +818,11 @@ hcblasStatus gemm_NoTransB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::acceler
 */
 
 hcblasStatus gemm_NoTransB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						     Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						     Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						     Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						     int M, int N, int K, int lda, int ldb, int ldc,
+						     float alpha, float beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -889,16 +889,16 @@ hcblasStatus gemm_NoTransB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_vi
 
 /*
 * SGEMM - NoTransB case - Row major Access
-* STEP Implmentation
+* STEP Implementation
 * TILESIZE = 16 STEPSIZE = 16
 */
 
 hcblasStatus gemm_NoTransB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						       Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						       Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						       Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						       int M, int N, int K, int lda, int ldb, int ldc,
+						       float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -965,16 +965,16 @@ hcblasStatus gemm_NoTransB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerator_
 
 /*
 * SGEMM - NoTransB case - Row major Access
-* SUBMICORTILE Implmentation
+* SUBMICORTILE Implementation
 * TILESIZE = 16 STEPSIZE = 2
 */
 
 hcblasStatus gemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						        Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						        Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						        Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						        int M, int N, int K, int lda, int ldb, int ldc,
+						        float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1043,16 +1043,16 @@ hcblasStatus gemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator
 
 /*
 * SGEMM - NoTransB case - Row major Access
-* STEP with Non Bank Concflict Implmentation
+* STEP with Non Bank Concflict Implementation
 * TILESIZE = 8 STEPSIZE = 8
 */
 
 hcblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						         Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						         Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						         Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						         int M, int N, int K, int lda, int ldb, int ldc,
+						         float alpha, float beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1134,11 +1134,11 @@ hcblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerato
 */
 
 hcblasStatus gemm_TransAB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						           Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						           Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						           Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						           int M, int N, int K, int lda, int ldb, int ldc,
+						           float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (((M >> 1)) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((N >> 1)) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1213,16 +1213,16 @@ hcblasStatus gemm_TransAB_rMajor_batch_MICRO_NBK_TS16XMTS2(Concurrency::accelera
 }
 /*
 * SGEMM - TransAB case - Row major Access
-* STEP with Non Bank Conflict Implmentation
+* STEP with Non Bank Conflict Implementation
 * TILESIZE = 8 STEPSIZE = 8
 */
 
 hcblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						        Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						        Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						        Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						        int M, int N, int K, int lda, int ldb, int ldc,
+						        float alpha, float beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1290,16 +1290,16 @@ hcblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS8XSS8(Concurrency::accelerator
 }
 /*
 * SGEMM - TransAB case - Row major Access
-* STEP with Non Bank Conflict Implmentation
+* STEP with Non Bank Conflict Implementation
 * TILESIZE = 16 STEPSIZE = 16
 */
 
 hcblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						          Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						          Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						          Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						          int M, int N, int K, int lda, int ldb, int ldc,
+						          float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1373,11 +1373,11 @@ hcblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS16XSS16(Concurrency::accelerat
 */
 
 hcblasStatus gemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						       Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						       Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						       Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						       int M, int N, int K, int lda, int ldb, int ldc,
+						       float alpha, float beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, ((M / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), ((N / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1446,16 +1446,16 @@ hcblasStatus gemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_
 
 /*
 * SGEMM - TransAB case - Row major Access
-* STEP Implmentation
+* STEP Implementation
 * TILESIZE = 8 STEPSIZE = 8
 */
 
 hcblasStatus gemm_TransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+						    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+						    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+						    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+						    int M, int N, int K, int lda, int ldb, int ldc,
+						    float alpha, float beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1525,11 +1525,11 @@ hcblasStatus gemm_TransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_vie
 }
 
 hcblasStatus gemm_TransAB_rMajor_batch_largeM(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+					      Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+					      Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+					      Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+					      int M, int N, int K, int lda, int ldb, int ldc,
+					      float alpha, float beta, int batchSize) {
 #define MICROTILESIZE_A 2
 #define MICROTILESIZE_B 1
 #define TILESIZE_A 32
@@ -1605,11 +1605,11 @@ hcblasStatus gemm_TransAB_rMajor_batch_largeM(Concurrency::accelerator_view &acc
 }
 
 hcblasStatus gemm_NoTransB_rMajor_batch_largeM(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+					       Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+					       Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+					       Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+					       int M, int N, int K, int lda, int ldb, int ldc,
+					       float alpha, float beta, int batchSize) {
 #define MICROTILESIZE_A 2
 #define MICROTILESIZE_B 2
 #define TILESIZE_A 32
@@ -1689,11 +1689,11 @@ hcblasStatus gemm_NoTransB_rMajor_batch_largeM(Concurrency::accelerator_view &ac
 }
 
 hcblasStatus gemm_NoTransA_rMajor_batch_largeM(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float alpha, float beta, int batchSize) {
+					       Concurrency::array<float, 1> &A, long aOffset, long A_batchOffset,
+					       Concurrency::array<float, 1> &B, long bOffset, long B_batchOffset,
+					       Concurrency::array<float, 1> &C, long cOffset, long C_batchOffset,
+					       int M, int N, int K, int lda, int ldb, int ldc,
+					       float alpha, float beta, int batchSize) {
 #define MICROTILESIZE_A 2
 #define MICROTILESIZE_B 1
 #define TILESIZE_A 32
@@ -1778,9 +1778,7 @@ hcblasStatus gemm_NoTransAB_rMajor(Concurrency::accelerator_view &accl_view,
                                    float alpha, float beta, int batchSize) {
   if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600)) {
     return gemm_NoTransAB_rMajor_batch_STEP_NBK_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
-  }
-
-  if ((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10)))) {
+  } else if ((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10)))) {
     return gemm_NoTransAB_rMajor_batch_STEP_NBK_TS16XSS16(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   } else {
     return gemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);

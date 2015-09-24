@@ -96,11 +96,11 @@ hcblasStatus cgemm_NoTransAB_loopunroll(Concurrency::accelerator_view &accl_view
 
 
 hcblasStatus cgemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta) {
+					     Concurrency::array<float_2, 1> &A, long aOffset,
+					     Concurrency::array<float_2, 1> &B, long bOffset,
+					     Concurrency::array<float_2, 1> &C, long cOffset,
+					     int M, int N, int K, int lda, int ldb, int ldc,
+					     float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -193,11 +193,11 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl
 }
 
 hcblasStatus cgemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta)
+				          Concurrency::array<float_2, 1> &A, long aOffset,
+				          Concurrency::array<float_2, 1> &B, long bOffset,
+				          Concurrency::array<float_2, 1> &C, long cOffset,
+				          int M, int N, int K, int lda, int ldb, int ldc,
+				          float_2 alpha, float_2 beta)
 
 {
 #define TILESIZE 8
@@ -287,13 +287,12 @@ hcblasStatus cgemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vi
 }
 
 
-
 hcblasStatus cgemm_NoTransAB_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta) {
+					    Concurrency::array<float_2, 1> &A, long aOffset,
+					    Concurrency::array<float_2, 1> &B, long bOffset,
+					    Concurrency::array<float_2, 1> &C, long cOffset,
+					    int M, int N, int K, int lda, int ldb, int ldc,
+					    float_2 alpha, float_2 beta) {
 #define TILESIZE 8
 #define MICROTILESIZE 2
   Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -386,11 +385,11 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_
 }
 
 hcblasStatus cgemm_NoTransA_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta) {
+					    Concurrency::array<float_2, 1> &A, long aOffset,
+					    Concurrency::array<float_2, 1> &B, long bOffset,
+					    Concurrency::array<float_2, 1> &C, long cOffset,
+					    int M, int N, int K, int lda, int ldb, int ldc,
+					    float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -483,11 +482,11 @@ hcblasStatus cgemm_NoTransA_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
 }
 
 hcblasStatus cgemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta) {
+				         Concurrency::array<float_2, 1> &A, long aOffset,
+				         Concurrency::array<float_2, 1> &B, long bOffset,
+				         Concurrency::array<float_2, 1> &C, long cOffset,
+				         int M, int N, int K, int lda, int ldb, int ldc,
+				         float_2 alpha, float_2 beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -572,11 +571,11 @@ hcblasStatus cgemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vie
 }
 
 hcblasStatus cgemm_NoTransB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2> &A, long aOffset,
-    Concurrency::array<float_2> &B, long bOffset,
-    Concurrency::array<float_2> &C, long cOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta) {
+				            Concurrency::array<float_2> &A, long aOffset,
+				            Concurrency::array<float_2> &B, long bOffset,
+					    Concurrency::array<float_2> &C, long cOffset,
+					    int M, int N, int K, int lda, int ldb, int ldc,
+					    float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -849,11 +848,11 @@ hcblasStatus cgemm_TransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view
 }
 
 hcblasStatus cgemm_TransAB_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta) {
+				          Concurrency::array<float_2, 1> &A, long aOffset,
+				          Concurrency::array<float_2, 1> &B, long bOffset,
+				          Concurrency::array<float_2, 1> &C, long cOffset,
+				          int M, int N, int K, int lda, int ldb, int ldc,
+				          float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define STEPSIZE 16
   Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -935,11 +934,11 @@ hcblasStatus cgemm_TransAB_STEP_TS16XSS16(Concurrency::accelerator_view &accl_vi
 }
 
 hcblasStatus cgemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta) {
+				           Concurrency::array<float_2, 1> &A, long aOffset,
+				           Concurrency::array<float_2, 1> &B, long bOffset,
+				           Concurrency::array<float_2, 1> &C, long cOffset,
+				           int M, int N, int K, int lda, int ldb, int ldc,
+			  	           float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));

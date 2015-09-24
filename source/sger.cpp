@@ -93,11 +93,11 @@ void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
 }
 
 hcblasStatus Hcblaslibrary :: hcblas_sger(const enum HCBLAS_ORDER order, const int M, const int N,
-    const float* alpha, float* X,
-    const long xOffset, const int incX,
-    float* Y, const long yOffset,
-    const int incY, float* A,
-    const long aOffset, const int lda) {
+				          const float* alpha, float* X,
+				          const long xOffset, const int incX,
+				          float* Y, const long yOffset,
+				          const int incY, float* A,
+				          const long aOffset, const int lda) {
   if (alpha == NULL || X == NULL || Y == NULL || N <= 0 || M <= 0 || A == NULL || incX == 0 || incY == 0) {
     return HCBLAS_INVALID;
   }
@@ -146,10 +146,10 @@ hcblasStatus Hcblaslibrary :: hcblas_sger(const enum HCBLAS_ORDER order, const i
 
 
 hcblasStatus Hcblaslibrary ::hcblas_sger(Concurrency::accelerator_view &accl_view, const enum HCBLAS_ORDER order,
-    const int M, const int N, const float &alpha,
-    Concurrency::array<float> &X, const long xOffset, const int incX,
-    Concurrency::array<float> &Y, const long yOffset, const int incY,
-    Concurrency::array<float> &A, const long aOffset, const int lda) {
+				         const int M, const int N, const float &alpha,
+				         Concurrency::array<float> &X, const long xOffset, const int incX,
+				         Concurrency::array<float> &Y, const long yOffset, const int incY,
+				         Concurrency::array<float> &A, const long aOffset, const int lda) {
   /*Check the conditions*/
   if (N <= 0 || M <= 0 || incX == 0 || incY == 0) {
     return HCBLAS_INVALID;
@@ -169,13 +169,13 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(Concurrency::accelerator_view &accl_vie
 }
 
 hcblasStatus Hcblaslibrary :: hcblas_sger(Concurrency::accelerator_view &accl_view, const enum HCBLAS_ORDER order,
-    const int M, const int N, const float &alpha,
-    Concurrency::array<float> &X,
-    const long xOffset, const long X_batchOffset, const int incX,
-    Concurrency::array<float> &Y,
-    const long yOffset, const long Y_batchOffset, const int incY,
-    Concurrency::array<float> &A,
-    const long aOffset, const long A_batchOffset, const int lda, int batchSize)
+				          const int M, const int N, const float &alpha,
+				          Concurrency::array<float> &X,
+				          const long xOffset, const long X_batchOffset, const int incX,
+				          Concurrency::array<float> &Y,
+				          const long yOffset, const long Y_batchOffset, const int incY,
+				          Concurrency::array<float> &A,
+				          const long aOffset, const long A_batchOffset, const int lda, int batchSize)
 
 {
   /*Check the conditions*/

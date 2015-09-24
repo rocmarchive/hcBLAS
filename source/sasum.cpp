@@ -236,8 +236,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sasum(const int N, float* X, const int incX
 
 // SASUM Call Type II: Inputs and outputs are C++ HC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_sasum(Concurrency::accelerator_view &accl_view, const int N,
-    Concurrency::array<float> &X, const int incX,
-    const long xOffset, float &Y) {
+				           Concurrency::array<float> &X, const int incX,
+				           const long xOffset, float &Y) {
   /*Check the conditions*/
   if (  N <= 0 ) {
     return HCBLAS_INVALID;
@@ -249,8 +249,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sasum(Concurrency::accelerator_view &accl_v
 
 // SASUM TYpe III - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_sasum(Concurrency::accelerator_view &accl_view, const int N,
-    Concurrency::array<float> &X, const int incX,
-    const long xOffset, float &Y, const long X_batchOffset, const int batchSize) {
+				           Concurrency::array<float> &X, const int incX,
+				           const long xOffset, float &Y, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  N <= 0 ) {
     return HCBLAS_INVALID;

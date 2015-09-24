@@ -236,8 +236,8 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(const int N, double* X, const int inc
 
 // DASUM Call Type II: Inputs and outputs are C++ HC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_dasum(Concurrency::accelerator_view &accl_view, const int N,
-    Concurrency::array<double> &X, const int incX,
-    const long xOffset, double &Y) {
+				           Concurrency::array<double> &X, const int incX,
+				           const long xOffset, double &Y) {
   /*Check the conditions*/
   if (  N <= 0 ) {
     return HCBLAS_INVALID;
@@ -249,8 +249,8 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(Concurrency::accelerator_view &accl_v
 
 // SASUM TYpe III - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_dasum(Concurrency::accelerator_view &accl_view, const int N,
-    Concurrency::array<double> &X, const int incX,
-    const long xOffset, double &Y, const long X_batchOffset, const int batchSize) {
+				           Concurrency::array<double> &X, const int incX,
+				           const long xOffset, double &Y, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  N <= 0 ) {
     return HCBLAS_INVALID;

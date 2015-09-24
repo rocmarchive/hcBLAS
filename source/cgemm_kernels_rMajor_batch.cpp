@@ -2,11 +2,11 @@
 #include "amp_math.h"
 using namespace concurrency::fast_math;
 hcblasStatus cgemm_TransAB_rMajor_batch_loopunroll(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+					           Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+					           Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+					           Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					           int M, int N, int K, int lda, int ldb, int ldc,
+					           float_2 alpha, float_2 beta, int batchSize) {
 #define THREADS   16
 #define TILE_DIM  16
   Concurrency::extent<3> grdExt(batchSize, (M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
@@ -97,11 +97,11 @@ hcblasStatus cgemm_TransAB_rMajor_batch_loopunroll(Concurrency::accelerator_view
 
 
 hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+						        Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						        Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						        Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						        int M, int N, int K, int lda, int ldb, int ldc,
+						        float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -195,11 +195,11 @@ hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator
 }
 
 hcblasStatus cgemm_TransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize)
+						     Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						     Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						     Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						     int M, int N, int K, int lda, int ldb, int ldc,
+						     float_2 alpha, float_2 beta, int batchSize)
 
 {
 #define TILESIZE 8
@@ -292,11 +292,11 @@ hcblasStatus cgemm_TransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_vi
 
 
 hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+						       Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						       Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						       Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						       int M, int N, int K, int lda, int ldb, int ldc,
+						       float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -390,11 +390,11 @@ hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS8XMTS2(Concurrency::accelerator_
 }
 
 hcblasStatus cgemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+						         Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						         Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						         Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						         int M, int N, int K, int lda, int ldb, int ldc,
+						         float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -488,11 +488,11 @@ hcblasStatus cgemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerato
 }
 
 hcblasStatus cgemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+						      Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						      Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						      Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						      int M, int N, int K, int lda, int ldb, int ldc,
+						      float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -578,11 +578,11 @@ hcblasStatus cgemm_NoTransA_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_v
 }
 
 hcblasStatus cgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+						         Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						         Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						         Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						         int M, int N, int K, int lda, int ldb, int ldc,
+						         float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -677,11 +677,11 @@ hcblasStatus cgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerato
 }
 
 hcblasStatus cgemm_NoTransA_rMajor_batch_loopunroll(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+						    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						    int M, int N, int K, int lda, int ldb, int ldc,
+						    float_2 alpha, float_2 beta, int batchSize) {
 #define THREADS   16
 #define TILE_DIM  16
   Concurrency::extent<3> grdExt(batchSize, (M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
@@ -771,11 +771,11 @@ hcblasStatus cgemm_NoTransA_rMajor_batch_loopunroll(Concurrency::accelerator_vie
 }
 
 hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+						       Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						       Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						       Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						       int M, int N, int K, int lda, int ldb, int ldc,
+						       float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -858,11 +858,11 @@ hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS8XSS8(Concurrency::accelerator_
 }
 
 hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+						         Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						         Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						         Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						         int M, int N, int K, int lda, int ldb, int ldc,
+						         float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -945,11 +945,11 @@ hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS16XSS16(Concurrency::accelerato
 }
 
 hcblasStatus cgemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-    Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-    Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-    Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
-    int M, int N, int K, int lda, int ldb, int ldc,
-    float_2 alpha, float_2 beta, int batchSize) {
+						          Concurrency::array<float_2, 1> &A, long aOffset, long A_batchOffset,
+						          Concurrency::array<float_2, 1> &B, long bOffset, long B_batchOffset,
+						          Concurrency::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+						          int M, int N, int K, int lda, int ldb, int ldc,
+					  	          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   Concurrency::extent<3> grdExt(batchSize, (M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));

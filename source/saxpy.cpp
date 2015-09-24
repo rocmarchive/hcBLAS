@@ -2,7 +2,6 @@
 #include <amp.h>
 #include "amp_math.h"
 using namespace concurrency::fast_math;
-
 using namespace concurrency;
 #define BLOCK_SIZE 256
 
@@ -118,9 +117,9 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
 
 
 hcblasStatus Hcblaslibrary :: hcblas_saxpy(const int N, const float* alpha,
-    float* X, const int incX,
-    float* Y, const int incY,
-    const long xOffset, const long yOffset) {
+                                           float* X, const int incX,
+				           float* Y, const int incY,
+				           const long xOffset, const long yOffset) {
   if (alpha == NULL || X == NULL || Y == NULL || N <= 0 ) {
     return HCBLAS_INVALID;
   }
@@ -156,10 +155,10 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(const int N, const float* alpha,
 
 
 hcblasStatus Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_view,
-    const int N, const float &alpha,
-    Concurrency::array<float> &X, const int incX,
-    Concurrency::array<float> &Y, const int incY,
-    const long xOffset, const long yOffset)
+				           const int N, const float &alpha,
+				           Concurrency::array<float> &X, const int incX,
+				           Concurrency::array<float> &Y, const int incY,
+				           const long xOffset, const long yOffset)
 
 {
   /*Check the conditions*/
@@ -177,10 +176,10 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_v
 
 
 hcblasStatus  Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_view,
-    const int N, const float &alpha,
-    Concurrency::array<float> &X, const int incX, const long X_batchOffset,
-    Concurrency::array<float> &Y, const int incY, const long Y_batchOffset,
-    const long xOffset, const long yOffset, const int batchSize)
+					    const int N, const float &alpha,
+					    Concurrency::array<float> &X, const int incX, const long X_batchOffset,
+					    Concurrency::array<float> &Y, const int incY, const long Y_batchOffset,
+					    const long xOffset, const long yOffset, const int batchSize)
 
 {
   /*Check the conditions*/

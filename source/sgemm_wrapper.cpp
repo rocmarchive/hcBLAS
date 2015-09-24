@@ -98,16 +98,16 @@ hcblasStatus gemm_HC(Concurrency::accelerator_view &accl_view,
 
 // Sgemm Call Type 1: Inputs and Outputs are host float pointers
 hcblasStatus Hcblaslibrary :: hcblas_sgemm(const enum HCBLAS_ORDER order,
-    const enum HCBLAS_TRANS typeA,
-    const enum HCBLAS_TRANS typeB,
-    const int M, const int N,
-    const int K, const float* alpha,
-    float* A, const long lda,
-    float* B, const long ldb,
-    const float* beta, float* C,
-    const long ldc, const long aOffset,
-    const long bOffset,
-    const long cOffset) {
+    					   const enum HCBLAS_TRANS typeA,
+				           const enum HCBLAS_TRANS typeB,
+				           const int M, const int N,
+				           const int K, const float* alpha,
+				           float* A, const long lda,
+				           float* B, const long ldb,
+				           const float* beta, float* C,
+				           const long ldc, const long aOffset,
+				           const long bOffset,
+				           const long cOffset) {
   Concurrency::array<float> A_mat(K * M, A);
   Concurrency::array<float> B_mat(N * K, B);
   Concurrency::array<float> C_mat(M * N, C);
@@ -148,17 +148,15 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(const enum HCBLAS_ORDER order,
 
 // Sgemm Call Type II: Inputs and outputs are C++ HC float array_View containers
 hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
-    const enum HCBLAS_ORDER order,
-    const enum HCBLAS_TRANS typeA,
-    const enum HCBLAS_TRANS typeB, const int M,
-    const int N, const int K, const float &alpha,
-    Concurrency::array<float> &A, const long lda,
-    Concurrency::array<float> &B, const long ldb,
-    const float &beta,
-    Concurrency::array<float> &C, const long ldc,
-    const long aOffset, const long bOffset, const long cOffset)
-
-{
+					    const enum HCBLAS_ORDER order,
+					    const enum HCBLAS_TRANS typeA,
+					    const enum HCBLAS_TRANS typeB, const int M,
+					    const int N, const int K, const float &alpha,
+					    Concurrency::array<float> &A, const long lda,
+					    Concurrency::array<float> &B, const long ldb,
+					    const float &beta,
+					    Concurrency::array<float> &C, const long ldc,
+					    const long aOffset, const long bOffset, const long cOffset) {
   hcblasStatus status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A,
                                 aOffset, lda, B, bOffset, ldb, beta, C,
                                 cOffset, ldc);
@@ -167,17 +165,15 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_
 
 /* SGEMM- Overloaded function with arguments related to batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
-    const enum HCBLAS_ORDER order,
-    const enum HCBLAS_TRANS typeA,
-    const enum HCBLAS_TRANS typeB, const int M,
-    const int N, const int K, const float &alpha,
-    Concurrency::array<float> &A, const long lda, const long A_batchOffset,
-    Concurrency::array<float> &B, const long ldb, const long B_batchOffset,
-    const float &beta,
-    Concurrency::array<float> &C, const long ldc, const long C_batchOffset,
-    const long aOffset, const long bOffset, const long cOffset, const int batchSize)
-
-{
+					   const enum HCBLAS_ORDER order,
+					   const enum HCBLAS_TRANS typeA,
+					   const enum HCBLAS_TRANS typeB, const int M,
+					   const int N, const int K, const float &alpha,
+					   Concurrency::array<float> &A, const long lda, const long A_batchOffset,
+					   Concurrency::array<float> &B, const long ldb, const long B_batchOffset,
+					   const float &beta,
+					   Concurrency::array<float> &C, const long ldc, const long C_batchOffset,
+					   const long aOffset, const long bOffset, const long cOffset, const int batchSize) {
   gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
           bOffset, ldb, beta, C, cOffset, ldc, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);
   return HCBLAS_SUCCESS;

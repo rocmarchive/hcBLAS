@@ -39,7 +39,7 @@ void dscal_HC(Concurrency::accelerator_view &accl_view,
 
 // DSCAL call Type I - SSCAL Inputs and Outputs are host float pointers
 hcblasStatus Hcblaslibrary :: hcblas_dscal(const int N, const double* alpha,
-    double* X, const int incX, const long xOffset) {
+  					   double* X, const int incX, const long xOffset) {
   if (alpha == NULL || X == NULL || N <= 0 ) {
     return HCBLAS_INVALID;
   }
@@ -67,9 +67,9 @@ hcblasStatus Hcblaslibrary :: hcblas_dscal(const int N, const double* alpha,
 
 // DSCAL Call Type II: Inputs and outputs are C++ HC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_dscal(Concurrency::accelerator_view &accl_view,
-    const int N, const double &alpha,
-    Concurrency::array<double> &X, const int incX,
-    const long xOffset) {
+				           const int N, const double &alpha,
+				           Concurrency::array<double> &X, const int incX,
+				           const long xOffset) {
   /*Check the conditions*/
   if (  N <= 0 ) {
     return HCBLAS_INVALID;
@@ -85,9 +85,9 @@ hcblasStatus Hcblaslibrary :: hcblas_dscal(Concurrency::accelerator_view &accl_v
 
 // DSCAL TYpe III - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_dscal(Concurrency::accelerator_view &accl_view,
-    const int N, const double &alpha,
-    Concurrency::array<double> &X, const int incX,
-    const long xOffset, const long X_batchOffset, const int batchSize) {
+				           const int N, const double &alpha,
+				           Concurrency::array<double> &X, const int incX,
+				           const long xOffset, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  N <= 0 ) {
     return HCBLAS_INVALID;

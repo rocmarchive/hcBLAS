@@ -74,8 +74,8 @@ hcblasStatus Hcblaslibrary :: hcblas_dcopy(const int N, double* X, const int inc
 
 // DCOPY Call Type II: Inputs and outputs are C++ HC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
-    Concurrency::array<double> &X, const int incX, const long xOffset,
-    Concurrency::array<double> &Y, const int incY, const long yOffset) {
+    					   Concurrency::array<double> &X, const int incX, const long xOffset,
+				           Concurrency::array<double> &Y, const int incY, const long yOffset) {
   /*Check the conditions*/
   if (  N <= 0 ) {
     return HCBLAS_INVALID;
@@ -87,9 +87,9 @@ hcblasStatus Hcblaslibrary :: hcblas_dcopy(Concurrency::accelerator_view &accl_v
 
 // DCOPY TYpe III - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_dcopy(Concurrency::accelerator_view &accl_view, const int N,
-    Concurrency::array<double> &X, const int incX, const long xOffset,
-    Concurrency::array<double> &Y, const int incY, const long yOffset,
-    const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
+				           Concurrency::array<double> &X, const int incX, const long xOffset,
+				           Concurrency::array<double> &Y, const int incY, const long yOffset,
+				           const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  N <= 0 ) {
     return HCBLAS_INVALID;

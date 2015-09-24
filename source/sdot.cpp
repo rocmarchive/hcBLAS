@@ -219,7 +219,7 @@ float sdot_HC(Concurrency::accelerator_view &accl_view, long n,
 
 // SDOT call Type I - SSCAL Inputs and Outputs are host float pointers
 hcblasStatus Hcblaslibrary :: hcblas_sdot(const int N, float* X, const int incX, const long xOffset,
-    float* Y, const int incY, const long yOffset, float* dot) {
+    					  float* Y, const int incY, const long yOffset, float* dot) {
   if (Y == NULL || X == NULL || N <= 0 ) {
     return HCBLAS_INVALID;
   }
@@ -249,8 +249,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(const int N, float* X, const int incX,
 
 // SDOT Call Type II: Inputs and outputs are C++ HC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_sdot(Concurrency::accelerator_view &accl_view, const int N,
-    Concurrency::array<float> &X, const int incX, const long xOffset,
-    Concurrency::array<float> &Y, const int incY, const long yOffset, float &dot)
+				          Concurrency::array<float> &X, const int incX, const long xOffset,
+				          Concurrency::array<float> &Y, const int incY, const long yOffset, float &dot)
 
 {
   /*Check the conditions*/
@@ -264,9 +264,9 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(Concurrency::accelerator_view &accl_vi
 
 // SDOT TYpe III - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_sdot(Concurrency::accelerator_view &accl_view, const int N,
-    Concurrency::array<float> &X, const int incX, const long xOffset,
-    Concurrency::array<float> &Y, const int incY, const long yOffset, float &dot,
-    const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
+				          Concurrency::array<float> &X, const int incX, const long xOffset,
+				          Concurrency::array<float> &Y, const int incY, const long yOffset, float &dot,
+				          const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  N <= 0 ) {
     return HCBLAS_INVALID;
