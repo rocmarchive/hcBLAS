@@ -17,7 +17,7 @@ void ger_HC(Concurrency::accelerator_view &accl_view,
     int j = tidx.global[1];
 
     if(i < m && j < n) {
-      long a_index = aOffset + j * m + i;
+      long a_index = aOffset + j * lda + i;
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
@@ -41,7 +41,7 @@ void ger_HC(Concurrency::accelerator_view &accl_view,
     int j = tidx.global[2];
 
     if(i < m && j < n) {
-      long a_index = aOffset + A_batchOffset * elt + j * m + i;
+      long a_index = aOffset + A_batchOffset * elt + j * lda + i;
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
@@ -61,7 +61,7 @@ void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
     int j = tidx.global[0];
 
     if(i < m && j < n) {
-      long a_index = aOffset + j + i * n;
+      long a_index = aOffset + j + i * lda;
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
@@ -85,7 +85,7 @@ void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
     int j = tidx.global[1];
 
     if(i < m && j < n) {
-      long a_index = aOffset + A_batchOffset * elt + j + i * n;
+      long a_index = aOffset + A_batchOffset * elt + j + i * lda;
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
@@ -132,7 +132,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sger(const enum HCBLAS_ORDER order, const i
   if(order) {
     ger_HC(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
   } else {
-    ger_HC_rMajor(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
+    ger_HC_rMajor(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, N);
   }
 
   Concurrency::copy(aMat, begin(HostA));
@@ -162,7 +162,7 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(Concurrency::accelerator_view &accl_vie
   if(order) {
     ger_HC(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, M);
   } else {
-    ger_HC_rMajor(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, M);
+    ger_HC_rMajor(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, N);
   }
 
   return HCBLAS_SUCCESS;
@@ -190,7 +190,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sger(Concurrency::accelerator_view &accl_vi
   if(order) {
     ger_HC(accl_view, M, N, alpha, X, xOffset, X_batchOffset, incX, Y, yOffset, Y_batchOffset, incY, A, aOffset, A_batchOffset, M, batchSize);
   } else {
-    ger_HC_rMajor(accl_view, M, N, alpha, X, xOffset, X_batchOffset, incX, Y, yOffset, Y_batchOffset, incY, A, aOffset, A_batchOffset, M, batchSize);
+    ger_HC_rMajor(accl_view, M, N, alpha, X, xOffset, X_batchOffset, incX, Y, yOffset, Y_batchOffset, incY, A, aOffset, A_batchOffset, N, batchSize);
   }
 
   return HCBLAS_SUCCESS;

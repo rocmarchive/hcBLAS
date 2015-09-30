@@ -26,16 +26,16 @@ hcblasStatus cgemm_TransAB_rMajor_loopunroll(Concurrency::accelerator_view &accl
 
     for (int k = 0; k < ((K + (TILE_DIM - 1)) / TILE_DIM ) ; k++) {
       if (k * TILE_DIM + tidx.local[0] < K && Row < N) {
-        Bsreal[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * K + (k * TILE_DIM + tidx.local[0])].x;
-        Bsimg[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * K + (k * TILE_DIM + tidx.local[0])].y;
+        Bsreal[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * ldb + (k * TILE_DIM + tidx.local[0])].x;
+        Bsimg[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * ldb + (k * TILE_DIM + tidx.local[0])].y;
       } else {
         Bsreal[tidx.local[1]][tidx.local[0]] = 0.0;
         Bsimg[tidx.local[1]][tidx.local[0]] = 0.0;
       }
 
       if (k * TILE_DIM + tidx.local[1] < K && Col < M) {
-        Asreal[tidx.local[1]][tidx.local[0]] = A[aOffset + (k * TILE_DIM + tidx.local[1]) * M + Col].x;
-        Asimg[tidx.local[1]][tidx.local[0]] = A[aOffset + (k * TILE_DIM + tidx.local[1]) * M + Col].y;
+        Asreal[tidx.local[1]][tidx.local[0]] = A[aOffset + (k * TILE_DIM + tidx.local[1]) * lda + Col].x;
+        Asimg[tidx.local[1]][tidx.local[0]] = A[aOffset + (k * TILE_DIM + tidx.local[1]) * lda + Col].y;
       } else {
         Asreal[tidx.local[1]][tidx.local[0]] = 0.0;
         Asimg[tidx.local[1]][tidx.local[0]] = 0.0;
@@ -79,14 +79,14 @@ hcblasStatus cgemm_TransAB_rMajor_loopunroll(Concurrency::accelerator_view &accl
     }
 
     if (Row < N && Col < M) {
-      CReal = C[cOffset + tidx.global[1] + (tidx.global[0] * N)].x;
-      CImg = C[cOffset + tidx.global[1] + (tidx.global[0] * N)].y;
+      CReal = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x;
+      CImg = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + tidx.global[1] + (tidx.global[0] * N)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
-      C[cOffset + tidx.global[1] + (tidx.global[0] * N)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
+      C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
+      C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
   });
 #undef THREADS
@@ -694,16 +694,16 @@ hcblasStatus cgemm_NoTransA_rMajor_loopunroll(Concurrency::accelerator_view &acc
 
     for (int k = 0; k < ((K + (TILE_DIM - 1)) & ~(TILE_DIM - 1)) ; k += TILE_DIM) {
       if (k + tidx.local[0] < K && Row < N) {
-        Bsreal[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * K + k + tidx.local[0]].x;
-        Bsimg[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * K + k + tidx.local[0]].y;
+        Bsreal[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * ldb + k + tidx.local[0]].x;
+        Bsimg[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * ldb + k + tidx.local[0]].y;
       } else {
         Bsreal[tidx.local[1]][tidx.local[0]] = 0.0;
         Bsimg[tidx.local[1]][tidx.local[0]] = 0.0;
       }
 
       if (k + tidx.local[0] < K && (tidx.tile[0] * TILE_DIM + tidx.local[1]) < M) {
-        Asreal[tidx.local[1]][tidx.local[0]] = A[aOffset + ((tidx.tile[0] * TILE_DIM + tidx.local[1]) * K) + k + tidx.local[0]].x;
-        Asimg[tidx.local[1]][tidx.local[0]] = A[aOffset + ((tidx.tile[0] * TILE_DIM + tidx.local[1]) * K) + k + tidx.local[0]].y;
+        Asreal[tidx.local[1]][tidx.local[0]] = A[aOffset + ((tidx.tile[0] * TILE_DIM + tidx.local[1]) * lda) + k + tidx.local[0]].x;
+        Asimg[tidx.local[1]][tidx.local[0]] = A[aOffset + ((tidx.tile[0] * TILE_DIM + tidx.local[1]) * lda) + k + tidx.local[0]].y;
       } else {
         Asreal[tidx.local[1]][tidx.local[0]] = 0.0;
         Asimg[tidx.local[1]][tidx.local[0]] = 0.0;
@@ -747,14 +747,14 @@ hcblasStatus cgemm_NoTransA_rMajor_loopunroll(Concurrency::accelerator_view &acc
     }
 
     if (Row < N && Col < M) {
-      CReal = C[cOffset + tidx.global[1] + (tidx.global[0] * N)].x;
-      CImg = C[cOffset + tidx.global[1] + (tidx.global[0] * N)].y;
+      CReal = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x;
+      CImg = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + tidx.global[1] + (tidx.global[0] * N)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
-      C[cOffset + tidx.global[1] + (tidx.global[0] * N)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
+      C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
+      C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
   });
 #undef THREADS

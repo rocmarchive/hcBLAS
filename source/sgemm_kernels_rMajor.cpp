@@ -1523,7 +1523,7 @@ hcblasStatus gemm_TransAB_rMajor_largeK(Concurrency::accelerator_view &accl_view
 
     for (int tileId = 0; tileId < ((K + GEMM_BLOCK - 1) & ~(GEMM_BLOCK - 1)) / GEMM_BLOCK; tileId++) {
       if (tileId * GEMM_BLOCK + threadIdx < K && Col < M && Row < N) {
-        sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * M] * B[bOffset + Row * K + tileId * GEMM_BLOCK + threadIdx];
+        sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * lda] * B[bOffset + Row * ldb + tileId * GEMM_BLOCK + threadIdx];
       }
     }
 
@@ -1538,7 +1538,7 @@ hcblasStatus gemm_TransAB_rMajor_largeK(Concurrency::accelerator_view &accl_view
     }
 
     if (threadIdx == 0 && Col < M && Row < N) {
-      long C_index = cOffset + Row + Col * N;
+      long C_index = cOffset + Row + Col * ldc;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
@@ -1566,7 +1566,7 @@ hcblasStatus gemm_NoTransB_rMajor_largeK(Concurrency::accelerator_view &accl_vie
 
     for (int tileId = 0; tileId < ((K + GEMM_BLOCK - 1) & ~(GEMM_BLOCK - 1)) / GEMM_BLOCK; tileId++) {
       if (tileId * GEMM_BLOCK + threadIdx < K && Col < M && Row < N) {
-        sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * M] * B[bOffset + Row + (tileId * GEMM_BLOCK + threadIdx) * N];
+        sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * lda] * B[bOffset + Row + (tileId * GEMM_BLOCK + threadIdx) * ldb];
       }
     }
 
@@ -1581,7 +1581,7 @@ hcblasStatus gemm_NoTransB_rMajor_largeK(Concurrency::accelerator_view &accl_vie
     }
 
     if (threadIdx == 0 && Col < M && Row < N) {
-      long C_index = cOffset + Row + Col * N;
+      long C_index = cOffset + Row + Col * ldc;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
@@ -1610,7 +1610,7 @@ hcblasStatus gemm_NoTransA_rMajor_largeK(Concurrency::accelerator_view &accl_vie
 
     for (int tileId = 0; tileId < ((K + GEMM_BLOCK - 1) & ~(GEMM_BLOCK - 1)) / GEMM_BLOCK; tileId++) {
       if (tileId * GEMM_BLOCK + threadIdx < K && Col < M && Row < N) {
-        sh[threadIdx] += A[aOffset + Col * K + tileId * GEMM_BLOCK + threadIdx] * B[bOffset + Row * K + tileId * GEMM_BLOCK + threadIdx];
+        sh[threadIdx] += A[aOffset + Col * lda + tileId * GEMM_BLOCK + threadIdx] * B[bOffset + Row * ldb + tileId * GEMM_BLOCK + threadIdx];
       }
     }
 
@@ -1625,7 +1625,7 @@ hcblasStatus gemm_NoTransA_rMajor_largeK(Concurrency::accelerator_view &accl_vie
     }
 
     if (threadIdx == 0 && Col < M && Row < N) {
-      long C_index = cOffset + Row + Col * N;
+      long C_index = cOffset + Row + Col * ldc;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;

@@ -1474,7 +1474,7 @@ hcblasStatus gemm_TransAB_K1(Concurrency::accelerator_view &accl_view,
     for (int a = a_bgn, b = b_bgn; a <= a_end; a += a_stp, b += b_stp, global_x += TILESIZE, global_y += TILESIZE) {
       // each thread in workgroup reads one element of matrix A from global to local memory
       if ( thread_x + global_x < K ) {
-        localMemA[thread_y][thread_x] = alpha * A[a + aOffset +  K * thread_y + thread_x];
+        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + lda * thread_y + thread_x];
       } else {
         // needed on AMD
         localMemA[thread_y][thread_x] = 0.0;
@@ -1482,7 +1482,7 @@ hcblasStatus gemm_TransAB_K1(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads one element of matrix B from global to local memory
       if ( thread_y + global_y < K ) {
-        localMemB[thread_y][thread_x] = B[b + bOffset + N * thread_y + thread_x];
+        localMemB[thread_y][thread_x] = B[b + bOffset + ldb * thread_y + thread_x];
       } else {
         // needed on AMD
         localMemB[thread_y][thread_x] = 0.0;
@@ -1502,10 +1502,10 @@ hcblasStatus gemm_TransAB_K1(Concurrency::accelerator_view &accl_view,
 
     // write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) {
-      int c = TILESIZE * tile_y + TILESIZE * tile_x * M;
+      int c = TILESIZE * tile_y + TILESIZE * tile_x * ldc;
 
       if (c + cOffset + thread_y + thread_x * M < M * N ) {
-        long C_index = c + cOffset + thread_y + thread_x * M;
+        long C_index = c + cOffset + thread_y + thread_x * ldc;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = sum + beta * C[C_index];
       }
@@ -1575,7 +1575,7 @@ hcblasStatus gemm_NoTransAB_K2(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads one element of matrix A from global to local memory
       if ( thread_x + global_x < K ) {
-        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + M * thread_x + thread_y];
+        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + lda * thread_x + thread_y];
       } else {
         // needed on AMD
         localMemA[thread_y][thread_x] = 0.0;
@@ -1583,7 +1583,7 @@ hcblasStatus gemm_NoTransAB_K2(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads one element of matrix B from global to local memory
       if ( thread_y + global_y < K ) {
-        localMemB[thread_y][thread_x] = B[b + bOffset + K * thread_x + thread_y];
+        localMemB[thread_y][thread_x] = B[b + bOffset + ldb * thread_x + thread_y];
       } else {
         // needed on AMD
         localMemB[thread_y][thread_x] = 0.0;
@@ -1603,10 +1603,10 @@ hcblasStatus gemm_NoTransAB_K2(Concurrency::accelerator_view &accl_view,
 
     // write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) {
-      int c = TILESIZE * tile_y + TILESIZE * tile_x * M;
+      int c = TILESIZE * tile_y + TILESIZE * tile_x * ldc;
 
       if (c + cOffset + thread_y + thread_x * M < M * N ) {
-        long C_index = c + cOffset + thread_y + thread_x * M ;
+        long C_index = c + cOffset + thread_y + thread_x * ldc ;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = sum + beta * C[C_index];
       }
@@ -1681,7 +1681,7 @@ hcblasStatus gemm_TransAB_K3(Concurrency::accelerator_view &accl_view,
     for (int a = a_bgn, b = b_bgn; a <= a_end; a += a_stp, b += b_stp, global_x += TILESIZE, global_y += TILESIZE) {
       // each thread in workgroup reads one element of matrix A from global to local memory
       if ( thread_x + global_x < K ) {
-        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + K * thread_y + thread_x];
+        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + lda * thread_y + thread_x];
       } else {
         // needed on AMD
         localMemA[thread_y][thread_x] = 0.0;
@@ -1690,7 +1690,7 @@ hcblasStatus gemm_TransAB_K3(Concurrency::accelerator_view &accl_view,
       for (int w = 0; w < HC_WPT; w++) {
         // each thread in workgroup reads one element of matrix B from global to local memory
         if ( thread_y + global_y < K ) {
-          localMemB[thread_y][thread_x + w * HC_RTS] = B[b + bOffset + N * thread_y + thread_x + w * HC_RTS];
+          localMemB[thread_y][thread_x + w * HC_RTS] = B[b + bOffset + ldb * thread_y + thread_x + w * HC_RTS];
         } else {
           // needed on AMD
           localMemB[thread_y][thread_x + w * HC_RTS] = 0.0;
@@ -1714,7 +1714,7 @@ hcblasStatus gemm_TransAB_K3(Concurrency::accelerator_view &accl_view,
     // write all results back to global memory
     for (int w = 0; w < HC_WPT; w++) {
       if (tile_y * TILESIZE + thread_y < M && (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) < N ) {
-        long C_index = cOffset + tile_y * TILESIZE + thread_y + (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) * M;
+        long C_index = cOffset + tile_y * TILESIZE + thread_y + (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) * ldc;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = acc[w] + beta * C[C_index];
       }
@@ -1787,7 +1787,7 @@ hcblasStatus gemm_NoTransA_K4(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads one element of matrix A from global to local memory
       if ( thread_x + global_x < K ) {
-        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + M * thread_x + thread_y];
+        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + lda * thread_x + thread_y];
       } else {
         // needed on AMD
         localMemA[thread_y][thread_x] = 0.0;
@@ -1795,7 +1795,7 @@ hcblasStatus gemm_NoTransA_K4(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads one element of matrix B from global to local memory
       if ( thread_y + global_y < K ) {
-        localMemB[thread_y][thread_x] = B[b + bOffset + N * thread_y + thread_x];
+        localMemB[thread_y][thread_x] = B[b + bOffset + ldb * thread_y + thread_x];
       } else {
         // needed on AMD
         localMemB[thread_y][thread_x] = 0.0;
@@ -1815,10 +1815,10 @@ hcblasStatus gemm_NoTransA_K4(Concurrency::accelerator_view &accl_view,
 
     // write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) {
-      int c = TILESIZE * tile_y + TILESIZE * tile_x * M;
+      int c = TILESIZE * tile_y + TILESIZE * tile_x * ldc;
 
       if (c + cOffset + thread_y + thread_x  * M < M * N ) {
-        long C_index = c + cOffset + thread_y + thread_x * M;
+        long C_index = c + cOffset + thread_y + thread_x * ldc;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = sum + beta * C[C_index];
       }
@@ -1888,7 +1888,7 @@ hcblasStatus gemm_NoTransB_K5(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads one element of matrix A from global to local memory
       if ( thread_y + global_y < K ) {
-        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + thread_y + thread_x * K];
+        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + thread_y + thread_x * lda];
       } else {
         // needed on AMD
         localMemA[thread_y][thread_x] = 0.0;
@@ -1896,7 +1896,7 @@ hcblasStatus gemm_NoTransB_K5(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads one element of matrix B from global to local memory
       if ( thread_x + global_x < K ) {
-        localMemB[thread_y][thread_x] = B[b + bOffset + thread_x + thread_y * K];
+        localMemB[thread_y][thread_x] = B[b + bOffset + thread_x + thread_y * ldb];
       } else {
         // needed on AMD
         localMemB[thread_y][thread_x] = 0.0;
@@ -1916,10 +1916,10 @@ hcblasStatus gemm_NoTransB_K5(Concurrency::accelerator_view &accl_view,
 
     // write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) {
-      int c = TILESIZE * tile_y + TILESIZE * tile_x * M;
+      int c = TILESIZE * tile_y + TILESIZE * tile_x * ldc;
 
       if (c + cOffset + thread_y + thread_x * M < M * N ) {
-        long C_index = c + cOffset + thread_y + thread_x * M;
+        long C_index = c + cOffset + thread_y + thread_x * ldc;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = sum + beta * C[C_index];
       }
@@ -1994,7 +1994,7 @@ hcblasStatus gemm_TransAB_K6(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads several element of matrix A from global to local memory due to the buffer not being quadratic
       for( int i = 0; i < TILESIZE_Y / TILESIZE_X; i++ ) {
-        idx = a + K * thread_y + thread_x + i * TILESIZE_X;
+        idx = a + lda * thread_y + thread_x + i * TILESIZE_X;
 
         if ( idx < M * K ) {
           localMemA[thread_y][thread_x + i * TILESIZE_X] = alpha * A[aOffset + idx];
@@ -2005,7 +2005,7 @@ hcblasStatus gemm_TransAB_K6(Concurrency::accelerator_view &accl_view,
       }
 
       // each thread in workgroup reads one element of matrix B from global to local memory
-      idx =  b + N * thread_y + thread_x;
+      idx =  b + ldb * thread_y + thread_x;
 
       if (idx < K * N ) {
         localMemB[thread_y][thread_x] = B[bOffset + idx];
@@ -2038,10 +2038,10 @@ hcblasStatus gemm_TransAB_K6(Concurrency::accelerator_view &accl_view,
 
     // write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) {
-      int c = TILESIZE_Y * tile_y + TILESIZE_X * tile_x * M;
+      int c = TILESIZE_Y * tile_y + TILESIZE_X * tile_x * ldc;
 
       if (c + cOffset + M * thread_x + thread_y < M * N ) {
-        long C_index = c + cOffset + M * thread_x + thread_y;
+        long C_index = c + cOffset + ldc * thread_x + thread_y;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = sum + beta * C[C_index];
       }
@@ -2118,7 +2118,7 @@ hcblasStatus gemm_TransAB_K7(Concurrency::accelerator_view &accl_view,
       // local memory for matrix A
       tile_static float localMemB[TILESIZE_X][TILESIZE_X];
       // each thread in workgroup reads one element of matrix A from global to local memory
-      idx = a + K * thread_y + thread_x;
+      idx = a + lda * thread_y + thread_x;
 
       if ( idx < M * K ) {
         localMemA[thread_y][thread_x] = alpha * A[idx];
@@ -2128,7 +2128,7 @@ hcblasStatus gemm_TransAB_K7(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads several element of matrix B from global to local memory due to the buffer not being quadratic
       for( int i = 0; i < TILESIZE_X / TILESIZE_Y; i++ ) {
-        idx =  b + N * thread_y + thread_x + i * N * TILESIZE_Y;
+        idx =  b + ldb * thread_y + thread_x + i * ldb * TILESIZE_Y;
 
         if (idx < K * N ) {
           localMemB[thread_y + i * TILESIZE_Y][thread_x] = B[idx];
@@ -2161,10 +2161,10 @@ hcblasStatus gemm_TransAB_K7(Concurrency::accelerator_view &accl_view,
 
     // write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) {
-      int c = TILESIZE_Y * tile_y + TILESIZE_X * tile_x * M;
+      int c = TILESIZE_Y * tile_y + TILESIZE_X * tile_x * ldc;
 
       if (c + M * thread_x + thread_y < M * N ) {
-        long C_index = c + cOffset + M * thread_x + thread_y;
+        long C_index = c + cOffset + ldc * thread_x + thread_y;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = sum + beta * C[C_index];
       }
@@ -2247,7 +2247,7 @@ hcblasStatus gemm_TransAB_K8(Concurrency::accelerator_view &accl_view,
 
     // multiply matrix A and matrix B and write all results back to global memory
     if ( tidx.global[0] < N && tidx.global[1] < M ) {
-      idx = tidx.global[1] + tidx.global[0] * M;
+      idx = tidx.global[1] + tidx.global[0] * ldc;
       long C_index = cOffset + idx;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = localMemA[thread_y] * localMemB[thread_x] + beta * C[C_index];
@@ -2303,7 +2303,7 @@ hcblasStatus gemm_TransAB_K9(Concurrency::accelerator_view &accl_view,
 
     // multiply matrix A and matrix B and write all results back to global memory
     if ( gx < N && gy < M ) {
-      long C_index = cOffset + gy + gx * M;
+      long C_index = cOffset + gy + gx * ldc;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = localVarA * B[bOffset + gx] + beta * C[C_index];
     }
@@ -2351,7 +2351,7 @@ hcblasStatus gemm_TransAB_K10(Concurrency::accelerator_view &accl_view,
     float privateMemA[256];
 
     for( int k = 0; k < 256; k++ ) {
-      privateMemA[k] = alpha * A[aOffset + global_idx_i * K + k];
+      privateMemA[k] = alpha * A[aOffset + global_idx_i * lda + k];
     }
 
     tile_static float localMemB[256];
@@ -2359,7 +2359,7 @@ hcblasStatus gemm_TransAB_K10(Concurrency::accelerator_view &accl_view,
     for( int idx_n = 0; idx_n < N; idx_n++ ) {
       for( int i = 0; i < t_ext[0]; i++ ) {
         int idx_k = i * tidx.tile_dim0 + tidx.local[0];
-        int idx_B = idx_k * N + idx_n;
+        int idx_B = idx_k * ldb + idx_n;
         localMemB[bOffset + idx_k ] = B[bOffset + idx_B ];
       }
 
@@ -2371,7 +2371,7 @@ hcblasStatus gemm_TransAB_K10(Concurrency::accelerator_view &accl_view,
         sum += privateMemA[k] * localMemB[k];
       }
 
-      long C_index = cOffset + global_idx_i + idx_n * M;
+      long C_index = cOffset + global_idx_i + idx_n * ldc;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = sum + beta * C[C_index];
     }
@@ -2416,7 +2416,7 @@ hcblasStatus gemm_TransAB_11(Concurrency::accelerator_view &accl_view,
     float privateMemA[256];
 
     for( int k = 0; k < 256; k++ ) {
-      privateMemA[k] = alpha * A[aOffset + global_idx_i * K + k];
+      privateMemA[k] = alpha * A[aOffset + global_idx_i * lda + k];
     }
 
     for( int idx_n = 0; idx_n < N; idx_n++ ) {
@@ -2425,11 +2425,11 @@ hcblasStatus gemm_TransAB_11(Concurrency::accelerator_view &accl_view,
 
       for (int k = 0; k < K; k++) {
         int idx_k = global_idx_i;
-        int idx_B = idx_k * N + k;
+        int idx_B = idx_k * ldb + k;
         sum += privateMemA[k] * B[ bOffset + idx_B];
       }
 
-      long C_index = cOffset + global_idx_i + idx_n * M;
+      long C_index = cOffset + global_idx_i + idx_n * ldc;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = sum + beta * C[C_index];
     }
@@ -2498,7 +2498,7 @@ hcblasStatus gemm_TransAB_12(Concurrency::accelerator_view &accl_view,
 
     for (int a = a_bgn; a <= a_end; a += a_stp, global_x += TILESIZE, global_y += TILESIZE)  {
       // each thread in workgroup reads one element of matrix A from global to local memory
-      addr = a + K * thread_y + thread_x;
+      addr = a + lda * thread_y + thread_x;
 
       if ( (thread_x + global_x) < K && addr < M * K ) {
         localMemA[thread_y][thread_x] = alpha * A[aOffset + addr];
@@ -2507,7 +2507,7 @@ hcblasStatus gemm_TransAB_12(Concurrency::accelerator_view &accl_view,
       }
 
       // each thread in workgroup reads one element of matrix B from global to local memory
-      addr = group_n * (group_size_n * K) + ( x % group_size_n ) + (thread_y + global_y) * group_size_n;
+      addr = group_n * (group_size_n * ldb) + ( x % group_size_n ) + (thread_y + global_y) * group_size_n;
 
       if ( thread_y + global_y < K  && addr < K * N ) {
         localMemB[thread_y][thread_x] = B[bOffset + addr];
@@ -2529,7 +2529,7 @@ hcblasStatus gemm_TransAB_12(Concurrency::accelerator_view &accl_view,
 
     // write all results back to global memory
     if ( x < N && y < M ) {
-      addr = group_n * group_size_n * M + y * group_size_n + ( x % group_size_n );
+      addr = group_n * group_size_n * ldc + y * group_size_n + ( x % group_size_n );
 
       if (addr < M * N ) {
         long C_index = cOffset + addr;
@@ -2591,7 +2591,7 @@ hcblasStatus gemm_NoTransAB_K3(Concurrency::accelerator_view &accl_view,
       // each thread in workgroup reads one element of matrix A from global to local memory
 
       if ( thread_x + global_x < K ) {
-        localMemA[thread_y][thread_x ] = alpha * A[a + aOffset + M * thread_x + thread_y ];
+        localMemA[thread_y][thread_x ] = alpha * A[a + aOffset + lda * thread_x + thread_y ];
       } else {
         // needed on AMD
         localMemA[thread_y][thread_x ] = 0.0;
@@ -2600,7 +2600,7 @@ hcblasStatus gemm_NoTransAB_K3(Concurrency::accelerator_view &accl_view,
       // each thread in workgroup reads one element of matrix B from global to local memory
       for (int w = 0; w < HC_WPT; w++) {
         if ( thread_y + global_y < K ) {
-          localMemB[thread_y][thread_x + w * HC_RTS] = B[b + bOffset + K * (thread_x + w * HC_RTS) + thread_y];
+          localMemB[thread_y][thread_x + w * HC_RTS] = B[b + bOffset + ldb * (thread_x + w * HC_RTS) + thread_y];
         } else {
           // needed on AMD
           localMemB[thread_y][thread_x + w * HC_RTS] = 0.0;
@@ -2624,7 +2624,7 @@ hcblasStatus gemm_NoTransAB_K3(Concurrency::accelerator_view &accl_view,
 
     for (int w = 0; w < HC_WPT; w++) {
       if (tile_y * TILESIZE + thread_y < M && (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) < N ) {
-        long C_index = cOffset + tile_y * TILESIZE + thread_y + (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) * M;
+        long C_index = cOffset + tile_y * TILESIZE + thread_y + (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) * ldc;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = acc[w] + beta * C[C_index];
       }
@@ -2683,7 +2683,7 @@ hcblasStatus gemm_NoTransA_K3(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads one element of matrix A from global to local memory
       if ( thread_x + global_x < K ) {
-        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + M * thread_x + thread_y];
+        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + lda * thread_x + thread_y];
       } else {
         // needed on AMD
         localMemA[thread_y][thread_x] = 0.0;
@@ -2692,7 +2692,7 @@ hcblasStatus gemm_NoTransA_K3(Concurrency::accelerator_view &accl_view,
       // each thread in workgroup reads one element of matrix B from global to local memory
       for (int w = 0; w < HC_WPT; w++) {
         if ( thread_y + global_y < K ) {
-          localMemB[thread_y][thread_x + w * HC_RTS] = B[b + bOffset + N * thread_y + thread_x + w * HC_RTS];
+          localMemB[thread_y][thread_x + w * HC_RTS] = B[b + bOffset + ldb * thread_y + thread_x + w * HC_RTS];
         } else {
           // needed on AMD
           localMemB[thread_y][thread_x + w * HC_RTS] = 0.0;
@@ -2717,7 +2717,7 @@ hcblasStatus gemm_NoTransA_K3(Concurrency::accelerator_view &accl_view,
 
     for (int w = 0; w < HC_WPT; w++) {
       if (tile_y * TILESIZE + thread_y < M && (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) < N ) {
-        long C_index = cOffset + tile_y * TILESIZE + thread_y + (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) * M;
+        long C_index = cOffset + tile_y * TILESIZE + thread_y + (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) * ldc;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = acc[w] + beta * C[C_index];
       }
@@ -2778,7 +2778,7 @@ hcblasStatus gemm_NoTransB_K3(Concurrency::accelerator_view &accl_view,
 
       // each thread in workgroup reads one element of matrix A from global to local memory
       if ( thread_y + global_y < K ) {
-        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + thread_y + thread_x * K];
+        localMemA[thread_y][thread_x] = alpha * A[a + aOffset + thread_y + thread_x * lda];
       } else {
         // needed on AMD
         localMemA[thread_y][thread_x] = 0.0;
@@ -2787,7 +2787,7 @@ hcblasStatus gemm_NoTransB_K3(Concurrency::accelerator_view &accl_view,
       // each thread in workgroup reads one element of matrix B from global to local memory
       for (int w = 0; w < HC_WPT; w++) {
         if ( thread_x + global_x < K ) {
-          localMemB[thread_y + w * HC_RTS][thread_x] = B[b + bOffset + thread_x + (thread_y  + w * HC_RTS) * K];
+          localMemB[thread_y + w * HC_RTS][thread_x] = B[b + bOffset + thread_x + (thread_y  + w * HC_RTS) * ldb];
         } else {
           // needed on AMD
           localMemB[thread_y + w * HC_RTS][thread_x] = 0.0;
@@ -2811,7 +2811,7 @@ hcblasStatus gemm_NoTransB_K3(Concurrency::accelerator_view &accl_view,
     // write all results back to global memory
     for (int w = 0; w < HC_WPT; w++) {
       if (tile_y * TILESIZE + thread_y < M && (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) < N ) {
-        long C_index = cOffset + tile_y * TILESIZE + thread_y + (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) * M;
+        long C_index = cOffset + tile_y * TILESIZE + thread_y + (tile_x * TILESIZE * HC_WPT + thread_x + w * HC_RTS) * ldc;
         C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
         C[C_index] = acc[w] + beta * C[C_index];
       }
@@ -2841,7 +2841,7 @@ hcblasStatus gemm_NoTransAB_largeK(Concurrency::accelerator_view &accl_view,
 
     for (int tileId = 0; tileId < ((K + GEMM_BLOCK - 1) & ~(GEMM_BLOCK - 1)) / GEMM_BLOCK; tileId++) {
       if (tileId * GEMM_BLOCK + threadIdx < K && Col < M && Row < N) {
-        sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * M] * B[bOffset + Row * K + tileId * GEMM_BLOCK + threadIdx];
+        sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * lda] * B[bOffset + Row * ldb + tileId * GEMM_BLOCK + threadIdx];
       }
     }
 
@@ -2856,7 +2856,7 @@ hcblasStatus gemm_NoTransAB_largeK(Concurrency::accelerator_view &accl_view,
     }
 
     if (threadIdx == 0 && Col < M && Row < N) {
-      long C_index = cOffset + Row * M + Col;
+      long C_index = cOffset + Row * ldc + Col;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
@@ -2884,7 +2884,7 @@ hcblasStatus gemm_NoTransA_largeK(Concurrency::accelerator_view &accl_view,
 
     for (int tileId = 0; tileId < ((K + GEMM_BLOCK - 1) & ~(GEMM_BLOCK - 1)) / GEMM_BLOCK; tileId++) {
       if (tileId * GEMM_BLOCK + threadIdx < K && Col < M && Row < N) {
-        sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * M] * B[bOffset + Row + (tileId * GEMM_BLOCK + threadIdx) * N];
+        sh[threadIdx] += A[aOffset + Col + (tileId * GEMM_BLOCK + threadIdx) * lda] * B[bOffset + Row + (tileId * GEMM_BLOCK + threadIdx) * ldb];
       }
     }
 
@@ -2899,7 +2899,7 @@ hcblasStatus gemm_NoTransA_largeK(Concurrency::accelerator_view &accl_view,
     }
 
     if (threadIdx == 0 && Col < M && Row < N) {
-      long C_index = cOffset + Row * M + Col;
+      long C_index = cOffset + Row * ldc + Col;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
@@ -2928,7 +2928,7 @@ hcblasStatus gemm_NoTransB_largeK(Concurrency::accelerator_view &accl_view,
 
     for (int tileId = 0; tileId < ((K + GEMM_BLOCK - 1) & ~(GEMM_BLOCK - 1)) / GEMM_BLOCK; tileId++) {
       if (tileId * GEMM_BLOCK + threadIdx < K && Col < M && Row < N) {
-        sh[threadIdx] += A[aOffset + Col * K + tileId * GEMM_BLOCK + threadIdx] * B[bOffset + Row * K + tileId * GEMM_BLOCK + threadIdx];
+        sh[threadIdx] += A[aOffset + Col * lda + tileId * GEMM_BLOCK + threadIdx] * B[bOffset + Row * ldb + tileId * GEMM_BLOCK + threadIdx];
       }
     }
 
@@ -2943,7 +2943,7 @@ hcblasStatus gemm_NoTransB_largeK(Concurrency::accelerator_view &accl_view,
     }
 
     if (threadIdx == 0 && Col < M && Row < N) {
-      long C_index = cOffset + Row * M + Col;
+      long C_index = cOffset + Row * ldc + Col;
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
