@@ -13,8 +13,8 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 7. Dscal  : Double Precision scaling of Vector X
 8. Scopy  : Single Precision Copy 
 9. Dcopy  : Double Precision Copy
-10. Sasum : Single Precision sum of Absolute values
-11. Dasum : Double Precision sum of Absolute values
+10. Sasum : Single Precision Absolute sum of values of a vector
+11. Dasum : Double Precision Absolute sum of values of a vector
 12. Sdot  : Single Precision Dot product
 13. Ddot  : Double Precision Dot product
 
@@ -27,19 +27,20 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 * **AMD APP SDK** : Ver 2.9.1 launched on 18/8/2014 from [here](http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/)
 * **AMD Driver installer**: amd-driver-installer-14.301.1001-x86.x86_64
 
-
 ## Installation Steps:    
 
 ### A. C++ AMP Compiler Installation: 
- 
-### (1) Array-View Version: --- Branch: Development
+    
+** Build from source **
 
-Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
+  To build the compiler from source follow the steps given below,
+ 
+  Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
 
   (a) Prepare a directory for work space
 
        * mkdir ~/mcw_cppamp
-Double Precision Copy
+
        * cd ~/mcw_cppamp 
    
        * git clone https://bitbucket.org/multicoreware/cppamp-driver-ng.git src
@@ -47,8 +48,7 @@ Double Precision Copy
        * cd ~/mcw_cppamp/src/
 
        * git checkout origin/torch-specific
-         (Stable commit  -  ba9555e)
-         
+
   (b) Create a build directory and configure using CMake.
 
        * mkdir ~/mcw_cppamp/build
@@ -56,53 +56,18 @@ Double Precision Copy
        * cd ~/mcw_cppamp/build
 
        * export CLAMP_NOTILECHECK=ON
+       
+       * cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON -DOPENCL_HEADER_DIR=<path to SDK's OpenCL headers> -DOPENCL_LIBRARY_DIR=<path to SDK's OpenCL library>, 
 
-       * cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON -DOPENCL_HEADER_DIR=<path to SDK's OpenCL headers> -DOPENCL_LIBRARY_DIR=<path to SDK's OpenCL library> 
-  
        * for example cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON  -DOPENCL_HEADER_DIR=/opt/AMDAPPSDK-2.9-1/include/CL/ -DOPENCL_LIBRARY_DIR=/opt/AMDAPPSDK-2.9-1/lib/x86_64/
-
 
   (c) Build AMP
 
        * cd ~/mcw_cppamp/build
 
-       * make [-j #] world && make          (# is the number of parallel builds. Generally it is # of CPU cores)
+       * make [-j#] world && make          (# is the number of parallel builds. Generally it is # of CPU cores)
 
-### (2) Array Version ( KALMAR): --- Branch : Array_KALMAR_wrapper
-
-Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
-
-  (a) Prepare a directory for work space
-
-       * mkdir ~/mcw_cppamp_kalmar
-
-       * cd ~/mcw_cppamp_kalmar 
-   
-       * git clone https://bitbucket.org:/multicoreware/cppamp-driver-ng-35.git src
-
-       * cd ~/mcw_cppamp_kalmar/src/
-
-       * git checkout origin/master
-         (Stable commit  -   4fb5922)
-         
-  (b) Create a build directory and configure using CMake.
-
-       * mkdir ~/mcw_cppamp_kalmar/build
-
-       * cd ~/mcw_cppamp_kalmar/build
-
-       * export CLAMP_NOTILECHECK=ON
-
-       * cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON -DOPENCL_HEADER_DIR=<path to SDK's OpenCL headers> -DOPENCL_LIBRARY_DIR=<path to SDK's OpenCL library> 
-  
-       * for example cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON  -DOPENCL_HEADER_DIR=/opt/AMDAPPSDK-2.9-1/include/CL/ -DOPENCL_LIBRARY_DIR=/opt/AMDAPPSDK-2.9-1/lib/x86_64/
-
-
-  (c) Build AMP
-
-       * cd ~/mcw_cppamp_kalmar/build
-
-       * make [-j #] world && make          (# is the number of parallel builds. Generally it is # of CPU cores)
+       * For example: make -j8 world && make
 
 With this the C++ AMP Compiler installation is complete.
 
@@ -116,7 +81,7 @@ With this the C++ AMP Compiler installation is complete.
 
        * cd ~/hcblas
 
-       * git checkout Development (for Array_view version of torch-specific branch)
+       * git checkout Development (for Array_view version of torch-specific branch) (or) git checkout Array_KALMAR_wrapper (for Array version of KALMAR)  
    
 
 (ii) Platform-specific build
@@ -125,7 +90,7 @@ With this the C++ AMP Compiler installation is complete.
 
        * cd ~/hcblas/Build/linux
        
-       * export MCWCPPAMPBUILD=<path_to>/<mcw_cppamp or mcw_cppamp_kalmar>/build (Here path_to points to parent folder of mcw_cppamp or mcw_cppamp_kalmar. ~/ in our case)
+       * export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build> 
 
        * sh build.sh
 
