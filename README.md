@@ -13,8 +13,8 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 7. Dscal  : Double Precision scaling of Vector X
 8. Scopy  : Single Precision Copy 
 9. Dcopy  : Double Precision Copy
-10. Sasum : Single Precision sum of Absolute values
-11. Dasum : Double Precision sum of Absolute values
+10. Sasum : Single Precision Absolute sum of values of a vector
+11. Dasum : Double Precision Absolute sum of values of a vector
 12. Sdot  : Single Precision Dot product
 13. Ddot  : Double Precision Dot product
 
@@ -31,40 +31,44 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 ## Installation Steps:    
 
 ### A. C++ AMP Compiler Installation: 
+
+** Build from source **
+
+  To build the compiler from source follow the steps given below,
  
-Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
+  Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
 
   (a) Prepare a directory for work space
 
-       * mkdir ~/mcw_cppamp_kalmar
+       * mkdir ~/mcw_cppamp
 
-       * cd ~/mcw_cppamp_kalmar 
+       * cd ~/mcw_cppamp 
    
-       * git clone https://bitbucket.org:/multicoreware/cppamp-driver-ng-35.git src
+       * git clone https://bitbucket.org/multicoreware/cppamp-driver-ng-35.git src
 
-       * cd ~/mcw_cppamp_kalmar/src/
+       * cd ~/mcw_cppamp/src/
 
        * git checkout origin/master
-         (Stable commit  -   4fb5922)
-         
+
   (b) Create a build directory and configure using CMake.
 
-       * mkdir ~/mcw_cppamp_kalmar/build
+       * mkdir ~/mcw_cppamp/build
 
-       * cd ~/mcw_cppamp_kalmar/build
+       * cd ~/mcw_cppamp/build
 
        * export CLAMP_NOTILECHECK=ON
+       
+       * cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON -DOPENCL_HEADER_DIR=<path to SDK's OpenCL headers> -DOPENCL_LIBRARY_DIR=<path to SDK's OpenCL library>, 
 
-       * cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON -DOPENCL_HEADER_DIR=<path to SDK's OpenCL headers> -DOPENCL_LIBRARY_DIR=<path to SDK's OpenCL library> 
-  
-       * For example, cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON  -DOPENCL_HEADER_DIR=/opt/AMDAPPSDK-3.0.0-Beta/include/CL -DOPENCL_LIBRARY_DIR=/opt/AMDAPPSDK-3.0-0-Beta/lib/x86_64
-
+       * for example cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON  -DOPENCL_HEADER_DIR=/opt/AMDAPPSDK-2.9-1/include/CL/ -DOPENCL_LIBRARY_DIR=/opt/AMDAPPSDK-2.9-1/lib/x86_64/
 
   (c) Build AMP
 
-       * cd ~/mcw_cppamp_kalmar/build
+       * cd ~/mcw_cppamp/build
 
-       * make [-j #] world && make          (# is the number of parallel builds. Generally it is # of CPU cores)
+       * make [-j#] world && make          (# is the number of parallel builds. Generally it is # of CPU cores)
+
+       * For example: make -j8 world && make
 
 With this the C++ AMP Compiler installation is complete.
 
@@ -78,23 +82,22 @@ With this the C++ AMP Compiler installation is complete.
 
        * cd ~/hcblas
 
-       * git checkout Array_KALMAR_wrapper(for Array version of KALMAR Compiler)
+       * git checkout Array_KALMAR_wrapper
    
-
 (ii) Platform-specific build
 
 (a) For Linux:  
 
        * cd ~/hcblas/Build/linux
        
-       * export MCWCPPAMPBUILD=<path_to>/mcw_cppamp_kalmar/build (Here path_to points to parent folder of mcw_cppamp_kalmar. ~/ in our case)
+       * export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
 
        * sh build.sh
 
        * make
 
 (b)  For Windows: (Prerequisite: Visual Studio 12 version )
-
+       
 1. For 32 Bit:
 
        * cd ~/hcblas/Build/vc11-x86
@@ -106,6 +109,7 @@ With this the C++ AMP Compiler installation is complete.
        * cd ~/hcblas/Build/vc11-x86_64
 
        * make-solutions.bat (This creates a Visual Studio solution for hcblas Library)
+       
        
 ### C. Unit testing
 
