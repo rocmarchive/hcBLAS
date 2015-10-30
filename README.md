@@ -122,6 +122,18 @@ With this the C++ AMP Compiler installation is complete.
      * export HCBLAS_LIBRARY_PATH = ~/hcblas/Build/linux
      
      * export LD_LIBRARY_PATH=$HCBLAS_LIBRARY_PATH:$LD_LIBRARY_PATH
+     
+Note:
+     
+     * TransA (TA) and TransB(TB) takes 0 or 1
+       where,            0 - noTrans (Operate with the actual matrix)
+                         1 - Trans   (Operate with the transpose of the matrix)
+                         
+     * Implementation type (Itype) takes 1, 2 or 3
+       where,            1 - Inputs and Outputs are host float pointers.
+                         2 - Inputs and Outputs are C++ AMP float array_View containers.
+                         3 - Inputs and Outputs are C++ AMP float array_View containers with batch processing.
+                         
 
   (1) SGEMM - Single Precision real valued general matrix-matrix multiplication
 
