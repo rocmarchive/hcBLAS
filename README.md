@@ -131,8 +131,8 @@ Note:
                          
      * Implementation type (Itype) takes 1, 2 or 3
        where,            1 - Inputs and Outputs are host float pointers.
-                         2 - Inputs and Outputs are C++ AMP float array_View containers.
-                         3 - Inputs and Outputs are C++ AMP float array_View containers with batch processing.
+                         2 - Inputs and Outputs are C++ AMP float array containers.
+                         3 - Inputs and Outputs are C++ AMP float array containers with batch processing.
                          
 
   (1) SGEMM - Single Precision real valued general matrix-matrix multiplication
