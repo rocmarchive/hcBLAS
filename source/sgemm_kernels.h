@@ -1,4 +1,4 @@
-#include "hcblaslib.h"
+#include "hcblas.h"
 #include <amp.h>
 #include <amp_math.h>
 using namespace Concurrency;
