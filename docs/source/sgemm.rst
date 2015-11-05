@@ -6,7 +6,7 @@ SGEMM
 |
 | Matrix-matrix products:
 |
-|    C := alpha*A*B + beta*C 
+|    C := alpha*A*B     + beta*C 
 |    C := alpha*A^T*B   + beta*C 
 |    C := alpha*A*B^T   + beta*C 
 |    C := alpha*A^T*B^T + beta*C 
@@ -75,11 +75,13 @@ Function Documentation
 |    [in]    |    accl_view    | `Using accelerator and accelerator_view Objects              |  
 |            |                 | <https://msdn.microsoft.com/en-us/library/hh873132.aspx>`_   |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    order        | Row/column order.                                            |
+|    [in]    |    order        | Row/column order (rowMajor/colMajor)                         |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    transA       | How matrix A is to be transposed.                            |
+|    [in]    |    transA       | How matrix A is to be transposed (0 and 1 for noTrans        |
+|            |                 | and Trans case respectively).                                |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    transB       | How matrix B is to be transposed.                            |
+|    [in]    |    transB       | How matrix B is to be transposed (0 and 1 for noTrans        |
+|            |                 | and Trans case respectively).                                |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |    M            | Number of rows in matrix A.                                  |
 +------------+-----------------+--------------------------------------------------------------+
@@ -93,13 +95,13 @@ Function Documentation
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |    lda          | Leading dimension of matrix A. It cannot be less than K when |
 |            |                 | the order parameter is set to rowMajor, or less than M when  |
-|            |                 | the parameter is set to columnMajor.                         |
+|            |                 | the parameter is set to colMajor.                            |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |    B            | Buffer object storing matrix B.                              |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |    ldb          | Leading dimension of matrix B. It cannot be less than N when |
 |            |                 | the order parameter is set to rowMajor, or less than K when  |
-|            |                 | it is set to columnMajor.                                    |
+|            |                 | it is set to colMajor.                                       |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |    beta         | The factor of matrix C.                                      |
 +------------+-----------------+--------------------------------------------------------------+
@@ -107,7 +109,7 @@ Function Documentation
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |    ldc          | Leading dimension of matrix C. It cannot be less than N when |
 |            |                 | the order parameter is set to rowMajor, or less than M when  |
-|            |                 | it is set to columnMajor.                                    |
+|            |                 | it is set to colMajor.                                       |
 +------------+-----------------+--------------------------------------------------------------+  
 |    [in]    |   AOffset       | Offset of the first element of the matrix A in the buffer    |
 |            |                 | object. Counted in elements.                                 |

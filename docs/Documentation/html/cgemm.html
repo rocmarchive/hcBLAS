@@ -144,15 +144,17 @@
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>order</td>
-<td>Row/column order.</td>
+<td>Row/column order (rowMajor/colMajor)</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>transA</td>
-<td>How matrix A is to be transposed.</td>
+<td>How matrix A is to be transposed (0 and 1 for noTrans
+and Trans case respectively).</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>transB</td>
-<td>How matrix B is to be transposed.</td>
+<td>How matrix B is to be transposed (0 and 1 for noTrans
+and Trans case respectively).</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>M</td>
@@ -183,7 +185,7 @@ object. Counted in elements.</td>
 <td>lda</td>
 <td>Leading dimension of matrix A. It cannot be less than K when
 the order parameter is set to rowMajor, or less than M when
-the parameter is set to columnMajor.</td>
+the parameter is set to colMajor.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>B</td>
@@ -198,7 +200,7 @@ object. Counted in elements.</td>
 <td>ldb</td>
 <td>Leading dimension of matrix B. It cannot be less than N when
 the order parameter is set to rowMajor, or less than K when
-it is set to columnMajor.</td>
+it is set to colMajor.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>beta</td>
@@ -217,7 +219,7 @@ object. Counted in elements.</td>
 <td>ldc</td>
 <td>Leading dimension of matrix C. It cannot be less than N when
 the order parameter is set to rowMajor, or less than M when
-it is set to columnMajor.</td>
+it is set to colMajor.</td>
 </tr>
 </tbody>
 </table>

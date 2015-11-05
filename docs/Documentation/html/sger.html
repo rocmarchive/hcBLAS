@@ -134,7 +134,7 @@
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>order</td>
-<td>Row/column order.</td>
+<td>Row/column order (rowMajor/colMajor).</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>M</td>
@@ -187,8 +187,8 @@ in matrix A.</td>
 <tr class="row-odd"><td>[in]</td>
 <td>lda</td>
 <td>Leading dimension of matrix A. It cannot be less than N when
-the order parameter is set to clblasRowMajor, or less than M
-when the parameter is set to clblasColumnMajor.</td>
+the order parameter is set to rowMajor, or less than M
+when the parameter is set to colMajor.</td>
 </tr>
 </tbody>
 </table>

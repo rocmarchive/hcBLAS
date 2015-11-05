@@ -66,7 +66,7 @@ Function Documentation
 |    [in]    |  accl_view      | `Using accelerator and accelerator_view Objects              |  
 |            |                 | <https://msdn.microsoft.com/en-us/library/hh873132.aspx>`_   |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	order	       | Row/column order.                                            |
+|    [in]    |	order	       | Row/column order (rowMajor/colMajor).                        |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	M              | Number of rows in matrix A.                                  |
 +------------+-----------------+--------------------------------------------------------------+
@@ -95,8 +95,8 @@ Function Documentation
 |            |                 | in matrix A.                                                 |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	lda	       | Leading dimension of matrix A. It cannot be less than N when |
-|            |                 | the order parameter is set to clblasRowMajor, or less than M |
-|            |                 | when the parameter is set to clblasColumnMajor.              |
+|            |                 | the order parameter is set to rowMajor, or less than M       |
+|            |                 | when the parameter is set to colMajor.                       |
 +------------+-----------------+--------------------------------------------------------------+
 
 | Implementation type III has 4 other parameters as follows
