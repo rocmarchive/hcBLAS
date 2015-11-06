@@ -2,8 +2,8 @@
 
 // CGEMM Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 // CGEMM Call Type 1: Inputs and Outputs are host float pointers
-hcblasStatus Hcblaslibrary:: hcblas_cgemm(const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
-				          const enum HCBLAS_TRANS typeB,
+hcblasStatus Hcblaslibrary:: hcblas_cgemm(HCBLAS_ORDER order, HCBLAS_TRANS typeA,
+				          HCBLAS_TRANS typeB,
 				          const int M, const int N,
 				          const int K, const hcComplex* alpha,
 				          const hcComplex* A, long aOffset,
@@ -82,8 +82,8 @@ hcblasStatus Hcblaslibrary:: hcblas_cgemm(const enum HCBLAS_ORDER order, const e
 
 // CGEMM Call Type II: Inputs and outputs are C++ HC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
-				           const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
-					   const enum HCBLAS_TRANS typeB, const int M,
+				           HCBLAS_ORDER order, HCBLAS_TRANS typeA,
+					   HCBLAS_TRANS typeB, const int M,
 					   const int N, const int K,
 					   const Concurrency::graphics::float_2 &Calpha,
 					   Concurrency::array<float_2> &Acmplx, long aOffset, long lda,
@@ -150,8 +150,8 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_v
 
 /* CGEMM Call Type III - Overloaded function with arguments related to batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
-					   const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
-					   const enum HCBLAS_TRANS typeB, const int M,
+					   HCBLAS_ORDER order, HCBLAS_TRANS typeA,
+					   HCBLAS_TRANS typeB, const int M,
 					   const int N, const int K,
 					   const Concurrency::graphics::float_2 &Calpha,
 					   Concurrency::array<float_2> &Acmplx,

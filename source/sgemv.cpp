@@ -708,7 +708,7 @@ void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
 
 
 
-hcblasStatus Hcblaslibrary :: hcblas_sgemv(const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS type,
+hcblasStatus Hcblaslibrary :: hcblas_sgemv(HCBLAS_ORDER order, HCBLAS_TRANS type,
 				           const int M, const int N,
 				           const float* alpha, float* A, const long aOffset,
 				           const int lda, float* X, const long xOffset,
@@ -799,7 +799,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(const enum HCBLAS_ORDER order, const 
 
 
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_view,
-				           const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS type, const int M,
+				           HCBLAS_ORDER order, HCBLAS_TRANS type, const int M,
 				           const int N, const float &alpha,
 				           Concurrency::array<float> &A, const long aOffset, const int lda,
 				           Concurrency::array<float> &X, const long xOffset, const int incX,
@@ -827,7 +827,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_v
 }
 
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_view,
-				           const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS type, const int M,
+				           HCBLAS_ORDER order, HCBLAS_TRANS type, const int M,
 				           const int N, const float &alpha, Concurrency::array<float> &A,
 				           const long aOffset, const long A_batchOffset, const int lda,
 				           Concurrency::array<float> &X,

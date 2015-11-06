@@ -70,7 +70,7 @@ class Hcblaslibrary
                               const long xOffset, const long yOffset, const int batchSize);
 
 /*                  A = alpha * X * Y' + A                               */
-    hcblasStatus hcblas_sger(const enum HCBLAS_ORDER order, const int M, const int N, const float *alpha,
+    hcblasStatus hcblas_sger(HCBLAS_ORDER order, const int M, const int N, const float *alpha,
                              float *X, const long xOffset, const int incX,
                              float *Y, const long yOffset, const int incY,
                              float *A, const long aOffset, const int lda);
@@ -78,7 +78,7 @@ class Hcblaslibrary
 /* SGER - Overloaded function with arguments of type Concurrency::array_view */
 
     hcblasStatus hcblas_sger(Concurrency::accelerator_view &accl_view,
-			     const enum HCBLAS_ORDER order, const int M, const int N, const float &alpha,
+			     HCBLAS_ORDER order, const int M, const int N, const float &alpha,
                              Concurrency::array<float> &X, const long xOffset, const int incX,
                              Concurrency::array<float> &Y, const long yOffset, const int incY,
                              Concurrency::array<float> &A, const long aOffset, const int lda);
@@ -86,7 +86,7 @@ class Hcblaslibrary
 /* SGER - Overloaded function with arguments related to batch processing */
 
     hcblasStatus hcblas_sger(Concurrency::accelerator_view &accl_view,
-                             const enum HCBLAS_ORDER order, const int M, const int N, const float &alpha,
+                             HCBLAS_ORDER order, const int M, const int N, const float &alpha,
                              Concurrency::array<float> &X, 
                              const long xOffset, const long X_batchOffset, const int incX,
                              Concurrency::array<float> &Y, 
@@ -95,7 +95,7 @@ class Hcblaslibrary
                              const long aOffset, const long A_batchOffset, const int lda, const int batchSize);
 
 /*                  Y = alpha * op(A) * X + beta * Y                     */
-    hcblasStatus hcblas_sgemv(const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS type, const int M,
+    hcblasStatus hcblas_sgemv(HCBLAS_ORDER order, HCBLAS_TRANS type, const int M,
                               const int N, const float *alpha, float *A,
                               const long aOffset,const int lda, float *X,
                               const long xOffset, const int incX,
@@ -104,7 +104,7 @@ class Hcblaslibrary
 
 /* SGEMV- Overloaded function with arguments of type Concurrency::array_view */
     hcblasStatus hcblas_sgemv(Concurrency::accelerator_view &accl_view,
-			      const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS type, const int M,
+			      HCBLAS_ORDER order, HCBLAS_TRANS type, const int M,
                               const int N, const float &alpha, 
                               Concurrency::array<float> &A, const long aOffset, const int lda, 
 			      Concurrency::array<float> &X, const long xOffset, const int incX,
@@ -113,7 +113,7 @@ class Hcblaslibrary
 
 /* SGEMV- Overloaded function with arguments related to batch processing */
     hcblasStatus hcblas_sgemv(Concurrency::accelerator_view &accl_view,
-                              const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS type, const int M,
+                              HCBLAS_ORDER order, HCBLAS_TRANS type, const int M,
                               const int N, const float &alpha, Concurrency::array<float> &A, 
                               const long aOffset, const long A_batchOffset, const int lda,
                               Concurrency::array<float> &X, 
@@ -122,8 +122,8 @@ class Hcblaslibrary
                               const long yOffset, const long Y_batchOffset, const int incY, const int batchSize);
 
 /*                  C = alpha * op(A) * op(B) + beta * C                 */
-    hcblasStatus hcblas_sgemm(const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
-                              const enum HCBLAS_TRANS typeB, const int M,
+    hcblasStatus hcblas_sgemm(HCBLAS_ORDER order, HCBLAS_TRANS typeA,
+                              HCBLAS_TRANS typeB, const int M,
                               const int N, const int K, const float *alpha,
                               float *A, const long lda, float *B,
                               const long ldb, const float *beta, float *C,
@@ -132,8 +132,8 @@ class Hcblaslibrary
 
 /* SGEMM- Overloaded function with arguments of type Concurrency::array_view */
     hcblasStatus hcblas_sgemm(Concurrency::accelerator_view &accl_view,
- 			      const enum HCBLAS_ORDER order,const enum HCBLAS_TRANS typeA,
-                              const enum HCBLAS_TRANS typeB, const int M,
+ 			      HCBLAS_ORDER order, HCBLAS_TRANS typeA,
+                              HCBLAS_TRANS typeB, const int M,
                               const int N, const int K, const float &alpha,
                               Concurrency::array<float> &A, const long lda, 
 		              Concurrency::array<float> &B, const long ldb, 
@@ -144,8 +144,8 @@ class Hcblaslibrary
 
 /* SGEMM- Overloaded function with arguments related to batch processing */
     hcblasStatus hcblas_sgemm(Concurrency::accelerator_view &accl_view,
-                              const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
-                              const enum HCBLAS_TRANS typeB, const int M,
+                              HCBLAS_ORDER order, HCBLAS_TRANS typeA,
+                              HCBLAS_TRANS typeB, const int M,
                               const int N, const int K, const float &alpha,
                               Concurrency::array<float> &A, const long lda, const long A_batchOffset,
                               Concurrency::array<float> &B, const long ldb, const long B_batchOffset,
@@ -155,8 +155,8 @@ class Hcblaslibrary
 
 
 /*                  C = alpha * op(A) * op(B) + beta * C                   */
-    hcblasStatus hcblas_cgemm(const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
-                              const enum HCBLAS_TRANS typeB, const int M, 
+    hcblasStatus hcblas_cgemm(HCBLAS_ORDER order, HCBLAS_TRANS typeA,
+                              HCBLAS_TRANS typeB, const int M, 
                               const int N, const int K,
                               const hcComplex *alpha,
                               const hcComplex *A, const long aOffset, const long lda,
@@ -166,8 +166,8 @@ class Hcblaslibrary
 
 /* CGEMM - Overloaded function with arguments of type Concurrency::array_view */     
    hcblasStatus hcblas_cgemm(Concurrency::accelerator_view &accl_view,
-			     const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
-                             const enum HCBLAS_TRANS typeB, const int M,
+			     HCBLAS_ORDER order, HCBLAS_TRANS typeA,
+                             HCBLAS_TRANS typeB, const int M,
                              const int N, const int K,
                              const Concurrency::graphics::float_2 &alpha,
                              Concurrency::array<float_2> &A, const long aOffset, const long lda,
@@ -177,8 +177,8 @@ class Hcblaslibrary
 
 /* CGEMM - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_cgemm(Concurrency::accelerator_view &accl_view,
-                             const enum HCBLAS_ORDER order, const enum HCBLAS_TRANS typeA,
-                             const enum HCBLAS_TRANS typeB, const int M,
+                             HCBLAS_ORDER order, HCBLAS_TRANS typeA,
+                             HCBLAS_TRANS typeB, const int M,
                              const int N, const int K,
                              const Concurrency::graphics::float_2 &alpha,
                              Concurrency::array<float_2> &A, 
