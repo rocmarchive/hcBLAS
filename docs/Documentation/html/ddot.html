@@ -25,6 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="HCBLAS  documentation" href="index.html" />
     <link rel="up" title="Modules" href="Modules.html" />
+    <link rel="next" title="HCBLAS TYPES" href="HCBLAS_TYPES.html" />
     <link rel="prev" title="SDOT" href="sdot.html" /> 
   </head>
   <body role="document">
@@ -34,6 +35,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="HCBLAS_TYPES.html" title="HCBLAS TYPES"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="sdot.html" title="SDOT"
              accesskey="P">previous</a> |</li>
@@ -49,32 +53,42 @@
             
   <div class="section" id="ddot">
 <h1>DDOT<a class="headerlink" href="#ddot" title="Permalink to this headline">¶</a></h1>
-<p>Dot product of two vectors containing double elements (Double Precision Dot product).</p>
+<div class="line-block">
+<div class="line">Dot product of two vectors (Vectors X and Y) containing double elements (Double precision Dot product).</div>
+<div class="line"><br /></div>
+<div class="line">Where X, Y are n-dimensional vectors.</div>
+</div>
 <div class="section" id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="implementation-type-i">
 <h3>Implementation type I<a class="headerlink" href="#implementation-type-i" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_ddot</strong> (const int N, double* X, const int incX, const long XOffset, double* Y, const int incY, const long YOffset, double* dot)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are host double pointers.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_ddot</strong> (const int N, double* X, const int incX, const long XOffset, double* Y, const int incY, const long YOffset, double* dot)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_ddot</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;X, const int incX, const long XOffset, Concurrency::array&lt;double&gt; &amp;Y, const int incY, const long YOffset, double &amp;dot)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ double array containers.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_ddot</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;X, const int incX, const long XOffset, Concurrency::array&lt;double&gt; &amp;Y, const int incY, const long YOffset, double &amp;dot)</p>
 </div>
 <div class="section" id="implementation-type-iii">
 <h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_ddot</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;X, const int incX, const long XOffset, Concurrency::array&lt;double&gt; &amp;Y, const int incY, const long YOffset, double &amp;dot, const long X_batchOffset, const long Y_batchOffset, const int BatchSize)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ double array containers with batch processing.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_ddot</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;X, const int incX, const long XOffset, Concurrency::array&lt;double&gt; &amp;Y, const int incY, const long YOffset, double &amp;dot, const long X_batchOffset, const long Y_batchOffset, const int BatchSize)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -112,11 +126,11 @@
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>N</td>
-<td>Number of elements in vector X.</td>
+<td>Number of elements in Vector X.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>X</td>
-<td>Buffer object storing vector X.</td>
+<td>Buffer object storing Vector X.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>incX</td>
@@ -124,12 +138,12 @@
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>XOffset</td>
-<td>Offset of first element of vector X in buffer object.
+<td>Offset of first element of Vector X in buffer object.
 Counted in elements.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>Y</td>
-<td>Buffer object storing the vector Y.</td>
+<td>Buffer object storing the Vector Y.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>incY</td>
@@ -137,17 +151,17 @@ Counted in elements.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>YOffset</td>
-<td>Offset of first element of vector Y in buffer object.
+<td>Offset of first element of Vector Y in buffer object.
 Counted in elements.</td>
 </tr>
 <tr class="row-even"><td>[out]</td>
 <td>dot</td>
-<td>Buffer object that will contain the dot-product value</td>
+<td>Buffer object that will contain the dot-product value.</td>
 </tr>
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">Implementation type III has 3 other parameters as follows</div>
+<div class="line">Implementation type III has 3 other parameters as follows,</div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
@@ -164,17 +178,17 @@ Counted in elements.</td>
 <tbody valign="top">
 <tr class="row-even"><td>[in]</td>
 <td>X_batchOffset</td>
-<td>Batch Offset of vector X in buffer object. Offset should be
+<td>Batch Offset of Vector X in buffer object. Offset should be
 a multiple of n.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>Y_batchOffset</td>
-<td>Batch Offset of vector Y in buffer object. Offset should be
+<td>Batch Offset of Vector Y in buffer object. Offset should be
 a multiple of n.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>BatchSize</td>
-<td>The size of batch for vector X and vector Y.</td>
+<td>The size of batch for Vector X and Vector Y.</td>
 </tr>
 </tbody>
 </table>
@@ -220,6 +234,9 @@ a multiple of n.</td>
   <h4>Previous topic</h4>
   <p class="topless"><a href="sdot.html"
                         title="previous chapter">SDOT</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="HCBLAS_TYPES.html"
+                        title="next chapter">HCBLAS TYPES</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -250,6 +267,9 @@ a multiple of n.</td>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="HCBLAS_TYPES.html" title="HCBLAS TYPES"
+             >next</a> |</li>
         <li class="right" >
           <a href="sdot.html" title="SDOT"
              >previous</a> |</li>

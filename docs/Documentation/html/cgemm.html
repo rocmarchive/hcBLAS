@@ -56,7 +56,7 @@
 <div class="line-block">
 <div class="line">Complex valued general matrix-matrix multiplication.</div>
 <div class="line"><br /></div>
-<div class="line">Matrix-matrix products:</div>
+<div class="line">Matrix-Matrix products:</div>
 <div class="line"><br /></div>
 <div class="line-block">
 <div class="line">C := alpha*A*B     + beta*C</div>
@@ -66,36 +66,42 @@
 <div class="line"><br /></div>
 </div>
 <div class="line">Where alpha and beta are scalars, and A, B and C are matrices.</div>
-<div class="line">matrix A - m by k matrix</div>
-<div class="line">matrix B - k by n matrix</div>
-<div class="line">matrix C - m by n matrix</div>
-<div class="line">() - the actual matrix and ()^T - Transpose of the matrix</div>
+<div class="line">Matrix A - m x k matrix</div>
+<div class="line">Matrix B - k x n matrix</div>
+<div class="line">Matrix C - m x n matrix</div>
+<div class="line">() - the actual matrix and ()^T - transpose of the matrix</div>
 </div>
 <div class="section" id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="implementation-type-i">
 <h3>Implementation type I<a class="headerlink" href="#implementation-type-i" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_cgemm</strong> (const enum <strong>HCBLAS_ORDER</strong> order, const enum <strong>HCBLAS_TRANS</strong> transA, const enum <strong>HCBLAS_TRANS</strong> transB, const int M, const int N, const int K, const <strong>hcComplex*</strong> alpha, const <strong>hcComplex*</strong> A, long AOffset, long lda, const <strong>hcComplex*</strong> B, long BOffset, long ldb, const <strong>hcComplex*</strong> beta, <strong>hcComplex*</strong> C, long COffset, long ldc)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are host float pointers.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_cgemm</strong> (<a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> alpha, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> A, long AOffset, long lda, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> B, long BOffset, long ldb, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> beta, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> C, long COffset, long ldc)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_cgemm</strong> (Concurrency::accelerator_view &amp;accl_view, const enum <strong>HCBLAS_ORDER</strong> order, const enum <strong>HCBLAS_TRANS</strong> transA, const enum <strong>HCBLAS_TRANS</strong> transB, const int M, const int N, const int K, const Concurrency::graphics::float_2 &amp;alpha, Concurrency::array&lt;float_2&gt; &amp;A, long AOffset, long lda, Concurrency::array&lt;float_2&gt; &amp;B, long BOffset, long ldb, const Concurrency::graphics::float_2 &amp;beta, Concurrency::array&lt;float_2&gt; &amp;C, long COffset, long ldc)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ float array containers.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_cgemm</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const Concurrency::graphics::float_2 &amp;alpha, Concurrency::array&lt;float_2&gt; &amp;A, long AOffset, long lda, Concurrency::array&lt;float_2&gt; &amp;B, long BOffset, long ldb, const Concurrency::graphics::float_2 &amp;beta, Concurrency::array&lt;float_2&gt; &amp;C, long COffset, long ldc)</p>
 </div>
 <div class="section" id="implementation-type-iii">
 <h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_cgemm</strong> (Concurrency::accelerator_view &amp;accl_view, const enum <strong>HCBLAS_ORDER</strong> order, const enum <strong>HCBLAS_TRANS</strong> transA, const enum <strong>HCBLAS_TRANS</strong> transB, const int M, const int N, const int K, const Concurrency::graphics::float_2 &amp;alpha, Concurrency::array&lt;float_2&gt; &amp;A, const long AOffset, const long A_batchOffset, const long lda, Concurrency::array&lt;float_2&gt; &amp;B, const long BOffset, const long B_batchOffset, const long ldb, const Concurrency::graphics::float_2 &amp;beta, Concurrency::array&lt;float_2&gt; &amp;C, const long COffset, const long C_batchOffset, const long ldc, const int BatchSize)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ float array containers with batch processing.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_cgemm</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const Concurrency::graphics::float_2 &amp;alpha, Concurrency::array&lt;float_2&gt; &amp;A, const long AOffset, const long A_batchOffset, const long lda, Concurrency::array&lt;float_2&gt; &amp;B, const long BOffset, const long B_batchOffset, const long ldb, const Concurrency::graphics::float_2 &amp;beta, Concurrency::array&lt;float_2&gt; &amp;C, const long COffset, const long C_batchOffset, const long ldc, const int BatchSize)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -105,9 +111,9 @@
 <h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_cgemm (Concurrency::accelerator_view &amp;accl_view,
-                           const enum HCBLAS_ORDER order,
-                           const enum HCBLAS_TRANS transA,
-                           const enum HCBLAS_TRANS transB,
+                           hcblasOrder order,
+                           hcblasTranspose transA,
+                           hcblasTranspose transB,
                            const int M,
                            const int N,
                            const int K,
@@ -144,87 +150,87 @@
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>order</td>
-<td>Row/column order (rowMajor/colMajor)</td>
+<td>Row/Column order (RowMajor/ColMajor)</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>transA</td>
-<td>How matrix A is to be transposed (0 and 1 for noTrans
+<td>How Matrix A is to be transposed (0 and 1 for NoTrans
 and Trans case respectively).</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>transB</td>
-<td>How matrix B is to be transposed (0 and 1 for noTrans
+<td>How Matrix B is to be transposed (0 and 1 for NoTrans
 and Trans case respectively).</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>M</td>
-<td>Number of rows in matrix A.</td>
+<td>Number of rows in Matrix A.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>N</td>
-<td>Number of columns in matrix B.</td>
+<td>Number of columns in Matrix B.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>K</td>
-<td>Number of columns in matrix A and rows in matrix B.</td>
+<td>Number of columns in Matrix A and rows in Matrix B.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>alpha</td>
-<td>The factor of matrix A.</td>
+<td>The factor of Matrix A.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>A</td>
-<td>Buffer object storing matrix A.</td>
+<td>Buffer object storing Matrix A.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>AOffset</td>
-<td>Offset of the first element of the matrix A in the buffer
+<td>Offset of the first element of the Matrix A in the buffer
 object. Counted in elements.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>lda</td>
-<td>Leading dimension of matrix A. It cannot be less than K when
-the order parameter is set to rowMajor, or less than M when
-the parameter is set to colMajor.</td>
+<td>Leading dimension of Matrix A. It cannot be less than K when
+the order parameter is set to RowMajor, or less than M when
+the parameter is set to ColMajor.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>B</td>
-<td>Buffer object storing matrix B.</td>
+<td>Buffer object storing Matrix B.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>BOffset</td>
-<td>Offset of the first element of the matrix B in the buffer
+<td>Offset of the first element of the Matrix B in the buffer
 object. Counted in elements.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>ldb</td>
-<td>Leading dimension of matrix B. It cannot be less than N when
-the order parameter is set to rowMajor, or less than K when
-it is set to colMajor.</td>
+<td>Leading dimension of Matrix B. It cannot be less than N when
+the order parameter is set to RowMajor, or less than K when
+it is set to ColMajor.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>beta</td>
-<td>The factor of matrix C.</td>
+<td>The factor of Matrix C.</td>
 </tr>
 <tr class="row-odd"><td>[out]</td>
 <td>C</td>
-<td>Buffer object storing matrix C.</td>
+<td>Buffer object storing Matrix C.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>COffset</td>
-<td>Offset of the first element of the matrix C in the buffer
+<td>Offset of the first element of the Matrix C in the buffer
 object. Counted in elements.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>ldc</td>
-<td>Leading dimension of matrix C. It cannot be less than N when
-the order parameter is set to rowMajor, or less than M when
-it is set to colMajor.</td>
+<td>Leading dimension of Matrix C. It cannot be less than N when
+the order parameter is set to RowMajor, or less than M when
+it is set to ColMajor.</td>
 </tr>
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">Implementation type III has 4 other parameters as follows</div>
+<div class="line">Implementation type III has 4 other parameters as follows,</div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
@@ -242,19 +248,19 @@ it is set to colMajor.</td>
 <tr class="row-even"><td>[in]</td>
 <td>A_batchOffset</td>
 <td>Batch Offset adding to the Offset of the first element of
-the matrix A in the buffer object. Counted in elements.
+the Matrix A in the buffer object. Counted in elements.
 Offset should be a multiple of m by k.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>B_batchOffset</td>
 <td>Batch Offset adding to the Offset of the first element of
-the matrix B in the buffer object. Counted in elements.
+the Matrix B in the buffer object. Counted in elements.
 Offset should be a multiple of n by k.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>C_batchOffset</td>
 <td>Batch Offset adding to the Offset of the first element of
-the matrix C in the buffer object. Counted in elements.
+the Matrix C in the buffer object. Counted in elements.
 Offset should be a multiple of m by n.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
@@ -273,7 +279,7 @@ Matrices A, B and Output Matrix C.</td>
 <div class="line">HCBLAS_INVALID when either AOffset, BOffset, COffset or their respective batchOffsets exceeds the size of the respective buffer object; or</div>
 <div class="line-block">
 <div class="line">when M or N is zero or</div>
-<div class="line">when alpha or beta values are not appropriate.</div>
+<div class="line">when alpha and beta values are zero.</div>
 </div>
 <div class="line">HCBLAS_ERROR on failure.</div>
 </div>

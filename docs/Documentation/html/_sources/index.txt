@@ -8,8 +8,9 @@ Indices and tables
 .. toctree::
    :maxdepth: 2
 
-   HCBLAS_TYPES
    Modules
+   HCBLAS_TYPES
+
 
 .. Index::
    SGEMM
@@ -25,7 +26,7 @@ Indices and tables
    DASUM
    SDOT
    DDOT
-
+   HCBLAS_TYPES
 
 
 

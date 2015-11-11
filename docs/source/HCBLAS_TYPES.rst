@@ -1,3 +1,4 @@
+############
 HCBLAS TYPES
 ############
 
@@ -5,8 +6,8 @@ Enumerations
 ^^^^^^^^^^^^
 
 | enum hcblasStatus { HCBLAS_SUCCESS = 0, HCBLAS_INVALID = -1, HCBLAS_ERROR = -2}
-| enum HCBLAS_ORDER { rowMajor, colMajor}
-| enum HCBLAS_TRANS { noTrans = 'n', trans = 't'}
+| enum hcblasOrder { RowMajor, ColMajor}
+| enum hcblasTranspose { NoTrans = 'n', Trans = 't'}
 
 Structures
 ^^^^^^^^^^
@@ -31,28 +32,28 @@ HCBLAS STATUS (hcblasStatus)
 +----------------+--------------------------------------------------------------------------------+
 
 |
-HCBLAS_ORDER
-------------
+HCBLAS ORDER (hcblasOrder)
+--------------------------
 
 | Shows how matrices are placed in memory.
 +------------+--------------------------------------------------------------------------------+
 | Enumerator                                                                                  |
 +============+================================================================================+
-| rowMajor   | Every row is placed sequentially.                                              |
+| RowMajor   | Every row is placed sequentially.                                              |
 +------------+--------------------------------------------------------------------------------+    
-| colMajor   | Every column is placed sequentially.                                           |
+| ColMajor   | Every column is placed sequentially.                                           |
 +------------+--------------------------------------------------------------------------------+
 
 |
 
-HCBLAS_TRANS
-------------
+HCBLAS TRANSPOSE (hcblasTranspose)
+----------------------------------
 
 | Used to specify whether the matrix is to be transposed or not. 
 +------------+--------------------------------------------------------------------------------+
 | Enumerator                                                                                  |
 +============+================================================================================+
-| noTrans    | Operate with the matrix.                                                       |
+| NoTrans    | Operate with the matrix.                                                       |
 +------------+--------------------------------------------------------------------------------+    
-| trans      | Operate with the transpose of the matrix.                                      |
+| Trans      | Operate with the transpose of the matrix.                                      |
 +------------+--------------------------------------------------------------------------------+

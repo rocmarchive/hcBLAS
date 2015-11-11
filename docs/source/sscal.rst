@@ -2,11 +2,11 @@
 SSCAL 
 #####
 
-| Scales a float vector by a float constant (Single Precision).
+| Scales a float vector by a float constant (Single precision).
 |
 |    X := alpha*X 
 |
-| Where alpha is a scalar, and X is a vector of size n.
+| Where alpha is a scalar, and X is a n-dimensional vector.
 
 
 Functions
@@ -15,23 +15,23 @@ Functions
 Implementation type I
 ---------------------
 
-	**hcblasStatus** **hcblas_sscal** (const int N, const float* alpha, float* X, const int incX, const long XOffset)
- 
-|
+ .. note:: **Inputs and Outputs are host float pointers.**
+
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sscal** (const int N, const float* alpha, float* X, const int incX, const long XOffset)
 
 Implementation type II
 ----------------------
 
-	**hcblasStatus** **hcblas_sscal** (Concurrency::accelerator_view &accl_view, const int N, const float &alpha, Concurrency::array<float> &X, const int incX, const long XOffset)
+ .. note:: **Inputs and Outputs are HC++ float array containers.**
 
-|
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sscal** (Concurrency::accelerator_view &accl_view, const int N, const float &alpha, Concurrency::array<float> &X, const int incX, const long XOffset)
 
 Implementation type III
 -----------------------
 
-	**hcblasStatus** **hcblas_sscal** (Concurrency::accelerator_view &accl_view, const int N, const float &alpha, Concurrency::array<float> &X, const int incX, const long XOffset, const long X_batchOffset, const int BatchSize) 
+ .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
 
-|
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sscal** (Concurrency::accelerator_view &accl_view, const int N, const float &alpha, Concurrency::array<float> &X, const int incX, const long XOffset, const long X_batchOffset, const int BatchSize) 
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -55,26 +55,26 @@ Function Documentation
 |    [in]    |  accl_view      | `Using accelerator and accelerator_view Objects              |  
 |            |                 | <https://msdn.microsoft.com/en-us/library/hh873132.aspx>`_   |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	N              | Number of elements in vector X.                              |
+|    [in]    |	N              | Number of elements in Vector X.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  alpha          | The constant factor for vector X.                            |
+|    [in]    |  alpha          | The constant factor for Vector X.                            |
 +------------+-----------------+--------------------------------------------------------------+
-|    [out]   |	X              | Buffer object storing vector X.                              |
+|    [out]   |	X              | Buffer object storing Vector X.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  XOffset        | Offset of first element of vector X in buffer object.        |
+|    [in]    |  XOffset        | Offset of first element of Vector X in buffer object.        |
 |            |                 | Counted in elements.                                         |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	incX	       | Increment for the elements of X. Must not be zero.           |
 +------------+-----------------+--------------------------------------------------------------+
 
-| Implementation type III has 2 other parameters as follows
+| Implementation type III has 2 other parameters as follows,
 +------------+-----------------+--------------------------------------------------------------+
 |  In/out    |  Parameters     | Description                                                  |
 +============+=================+==============================================================+
-|    [in]    |  X_batchOffset  | Batch Offset of vector X in buffer object. Offset should be  |
+|    [in]    |  X_batchOffset  | Batch Offset of Vector X in buffer object. Offset should be  |
 |            |                 | a multiple of n.                                             |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  BatchSize      | The size of batch for vector X.                              |
+|    [in]    |  BatchSize      | The size of batch for Vector X.                              |
 +------------+-----------------+--------------------------------------------------------------+
 
 |

@@ -54,39 +54,45 @@
   <div class="section" id="sscal">
 <h1>SSCAL<a class="headerlink" href="#sscal" title="Permalink to this headline">¶</a></h1>
 <div class="line-block">
-<div class="line">Scales a float vector by a float constant (Single Precision).</div>
+<div class="line">Scales a float vector by a float constant (Single precision).</div>
 <div class="line"><br /></div>
 <div class="line-block">
 <div class="line">X := alpha*X</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">Where alpha is a scalar, and X is a vector of size n.</div>
+<div class="line">Where alpha is a scalar, and X is a n-dimensional vector.</div>
 </div>
 <div class="section" id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="implementation-type-i">
 <h3>Implementation type I<a class="headerlink" href="#implementation-type-i" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_sscal</strong> (const int N, const float* alpha, float* X, const int incX, const long XOffset)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are host float pointers.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sscal</strong> (const int N, const float* alpha, float* X, const int incX, const long XOffset)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_sscal</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;X, const int incX, const long XOffset)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ float array containers.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sscal</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;X, const int incX, const long XOffset)</p>
 </div>
 <div class="section" id="implementation-type-iii">
 <h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_sscal</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;X, const int incX, const long XOffset, const long X_batchOffset, const int BatchSize)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ float array containers with batch processing.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sscal</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;X, const int incX, const long XOffset, const long X_batchOffset, const int BatchSize)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -121,19 +127,19 @@
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>N</td>
-<td>Number of elements in vector X.</td>
+<td>Number of elements in Vector X.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>alpha</td>
-<td>The constant factor for vector X.</td>
+<td>The constant factor for Vector X.</td>
 </tr>
 <tr class="row-odd"><td>[out]</td>
 <td>X</td>
-<td>Buffer object storing vector X.</td>
+<td>Buffer object storing Vector X.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>XOffset</td>
-<td>Offset of first element of vector X in buffer object.
+<td>Offset of first element of Vector X in buffer object.
 Counted in elements.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
@@ -143,7 +149,7 @@ Counted in elements.</td>
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">Implementation type III has 2 other parameters as follows</div>
+<div class="line">Implementation type III has 2 other parameters as follows,</div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
@@ -160,12 +166,12 @@ Counted in elements.</td>
 <tbody valign="top">
 <tr class="row-even"><td>[in]</td>
 <td>X_batchOffset</td>
-<td>Batch Offset of vector X in buffer object. Offset should be
+<td>Batch Offset of Vector X in buffer object. Offset should be
 a multiple of n.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>BatchSize</td>
-<td>The size of batch for vector X.</td>
+<td>The size of batch for Vector X.</td>
 </tr>
 </tbody>
 </table>

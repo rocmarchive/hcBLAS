@@ -53,32 +53,42 @@
             
   <div class="section" id="dasum">
 <h1>DASUM<a class="headerlink" href="#dasum" title="Permalink to this headline">¶</a></h1>
-<p>Absolute sum of values of a vector containing double elements (Double Precision).</p>
+<div class="line-block">
+<div class="line">Absolute sum of values of a vector (Vector X) containing double elements (Double precision).</div>
+<div class="line"><br /></div>
+<div class="line">Where X is a n-dimensional vector.</div>
+</div>
 <div class="section" id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="implementation-type-i">
 <h3>Implementation type I<a class="headerlink" href="#implementation-type-i" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_dasum</strong> (const int N, double* X, const int incX, const long XOffset, double* Y)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are host double pointers.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_dasum</strong> (const int N, double* X, const int incX, const long XOffset, double* Y)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_dasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;X, const int incX, const long XOffset, double &amp;Y)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ double array containers.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_dasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;X, const int incX, const long XOffset, double &amp;Y)</p>
 </div>
 <div class="section" id="implementation-type-iii">
 <h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><strong>hcblasStatus</strong> <strong>hcblas_dasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;X, const int incX, const long XOffset, double &amp;Y, const long X_batchOffset, const int BatchSize)</div></blockquote>
-<div class="line-block">
-<div class="line"><br /></div>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ double array containers with batch processing.</strong></p>
 </div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_dasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;X, const int incX, const long XOffset, double &amp;Y, const long X_batchOffset, const int BatchSize)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -113,11 +123,11 @@
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>N</td>
-<td>Number of elements in vector X.</td>
+<td>Number of elements in Vector X.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>X</td>
-<td>Buffer object storing vector X.</td>
+<td>Buffer object storing Vector X.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>incX</td>
@@ -125,17 +135,17 @@
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>XOffset</td>
-<td>Offset of first element of vector X in buffer object.
+<td>Offset of first element of Vector X in buffer object.
 Counted in elements.</td>
 </tr>
 <tr class="row-odd"><td>[out]</td>
 <td>Y</td>
-<td>Buffer object that will contain the absolute sum value</td>
+<td>Buffer object that will contain the absolute sum value.</td>
 </tr>
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">Implementation type III has 2 other parameters as follows</div>
+<div class="line">Implementation type III has 2 other parameters as follows,</div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
@@ -152,12 +162,12 @@ Counted in elements.</td>
 <tbody valign="top">
 <tr class="row-even"><td>[in]</td>
 <td>X_batchOffset</td>
-<td>Batch Offset of vector X in buffer object. Offset should be
+<td>Batch Offset of Vector X in buffer object. Offset should be
 a multiple of n.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>BatchSize</td>
-<td>The size of batch for vector X.</td>
+<td>The size of batch for Vector X.</td>
 </tr>
 </tbody>
 </table>
