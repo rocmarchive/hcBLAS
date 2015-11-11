@@ -34,26 +34,26 @@ int main(int argc, char** argv)
     int batchSize = 128;
     long lenx,  leny;
     hcblasStatus status;
-    HCBLAS_TRANS typeA;
-    HCBLAS_ORDER hcOrder = colMajor;
+    hcblasTranspose typeA;
+    hcblasOrder hcOrder = ColMajor;
     if(isTransA == 0){
         row = N;
         col = M;
         lda = M;
-        typeA = noTrans;
+        typeA = NoTrans;
     }
     else{
         row = M;
         col = N;
         lda = N;
-        typeA = trans;
+        typeA = Trans;
     }
 #ifdef LINUX 
     /* CBLAS Implementation */
     enum CBLAS_ORDER order;
-    enum CBLAS_TRANSPOSE transa;
+    enum CBLAS_TRANSPOSE Transa;
     order = CblasColMajor;
-    transa = (typeA == noTrans)? CblasNoTrans : CblasTrans;
+    Transa = (typeA == NoTrans)? CblasNoTrans : CblasTrans;
     float *ycblas = (float *)calloc( col , sizeof(float));
 #endif   
     lenx = 1 + (row - 1) * abs(incX);
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
         status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
 #ifdef LINUX
         lda = (hcOrder)? M : N;
-        cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
+        cblas_sgemv( order, Transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
         for(int i =0; i < col; i ++){
             if (ySgemv[i] != ycblas[i]){
                 ispassed = 0;
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
         Concurrency::copy(yView, begin(HostY));
 #ifdef LINUX
         lda = (hcOrder)? M: N;
-        cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
+        cblas_sgemv( order, Transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
         for(int i =0; i < col; i ++){
             if (HostY[i] != ycblas[i]){
                 ispassed = 0;
@@ -166,7 +166,7 @@ int main(int argc, char** argv)
 #ifdef LINUX
         lda = (hcOrder)? M : N;
         for(int i =0 ; i < batchSize; i++)
-            cblas_sgemv( order, transa, M, N, alpha, ASgemvbatch + i * M * N, lda , xSgemvbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
+            cblas_sgemv( order, Transa, M, N, alpha, ASgemvbatch + i * M * N, lda , xSgemvbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
         for(int i =0; i < col * batchSize; i ++){
             if (HostY_batch[i] != ycblasbatch[i]){
                 ispassed = 0;

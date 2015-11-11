@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     int batchSize = 128;
     long lenx,  leny; 
     hcblasStatus status;
-    HCBLAS_ORDER hcOrder = colMajor;
+    hcblasOrder hcOrder = ColMajor;
     lda = (hcOrder)? M : N;  
 #ifdef LINUX
     /* CBLAS implementation */

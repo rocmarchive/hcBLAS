@@ -36,29 +36,29 @@ int main(int argc, char* argv[])
     long B_batchOffset = 0;
     long C_batchOffset = M * N;
     int batchSize = 128;
-    HCBLAS_ORDER hcOrder = colMajor;
+    hcblasOrder hcOrder = ColMajor;
     hcblasStatus status; 
-    HCBLAS_TRANS typeA,typeB ;
+    hcblasTranspose typeA,typeB ;
     if((isTransA == 0 || isTransA == 1) && (isTransB == 0 || isTransB == 1)) {
         if( isTransA == 0){
-	    typeA = noTrans;
+	    typeA = NoTrans;
             lda = (hcOrder)? M : K;
         }
         else{
-	    typeA = trans;
+	    typeA = Trans;
             lda = (hcOrder)? K : M;
         }
         if( isTransB == 0){
-            typeB = noTrans;
+            typeB = NoTrans;
             ldb = (hcOrder)? K : N;
         }
         else{
-            typeB = trans;
+            typeB = Trans;
             ldb = (hcOrder)? N : K;
         }
     }
     else {
-        cout<< "Invalid transpose type specified"<<endl;
+        cout<< "Invalid Transpose type specified"<<endl;
         return -1;
     }
     ldc = (hcOrder)? M : N;
@@ -75,9 +75,9 @@ int main(int argc, char* argv[])
     /* CBLAS implementation */
     bool isPassed = 1;
     CBLAS_ORDER order = CblasColMajor;
-    enum CBLAS_TRANSPOSE transa, transb;
-    transa = (typeA == noTrans)? CblasNoTrans: CblasTrans;
-    transb = (typeB == noTrans)? CblasNoTrans: CblasTrans;
+    enum CBLAS_TRANSPOSE Transa, Transb;
+    Transa = (typeA == NoTrans)? CblasNoTrans: CblasTrans;
+    Transb = (typeB == NoTrans)? CblasNoTrans: CblasTrans;
     alpha[0] = calpha.real;
     alpha[1] = calpha.img;
     beta[0] = cbeta.real;
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
     if(Imple_type == 1) {
     	status = hc.hcblas_cgemm(hcOrder, typeA, typeB, M, N, K, &calpha, Ahc, aOffset, lda, Bhc, bOffset, ldb, &cbeta, Chc, cOffset, ldc);
 #ifdef LINUX
-        cblas_cgemm( order, transa, transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
+        cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && (k < M * N * 2)) ; i++, k = k + 2){
             if ((Chc[i].real != c[k]) || (Chc[i].img != c[k+1])){
                 isPassed = 0;
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
     	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
         Concurrency::copy(C, begin(HostC));
 #ifdef LINUX
-        cblas_cgemm( order, transa, transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
+        cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((HostC[i].x != c[k]) || (HostC[i].y != c[k+1])){
                 isPassed = 0;
@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
         Concurrency::copy(Cbatch, begin(HostC_batch));  
 #ifdef LINUX
         for(int i = 0; i < batchSize;i++)
-	     cblas_cgemm( order, transa, transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
+	     cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
             if ((HostC_batch[i].x != cbatch[k]) || (HostC_batch[i].y != cbatch[k+1])){
                 isPassed = 0;

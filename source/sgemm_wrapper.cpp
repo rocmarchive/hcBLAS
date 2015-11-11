@@ -16,7 +16,7 @@ hcblasStatus gemm_HC(Concurrency::accelerator_view &accl_view,
 
   // Quick return if possible
   if (!M || !N || ((alpha == 0 || !K) && beta == 1)) {
-    return status;
+    return HCBLAS_INVALID;
   }
 
   // For alpha = 0
@@ -97,9 +97,9 @@ hcblasStatus gemm_HC(Concurrency::accelerator_view &accl_view,
 
 
 // Sgemm Call Type 1: Inputs and Outputs are host float pointers
-hcblasStatus Hcblaslibrary :: hcblas_sgemm(HCBLAS_ORDER order,
-    					   HCBLAS_TRANS typeA,
-				           HCBLAS_TRANS typeB,
+hcblasStatus Hcblaslibrary :: hcblas_sgemm(hcblasOrder order,
+    					   hcblasTranspose typeA,
+				           hcblasTranspose typeB,
 				           const int M, const int N,
 				           const int K, const float* alpha,
 				           float* A, const long lda,
@@ -148,9 +148,9 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(HCBLAS_ORDER order,
 
 // Sgemm Call Type II: Inputs and outputs are C++ HC float array_View containers
 hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
-					    HCBLAS_ORDER order,
-					    HCBLAS_TRANS typeA,
-					    HCBLAS_TRANS typeB, const int M,
+					    hcblasOrder order,
+					    hcblasTranspose typeA,
+					    hcblasTranspose typeB, const int M,
 					    const int N, const int K, const float &alpha,
 					    Concurrency::array<float> &A, const long lda,
 					    Concurrency::array<float> &B, const long ldb,
@@ -165,9 +165,9 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_
 
 /* SGEMM- Overloaded function with arguments related to batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
-					   HCBLAS_ORDER order,
-					   HCBLAS_TRANS typeA,
-					   HCBLAS_TRANS typeB, const int M,
+					   hcblasOrder order,
+					   hcblasTranspose typeA,
+					   hcblasTranspose typeB, const int M,
 					   const int N, const int K, const float &alpha,
 					   Concurrency::array<float> &A, const long lda, const long A_batchOffset,
 					   Concurrency::array<float> &B, const long ldb, const long B_batchOffset,

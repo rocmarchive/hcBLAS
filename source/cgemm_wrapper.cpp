@@ -2,8 +2,8 @@
 
 // CGEMM Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 // CGEMM Call Type 1: Inputs and Outputs are host float pointers
-hcblasStatus Hcblaslibrary:: hcblas_cgemm(HCBLAS_ORDER order, HCBLAS_TRANS typeA,
-				          HCBLAS_TRANS typeB,
+hcblasStatus Hcblaslibrary:: hcblas_cgemm(hcblasOrder order, hcblasTranspose typeA,
+				          hcblasTranspose typeB,
 				          const int M, const int N,
 				          const int K, const hcComplex* alpha,
 				          const hcComplex* A, long aOffset,
@@ -45,25 +45,25 @@ hcblasStatus Hcblaslibrary:: hcblas_cgemm(HCBLAS_ORDER order, HCBLAS_TRANS typeA
 
   // Start the operations
   if(order) {
-    if (typeB == noTrans) {
-      if (typeA == noTrans) {
+    if (typeB == NoTrans) {
+      if (typeA == NoTrans) {
         status = cgemm_NoTransAB(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
       } else {
         status = cgemm_NoTransB(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
       }
-    } else if (typeA == noTrans) {
+    } else if (typeA == NoTrans) {
       status = cgemm_NoTransA(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     } else {
       status = cgemm_TransAB(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     }
   } else {
-    if (typeB == noTrans) {
-      if (typeA == noTrans) {
+    if (typeB == NoTrans) {
+      if (typeA == NoTrans) {
         status = cgemm_NoTransAB_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
       } else {
         status = cgemm_NoTransB_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
       }
-    } else if (typeA == noTrans) {
+    } else if (typeA == NoTrans) {
       status = cgemm_NoTransA_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     } else {
       status = cgemm_TransAB_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
@@ -82,8 +82,8 @@ hcblasStatus Hcblaslibrary:: hcblas_cgemm(HCBLAS_ORDER order, HCBLAS_TRANS typeA
 
 // CGEMM Call Type II: Inputs and outputs are C++ HC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
-				           HCBLAS_ORDER order, HCBLAS_TRANS typeA,
-					   HCBLAS_TRANS typeB, const int M,
+				           hcblasOrder order, hcblasTranspose typeA,
+					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,
 					   const Concurrency::graphics::float_2 &Calpha,
 					   Concurrency::array<float_2> &Acmplx, long aOffset, long lda,
@@ -120,25 +120,25 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_v
   }
 
   if(order) {
-    if (typeB == noTrans) {
-      if (typeA == noTrans) {
+    if (typeB == NoTrans) {
+      if (typeA == NoTrans) {
         status = cgemm_NoTransAB(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
       } else {
         status = cgemm_NoTransB(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
       }
-    } else if (typeA == noTrans) {
+    } else if (typeA == NoTrans) {
       status = cgemm_NoTransA(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     } else {
       status = cgemm_TransAB(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     }
   } else {
-    if (typeB == noTrans) {
-      if (typeA == noTrans) {
+    if (typeB == NoTrans) {
+      if (typeA == NoTrans) {
         status = cgemm_NoTransAB_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
       } else {
         status = cgemm_NoTransB_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
       }
-    } else if (typeA == noTrans) {
+    } else if (typeA == NoTrans) {
       status = cgemm_NoTransA_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
     } else {
       status = cgemm_TransAB_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
@@ -150,8 +150,8 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_v
 
 /* CGEMM Call Type III - Overloaded function with arguments related to batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
-					   HCBLAS_ORDER order, HCBLAS_TRANS typeA,
-					   HCBLAS_TRANS typeB, const int M,
+					   hcblasOrder order, hcblasTranspose typeA,
+					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,
 					   const Concurrency::graphics::float_2 &Calpha,
 					   Concurrency::array<float_2> &Acmplx,
@@ -191,25 +191,25 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_v
   }
 
   if(order) {
-    if (typeB == noTrans) {
-      if (typeA == noTrans) {
+    if (typeB == NoTrans) {
+      if (typeA == NoTrans) {
         status = cgemm_NoTransAB(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
       } else {
         status = cgemm_NoTransB(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
       }
-    } else if (typeA == noTrans) {
+    } else if (typeA == NoTrans) {
       status = cgemm_NoTransA(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
     } else {
       status = cgemm_TransAB(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
     }
   } else {
-    if (typeB == noTrans) {
-      if (typeA == noTrans) {
+    if (typeB == NoTrans) {
+      if (typeA == NoTrans) {
         status = cgemm_NoTransAB_rMajor(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
       } else {
         status = cgemm_NoTransB_rMajor(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
       }
-    } else if (typeA == noTrans) {
+    } else if (typeA == NoTrans) {
       status = cgemm_NoTransA_rMajor(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);
     } else {
       status = cgemm_TransAB_rMajor(accl_view, Acmplx, aOffset, A_batchOffset, Bcmplx, bOffset, B_batchOffset, Ccmplx, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta, batchSize);

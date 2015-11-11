@@ -92,7 +92,7 @@ void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
   });
 }
 
-hcblasStatus Hcblaslibrary :: hcblas_sger(HCBLAS_ORDER order, const int M, const int N,
+hcblasStatus Hcblaslibrary :: hcblas_sger(hcblasOrder order, const int M, const int N,
 				          const float* alpha, float* X,
 				          const long xOffset, const int incX,
 				          float* Y, const long yOffset,
@@ -145,7 +145,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sger(HCBLAS_ORDER order, const int M, const
 }
 
 
-hcblasStatus Hcblaslibrary ::hcblas_sger(Concurrency::accelerator_view &accl_view, HCBLAS_ORDER order,
+hcblasStatus Hcblaslibrary ::hcblas_sger(Concurrency::accelerator_view &accl_view, hcblasOrder order,
 				         const int M, const int N, const float &alpha,
 				         Concurrency::array<float> &X, const long xOffset, const int incX,
 				         Concurrency::array<float> &Y, const long yOffset, const int incY,
@@ -168,7 +168,7 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(Concurrency::accelerator_view &accl_vie
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus Hcblaslibrary :: hcblas_sger(Concurrency::accelerator_view &accl_view, HCBLAS_ORDER order,
+hcblasStatus Hcblaslibrary :: hcblas_sger(Concurrency::accelerator_view &accl_view, hcblasOrder order,
 				          const int M, const int N, const float &alpha,
 				          Concurrency::array<float> &X,
 				          const long xOffset, const long X_batchOffset, const int incX,

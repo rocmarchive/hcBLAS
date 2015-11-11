@@ -708,7 +708,7 @@ void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
 
 
 
-hcblasStatus Hcblaslibrary :: hcblas_sgemv(HCBLAS_ORDER order, HCBLAS_TRANS type,
+hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose type,
 				           const int M, const int N,
 				           const float* alpha, float* A, const long aOffset,
 				           const int lda, float* X, const long xOffset,
@@ -793,13 +793,12 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(HCBLAS_ORDER order, HCBLAS_TRANS type
     }
   }
 
-  //tempBuf.~array();
   return HCBLAS_SUCCESS;
 }
 
 
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_view,
-				           HCBLAS_ORDER order, HCBLAS_TRANS type, const int M,
+				           hcblasOrder order, hcblasTranspose type, const int M,
 				           const int N, const float &alpha,
 				           Concurrency::array<float> &A, const long aOffset, const int lda,
 				           Concurrency::array<float> &X, const long xOffset, const int incX,
@@ -814,9 +813,6 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_v
     return HCBLAS_SUCCESS;
   }
 
-//     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
-  //   accelerator_view accl_view = (acc[1].create_view());
-
   if(order) {
     gemv_HC(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY);
   } else {
@@ -827,7 +823,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_v
 }
 
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_view,
-				           HCBLAS_ORDER order, HCBLAS_TRANS type, const int M,
+				           hcblasOrder order, hcblasTranspose type, const int M,
 				           const int N, const float &alpha, Concurrency::array<float> &A,
 				           const long aOffset, const long A_batchOffset, const int lda,
 				           Concurrency::array<float> &X,
