@@ -56,13 +56,13 @@
 <div class="line-block">
 <div class="line">Vector-vector product with float elements and performs the rank 1 operation (Single precision).</div>
 <div class="line"><br /></div>
-<div class="line">Vector-Vector products:</div>
+<div class="line">Vector-vector products:</div>
 <div class="line"><br /></div>
 <div class="line-block">
-<div class="line">A := alpha*X*Y^T + A</div>
+<div class="line">A := alpha*x*y^T + A</div>
 <div class="line"><br /></div>
 </div>
-<div class="line">Where alpha is a scalar, A is the matrix and X, Y are vectors.</div>
+<div class="line">Where alpha is a scalar, A is the matrix and x, y are vectors.</div>
 <div class="line">() - the actual matrix and ()^T - transpose of the matrix</div>
 </div>
 <div class="section" id="functions">
@@ -75,7 +75,7 @@
 <p class="last"><strong>Inputs and Outputs are host float pointers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sger</strong> (<a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, const int M, const int N, const float* alpha, float* X, const long XOffset, const int incX, float* Y, const long YOffset, const int incY, float* A, const long AOffset, const int lda)</p>
+<p><a class="reference external" href="HCBLAS_TyPES.html">hcblasStatus</a> <strong>hcblas_sger</strong> (<a class="reference external" href="HCBLAS_TyPES.html">hcblasOrder</a> order, const int M, const int N, const float* alpha, float* x, const long xOffset, const int incx, float* y, const long yOffset, const int incy, float* A, const long AOffset, const int lda)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
@@ -85,7 +85,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sger</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, const int M, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;X, const long XOffset, const int incX, Concurrency::array&lt;float&gt; &amp;Y, const long YOffset, const int incY, Concurrency::array&lt;float&gt; &amp;A, const long AOffset, const int lda)</p>
+<p><a class="reference external" href="HCBLAS_TyPES.html">hcblasStatus</a> <strong>hcblas_sger</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TyPES.html">hcblasOrder</a> order, const int M, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;x, const long xOffset, const int incx, Concurrency::array&lt;float&gt; &amp;y, const long yOffset, const int incy, Concurrency::array&lt;float&gt; &amp;A, const long AOffset, const int lda)</p>
 </div>
 <div class="section" id="implementation-type-iii">
 <h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
@@ -95,7 +95,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers with batch processing.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sger</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, const int M, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;X, const long XOffset, const long X_batchOffset, const int incX, Concurrency::array&lt;float&gt; &amp;Y, const long YOffset, const long Y_batchOffset, const int incY, Concurrency::array&lt;float&gt; &amp;A, const long AOffset, const long A_batchOffset, const int lda, int BatchSize)</p>
+<p><a class="reference external" href="HCBLAS_TyPES.html">hcblasStatus</a> <strong>hcblas_sger</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TyPES.html">hcblasOrder</a> order, const int M, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;x, const long xOffset, const long x_batchOffset, const int incx, Concurrency::array&lt;float&gt; &amp;y, const long yOffset, const long y_batchOffset, const int incy, Concurrency::array&lt;float&gt; &amp;A, const long AOffset, const long A_batchOffset, const int lda, int BatchSize)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -109,12 +109,12 @@
                           const int M,
                           const int N,
                           const float &amp;alpha,
-                          Concurrency::array&lt;float&gt; &amp;X,
-                          const long XOffset,
-                          const int incX,
-                          Concurrency::array&lt;float&gt; &amp;Y,
-                          const long YOffset,
-                          const int incY,
+                          Concurrency::array&lt;float&gt; &amp;x,
+                          const long xOffset,
+                          const int incx,
+                          Concurrency::array&lt;float&gt; &amp;y,
+                          const long yOffset,
+                          const int incy,
                           Concurrency::array&lt;float&gt; &amp;A,
                           const long AOffset,
                           const int lda)
@@ -144,55 +144,55 @@
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>M</td>
-<td>Number of rows in Matrix A.</td>
+<td>Number of rows in matrix A.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>N</td>
-<td>Number of columns in Matrix A.</td>
+<td>Number of columns in matrix A.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>alpha</td>
 <td>specifies the scalar alpha.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
-<td>X</td>
-<td>Buffer object storing Vector X.</td>
+<td>x</td>
+<td>Buffer object storing vector x.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
-<td>XOffset</td>
+<td>xOffset</td>
 <td>Offset in number of elements for the first element
-in Vector X.</td>
+in vector x.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
-<td>incX</td>
-<td>Increment for the elements of X. Must not be zero.</td>
+<td>incx</td>
+<td>Increment for the elements of x. Must not be zero.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
-<td>Y</td>
-<td>Buffer object storing Vector Y.</td>
+<td>y</td>
+<td>Buffer object storing vector y.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
-<td>YOffset</td>
+<td>yOffset</td>
 <td>Offset in number of elements for the first element
-in Vector Y.</td>
+in vector y.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
-<td>incY</td>
-<td>Increment for the elements of Y. Must not be zero.</td>
+<td>incy</td>
+<td>Increment for the elements of y. Must not be zero.</td>
 </tr>
 <tr class="row-odd"><td>[out]</td>
 <td>A</td>
-<td>Buffer object storing Matrix A. On exit, A is overwritten
+<td>Buffer object storing matrix A. On exit, A is overwritten
 by the updated matrix.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
 <td>AOffset</td>
 <td>Offset in number of elements for the first element
-in Matrix A.</td>
+in matrix A.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>lda</td>
-<td>Leading dimension of Matrix A. It cannot be less than N when
+<td>Leading dimension of matrix A. It cannot be less than N when
 the order parameter is set to RowMajor, or less than M
 when the parameter is set to ColMajor.</td>
 </tr>
@@ -217,42 +217,54 @@ when the parameter is set to ColMajor.</td>
 <tr class="row-even"><td>[in]</td>
 <td>A_batchOffset</td>
 <td>Batch Offset adding to the Offset of the first element of
-the Matrix A in the buffer object. Counted in elements.
+the matrix A in the buffer object. Counted in elements.
 Offset should be a multiple of m by n.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
-<td>X_batchOffset</td>
+<td>x_batchOffset</td>
 <td>Batch Offset adding to the Offset of the first element of
-the Vector X in the buffer object. Counted in elements.
+the vector x in the buffer object. Counted in elements.
 Offset should be a multiple of m.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
-<td>Y_batchOffset</td>
+<td>y_batchOffset</td>
 <td>Batch Offset adding to the Offset of the first element of
-the Vector Y in the buffer object. Counted in elements.
+the vector y in the buffer object. Counted in elements.
 Offset should be a multiple of n.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>BatchSize</td>
 <td>The size of batch of threads to be processed in parallel for
-Vectors X, Y and Output Matrix A.</td>
+vectors x, y and Output matrix A.</td>
 </tr>
 </tbody>
 </table>
 <div class="line-block">
 <div class="line"><br /></div>
-<div class="line">Returns</div>
-<div class="line"><br /></div>
-<div class="line-block">
-<div class="line">HCBLAS_SUCCESS on success;</div>
-<div class="line">HCBLAS_INVALID when either XOffset, YOffset, AOffset or their respective batchOffsets exceeds the size of the respective buffer object; or</div>
-<div class="line-block">
-<div class="line">when M, N, incX or incY is zero or</div>
-<div class="line">when alpha and beta values are zero.</div>
+<div class="line">Returns,</div>
 </div>
-<div class="line">HCBLAS_ERROR on failure.</div>
-</div>
-</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">STATUS</th>
+<th class="head">DESCRIPTION</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>HCBLAS_SUCCESS</td>
+<td>Success</td>
+</tr>
+<tr class="row-odd"><td>HCBLAS_INVALID</td>
+<td>M, N, incx or incy is zero</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_ERROR</td>
+<td>Failure</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 

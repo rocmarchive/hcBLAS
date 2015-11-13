@@ -4,7 +4,7 @@ SGEMM
 
 | Single precision real valued general matrix-matrix multiplication.
 |
-| Matrix-Matrix products:
+| Matrix-matrix products:
 |
 |    C := alpha*A*B     + beta*C 
 |    C := alpha*A^T*B   + beta*C 
@@ -12,9 +12,9 @@ SGEMM
 |    C := alpha*A^T*B^T + beta*C 
 |
 | Where alpha and beta are scalars, and A, B and C are matrices.
-| Matrix A - m x k matrix
-| Matrix B - k x n matrix
-| Matrix C - m x n matrix
+| matrix A - m x k matrix
+| matrix B - k x n matrix
+| matrix C - m x n matrix
 | () - the actual matrix and ()^T - transpose of the matrix 
 
 Functions
@@ -77,47 +77,47 @@ Function Documentation
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |    order        | Row/Column order (RowMajor/ColMajor).                        |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    transA       | How Matrix A is to be transposed (0 and 1 for NoTrans        |
+|    [in]    |    transA       | How matrix A is to be transposed (0 and 1 for NoTrans        |
 |            |                 | and Trans case respectively).                                |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    transB       | How Matrix B is to be transposed (0 and 1 for NoTrans        |
+|    [in]    |    transB       | How matrix B is to be transposed (0 and 1 for NoTrans        |
 |            |                 | and Trans case respectively).                                |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    M            | Number of rows in Matrix A.                                  |
+|    [in]    |    M            | Number of rows in matrix A.                                  |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    N            | Number of columns in Matrix B.                               |
+|    [in]    |    N            | Number of columns in matrix B.                               |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    K            | Number of columns in Matrix A and rows in Matrix B.          |
+|    [in]    |    K            | Number of columns in matrix A and rows in matrix B.          |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    alpha        | The factor of Matrix A.                                      |
+|    [in]    |    alpha        | The factor of matrix A.                                      |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    A            | Buffer object storing Matrix A.                              |
+|    [in]    |    A            | Buffer object storing matrix A.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    lda          | Leading dimension of Matrix A. It cannot be less than K when |
+|    [in]    |    lda          | Leading dimension of matrix A. It cannot be less than K when |
 |            |                 | the order parameter is set to RowMajor, or less than M when  |
 |            |                 | the parameter is set to ColMajor.                            |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    B            | Buffer object storing Matrix B.                              |
+|    [in]    |    B            | Buffer object storing matrix B.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    ldb          | Leading dimension of Matrix B. It cannot be less than N when |
+|    [in]    |    ldb          | Leading dimension of matrix B. It cannot be less than N when |
 |            |                 | the order parameter is set to RowMajor, or less than K when  |
 |            |                 | it is set to ColMajor.                                       |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    beta         | The factor of Matrix C.                                      |
+|    [in]    |    beta         | The factor of matrix C.                                      |
 +------------+-----------------+--------------------------------------------------------------+
-|    [out]   |    C            | Buffer object storing Matrix C.                              |
+|    [out]   |    C            | Buffer object storing matrix C.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |    ldc          | Leading dimension of Matrix C. It cannot be less than N when |
+|    [in]    |    ldc          | Leading dimension of matrix C. It cannot be less than N when |
 |            |                 | the order parameter is set to RowMajor, or less than M when  |
 |            |                 | it is set to ColMajor.                                       |
 +------------+-----------------+--------------------------------------------------------------+  
-|    [in]    |   AOffset       | Offset of the first element of the Matrix A in the buffer    |
+|    [in]    |   AOffset       | Offset of the first element of the matrix A in the buffer    |
 |            |                 | object. Counted in elements.                                 |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |   BOffset       | Offset of the first element of the Matrix B in the buffer    |
+|    [in]    |   BOffset       | Offset of the first element of the matrix B in the buffer    |
 |            |                 | object. Counted in elements.                                 |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |   COffset       | Offset of the first element of the Matrix C in the buffer    |
+|    [in]    |   COffset       | Offset of the first element of the matrix C in the buffer    |
 |            |                 | object. Counted in elements.                                 |
 +------------+-----------------+--------------------------------------------------------------+
 
@@ -126,26 +126,28 @@ Function Documentation
 |  In/out    |  Parameters     | Description                                                  |
 +============+=================+==============================================================+
 |    [in]    |  A_batchOffset  | Batch Offset adding to the Offset of the first element of    |
-|            |                 | the Matrix A in the buffer object. Counted in elements.      |
+|            |                 | the matrix A in the buffer object. Counted in elements.      |
 |            |                 | Offset should be a multiple of m by k.                       |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |  B_batchOffset  | Batch Offset adding to the Offset of the first element of    |
-|            |                 | the Matrix B in the buffer object. Counted in elements.      |
+|            |                 | the matrix B in the buffer object. Counted in elements.      |
 |            |                 | Offset should be a multiple of n by k.                       |  
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |  C_batchOffset  | Batch Offset adding to the Offset of the first element of    |
-|            |                 | the Matrix C in the buffer object. Counted in elements.      |
+|            |                 | the matrix C in the buffer object. Counted in elements.      |
 |            |                 | Offset should be a multiple of m by n.                       |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |  BatchSize      | The size of batch of threads to be processed in parallel for |
-|            |                 | Matrices A, B and Output Matrix C.                           |
+|            |                 | Matrices A, B and Output matrix C.                           |
 +------------+-----------------+--------------------------------------------------------------+
 
 |
-| Returns
-|
-|        HCBLAS_SUCCESS on success;
-|        HCBLAS_INVALID when either AOffset, BOffset, COffset or their respective batchOffsets exceeds the size of the respective buffer object; or 
-|         when M or N is zero or 
-|         when alpha and beta values are zero.
-|        HCBLAS_ERROR on failure.
+| Returns,
+
+==============   ===================
+STATUS           DESCRIPTION
+==============   ===================
+HCBLAS_SUCCESS    Success
+HCBLAS_INVALID    M, N or K is zero 
+HCBLAS_ERROR      Failure
+==============   ===================  

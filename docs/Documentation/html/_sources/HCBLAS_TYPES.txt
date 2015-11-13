@@ -26,7 +26,7 @@ HCBLAS STATUS (hcblasStatus)
 +================+================================================================================+
 | HCBLAS_SUCCESS | Kernel completed its work successfully.                                        |
 +----------------+--------------------------------------------------------------------------------+    
-| HCBLAS_INVALID | Inputs are either not approprite or exceeds the buffer object.                 |
+| HCBLAS_INVALID | Inputs are either not properly allocated or zero.                              |
 +----------------+--------------------------------------------------------------------------------+
 | HCBLAS_ERROR   | Kernel call failure.                                                           |
 +----------------+--------------------------------------------------------------------------------+

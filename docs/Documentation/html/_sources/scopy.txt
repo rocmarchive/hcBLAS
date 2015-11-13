@@ -2,11 +2,11 @@
 SCOPY 
 #####
 
-| Copies float elements from Vector X to Vector Y (Single precision Copy).
+| Copies float elements from vector x to vector y (Single precision Copy).
 |
-|    Y := X 
+|    y := x 
 |
-| Where X, Y are n-dimensional vectors.
+| Where x, y are n-dimensional vectors.
 
 Functions
 ^^^^^^^^^
@@ -16,21 +16,21 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are host float pointers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_scopy** (const int N, float* X, const int incX, const long XOffset, float* Y, const int incY, const long YOffset)
+`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_scopy** (const int N, float* x, const int incx, const long xOffset, float* y, const int incy, const long yOffset)
 
 Implementation type II
 ----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_scopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &X, const int incX, const long XOffset, Concurrency::array<float> &Y, const int incY, const long YOffset) 
+`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_scopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, Concurrency::array<float> &y, const int incy, const long yOffset) 
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_scopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &X, const int incX, const long XOffset, Concurrency::array<float> &Y, const int incY, const long YOffset, const long X_batchOffset, const long Y_batchOffset, const int BatchSize)  
+`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_scopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, Concurrency::array<float> &y, const int incy, const long yOffset, const long x_batchOffset, const long y_batchOffset, const int BatchSize)  
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -42,12 +42,12 @@ Function Documentation
 
               hcblasStatus hcblas_scopy (Concurrency::accelerator_view &accl_view, 
                                          const int N,
-                                         Concurrency::array<float> &X, 
-                                         const int incX, 
-                                         const long XOffset,
-                                         Concurrency::array<float> &Y, 
-                                         const int incY, 
-                                         const long YOffset) 
+                                         Concurrency::array<float> &x, 
+                                         const int incx, 
+                                         const long xOffset,
+                                         Concurrency::array<float> &y, 
+                                         const int incy, 
+                                         const long yOffset) 
 
 +------------+-----------------+--------------------------------------------------------------+
 |  In/out    |  Parameters     | Description                                                  |
@@ -55,20 +55,20 @@ Function Documentation
 |    [in]    |  accl_view      | `Using accelerator and accelerator_view Objects              |  
 |            |                 | <https://msdn.microsoft.com/en-us/library/hh873132.aspx>`_   |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	N              | Number of elements in Vector X.                              |
+|    [in]    |	N              | Number of elements in vector x.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	X              | Buffer object storing Vector X.                              |
+|    [in]    |	x              | Buffer object storing vector x.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  incX           | Increment for the elements of X. Must not be zero.           |
+|    [in]    |  incx           | Increment for the elements of x. Must not be zero.           |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	Xoffset        | Offset of first element of Vector X in buffer object.        |
+|    [in]    |	xoffset        | Offset of first element of vector x in buffer object.        |
 |            |                 | Counted in elements.                                         |
 +------------+-----------------+--------------------------------------------------------------+
-|    [out]   |	Y              | Buffer object storing the Vector Y.                          |
+|    [out]   |	y              | Buffer object storing the vector y.                          |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  incY           | Increment for the elements of Y. Must not be zero.           |
+|    [in]    |  incy           | Increment for the elements of y. Must not be zero.           |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	YOffset        | Offset of first element of Vector Y in buffer object.        |
+|    [in]    |	yOffset        | Offset of first element of vector y in buffer object.        |
 |            |                 | Counted in elements.                                         |
 +------------+-----------------+--------------------------------------------------------------+
 
@@ -76,21 +76,22 @@ Function Documentation
 +------------+-----------------+--------------------------------------------------------------+
 |  In/out    |  Parameters     | Description                                                  |
 +============+=================+==============================================================+
-|    [in]    |  X_batchOffset  | Batch Offset of Vector X in buffer object. Offset should be  |
+|    [in]    |  x_batchOffset  | Batch Offset of vector x in buffer object. Offset should be  |
 |            |                 | a multiple of n.                                             |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  Y_batchOffset  | Batch Offset of Vector Y in buffer object. Offset should be  |
+|    [in]    |  y_batchOffset  | Batch Offset of vector y in buffer object. Offset should be  |
 |            |                 | a multiple of n.                                             |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  BatchSize      | The size of batch for Vector X and Output Vector Y.          |
+|    [in]    |  BatchSize      | The size of batch for vector x and Output vector y.          |
 +------------+-----------------+--------------------------------------------------------------+
 
 |
-| Returns
-|
-|        HCBLAS_SUCCESS on success
-|        HCBLAS_INVALID when
-|         N is zero, or
-|         either incX or incY is zero, or
-|         the vector sizes along with the increments lead to accessing outside of any of the buffers;
-|        HCBLAS_ERROR on failure.
+| Returns,
+
+==============   ===========================
+STATUS           DESCRIPTION
+==============   ===========================
+HCBLAS_SUCCESS    Success
+HCBLAS_INVALID    N, incx or incy is zero
+HCBLAS_ERROR      Failure
+==============   =========================== 

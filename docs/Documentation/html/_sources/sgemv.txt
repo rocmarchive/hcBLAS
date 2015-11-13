@@ -4,12 +4,12 @@ SGEMV
 
 | Single Precision real valued general matrix-vector multiplication.
 |
-| Matrix-Vector products:
+| Matrix-vector products:
 |
-|    Y := alpha*A*X + beta*Y 
-|    Y := alpha*A^T*Y + beta*Y
+|    y := alpha*A*x + beta*y 
+|    y := alpha*A^T*y + beta*y
 |
-| Where alpha and beta are scalars, A is the matrix and X, Y are vectors.
+| Where alpha and beta are scalars, A is the matrix and x, y are vectors.
 | () - the actual matrix and ()^T - Transpose of the matrix 
 
 
@@ -21,21 +21,21 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are host float pointers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sgemv** (`hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA , const int M, const int N, const float* alpha, float* A, const long AOffset, const int lda, float* X, const long XOffset, const int incX, const float* beta, float* Y, const long YOffset, const int incY)
+`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_sgemv** (`hcblasOrder <HCBLAS_TyPES.html>`_ order, `hcblasTranspose <HCBLAS_TyPES.html>`_ transA , const int M, const int N, const float* alpha, float* A, const long AOffset, const int lda, float* x, const long xOffset, const int incx, const float* beta, float* y, const long yOffset, const int incy)
 
 Implementation type II
 ----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sgemv** (Concurrency::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, const int M, const int N, const float &alpha, Concurrency::array<float> &A, const long AOffset, const int lda, Concurrency::array<float> &X, const long XOffset, const int incX, const float &beta, Concurrency::array<float> &Y, const long YOffset, const int incY)
+`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_sgemv** (Concurrency::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TyPES.html>`_ order, `hcblasTranspose <HCBLAS_TyPES.html>`_ transA, const int M, const int N, const float &alpha, Concurrency::array<float> &A, const long AOffset, const int lda, Concurrency::array<float> &x, const long xOffset, const int incx, const float &beta, Concurrency::array<float> &y, const long yOffset, const int incy)
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
 	
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sgemv** (Concurrency::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, const int M, const int N, const float &alpha, Concurrency::array<float> &A, const long AOffset, const long A_batchOffset, const int lda, Concurrency::array<float> &X, const long XOffset, const long X_batchOffset, const int incX, const float &beta, Concurrency::array<float> &Y, const long YOffset, const long Y_batchOffset, const int incY, const int BatchSize)
+`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_sgemv** (Concurrency::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TyPES.html>`_ order, `hcblasTranspose <HCBLAS_TyPES.html>`_ transA, const int M, const int N, const float &alpha, Concurrency::array<float> &A, const long AOffset, const long A_batchOffset, const int lda, Concurrency::array<float> &x, const long xOffset, const long x_batchOffset, const int incx, const float &beta, Concurrency::array<float> &y, const long yOffset, const long y_batchOffset, const int incy, const int BatchSize)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -54,13 +54,13 @@ Function Documentation
                                          Concurrency::array<float> &A, 
                                          const long AOffset, 
                                          const int lda, 
-                                         Concurrency::array<float> &X, 
-                                         const long XOffset, 
-                                         const int incX, 
+                                         Concurrency::array<float> &x, 
+                                         const long xOffset, 
+                                         const int incx, 
                                          const float &beta, 
-                                         Concurrency::array<float> &Y, 
-                                         const long YOffset, 
-                                         const int incY)
+                                         Concurrency::array<float> &y, 
+                                         const long yOffset, 
+                                         const int incy)
 
 
 +------------+-----------------+--------------------------------------------------------------+
@@ -71,39 +71,39 @@ Function Documentation
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	order          | Row/Column order (RowMajor/ColMajor).                        |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	transA         | How Matrix A is to be transposed (0 and 1 for NoTrans and    | 
+|    [in]    |	transA         | How matrix A is to be transposed (0 and 1 for NoTrans and    | 
 |            |                 | Trans case respectively).                                    |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	M              | Number of rows in Matrix A.                                  |
+|    [in]    |	M              | Number of rows in matrix A.                                  |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	N              | Number of columns in Matrix A.                               |
+|    [in]    |	N              | Number of columns in matrix A.                               |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	alpha          | The factor of Matrix A.                                      |
+|    [in]    |	alpha          | The factor of matrix A.                                      |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	A              | Buffer object storing Matrix A.                              |
+|    [in]    |	A              | Buffer object storing matrix A.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	AOffset        | Offset of the first element of the Matrix A in the           |
+|    [in]    |	AOffset        | Offset of the first element of the matrix A in the           |
 |            |                 | buffer object. Counted in elements.                          |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	lda            | Leading dimension of Matrix A. It cannot be less than N when |
+|    [in]    |	lda            | Leading dimension of matrix A. It cannot be less than N when |
 |            |                 | the order parameter is set to RowMajor, or less than M when  |
 |            |                 | the parameter is set to ColMajor.                            |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	X	       | Buffer object storing Vector X.                              |
+|    [in]    |	x	       | Buffer object storing vector x.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	XOffset        | Offset of first element of Vector X in buffer object.        |
+|    [in]    |	xOffset        | Offset of first element of vector x in buffer object.        |
 |            |                 | Counted in elements.                                         |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	incX           | Increment for the elements of X. It cannot be zero           |
+|    [in]    |	incx           | Increment for the elements of x. It cannot be zero           |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	beta           | The factor of the Vector Y.                                  |
+|    [in]    |	beta           | The factor of the vector y.                                  |
 +------------+-----------------+--------------------------------------------------------------+
-|    [out]   |	Y              | Buffer object storing the Vector Y.                          |
+|    [out]   |	y              | Buffer object storing the vector y.                          |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	YOffset        | Offset of first element of Vector Y in buffer object.        |
+|    [in]    |	yOffset        | Offset of first element of vector y in buffer object.        |
 |            |                 | Counted in elements.                                         |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	incY           | Increment for the elements of Y. It cannot be zero.          |
+|    [in]    |	incy           | Increment for the elements of y. It cannot be zero.          |
 +------------+-----------------+--------------------------------------------------------------+
 
 | Implementation type III has 4 other parameters as follows,
@@ -111,26 +111,28 @@ Function Documentation
 |  In/out    |  Parameters     | Description                                                  |
 +============+=================+==============================================================+
 |    [in]    |  A_batchOffset  | Batch Offset adding to the Offset of the first element of    |
-|            |                 | the Matrix A in the buffer object. Counted in elements.      |
+|            |                 | the matrix A in the buffer object. Counted in elements.      |
 |            |                 | Offset should be a multiple of m by n.                       |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  X_batchOffset  | Batch Offset adding to the Offset of the first element of    |
-|            |                 | the Vector X in the buffer object. Counted in elements.      |
+|    [in]    |  x_batchOffset  | Batch Offset adding to the Offset of the first element of    |
+|            |                 | the vector x in the buffer object. Counted in elements.      |
 |            |                 | Offset should be a multiple of m.                            |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  Y_batchOffset  | Batch Offset adding to the Offset of the first element of    |
-|            |                 | the Vector Y in the buffer object. Counted in elements.      |
+|    [in]    |  y_batchOffset  | Batch Offset adding to the Offset of the first element of    |
+|            |                 | the vector y in the buffer object. Counted in elements.      |
 |            |                 | Offset should be a multiple of n.                            |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |  BatchSize      | The size of batch of threads to be processed in parallel for |
-|            |                 | Vectors X, Y and Matrix A.                                   |
+|            |                 | vectors x, y and matrix A.                                   |
 +------------+-----------------+--------------------------------------------------------------+
 
 |
-| Returns
-|
-|        HCBLAS_SUCCESS on success;
-|        HCBLAS_INVALID when either XOffset, YOffset, AOffset or their respective batchOffsets exceeds the size of the respective buffer object; or
-|         when M, N, incX or incY is zero or
-|         when alpha and beta values are zero.
-|        HCBLAS_ERROR on failure.
+| Returns, 
+
+==============   ===========================
+STATUS           DESCRIPTION
+==============   ===========================
+HCBLAS_SUCCESS    Success
+HCBLAS_INVALID    M, N, incx or incy is zero
+HCBLAS_ERROR      Failure
+==============   ===========================  

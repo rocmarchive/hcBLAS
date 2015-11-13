@@ -54,9 +54,9 @@
   <div class="section" id="sasum">
 <h1>SASUM<a class="headerlink" href="#sasum" title="Permalink to this headline">¶</a></h1>
 <div class="line-block">
-<div class="line">Absolute sum of values of a vector (Vector X) containing float elements (Single precision).</div>
+<div class="line">Absolute sum of values of a vector (vector x) containing float elements (Single precision).</div>
 <div class="line"><br /></div>
-<div class="line">Where X is a n-dimensional vector.</div>
+<div class="line">Where x is a n-dimensional vector.</div>
 </div>
 <div class="section" id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
@@ -68,7 +68,7 @@
 <p class="last"><strong>Inputs and Outputs are host float pointers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sasum</strong> (const int N, float* X, const int incX, const long XOffset, float* Y)</p>
+<p><a class="reference external" href="HCBLAS_TyPES.html">hcblasStatus</a> <strong>hcblas_sasum</strong> (const int N, float* x, const int incx, const long xOffset, float* y)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
@@ -78,7 +78,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;float&gt; &amp;X, const int incX, const long XOffset, float &amp;Y)</p>
+<p><a class="reference external" href="HCBLAS_TyPES.html">hcblasStatus</a> <strong>hcblas_sasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;float&gt; &amp;x, const int incx, const long xOffset, float &amp;y)</p>
 </div>
 <div class="section" id="implementation-type-iii">
 <h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
@@ -88,7 +88,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers with batch processing.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;float&gt; &amp;X, const int incX, const long XOffset, float &amp;Y, const long X_batchOffset, const int BatchSize)</p>
+<p><a class="reference external" href="HCBLAS_TyPES.html">hcblasStatus</a> <strong>hcblas_sasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;float&gt; &amp;x, const int incx, const long xOffset, float &amp;y, const long x_batchOffset, const int BatchSize)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -98,10 +98,10 @@
 <h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_sasum (Concurrency::accelerator_view &amp;accl_view,
                            const int N,
-                           Concurrency::array&lt;float&gt; &amp;X,
-                           const int incX,
-                           const long XOffset,
-                           float &amp;Y)
+                           Concurrency::array&lt;float&gt; &amp;x,
+                           const int incx,
+                           const long xOffset,
+                           float &amp;y)
 </pre></div>
 </div>
 <table border="1" class="docutils">
@@ -123,23 +123,23 @@
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>N</td>
-<td>Number of elements in Vector X.</td>
+<td>Number of elements in vector x.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
-<td>X</td>
-<td>Buffer object storing Vector X.</td>
+<td>x</td>
+<td>Buffer object storing vector x.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
-<td>incX</td>
-<td>Increment for the elements of X. Must not be zero.</td>
+<td>incx</td>
+<td>Increment for the elements of x. Must not be zero.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
-<td>XOffset</td>
-<td>Offset of first element of Vector X in buffer object.
+<td>xOffset</td>
+<td>Offset of first element of vector x in buffer object.
 Counted in elements.</td>
 </tr>
 <tr class="row-odd"><td>[out]</td>
-<td>Y</td>
+<td>y</td>
 <td>Buffer object that will contain the absolute sum value.</td>
 </tr>
 </tbody>
@@ -161,31 +161,42 @@ Counted in elements.</td>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>[in]</td>
-<td>X_batchOffset</td>
-<td>Batch Offset of Vector X in buffer object. Offset should be
+<td>x_batchOffset</td>
+<td>Batch Offset of vector x in buffer object. Offset should be
 a multiple of n.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>BatchSize</td>
-<td>The size of batch for Vector X.</td>
+<td>The size of batch for vector x.</td>
 </tr>
 </tbody>
 </table>
 <div class="line-block">
 <div class="line"><br /></div>
-<div class="line">Returns</div>
-<div class="line"><br /></div>
-<div class="line-block">
-<div class="line">HCBLAS_SUCCESS on success;</div>
-<div class="line">HCBLAS_INVALID when</div>
-<div class="line-block">
-<div class="line">N is zero, or</div>
-<div class="line">incX is zero, or</div>
-<div class="line">the vector sizes along with the increments lead to accessing outside of any of the buffers;</div>
+<div class="line">Returns,</div>
 </div>
-<div class="line">HCBLAS_ERROR on failure.</div>
-</div>
-</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">STATUS</th>
+<th class="head">DESCRIPTION</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>HCBLAS_SUCCESS</td>
+<td>Success</td>
+</tr>
+<tr class="row-odd"><td>HCBLAS_INVALID</td>
+<td>N or incx is zero</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_ERROR</td>
+<td>Failure</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
