@@ -32,7 +32,25 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 
 ### A. C++ AMP Compiler Installation: 
 
-** Build from source **
+Use either (i) or (ii) to install the compiler.
+
+**(i) Install through debian package:**
+
+  Download the debian package from the link given below,
+  
+  [Compiler-Debians](https://multicorewareinc.egnyte.com/dl/TD5IwsNEx3)
+  
+  Install the package hcc-0.8.1544-a9f4d2f-ddba18d-Linux.deb 
+  
+  using the command,
+  
+    sudo dpkg -i <package_name>
+      e.g. sudo dpkg -i  hcc-0.8.1544-a9f4d2f-ddba18d-Linux.deb 
+      
+  Note: 
+      Ignore clamp-bolt, Bolt is not required for hcblas.
+    
+**(ii) Build from source **
 
   To build the compiler from source follow the steps given below,
  
@@ -90,7 +108,8 @@ With this the C++ AMP Compiler installation is complete.
 
        * cd ~/hcblas/Build/linux
        
-       * export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
+       * If the compiler has build from source export the following,
+          export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
 
        * sh build.sh
 
@@ -123,9 +142,7 @@ With this the C++ AMP Compiler installation is complete.
      * cd ~/hcblas/source/testfiles/build/linux
      
      * If the compiler has build from source export the following,
-       
-         export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
-           e.g. export MCWCPPAMPBUILD=/home/mcw/mcw_cppamp/build
+       export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
      
      * sh build.sh
      
