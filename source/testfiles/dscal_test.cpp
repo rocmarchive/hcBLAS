@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     /* CBLAS implementation */
     bool ispassed = 1;
     double *Xcblas = (double*)calloc(lenx, sizeof(double));
-    double *Xcblasbatch = (double*)calloc(N * batchSize, sizeof(double));
+    double *Xcblasbatch = (double*)calloc(lenx * batchSize, sizeof(double));
 #endif
     Concurrency::array<double> xView(lenx, X);
     Concurrency::array<double> xbatchView(lenx * batchSize, Xbatch);
@@ -38,7 +38,7 @@ int main(int argc, char** argv)
     std::vector<double> HostX_batch(lenx * batchSize);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    for(int i = 0;i < N;i++){
+    for(int i = 0;i < lenx;i++){
         HostX[i] = rand() % 10;
         X[i] = HostX[i];
 #ifdef LINUX
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 	status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
 #ifdef LINUX
         cblas_dscal( N, alpha, Xcblas, incX);
-        for(int i = 0; i < N ; i++){
+        for(int i = 0; i < lenx ; i++){
             if (X[i] != Xcblas[i]){
                 ispassed = 0;
                 cout <<" HCDSCAL[" << i<< "] " << X[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
         Concurrency::copy(xView, begin(HostX));  
 #ifdef LINUX
         cblas_dscal( N, alpha, Xcblas, incX );
-        for(int i = 0; i < N ; i++){
+        for(int i = 0; i < lenx ; i++){
             if (HostX[i] != Xcblas[i]){
                 ispassed = 0;
                 cout <<" HCDSCAL[" << i<< "] " << HostX[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
      }
 
     else{ 
-        for(int i = 0;i < N * batchSize;i++){
+        for(int i = 0;i < lenx * batchSize;i++){
             HostX_batch[i] = rand() % 10;
 #ifdef LINUX
             Xcblasbatch[i] = HostX_batch[i];
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 #ifdef LINUX
         for(int i = 0; i < batchSize; i++)
         	cblas_dscal( N, alpha, Xcblasbatch + i * N, incX);
-        for(int i =0; i < N * batchSize; i ++){
+        for(int i =0; i < lenx * batchSize; i ++){
             if (HostX_batch[i] != Xcblasbatch[i]){
                 ispassed = 0;
                 cout <<" HCDSCAL[" << i<< "] " << HostX_batch[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;

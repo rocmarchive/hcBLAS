@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     std::vector<double> HostX_batch(lenx * batchSize);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    for(int i = 0;i < N;i++) {
+    for(int i = 0;i < lenx;i++) {
         HostX[i] = rand() % 10;
         X[i] = HostX[i];
     }
@@ -47,14 +47,9 @@ int main(int argc, char** argv)
 	status = hc.hcblas_dasum(N, X, incX, xOffset, &asumhcblas);
 #ifdef LINUX
         asumcblas = cblas_dasum( N, X, incX);
-        for(int i = 0; i < N ; i++){
-            if (asumhcblas != asumcblas){
-                ispassed = 0;
-                cout <<" HCDASUM[" << i<< "] " << asumhcblas << " does not match with CBLASDASUM[" << i <<"] "<< asumcblas << endl;
-                break;
-            }
-            else
-                continue;
+        if (asumhcblas != asumcblas){
+            ispassed = 0;
+            cout <<" HCDASUM " << asumhcblas << " does not match with CBLASDASUM "<< asumcblas << endl;
         }
         cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
 #else
@@ -68,14 +63,9 @@ int main(int argc, char** argv)
         status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
 #ifdef LINUX
         asumcblas = cblas_dasum( N, X, incX);
-        for(int i = 0; i < N ; i++){
-            if (asumhcblas != asumcblas){
-                ispassed = 0;
-                cout <<" HCDASUM[" << i<< "] " << asumhcblas << " does not match with CBLASDASUM[" << i <<"] "<< asumcblas << endl;
-                break;
-            }
-            else
-                continue;
+        if (asumhcblas != asumcblas){
+            ispassed = 0;
+            cout <<" HCDASUM " << asumhcblas << " does not match with CBLASDASUM "<< asumcblas << endl;
         }
         cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
 #else
@@ -84,7 +74,7 @@ int main(int argc, char** argv)
      }
 
     else{ 
-        for(int i = 0;i < N * batchSize;i++){
+        for(int i = 0;i < lenx * batchSize;i++){
             HostX_batch[i] = rand() % 10;
             Xbatch[i] = HostX_batch[i];
          }
@@ -95,14 +85,9 @@ int main(int argc, char** argv)
         	asumcblastemp[i] = cblas_dasum( N, Xbatch + i * N, incX);
                 asumcblas += asumcblastemp[i];
         }
-        for(int i =0; i < N * batchSize; i ++){
-            if (asumhcblas != asumcblas){
-                ispassed = 0;
-                cout <<" HCDASUM[" << i<< "] " << asumhcblas << " does not match with CBLASDASUM[" << i <<"] "<< asumcblas << endl;
-                break;
-            }
-            else 
-              continue;  
+        if (asumhcblas != asumcblas){
+            ispassed = 0;
+            cout <<" HCDASUM " << asumhcblas << " does not match with CBLASDASUM "<< asumcblas << endl;
         }
         cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
 #else

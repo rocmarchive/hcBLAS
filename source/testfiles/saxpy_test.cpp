@@ -39,12 +39,12 @@ int main(int argc, char** argv)
     std::vector<float> HostY(leny);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    for(int i = 0;i < N;i++){
+    for(int i = 0;i < lenx;i++){
         HostX[i] = rand() % 10;
         X[i] = HostX[i];
     }
     for(int iter=0; iter<10; iter++) {
-        for(int i = 0;i < N;i++){
+        for(int i = 0;i < leny;i++){
             HostY[i] =  rand() % 15;
             Y[i] = HostY[i];
 #ifdef LINUX
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 	status = hc.hcblas_saxpy(N, &alpha, X, incX, Y, incY , xOffset, yOffset);
 #ifdef LINUX
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
-        for(int i = 0; i < N ; i++){
+        for(int i = 0; i < leny ; i++){
             if (Y[i] != Ycblas[i]){
                 ispassed = 0;
                 cout <<" HCSAXPY[" << i<< "] " << Y[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
         Concurrency::copy(yView, begin(HostY));
 #ifdef LINUX
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
-        for(int i = 0; i < N ; i++){
+        for(int i = 0; i < leny ; i++){
             if (HostY[i] != Ycblas[i]){
                 ispassed = 0;
                 cout <<" HCSAXPY[" << i<< "] " << HostY[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
@@ -101,11 +101,11 @@ int main(int argc, char** argv)
         Concurrency::array<float> ybatchView(leny * batchSize, Ybatch);
         std::vector<float> HostX_batch(lenx * batchSize);
         std::vector<float> HostY_batch(leny * batchSize);
-        for(int i = 0;i < N * batchSize;i++){
+        for(int i = 0;i < lenx * batchSize;i++){
             HostX_batch[i] = rand() % 10;
             Xbatch[i] = HostX_batch[i];
          }
-       for(int i = 0;i < N * batchSize;i++){
+       for(int i = 0;i < leny * batchSize;i++){
             HostY_batch[i] =  rand() % 15;
             Ybatch[i] = HostY_batch[i];
 #ifdef LINUX
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 #ifdef LINUX
         for(int i = 0; i < batchSize; i++)
         	cblas_saxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
-        for(int i =0; i < N * batchSize; i ++){
+        for(int i =0; i < leny * batchSize; i ++){
             if (HostY_batch[i] != Ycblasbatch[i]){
                 ispassed = 0;
                 cout <<" HCSAXPY[" << i<< "] " << HostY_batch[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblasbatch[i] << endl;

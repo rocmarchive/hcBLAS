@@ -33,7 +33,7 @@ int main(int argc, char** argv)
     /* CBLAS implementation */
     bool ispassed = 1;
     float *Ycblas = (float*)calloc(leny, sizeof(float));
-    float *Ycblasbatch = (float*)calloc(N * batchSize, sizeof(float));
+    float *Ycblasbatch = (float*)calloc(leny * batchSize, sizeof(float));
 #endif
     Concurrency::array<float> xView(lenx, X);
     Concurrency::array<float> yView(leny, Y);
@@ -45,11 +45,11 @@ int main(int argc, char** argv)
     std::vector<float> HostY(leny);
     std::vector<float> HostX_batch(lenx * batchSize);
     std::vector<float> HostY_batch(leny * batchSize);
-    for(int i = 0;i < N;i++){
+    for(int i = 0;i < lenx;i++){
         HostX[i] = rand() % 10;
         X[i] = HostX[i];
     }
-    for(int i = 0;i < N;i++){
+    for(int i = 0;i < leny;i++){
         HostY[i] =  rand() % 15;
         Y[i] = HostY[i];
 #ifdef LINUX
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 	status = hc.hcblas_scopy(N, X, incX, xOffset, Y, incY, yOffset);
 #ifdef LINUX
         cblas_scopy( N, X, incX, Ycblas, incY);
-        for(int i = 0; i < N ; i++){
+        for(int i = 0; i < leny ; i++){
             if (Y[i] != Ycblas[i]){
                 ispassed = 0;
                 cout <<" HCSCOPY[" << i<< "] " << Y[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
         Concurrency::copy(yView, begin(HostY));
 #ifdef LINUX
         cblas_scopy( N, X, incX, Ycblas, incY );
-        for(int i = 0; i < N ; i++){
+        for(int i = 0; i < leny; i++){
             if (HostY[i] != Ycblas[i]){
                 ispassed = 0;
                 cout <<" HCSCOPY[" << i<< "] " << HostY[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
@@ -101,11 +101,11 @@ int main(int argc, char** argv)
      }
 
     else{ 
-        for(int i = 0;i < N * batchSize;i++){
+        for(int i = 0;i < lenx * batchSize;i++){
             HostX_batch[i] = rand() % 10;
             Xbatch[i] = HostX_batch[i];
          }
-       for(int i = 0;i < N * batchSize;i++){
+       for(int i = 0;i < leny * batchSize;i++){
             HostY_batch[i] =  rand() % 15;
 #ifdef LINUX
             Ycblasbatch[i] = HostY_batch[i];
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 #ifdef LINUX
         for(int i = 0; i < batchSize; i++)
         	cblas_scopy( N, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
-        for(int i =0; i < N * batchSize; i ++){
+        for(int i =0; i < leny * batchSize; i ++){
             if (HostY_batch[i] != Ycblasbatch[i]){
                 ispassed = 0;
                 cout <<" HCSCOPY[" << i<< "] " <<HostY_batch[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;

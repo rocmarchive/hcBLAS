@@ -49,11 +49,11 @@ int main(int argc, char** argv)
     std::vector<float> HostY_batch(leny * batchSize);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    for(int i = 0;i < N;i++){
+    for(int i = 0;i < lenx;i++){
         HostX[i] = rand() % 10;
         X[i] = HostX[i];
     }
-    for(int i = 0;i < N;i++){
+    for(int i = 0;i < leny;i++){
         HostY[i] = rand() % 15;
         Y[i] = HostY[i];
     }
@@ -61,14 +61,9 @@ int main(int argc, char** argv)
 	status = hc.hcblas_sdot(N, X, incX, xOffset, Y, incY, yOffset, &dothcblas);
 #ifdef LINUX
         dotcblas = cblas_sdot( N, X, incX, Y, incY);
-        for(int i = 0; i < N ; i++){
-            if (dothcblas != dotcblas){
-                ispassed = 0;
-                cout <<" HCSDOT[" << i<< "] " << dothcblas << " does not match with CBLASSDOT[" << i <<"] "<< dotcblas << endl;
-                break;
-            }
-            else
-                continue;
+        if (dothcblas != dotcblas){
+            ispassed = 0;
+            cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
         cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
 #else
@@ -84,14 +79,9 @@ int main(int argc, char** argv)
         status = hc.hcblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
 #ifdef LINUX
         dotcblas = cblas_sdot( N, X, incX, Y, incY);
-        for(int i = 0; i < N ; i++){
-             if (dothcblas != dotcblas){
-                ispassed = 0;
-                cout <<" HCSDOT[" << i<< "] " << dothcblas << " does not match with CBLASSDOT[" << i <<"] "<< dotcblas << endl;
-                break;
-            }
-            else
-                continue;
+        if (dothcblas != dotcblas){
+            ispassed = 0;
+            cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
         cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
 #else
@@ -100,11 +90,11 @@ int main(int argc, char** argv)
      }
 
     else{ 
-        for(int i = 0;i < N * batchSize;i++){
+        for(int i = 0;i < lenx * batchSize;i++){
             HostX_batch[i] = rand() % 10;
             Xbatch[i] = HostX_batch[i];
          }
-       for(int i = 0;i < N * batchSize;i++){
+       for(int i = 0;i < leny * batchSize;i++){
             HostY_batch[i] =  rand() % 15;
             Ybatch[i] = HostY_batch[i];
          }
@@ -116,14 +106,9 @@ int main(int argc, char** argv)
         	dotcblastemp[i] = cblas_sdot( N, Xbatch + i * N, incX, Ybatch + i * N, incY);
                 dotcblas += dotcblastemp[i];
         }
-        for(int i =0; i < N * batchSize; i ++){
-             if (dothcblas != dotcblas){
-                ispassed = 0;
-                cout <<" HCSDOT[" << i<< "] " << dothcblas << " does not match with CBLASSDOT[" << i <<"] "<< dotcblas << endl;
-                break;
-            }
-            else 
-              continue;  
+        if (dothcblas != dotcblas){
+            ispassed = 0;
+            cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
         cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
 #else

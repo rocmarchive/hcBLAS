@@ -589,20 +589,28 @@ void gemv_HC(Concurrency::accelerator_view &accl_view,
              Concurrency::array<float> &Y, long yOffset, long incY) {
   int lenX, lenY;
 
-  if (M == 0 || N == 0) {
-    return;
-  }
-
-  if (alpha == 0.0 && beta == 1.0) {
-    return;
-  }
-
   if (TransA == 'n') {
     lenX = N;
     lenY = M;
   } else {
     lenX = M;
     lenY = N;
+  }
+
+  if (alpha == 0) {
+     std::vector<float> HostY(lenY);
+     Concurrency::copy(Y, begin(HostY));
+     if (beta == 0) {
+       for (int j = 0; j < lenY; ++j) {
+           HostY[yOffset + j] = 0;
+       }
+     } else {
+       for (int j = 0; j < lenY; ++j) {
+           HostY[yOffset + j] *= beta;
+       }
+     }
+    Concurrency::copy(begin(HostY), end(HostY), Y);
+    return;
   }
 
   if (TransA == 't') {
@@ -621,20 +629,32 @@ void gemv_HC(Concurrency::accelerator_view &accl_view,
              long incY, int batchSize) {
   int lenX, lenY;
 
-  if (M == 0 || N == 0) {
-    return;
-  }
-
-  if (alpha == 0.0 && beta == 1.0) {
-    return;
-  }
-
   if (TransA == 'n') {
     lenX = N;
     lenY = M;
   } else {
     lenX = M;
     lenY = N;
+  }
+ 
+  if (alpha == 0) {
+     std::vector<float> HostY(lenY * batchSize);
+     Concurrency::copy(Y, begin(HostY));
+     if (beta == 0) {
+      for(int k = 0; k < batchSize; ++k) {
+       for (int j = 0; j < lenY; ++j) {
+           HostY[yOffset + Y_batchOffset * k + j] = 0;
+       }
+      }
+     } else {
+      for(int k = 0; k < batchSize; ++k) {
+       for (int j = 0; j < lenY; ++j) {
+           HostY[yOffset + Y_batchOffset * k + j] *= beta;
+       }
+      }
+     }
+    Concurrency::copy(begin(HostY), end(HostY), Y);
+    return;
   }
 
   if (TransA == 't') {
@@ -651,20 +671,28 @@ void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
                     Concurrency::array<float> &Y, long yOffset, long incY) {
   int lenX, lenY;
 
-  if (M == 0 || N == 0) {
-    return;
-  }
-
-  if (alpha == 0.0 && beta == 1.0) {
-    return;
-  }
-
   if (TransA == 'n') {
     lenX = N;
     lenY = M;
   } else {
     lenX = M;
     lenY = N;
+  }
+
+  if (alpha == 0) {
+     std::vector<float> HostY(lenY);
+     Concurrency::copy(Y, begin(HostY));
+     if (beta == 0) {
+       for (int j = 0; j < lenY; ++j) {
+           HostY[yOffset + j] = 0;
+       }
+     } else {
+       for (int j = 0; j < lenY; ++j) {
+           HostY[yOffset + j] *= beta;
+       }
+     }
+    Concurrency::copy(begin(HostY), end(HostY), Y);
+    return;
   }
 
   if (TransA == 't') {
@@ -683,20 +711,32 @@ void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
                     long incY, int batchSize) {
   int lenX, lenY;
 
-  if (M == 0 || N == 0) {
-    return;
-  }
-
-  if (alpha == 0.0 && beta == 1.0) {
-    return;
-  }
-
   if (TransA == 'n') {
     lenX = N;
     lenY = M;
   } else {
     lenX = M;
     lenY = N;
+  }
+
+  if (alpha == 0) {
+     std::vector<float> HostY(lenY * batchSize);
+     Concurrency::copy(Y, begin(HostY));
+     if (beta == 0) {
+      for(int k = 0; k < batchSize; ++k) {
+       for (int j = 0; j < lenY; ++j) {
+           HostY[yOffset + Y_batchOffset * k + j] = 0;
+       }
+      }
+     } else {
+      for(int k = 0; k < batchSize; ++k) {
+       for (int j = 0; j < lenY; ++j) {
+           HostY[yOffset + Y_batchOffset * k + j] *= beta;
+       }
+      }
+     }
+    Concurrency::copy(begin(HostY), end(HostY), Y);
+    return;
   }
 
   if (TransA == 't') {
@@ -714,7 +754,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
 				           const int lda, float* X, const long xOffset,
 				           const int incX, const float* beta,
 				           float* Y, const long yOffset, const int incY) {
-  if(alpha == NULL || X == NULL || Y == NULL || A == NULL || M <= 0 || N <= 0 || beta == NULL ) {
+  if(alpha == NULL || X == NULL || Y == NULL || A == NULL || M <= 0 || N <= 0 || beta == NULL || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -747,6 +787,23 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
       HostY[i] = Y[i];
     }
 
+    if (*alpha == 0) {
+    if (*beta == 0) {
+      for (int j = 0; j < lenYn; ++j) {
+          HostY[yOffset + j] = 0;
+      }
+    } else {
+      for (int j = 0; j < lenYn; ++j) {
+          HostY[yOffset + j] *=  (*beta);
+      }
+    }
+    for( int i = 0; i < lenYn; i++) {
+      Y[i] = HostY[i];
+    }
+    return HCBLAS_SUCCESS;
+ }
+
+
     Concurrency::copy(begin(HostX), end(HostX), xView);
     Concurrency::copy(begin(HostY), end(HostY), yView);
 
@@ -776,7 +833,22 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
     for( int i = 0; i < lenYt; i++) {
       HostY[i] = Y[i];
     }
-
+    
+    if (*alpha == 0) {
+     if (*beta == 0) {
+       for (int j = 0; j < lenYt; ++j) {
+           HostY[yOffset + j] = 0;
+       }
+     } else {
+       for (int j = 0; j < lenYt; ++j) {
+           HostY[yOffset + j] *=  (*beta);
+       }
+     }
+     for( int i = 0; i < lenYn; i++) {
+       Y[i] = HostY[i];
+     }
+    return HCBLAS_SUCCESS;
+    }
     Concurrency::copy(begin(HostX), end(HostX), xView);
     Concurrency::copy(begin(HostY), end(HostY), yView);
 
@@ -805,12 +877,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_v
 				           const float &beta,
 				           Concurrency::array<float> &Y, const long yOffset, const int incY) {
   /*Check the conditions*/
-  if(M <= 0 || N <= 0) {
+  if( M <= 0 || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
-  }
-
-  if( alpha == 0 && beta == 1) {
-    return HCBLAS_SUCCESS;
   }
 
   if(order) {
@@ -831,12 +899,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_v
 				           const float &beta, Concurrency::array<float> &Y,
 				           const long yOffset, const long Y_batchOffset, const int incY, const int batchSize) {
   /*Check the conditions*/
-  if(M <= 0 || N <= 0) {
+  if( M <= 0 || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
-  }
-
-  if( alpha == 0 && beta == 1) {
-    return HCBLAS_SUCCESS;
   }
 
   if(order) {

@@ -40,7 +40,7 @@ void sscal_HC(Concurrency::accelerator_view &accl_view,
 // SSCAL call Type I - SSCAL Inputs and Outputs are host float pointers
 hcblasStatus Hcblaslibrary :: hcblas_sscal(const int N, const float* alpha,
 				           float* X, const int incX, const long xOffset) {
-  if (alpha == NULL || X == NULL || N <= 0 ) {
+  if (alpha == NULL || X == NULL || N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -51,6 +51,16 @@ hcblasStatus Hcblaslibrary :: hcblas_sscal(const int N, const float* alpha,
   for( int i = 0; i < lenX; i++) {
     HostX[i] = X[i];
   }
+
+  if ( *alpha == 0 ) {
+   for (int i = 0; i < lenX; i++) {
+     HostX[xOffset + i] = 0.0;
+   }
+  for(int i = 0 ; i < lenX; i++) {
+     X[i] = HostX[i];
+  }
+  return HCBLAS_SUCCESS;
+  }  
 
   Concurrency::copy(begin(HostX), end(HostX), xView);
   std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
@@ -71,12 +81,19 @@ hcblasStatus Hcblaslibrary :: hcblas_sscal(Concurrency::accelerator_view &accl_v
 				           Concurrency::array<float> &X, const int incX,
 				           const long xOffset) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 
-  if ( alpha == 0) {
-    return HCBLAS_SUCCESS;
+  int lenX = 1 + (N - 1) * abs(incX);
+  if ( alpha == 0 ) {
+   std::vector<float> HostX(lenX);
+   Concurrency::copy(X, begin(HostX));
+   for (int i = 0; i < lenX; i++) {
+     HostX[xOffset + i] = 0.0;
+   }
+   Concurrency::copy(begin(HostX), end(HostX), X);
+   return HCBLAS_SUCCESS;
   }
 
   sscal_HC(accl_view, N, alpha, X, incX, xOffset);
@@ -89,12 +106,21 @@ hcblasStatus Hcblaslibrary :: hcblas_sscal(Concurrency::accelerator_view &accl_v
 				           Concurrency::array<float> &X, const int incX,
 				           const long xOffset, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 
-  if ( alpha == 0) {
-    return HCBLAS_SUCCESS;
+  int lenX = 1 + (N - 1) * abs(incX);
+  if ( alpha == 0 ) {
+   std::vector<float> HostX(lenX * batchSize);
+   Concurrency::copy(X, begin(HostX));
+   for (int j = 0; j < batchSize; ++j) {
+     for (int i = 0; i < lenX; i++) {
+       HostX[xOffset + X_batchOffset * j + i] = 0.0;
+     }
+   }
+   Concurrency::copy(begin(HostX), end(HostX), X);
+   return HCBLAS_SUCCESS;
   }
 
   sscal_HC(accl_view, N, alpha, X, incX, xOffset, X_batchOffset, batchSize);

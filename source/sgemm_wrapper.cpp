@@ -11,31 +11,7 @@ hcblasStatus gemm_HC(Concurrency::accelerator_view &accl_view,
                      Concurrency::array<float> &C_mat,
                      long cOffset, long ldc,
                      long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset = 0, int batchSize = 0) {
-  int i, j;
   hcblasStatus status = HCBLAS_SUCCESS;
-
-  // Quick return if possible
-  if (!M || !N || ((alpha == 0 || !K) && beta == 1)) {
-    return HCBLAS_INVALID;
-  }
-
-  // For alpha = 0
-  if (alpha == 0) {
-    if (beta == 0) {
-      for (j = 0; j < N; ++j)
-        for (i = 0; i < M; ++i) {
-          C_mat[i + j * ldc] = 0;
-        }
-    } else {
-      for (j = 0; j < N; ++j)
-        for (i = 0; i < M; ++i) {
-          C_mat[i + j * ldc] *= beta;
-        }
-    }
-
-    return status;
-  }
-
   // Start the operations
 
   if (order) {
@@ -108,6 +84,10 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hcblasOrder order,
 				           const long ldc, const long aOffset,
 				           const long bOffset,
 				           const long cOffset) {
+  // Quick return if possible
+  if (!M || !N || !K) {
+    return HCBLAS_INVALID;
+  }
   Concurrency::array<float> A_mat(K * M, A);
   Concurrency::array<float> B_mat(N * K, B);
   Concurrency::array<float> C_mat(M * N, C);
@@ -128,16 +108,41 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hcblasOrder order,
   for(int i = 0; i < M * N; i++)  {
     HostC[i] = C[i];
   }
+ 
+  int i, j;
+  float temp;
+  hcblasStatus status = HCBLAS_SUCCESS;
 
+  // For alpha = 0
+  if (*alpha == 0) {
+    if (*beta == 0) {
+      for (j = 0; j < N; ++j) {
+        for (i = 0; i < M; ++i) {
+          HostC[cOffset + i + j * ldc] = 0;
+        }
+      }
+    } else {
+      for (j = 0; j < N; ++j) {
+        for (i = 0; i < M; ++i) {
+          temp = HostC[cOffset + i + j * ldc];
+          HostC[cOffset + i + j * ldc] = temp * (*beta);
+        }
+      }
+    }
+  for(int i = 0; i < M * N; i++)  {
+    C[i] = HostC[i];
+  }
+
+    return status;
+  }
   Concurrency::copy(begin(HostA), end(HostA), A_mat);
   Concurrency::copy(begin(HostB), end(HostB), B_mat);
   Concurrency::copy(begin(HostC), end(HostC), C_mat);
-  hcblasStatus status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, *alpha,
+  status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, *alpha,
                                 A_mat, aOffset, lda, B_mat, bOffset, ldb,
                                 *beta, C_mat, cOffset, ldc);
   Concurrency::copy(C_mat, begin(HostC));
 
-//    Concurrency::copy(C, C_mat);
   for(int i = 0; i < M * N; i++)  {
     C[i] = HostC[i];
   }
@@ -157,7 +162,38 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_
 					    const float &beta,
 					    Concurrency::array<float> &C, const long ldc,
 					    const long aOffset, const long bOffset, const long cOffset) {
-  hcblasStatus status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A,
+  int i, j;
+  float temp;
+  hcblasStatus status = HCBLAS_SUCCESS;
+
+  // Quick return if possible
+  if (!M || !N || !K) {
+    return HCBLAS_INVALID;
+  }
+
+  // For alpha = 0
+  if (alpha == 0) {
+    std::vector<float> HostC(M * N);
+    Concurrency::copy(C, begin(HostC));
+    if (beta == 0) {
+      for (j = 0; j < N; ++j) {
+        for (i = 0; i < M; ++i) {
+          HostC[cOffset + i + j * ldc] = 0;
+        }
+      }
+    } else {
+      for (j = 0; j < N; ++j) {
+        for (i = 0; i < M; ++i) {
+          temp = HostC[cOffset + i + j * ldc];
+          HostC[cOffset + i + j * ldc] = temp * (beta);
+        }
+      }
+    }
+    Concurrency::copy(begin(HostC), end(HostC), C);
+    return status;
+  }
+
+  status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A,
                                 aOffset, lda, B, bOffset, ldb, beta, C,
                                 cOffset, ldc);
   return status;
@@ -174,8 +210,43 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_v
 					   const float &beta,
 					   Concurrency::array<float> &C, const long ldc, const long C_batchOffset,
 					   const long aOffset, const long bOffset, const long cOffset, const int batchSize) {
-  gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
+  int i, j, k;
+  float temp;
+  hcblasStatus status = HCBLAS_SUCCESS;
+
+  // Quick return if possible
+  if (!M || !N || !K) {
+    return HCBLAS_INVALID;
+  }
+
+  // For alpha = 0
+  if (alpha == 0) {
+    std::vector<float> HostC(M * N * batchSize);
+    Concurrency::copy(C, begin(HostC));
+    if (beta == 0) {
+     for ( k = 0; k < batchSize; ++k) {
+      for (j = 0; j < N; ++j) {
+        for (i = 0; i < M; ++i) {
+          HostC[cOffset + C_batchOffset * k + i + j * ldc] = 0;
+        }
+      }
+     }
+    } else {
+     for (k = 0; k < batchSize; ++k) {
+      for (j = 0; j < N; ++j) {
+        for (i = 0; i < M; ++i) {
+          temp = HostC[cOffset + C_batchOffset * k + i + j * ldc];
+          HostC[cOffset + C_batchOffset * k + i + j * ldc] = temp * (beta);
+        }
+      }
+     }
+    }
+    Concurrency::copy(begin(HostC), end(HostC), C);
+    return status;
+  }
+
+  status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
           bOffset, ldb, beta, C, cOffset, ldc, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);
-  return HCBLAS_SUCCESS;
+  return status;
 }
 

@@ -39,7 +39,7 @@ void dcopy_HC(Concurrency::accelerator_view &accl_view, long n,
 
 // DCOPY call Type I - SSCAL Inputs and Outputs are host float pointers
 hcblasStatus Hcblaslibrary :: hcblas_dcopy(const int N, double* X, const int incX, const long xOffset, double* Y, const int incY, const long yOffset) {
-  if (Y == NULL || X == NULL || N <= 0 ) {
+  if (Y == NULL || X == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -77,7 +77,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dcopy(Concurrency::accelerator_view &accl_v
     					   Concurrency::array<double> &X, const int incX, const long xOffset,
 				           Concurrency::array<double> &Y, const int incY, const long yOffset) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -91,7 +91,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dcopy(Concurrency::accelerator_view &accl_v
 				           Concurrency::array<double> &Y, const int incY, const long yOffset,
 				           const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 

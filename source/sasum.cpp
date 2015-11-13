@@ -215,7 +215,7 @@ float sasum_HC(Concurrency::accelerator_view &accl_view,
 
 // SASUM call Type I - Inputs and Outputs are host float pointers
 hcblasStatus Hcblaslibrary :: hcblas_sasum(const int N, float* X, const int incX, const long xOffset, float* Y) {
-  if ( X == NULL || N <= 0 ) {
+  if ( X == NULL || N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -239,7 +239,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sasum(Concurrency::accelerator_view &accl_v
 				           Concurrency::array<float> &X, const int incX,
 				           const long xOffset, float &Y) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -252,7 +252,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sasum(Concurrency::accelerator_view &accl_v
 				           Concurrency::array<float> &X, const int incX,
 				           const long xOffset, float &Y, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 

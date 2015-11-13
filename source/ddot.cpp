@@ -220,7 +220,7 @@ float ddot_HC(Concurrency::accelerator_view &accl_view, long n,
 // DDOT Call Type II: Inputs and outputs are C++ HC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_ddot(const int N, double* X, const int incX, const long xOffset,
     					  double* Y, const int incY, const long yOffset, double* dot) {
-  if (Y == NULL || X == NULL || N <= 0 ) {
+  if (Y == NULL || X == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -254,7 +254,7 @@ hcblasStatus Hcblaslibrary :: hcblas_ddot(Concurrency::accelerator_view &accl_vi
 
 {
   /*Check the conditions*/
-  if (N <= 0 ) {
+  if (N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -268,7 +268,7 @@ hcblasStatus Hcblaslibrary :: hcblas_ddot(Concurrency::accelerator_view &accl_vi
 				          Concurrency::array<double> &Y, const int incY, const long yOffset, double &dot,
 				          const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 

@@ -63,25 +63,25 @@ int main(int argc, char** argv)
     long A_batchOffset = row * col;
     float *xSgemv = (float*)calloc( lenx , sizeof(float));
     float *ySgemv = (float*)calloc( leny , sizeof(float));
-    float *ASgemv = (float *)calloc( row * col , sizeof(float));
+    float *ASgemv = (float *)calloc( lenx * leny , sizeof(float));
     Concurrency::array<float> xView(lenx, xSgemv);
     Concurrency::array<float> yView(leny, ySgemv);       
-    Concurrency::array<float> aMat(M * N, ASgemv);
+    Concurrency::array<float> aMat(lenx * leny, ASgemv);
     std::vector<float> HostX(lenx);
     std::vector<float> HostY(leny);
-    std::vector<float> HostA(M * N);
+    std::vector<float> HostA(lenx * leny);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    for(int i = 0;i < row;i++) {
+    for(int i = 0;i < lenx;i++) {
         HostX[i] = rand() % 10;
         xSgemv[i] = HostX[i];
     }
-    for(int i = 0;i< row * col;i++) {
+    for(int i = 0;i< lenx * leny;i++) {
         HostA[i] = rand() % 25;
         ASgemv[i] = HostA[i];
     }
     for(int iter=0; iter<10; iter++) {
-        for(int i = 0;i < col;i++) {
+        for(int i = 0;i < leny;i++) {
             HostY[i] = rand() % 15;
             ySgemv[i]= HostY[i];
 #ifdef LINUX
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 #ifdef LINUX
         lda = (hcOrder)? M : N;
         cblas_sgemv( order, Transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
-        for(int i =0; i < col; i ++){
+        for(int i =0; i < leny; i ++){
             if (ySgemv[i] != ycblas[i]){
                 ispassed = 0;
                 cout <<" HCSGEMV[" << i<< "] " << ySgemv[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
 #ifdef LINUX
         lda = (hcOrder)? M: N;
         cblas_sgemv( order, Transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
-        for(int i =0; i < col; i ++){
+        for(int i =0; i < leny; i ++){
             if (HostY[i] != ycblas[i]){
                 ispassed = 0;
                 cout <<" HCSGEMV[" << i<< "] " << HostY[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
@@ -133,28 +133,28 @@ int main(int argc, char** argv)
     else{
         float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));
         float *ySgemvbatch = (float*)calloc( leny * batchSize, sizeof(float));
-        float *ASgemvbatch = (float *)calloc( row * col * batchSize, sizeof(float));
+        float *ASgemvbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
 #ifdef LINUX
-        float *ycblasbatch = (float *)calloc( col * batchSize, sizeof(float));
+        float *ycblasbatch = (float *)calloc( leny * batchSize, sizeof(float));
 #endif
         Concurrency::array<float> xbatchView(lenx * batchSize, xSgemvbatch);
         Concurrency::array<float> ybatchView(leny * batchSize, ySgemvbatch);
-        Concurrency::array<float> abatchMat(M * N * batchSize, ASgemvbatch);
+        Concurrency::array<float> abatchMat(lenx * leny * batchSize, ASgemvbatch);
         std::vector<float> HostX_batch(lenx * batchSize);
         std::vector<float> HostY_batch(leny * batchSize);
-        std::vector<float> HostA_batch(M * N * batchSize);
-        for(int i = 0;i < row * batchSize;i++) {
+        std::vector<float> HostA_batch(lenx * leny * batchSize);
+        for(int i = 0;i < lenx * batchSize;i++) {
             HostX_batch[i] = rand() % 10;
             xSgemvbatch[i] = HostX_batch[i];
         }
-        for(int i = 0;i < col * batchSize;i++) {
+        for(int i = 0;i < leny * batchSize;i++) {
             HostY_batch[i] = rand() % 15;
             ySgemvbatch[i]= HostY_batch[i];
 #ifdef LINUX
             ycblasbatch[i] = ySgemvbatch[i];
 #endif
         }
-        for(int i = 0;i< row * col * batchSize;i++) {
+        for(int i = 0;i< lenx * leny * batchSize;i++) {
             HostA_batch[i] = rand() % 25;
             ASgemvbatch[i] = HostA_batch[i]; 
         }
@@ -167,7 +167,7 @@ int main(int argc, char** argv)
         lda = (hcOrder)? M : N;
         for(int i =0 ; i < batchSize; i++)
             cblas_sgemv( order, Transa, M, N, alpha, ASgemvbatch + i * M * N, lda , xSgemvbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
-        for(int i =0; i < col * batchSize; i ++){
+        for(int i =0; i < leny * batchSize; i ++){
             if (HostY_batch[i] != ycblasbatch[i]){
                 ispassed = 0;
                 cout <<" HCSGEMV[" << i<< "] " << HostY_batch[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblasbatch[i] << endl;

@@ -120,7 +120,7 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(const int N, const float* alpha,
                                            float* X, const int incX,
 				           float* Y, const int incY,
 				           const long xOffset, const long yOffset) {
-  if (alpha == NULL || X == NULL || Y == NULL || N <= 0 ) {
+  if (alpha == NULL || X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -162,7 +162,7 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_v
 
 {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -183,7 +183,7 @@ hcblasStatus  Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_
 
 {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 

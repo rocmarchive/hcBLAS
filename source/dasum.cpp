@@ -215,7 +215,7 @@ double dasum_HC(Concurrency::accelerator_view &accl_view,
 
 // DASUM call Type I - Inputs and Outputs are host float pointers
 hcblasStatus Hcblaslibrary :: hcblas_dasum(const int N, double* X, const int incX, const long xOffset, double* Y) {
-  if ( X == NULL || N <= 0 ) {
+  if ( X == NULL || N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -239,7 +239,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(Concurrency::accelerator_view &accl_v
 				           Concurrency::array<double> &X, const int incX,
 				           const long xOffset, double &Y) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -252,7 +252,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(Concurrency::accelerator_view &accl_v
 				           Concurrency::array<double> &X, const int incX,
 				           const long xOffset, double &Y, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 

@@ -31,36 +31,36 @@ int main(int argc, char** argv)
     hcblasStatus status;
     hcblasOrder hcOrder = ColMajor;
     lda = (hcOrder)? M : N;  
+    lenx =  1 + (M-1) * abs(incX);
+    leny =  1 + (N-1) * abs(incY);
 #ifdef LINUX
     /* CBLAS implementation */
     bool ispassed = 1;
     enum CBLAS_ORDER order;
     order = CblasColMajor;
-    float *Acblas = (float *)calloc( M * N , sizeof(float));
+    float *Acblas = (float *)calloc( lenx * leny , sizeof(float));
 #endif
-    lenx =  1 + (M-1) * abs(incX);
-    leny =  1 + (N-1) * abs(incY);
     float *xSger = (float*)calloc( lenx , sizeof(float));
     float *ySger = (float*)calloc( leny , sizeof(float));
-    float *ASger = (float *)calloc( M * N , sizeof(float));
+    float *ASger = (float *)calloc( lenx * leny , sizeof(float));
     std::vector<float> HostX(lenx);
     std::vector<float> HostY(leny);
-    std::vector<float> HostA(M * N);
+    std::vector<float> HostA(lenx * leny);
     Concurrency::array<float> xView(lenx, xSger);
     Concurrency::array<float> yView(leny, ySger);
-    Concurrency::array<float> aMat( M * N, ASger);
+    Concurrency::array<float> aMat( lenx * leny, ASger);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    for(int i = 0;i < M;i++) {
+    for(int i = 0;i < lenx;i++) {
         HostX[i] = rand() % 10;
         xSger[i] = HostX[i];
     }
-    for(int i = 0;i < N;i++) {
+    for(int i = 0;i < leny;i++) {
         HostY[i] = rand() % 15;
         ySger[i] = HostY[i];
     }
     for(int iter=0; iter<10; iter++) {
-        for(int i = 0;i< M * N ;i++) {
+        for(int i = 0;i< lenx * leny ;i++) {
             HostA[i] = rand() % 25;
 #ifdef LINUX
             Acblas[i] = HostA[i];
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
             status = hc.hcblas_sger(hcOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
 #ifdef LINUX
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
-            for(int i =0; i < M * N ; i++){
+            for(int i =0; i < lenx * leny ; i++){
                 if (ASger[i] != Acblas[i]){
                     ispassed = 0;
                     cout <<" HCSGER[" << i<< "] " << ASger[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
             Concurrency::copy(aMat, begin(HostA));
 #ifdef LINUX
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
-            for(int i =0; i < M * N ; i++){
+            for(int i =0; i < lenx * leny ; i++){
                 if (HostA[i] != Acblas[i]){
                     ispassed = 0;
                     cout <<" HCSGER[" << i<< "] " << HostA[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
@@ -111,25 +111,25 @@ int main(int argc, char** argv)
         else{
             float *xSgerbatch = (float*)calloc( lenx * batchSize, sizeof(float));
             float *ySgerbatch = (float*)calloc( leny * batchSize, sizeof(float));
-            float *ASgerbatch = (float *)calloc( M * N * batchSize, sizeof(float));
+            float *ASgerbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
 #ifdef LINUX
-            float *Acblasbatch = (float *)calloc( M * N * batchSize, sizeof(float));
+            float *Acblasbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
 #endif
             std::vector<float> HostX_batch(lenx * batchSize);
             std::vector<float> HostY_batch(leny * batchSize);
-            std::vector<float> HostA_batch(M * N * batchSize);
+            std::vector<float> HostA_batch(lenx * leny * batchSize);
             Concurrency::array<float> xbatchView(lenx * batchSize, xSgerbatch);
             Concurrency::array<float> ybatchView(leny * batchSize, ySgerbatch);
-            Concurrency::array<float> abatchMat( M * N * batchSize, ASgerbatch);
-            for(int i = 0;i < M * batchSize;i++){
+            Concurrency::array<float> abatchMat( lenx * leny * batchSize, ASgerbatch);
+            for(int i = 0;i < lenx * batchSize;i++){
                 HostX_batch[i] = rand() % 10;
                 xSgerbatch[i] = HostX_batch[i];
             }
-            for(int i = 0;i < N * batchSize;i++){
+            for(int i = 0;i < leny * batchSize;i++){
                 HostY_batch[i] = rand() % 15;
                 ySgerbatch[i] =  HostY_batch[i];
             }
-            for(int i = 0;i< M * N * batchSize;i++){
+            for(int i = 0;i< lenx * leny * batchSize;i++){
                 HostA_batch[i] = rand() % 25;
 #ifdef LINUX
                 Acblasbatch[i] = HostA_batch[i];
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
 #ifdef LINUX
             for(int i = 0; i < batchSize; i++)
                cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda); 
-            for(int i =0; i < M * N * batchSize; i++){
+            for(int i =0; i < lenx * leny * batchSize; i++){
                if (HostA_batch[i] != Acblasbatch[i]){
                    ispassed = 0;
                    cout <<" HCSGER[" << i<< "] " << HostA_batch[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblasbatch[i] << endl;

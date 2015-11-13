@@ -40,7 +40,7 @@ void scopy_HC(Concurrency::accelerator_view &accl_view, long n,
 // SCOPY call Type I - SSCAL Inputs and Outputs are host float pointers
 hcblasStatus Hcblaslibrary :: hcblas_scopy(const int N, float* X, const int incX, const long xOffset,
    					   float* Y, const int incY, const long yOffset) {
-  if (Y == NULL || X == NULL || N <= 0 ) {
+  if (Y == NULL || X == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -78,7 +78,7 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(Concurrency::accelerator_view &accl_v
 				           Concurrency::array<float> &X, const int incX, const long xOffset,
 				           Concurrency::array<float> &Y, const int incY, const long yOffset) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -92,7 +92,7 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(Concurrency::accelerator_view &accl_v
 				           Concurrency::array<float> &Y, const int incY, const long yOffset,
 				           const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
-  if (  N <= 0 ) {
+  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 

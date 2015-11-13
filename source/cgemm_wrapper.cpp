@@ -37,11 +37,46 @@ hcblasStatus Hcblaslibrary:: hcblas_cgemm(hcblasOrder order, hcblasTranspose typ
     HostC[i].x = C[i].real;
     HostC[i].y = C[i].img;
   }
+  
+  int i, j;
+  hcblasStatus status = HCBLAS_SUCCESS;
+  float tempReal = 0.0, tempImg = 0.0;
+  // Quick return if possible
+  if (!M || !N || !K) {
+    return HCBLAS_INVALID;
+  }
+
+  // For alpha = 0
+  if (!Calpha.x  && !Calpha.y) {
+    if (!Cbeta.x && !Cbeta.y) {
+      for (j = 0; j < N; ++j) {
+        for (i = 0; i < M; ++i) {
+          HostC[cOffset + i + j * ldc].x = 0;
+          HostC[cOffset + i + j * ldc].y = 0;
+        }
+      } 
+    } else {
+      for (j = 0; j < N; ++j) {
+        for (i = 0; i < M; ++i) {
+          tempReal = HostC[cOffset + i + j * ldc].x;
+          tempImg =  HostC[cOffset + i + j * ldc].y;
+          HostC[cOffset + i + j * ldc].x = (tempReal * Cbeta.x - tempImg * Cbeta.y);
+          HostC[cOffset + i + j * ldc].y = (tempReal * Cbeta.y + tempImg * Cbeta.x);
+        }
+      }
+    }
+
+    for ( int i = 0 ; i <  M * N; i++) {
+      C[i].real = HostC[i].x;
+      C[i].img = HostC[i].y;
+    }
+
+    return status;
+  }
 
   Concurrency::copy(begin(HostA), end(HostA), Acmplx);
   Concurrency::copy(begin(HostB), end(HostB), Bcmplx);
   Concurrency::copy(begin(HostC), end(HostC), Ccmplx);
-  hcblasStatus status;
 
   // Start the operations
   if(order) {
@@ -92,32 +127,34 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_v
 					   Concurrency::array<float_2> &Ccmplx, long cOffset, long ldc) {
   int i, j;
   hcblasStatus status = HCBLAS_SUCCESS;
-
+  float tempReal = 0.0, tempImg = 0.0;
   // Quick return if possible
-  if (!M || !N || (((Calpha.x  == 0 && Calpha.y == 0) || !K) && (Cbeta.x == 1 && Cbeta.y == 1))) {
+  if (!M || !N || !K) {
     return HCBLAS_INVALID;
   }
 
   // For alpha = 0
   if (!Calpha.x  && !Calpha.y) {
     if (!Cbeta.x && !Cbeta.y) {
-      for (j = 0; j < N; ++j)
+      for (j = 0; j < N; ++j) {
         for (i = 0; i < M; ++i) {
-          Ccmplx[i + j * ldc].x = 0;
+          Ccmplx[cOffset + i + j * ldc].x = 0;
+          Ccmplx[cOffset + i + j * ldc].y = 0;
         }
-
-      Ccmplx[i + j * ldc].y = 0;
-    } else {
-      for (j = 0; j < N; ++j)
+      }
+    }else {
+      for (j = 0; j < N; ++j) {
         for (i = 0; i < M; ++i) {
-          Ccmplx[i + j * ldc].x *= Cbeta.x;
+          tempReal = Ccmplx[cOffset + i + j * ldc].x;
+          tempImg =  Ccmplx[cOffset + i + j * ldc].y;
+          Ccmplx[cOffset + i + j * ldc].x = (tempReal * Cbeta.x - tempImg * Cbeta.y);
+          Ccmplx[cOffset + i + j * ldc].y = (tempReal * Cbeta.y + tempImg * Cbeta.x);
         }
-
-      Ccmplx[i + j * ldc].y *= Cbeta.y;
+      }
     }
 
     return status;
-  }
+  }  
 
   if(order) {
     if (typeB == NoTrans) {
@@ -161,34 +198,40 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_v
 					   const Concurrency::graphics::float_2 &Cbeta,
 					   Concurrency::array<float_2> &Ccmplx,
 					   const long cOffset, const long C_batchOffset, const long ldc, const int batchSize) {
-  int i, j;
+  int i, j, k;
   hcblasStatus status = HCBLAS_SUCCESS;
-
+  float tempReal = 0.0, tempImg = 0.0;
   // Quick return if possible
-  if (!M || !N || (((Calpha.x  == 0 && Calpha.y == 0) || !K) && (Cbeta.x == 1 && Cbeta.y == 1))) {
+  if (!M || !N || !K) {
     return HCBLAS_INVALID;
   }
 
   // For alpha = 0
   if (!Calpha.x  && !Calpha.y) {
     if (!Cbeta.x && !Cbeta.y) {
-      for (j = 0; j < N; ++j)
+     for(k = 0; k < batchSize ; ++k) {
+      for (j = 0; j < N; ++j) {
         for (i = 0; i < M; ++i) {
-          Ccmplx[i + j * ldc].x = 0;
+          Ccmplx[cOffset + C_batchOffset * k + i + j * ldc].x = 0;
+          Ccmplx[cOffset + C_batchOffset * k + i + j * ldc].y = 0;
         }
-
-      Ccmplx[i + j * ldc].y = 0;
-    } else {
-      for (j = 0; j < N; ++j)
+      }
+     }
+    }else {
+     for(k = 0 ; k < batchSize ; ++k) {
+      for (j = 0; j < N; ++j) {
         for (i = 0; i < M; ++i) {
-          Ccmplx[i + j * ldc].x *= Cbeta.x;
+          tempReal = Ccmplx[cOffset + C_batchOffset * k + i + j * ldc].x;
+          tempImg =  Ccmplx[cOffset + C_batchOffset * k + i + j * ldc].y;
+          Ccmplx[cOffset + C_batchOffset * k + i + j * ldc].x = (tempReal * Cbeta.x - tempImg * Cbeta.y);
+          Ccmplx[cOffset + C_batchOffset * k + i + j * ldc].y = (tempReal * Cbeta.y + tempImg * Cbeta.x);
         }
-
-      Ccmplx[i + j * ldc].y *= Cbeta.y;
+      }
+     }
     }
-
+ 
     return status;
-  }
+  }  
 
   if(order) {
     if (typeB == NoTrans) {
