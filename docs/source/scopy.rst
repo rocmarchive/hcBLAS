@@ -16,21 +16,21 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are host float pointers.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_scopy** (const int N, float* x, const int incx, const long xOffset, float* y, const int incy, const long yOffset)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_scopy** (const int N, float* x, const int incx, const long xOffset, float* y, const int incy, const long yOffset)
 
 Implementation type II
 ----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_scopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, Concurrency::array<float> &y, const int incy, const long yOffset) 
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_scopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, Concurrency::array<float> &y, const int incy, const long yOffset) 
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_scopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, Concurrency::array<float> &y, const int incy, const long yOffset, const long x_batchOffset, const long y_batchOffset, const int BatchSize)  
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_scopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, Concurrency::array<float> &y, const int incy, const long yOffset, const long x_batchOffset, const long y_batchOffset, const int BatchSize)  
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^

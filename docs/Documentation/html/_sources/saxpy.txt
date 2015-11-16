@@ -13,21 +13,21 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are host float pointers.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_saxpy** (const int N, const float* alpha, float* x, const int incx, float* y, const int incy, const long xOffset, const long yOffset)                                     
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_saxpy** (const int N, const float* alpha, float* x, const int incx, float* y, const int incy, const long xOffset, const long yOffset)                                     
 
 Implementation type II
 ----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_saxpy** (Concurrency::accelerator_view &accl_view, const int N, const float &alpha, Concurrency::array<float> &x, const int incx, Concurrency::array<float> &y, const int incy, const long xOffset, const long yOffset)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_saxpy** (Concurrency::accelerator_view &accl_view, const int N, const float &alpha, Concurrency::array<float> &x, const int incx, Concurrency::array<float> &y, const int incy, const long xOffset, const long yOffset)
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_saxpy** (Concurrency::accelerator_view &accl_view, const int N, const float &alpha, Concurrency::array<float> &x, const int incx, const long x_batchOffset, Concurrency::array<float> &y, const int incy, const long y_batchOffset, const long xOffset, const long yOffset, const int BatchSize) 
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_saxpy** (Concurrency::accelerator_view &accl_view, const int N, const float &alpha, Concurrency::array<float> &x, const int incx, const long x_batchOffset, Concurrency::array<float> &y, const int incy, const long y_batchOffset, const long xOffset, const long yOffset, const int BatchSize) 
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^

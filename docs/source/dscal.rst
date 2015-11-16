@@ -16,21 +16,21 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are host double pointers.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_dscal** (const int N, const double* alpha, double* x, const int incx, const long xOffset)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dscal** (const int N, const double* alpha, double* x, const int incx, const long xOffset)
 
 Implementation type II
 ----------------------
 
  .. note:: **Inputs and Outputs are HC++ double array containers.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_dscal** (Concurrency::accelerator_view &accl_view, const int N, const double &alpha, Concurrency::array<double> &x, const int incx, const long xOffset) 
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dscal** (Concurrency::accelerator_view &accl_view, const int N, const double &alpha, Concurrency::array<double> &x, const int incx, const long xOffset) 
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ double array containers with batch processing.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_dscal** (Concurrency::accelerator_view &accl_view, const int N, const double &alpha, Concurrency::array<double> &x, const int incx, const long xOffset, const long x_batchOffset, const int BatchSize) 
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dscal** (Concurrency::accelerator_view &accl_view, const int N, const double &alpha, Concurrency::array<double> &x, const int incx, const long xOffset, const long x_batchOffset, const int BatchSize) 
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^

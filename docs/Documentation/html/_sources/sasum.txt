@@ -14,21 +14,21 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are host float pointers.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_sasum** (const int N, float* x, const int incx, const long xOffset, float* y)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sasum** (const int N, float* x, const int incx, const long xOffset, float* y)
 
 Implementation type II
 ----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers.**
 
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_sasum** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, float &y)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sasum** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, float &y)
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
  
-`hcblasStatus <HCBLAS_TyPES.html>`_ **hcblas_sasum** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, float &y, const long x_batchOffset, const int BatchSize)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sasum** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, float &y, const long x_batchOffset, const int BatchSize)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^

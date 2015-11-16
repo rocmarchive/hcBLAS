@@ -76,7 +76,7 @@
 <p class="last"><strong>Inputs and Outputs are host float pointers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TyPES.html">hcblasStatus</a> <strong>hcblas_sgemv</strong> (<a class="reference external" href="HCBLAS_TyPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TyPES.html">hcblasTranspose</a> transA , const int M, const int N, const float* alpha, float* A, const long AOffset, const int lda, float* x, const long xOffset, const int incx, const float* beta, float* y, const long yOffset, const int incy)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sgemv</strong> (<a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA , const int M, const int N, const float* alpha, float* A, const long AOffset, const int lda, float* x, const long xOffset, const int incx, const float* beta, float* y, const long yOffset, const int incy)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
@@ -86,7 +86,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TyPES.html">hcblasStatus</a> <strong>hcblas_sgemv</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TyPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TyPES.html">hcblasTranspose</a> transA, const int M, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;A, const long AOffset, const int lda, Concurrency::array&lt;float&gt; &amp;x, const long xOffset, const int incx, const float &amp;beta, Concurrency::array&lt;float&gt; &amp;y, const long yOffset, const int incy)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sgemv</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, const int M, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;A, const long AOffset, const int lda, Concurrency::array&lt;float&gt; &amp;x, const long xOffset, const int incx, const float &amp;beta, Concurrency::array&lt;float&gt; &amp;y, const long yOffset, const int incy)</p>
 </div>
 <div class="section" id="implementation-type-iii">
 <h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
@@ -96,7 +96,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers with batch processing.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TyPES.html">hcblasStatus</a> <strong>hcblas_sgemv</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TyPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TyPES.html">hcblasTranspose</a> transA, const int M, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;A, const long AOffset, const long A_batchOffset, const int lda, Concurrency::array&lt;float&gt; &amp;x, const long xOffset, const long x_batchOffset, const int incx, const float &amp;beta, Concurrency::array&lt;float&gt; &amp;y, const long yOffset, const long y_batchOffset, const int incy, const int BatchSize)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sgemv</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, const int M, const int N, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;A, const long AOffset, const long A_batchOffset, const int lda, Concurrency::array&lt;float&gt; &amp;x, const long xOffset, const long x_batchOffset, const int incx, const float &amp;beta, Concurrency::array&lt;float&gt; &amp;y, const long yOffset, const long y_batchOffset, const int incy, const int BatchSize)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
