@@ -50,7 +50,7 @@
 <div class="section" id="enumerations">
 <h2>Enumerations<a class="headerlink" href="#enumerations" title="Permalink to this headline">¶</a></h2>
 <div class="line-block">
-<div class="line">enum hcblasStatus { HCBLAS_SUCCESS = 0, HCBLAS_INVALID = -1, HCBLAS_ERROR = -2}</div>
+<div class="line">enum hcblasStatus { HCBLAS_SUCCESS = 0, HCBLAS_INVALID = -1}</div>
 <div class="line">enum hcblasOrder { RowMajor, ColMajor}</div>
 <div class="line">enum hcblasTranspose { NoTrans = &#8216;n&#8217;, Trans = &#8216;t&#8217;}</div>
 </div>
@@ -83,9 +83,6 @@
 </tr>
 <tr class="row-odd"><td>HCBLAS_INVALID</td>
 <td>Inputs are either not properly allocated or zero.</td>
-</tr>
-<tr class="row-even"><td>HCBLAS_ERROR</td>
-<td>Kernel call failure.</td>
 </tr>
 </tbody>
 </table>

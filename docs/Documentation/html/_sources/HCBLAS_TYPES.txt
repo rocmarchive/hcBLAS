@@ -5,7 +5,7 @@ HCBLAS TYPES
 Enumerations
 ^^^^^^^^^^^^
 
-| enum hcblasStatus { HCBLAS_SUCCESS = 0, HCBLAS_INVALID = -1, HCBLAS_ERROR = -2}
+| enum hcblasStatus { HCBLAS_SUCCESS = 0, HCBLAS_INVALID = -1}
 | enum hcblasOrder { RowMajor, ColMajor}
 | enum hcblasTranspose { NoTrans = 'n', Trans = 't'}
 
@@ -27,8 +27,6 @@ HCBLAS STATUS (hcblasStatus)
 | HCBLAS_SUCCESS | Kernel completed its work successfully.                                        |
 +----------------+--------------------------------------------------------------------------------+    
 | HCBLAS_INVALID | Inputs are either not properly allocated or zero.                              |
-+----------------+--------------------------------------------------------------------------------+
-| HCBLAS_ERROR   | Kernel call failure.                                                           |
 +----------------+--------------------------------------------------------------------------------+
 
 |

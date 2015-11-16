@@ -149,5 +149,4 @@ STATUS           DESCRIPTION
 ==============   ===================
 HCBLAS_SUCCESS    Success
 HCBLAS_INVALID    M, N or K is zero 
-HCBLAS_ERROR      Failure
 ==============   ===================  

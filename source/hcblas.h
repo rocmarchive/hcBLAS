@@ -19,8 +19,7 @@ using namespace std;
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {
     HCBLAS_SUCCESS = 0,
-    HCBLAS_INVALID = -1,
-    HCBLAS_ERROR = -2
+    HCBLAS_INVALID = -1
 };
 
 /* enumerator to define the layout of  input matrix for blas operation */

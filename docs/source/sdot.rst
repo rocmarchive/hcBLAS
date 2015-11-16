@@ -95,5 +95,4 @@ STATUS           DESCRIPTION
 ==============   ===========================
 HCBLAS_SUCCESS    Success
 HCBLAS_INVALID    N, incx or incy is zero
-HCBLAS_ERROR      Failure
 ==============   =========================== 
