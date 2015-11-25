@@ -9,8 +9,10 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
 #Setting a variable for source files
 SET (SRCS
-    sgemm_wrapper.cpp sgemm_kernels.cpp sgemm_kernels_batch.cpp sgemm_kernels_rMajor.cpp 
-    sgemm_kernels_rMajor_batch.cpp cgemm_wrapper.cpp cgemm_kernels.cpp cgemm_kernels_batch.cpp 
+    sgemm_array_wrapper.cpp sgemm_array_view_wrapper.cpp sgemm_array_kernels.cpp sgemm_array_view_kernels.cpp
+    sgemm_array_kernels_batch.cpp sgemm_array_view_kernels_batch.cpp sgemm_array_kernels_rMajor.cpp
+    sgemm_array_view_kernels_rMajor.cpp sgemm_array_view_kernels_rMajor_batch.cpp 
+    sgemm_array_kernels_rMajor_batch.cpp cgemm_wrapper.cpp cgemm_kernels.cpp cgemm_kernels_batch.cpp 
     cgemm_kernels_rMajor.cpp cgemm_kernels_rMajor_batch.cpp saxpy.cpp sgemv.cpp sger.cpp
     sscal.cpp dscal.cpp scopy.cpp dcopy.cpp sdot.cpp ddot.cpp sasum.cpp dasum.cpp
     )

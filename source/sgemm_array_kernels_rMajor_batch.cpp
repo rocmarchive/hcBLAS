@@ -1,4 +1,4 @@
-#include "sgemm_kernels.h"
+#include "sgemm_array_kernels.h"
 #include "amp_math.h"
 
 using namespace concurrency::fast_math;

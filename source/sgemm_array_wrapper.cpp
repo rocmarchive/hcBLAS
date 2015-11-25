@@ -1,4 +1,4 @@
-#include "sgemm_kernels.h"
+#include "sgemm_array_kernels.h"
 
 // Sgemm Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 hcblasStatus gemm_HC(Concurrency::accelerator_view &accl_view,
