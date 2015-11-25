@@ -11,10 +11,11 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 SET (SRCS
     sgemm_array_wrapper.cpp sgemm_array_view_wrapper.cpp sgemm_array_kernels.cpp sgemm_array_view_kernels.cpp
     sgemm_array_kernels_batch.cpp sgemm_array_view_kernels_batch.cpp sgemm_array_kernels_rMajor.cpp
-    sgemm_array_view_kernels_rMajor.cpp sgemm_array_view_kernels_rMajor_batch.cpp 
-    sgemm_array_kernels_rMajor_batch.cpp cgemm_wrapper.cpp cgemm_kernels.cpp cgemm_kernels_batch.cpp 
-    cgemm_kernels_rMajor.cpp cgemm_kernels_rMajor_batch.cpp saxpy_array.cpp  saxpy_array_view.cpp
-    sgemv_array.cpp sgemv_array_view.cpp sger_array.cpp sger_array_view.cpp
+    sgemm_array_view_kernels_rMajor.cpp sgemm_array_view_kernels_rMajor_batch.cpp sgemm_array_kernels_rMajor_batch.cpp 
+    cgemm_array_wrapper.cpp cgemm_array_kernels.cpp cgemm_array_kernels_batch.cpp cgemm_array_kernels_rMajor.cpp 
+    cgemm_array_kernels_rMajor_batch.cpp  cgemm_array_view_wrapper.cpp cgemm_array_view_kernels.cpp 
+    cgemm_array_view_kernels_batch.cpp cgemm_array_view_kernels_rMajor.cpp cgemm_array_view_kernels_rMajor_batch.cpp
+    saxpy_array.cpp  saxpy_array_view.cpp sgemv_array.cpp sgemv_array_view.cpp sger_array.cpp sger_array_view.cpp
     sscal_array.cpp sscal_array_view.cpp dscal_array.cpp dscal_array_view.cpp 
     scopy_array.cpp scopy_array_view.cpp dcopy_array.cpp dcopy_array_view.cpp
     sdot_array.cpp sdot_array_view.cpp ddot_array.cpp ddot_array_view.cpp

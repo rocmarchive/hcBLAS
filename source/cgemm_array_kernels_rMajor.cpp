@@ -1,20 +1,20 @@
-#include "cgemm_kernels.h"
+#include "cgemm_array_kernels.h"
 #include "amp_math.h"
 using namespace concurrency::fast_math;
-hcblasStatus cgemm_NoTransAB_loopunroll(Concurrency::accelerator_view &accl_view,
-                                        Concurrency::array<float_2, 1> &A, long aOffset,
-                                        Concurrency::array<float_2, 1> &B, long bOffset,
-                                        Concurrency::array<float_2, 1> &C, long cOffset,
-                                        int M, int N, int K, int lda, int ldb, int ldc,
-                                        float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_TransAB_rMajor_loopunroll(Concurrency::accelerator_view &accl_view,
+					     Concurrency::array<float_2, 1> &A, long aOffset,
+					     Concurrency::array<float_2, 1> &B, long bOffset,
+					     Concurrency::array<float_2, 1> &C, long cOffset,
+					     int M, int N, int K, int lda, int ldb, int ldc,
+					     float_2 alpha, float_2 beta) {
 #define THREADS   16
 #define TILE_DIM  16
-  Concurrency::extent<2> grdExt((N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
+  Concurrency::extent<2> grdExt((M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp) {
     float CValue = 0, CValue1 = 0;
-    int Row = tidx.tile[0] * TILE_DIM + tidx.local[0];
-    int Col = tidx.tile[1] * TILE_DIM + tidx.local[1];
+    int Row = tidx.tile[1] * TILE_DIM + tidx.local[1];
+    int Col = tidx.tile[0] * TILE_DIM + tidx.local[0];
     tile_static float Asreal[TILE_DIM][TILE_DIM];
     tile_static float Asimg[TILE_DIM][TILE_DIM];
     tile_static float Bsreal[TILE_DIM][TILE_DIM];
@@ -25,68 +25,68 @@ hcblasStatus cgemm_NoTransAB_loopunroll(Concurrency::accelerator_view &accl_view
     float CImg = 0.0;
 
     for (int k = 0; k < ((K + (TILE_DIM - 1)) / TILE_DIM ) ; k++) {
-      if (k * TILE_DIM + tidx.local[1] < K && Row < N) {
-        Bsreal[tidx.local[0]][tidx.local[1]] = B[bOffset + Row * ldb + (k * TILE_DIM + tidx.local[1])].x;
-        Bsimg[tidx.local[0]][tidx.local[1]] = B[bOffset + Row * ldb + (k * TILE_DIM + tidx.local[1])].y;
+      if (k * TILE_DIM + tidx.local[0] < K && Row < N) {
+        Bsreal[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * ldb + (k * TILE_DIM + tidx.local[0])].x;
+        Bsimg[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * ldb + (k * TILE_DIM + tidx.local[0])].y;
       } else {
-        Bsreal[tidx.local[0]][tidx.local[1]] = 0.0;
-        Bsimg[tidx.local[0]][tidx.local[1]] = 0.0;
+        Bsreal[tidx.local[1]][tidx.local[0]] = 0.0;
+        Bsimg[tidx.local[1]][tidx.local[0]] = 0.0;
       }
 
-      if (k * TILE_DIM + tidx.local[0] < K && Col < M) {
-        Asreal[tidx.local[0]][tidx.local[1]] = A[aOffset + (k * TILE_DIM + tidx.local[0]) * lda + Col].x;
-        Asimg[tidx.local[0]][tidx.local[1]] = A[aOffset + (k * TILE_DIM + tidx.local[0]) * lda + Col].y;
+      if (k * TILE_DIM + tidx.local[1] < K && Col < M) {
+        Asreal[tidx.local[1]][tidx.local[0]] = A[aOffset + (k * TILE_DIM + tidx.local[1]) * lda + Col].x;
+        Asimg[tidx.local[1]][tidx.local[0]] = A[aOffset + (k * TILE_DIM + tidx.local[1]) * lda + Col].y;
       } else {
-        Asreal[tidx.local[0]][tidx.local[1]] = 0.0;
-        Asimg[tidx.local[0]][tidx.local[1]] = 0.0;
+        Asreal[tidx.local[1]][tidx.local[0]] = 0.0;
+        Asimg[tidx.local[1]][tidx.local[0]] = 0.0;
       }
 
       tidx.barrier.wait();
       // Unrolled Matrix Mul operation
-      CValue += ((Bsreal[tidx.local[0]][0] * Asreal[0][tidx.local[1]]) - (Bsimg[tidx.local[0]][0] * Asimg[0][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][1] * Asreal[1][tidx.local[1]]) - (Bsimg[tidx.local[0]][1] * Asimg[1][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][2] * Asreal[2][tidx.local[1]]) - (Bsimg[tidx.local[0]][2] * Asimg[2][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][3] * Asreal[3][tidx.local[1]]) - (Bsimg[tidx.local[0]][3] * Asimg[3][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][4] * Asreal[4][tidx.local[1]]) - (Bsimg[tidx.local[0]][4] * Asimg[4][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][5] * Asreal[5][tidx.local[1]]) - (Bsimg[tidx.local[0]][5] * Asimg[5][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][6] * Asreal[6][tidx.local[1]]) - (Bsimg[tidx.local[0]][6] * Asimg[6][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][7] * Asreal[7][tidx.local[1]]) - (Bsimg[tidx.local[0]][7] * Asimg[7][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][8] * Asreal[8][tidx.local[1]]) - (Bsimg[tidx.local[0]][8] * Asimg[8][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][9] * Asreal[9][tidx.local[1]]) - (Bsimg[tidx.local[0]][9] * Asimg[9][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][10] * Asreal[10][tidx.local[1]]) - (Bsimg[tidx.local[0]][10] * Asimg[10][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][11] * Asreal[11][tidx.local[1]]) - (Bsimg[tidx.local[0]][11] * Asimg[11][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][12] * Asreal[12][tidx.local[1]]) - (Bsimg[tidx.local[0]][12] * Asimg[12][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][13] * Asreal[13][tidx.local[1]]) - (Bsimg[tidx.local[0]][13] * Asimg[13][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][14] * Asreal[14][tidx.local[1]]) - (Bsimg[tidx.local[0]][14] * Asimg[14][tidx.local[1]]) +
-                 (Bsreal[tidx.local[0]][15] * Asreal[15][tidx.local[1]]) - (Bsimg[tidx.local[0]][15] * Asimg[15][tidx.local[1]]));
-      CValue1 += ((Bsreal[tidx.local[0]][0] * Asimg[0][tidx.local[1]]) + (Bsimg[tidx.local[0]][0] * Asreal[0][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][1] * Asimg[1][tidx.local[1]]) + (Bsimg[tidx.local[0]][1] * Asreal[1][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][2] * Asimg[2][tidx.local[1]]) + (Bsimg[tidx.local[0]][2] * Asreal[2][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][3] * Asimg[3][tidx.local[1]]) + (Bsimg[tidx.local[0]][3] * Asreal[3][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][4] * Asimg[4][tidx.local[1]]) + (Bsimg[tidx.local[0]][4] * Asreal[4][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][5] * Asimg[5][tidx.local[1]]) + (Bsimg[tidx.local[0]][5] * Asreal[5][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][6] * Asimg[6][tidx.local[1]]) + (Bsimg[tidx.local[0]][6] * Asreal[6][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][7] * Asimg[7][tidx.local[1]]) + (Bsimg[tidx.local[0]][7] * Asreal[7][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][8] * Asimg[8][tidx.local[1]]) + (Bsimg[tidx.local[0]][8] * Asreal[8][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][9] * Asimg[9][tidx.local[1]]) + (Bsimg[tidx.local[0]][9] * Asreal[9][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][10] * Asimg[10][tidx.local[1]]) + (Bsimg[tidx.local[0]][10] * Asreal[10][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][11] * Asimg[11][tidx.local[1]]) + (Bsimg[tidx.local[0]][11] * Asreal[11][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][12] * Asimg[12][tidx.local[1]]) + (Bsimg[tidx.local[0]][12] * Asreal[12][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][13] * Asimg[13][tidx.local[1]]) + (Bsimg[tidx.local[0]][13] * Asreal[13][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][14] * Asimg[14][tidx.local[1]]) + (Bsimg[tidx.local[0]][14] * Asreal[14][tidx.local[1]]) +
-                  (Bsreal[tidx.local[0]][15] * Asimg[15][tidx.local[1]]) + (Bsimg[tidx.local[0]][15] * Asreal[15][tidx.local[1]]));
+      CValue += ((Bsreal[tidx.local[1]][0] * Asreal[0][tidx.local[0]]) - (Bsimg[tidx.local[1]][0] * Asimg[0][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][1] * Asreal[1][tidx.local[0]]) - (Bsimg[tidx.local[1]][1] * Asimg[1][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][2] * Asreal[2][tidx.local[0]]) - (Bsimg[tidx.local[1]][2] * Asimg[2][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][3] * Asreal[3][tidx.local[0]]) - (Bsimg[tidx.local[1]][3] * Asimg[3][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][4] * Asreal[4][tidx.local[0]]) - (Bsimg[tidx.local[1]][4] * Asimg[4][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][5] * Asreal[5][tidx.local[0]]) - (Bsimg[tidx.local[1]][5] * Asimg[5][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][6] * Asreal[6][tidx.local[0]]) - (Bsimg[tidx.local[1]][6] * Asimg[6][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][7] * Asreal[7][tidx.local[0]]) - (Bsimg[tidx.local[1]][7] * Asimg[7][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][8] * Asreal[8][tidx.local[0]]) - (Bsimg[tidx.local[1]][8] * Asimg[8][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][9] * Asreal[9][tidx.local[0]]) - (Bsimg[tidx.local[1]][9] * Asimg[9][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][10] * Asreal[10][tidx.local[0]]) - (Bsimg[tidx.local[1]][10] * Asimg[10][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][11] * Asreal[11][tidx.local[0]]) - (Bsimg[tidx.local[1]][11] * Asimg[11][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][12] * Asreal[12][tidx.local[0]]) - (Bsimg[tidx.local[1]][12] * Asimg[12][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][13] * Asreal[13][tidx.local[0]]) - (Bsimg[tidx.local[1]][13] * Asimg[13][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][14] * Asreal[14][tidx.local[0]]) - (Bsimg[tidx.local[1]][14] * Asimg[14][tidx.local[0]]) +
+                 (Bsreal[tidx.local[1]][15] * Asreal[15][tidx.local[0]]) - (Bsimg[tidx.local[1]][15] * Asimg[15][tidx.local[0]]));
+      CValue1 += ((Bsreal[tidx.local[1]][0] * Asimg[0][tidx.local[0]]) + (Bsimg[tidx.local[1]][0] * Asreal[0][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][1] * Asimg[1][tidx.local[0]]) + (Bsimg[tidx.local[1]][1] * Asreal[1][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][2] * Asimg[2][tidx.local[0]]) + (Bsimg[tidx.local[1]][2] * Asreal[2][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][3] * Asimg[3][tidx.local[0]]) + (Bsimg[tidx.local[1]][3] * Asreal[3][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][4] * Asimg[4][tidx.local[0]]) + (Bsimg[tidx.local[1]][4] * Asreal[4][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][5] * Asimg[5][tidx.local[0]]) + (Bsimg[tidx.local[1]][5] * Asreal[5][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][6] * Asimg[6][tidx.local[0]]) + (Bsimg[tidx.local[1]][6] * Asreal[6][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][7] * Asimg[7][tidx.local[0]]) + (Bsimg[tidx.local[1]][7] * Asreal[7][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][8] * Asimg[8][tidx.local[0]]) + (Bsimg[tidx.local[1]][8] * Asreal[8][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][9] * Asimg[9][tidx.local[0]]) + (Bsimg[tidx.local[1]][9] * Asreal[9][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][10] * Asimg[10][tidx.local[0]]) + (Bsimg[tidx.local[1]][10] * Asreal[10][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][11] * Asimg[11][tidx.local[0]]) + (Bsimg[tidx.local[1]][11] * Asreal[11][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][12] * Asimg[12][tidx.local[0]]) + (Bsimg[tidx.local[1]][12] * Asreal[12][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][13] * Asimg[13][tidx.local[0]]) + (Bsimg[tidx.local[1]][13] * Asreal[13][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][14] * Asimg[14][tidx.local[0]]) + (Bsimg[tidx.local[1]][14] * Asreal[14][tidx.local[0]]) +
+                  (Bsreal[tidx.local[1]][15] * Asimg[15][tidx.local[0]]) + (Bsimg[tidx.local[1]][15] * Asreal[15][tidx.local[0]]));
       tidx.barrier.wait();
     }
 
     if (Row < N && Col < M) {
-      CReal = C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].x;
-      CImg = C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].y;
+      CReal = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x;
+      CImg = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
-      C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
+      C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
+      C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
   });
 #undef THREADS
@@ -95,15 +95,15 @@ hcblasStatus cgemm_NoTransAB_loopunroll(Concurrency::accelerator_view &accl_view
 }
 
 
-hcblasStatus cgemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-					     Concurrency::array<float_2, 1> &A, long aOffset,
-					     Concurrency::array<float_2, 1> &B, long bOffset,
-					     Concurrency::array<float_2, 1> &C, long cOffset,
-					     int M, int N, int K, int lda, int ldb, int ldc,
-					     float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_TransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+					          Concurrency::array<float_2, 1> &A, long aOffset,
+					          Concurrency::array<float_2, 1> &B, long bOffset,
+					          Concurrency::array<float_2, 1> &C, long cOffset,
+					          int M, int N, int K, int lda, int ldb, int ldc,
+					          float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp) {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -118,10 +118,10 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl
     tile_static float lAimg[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBreal[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBimg[TOTMICROTILEPROD + TILESIZE];
-    int gidx = tidx.tile[1];
-    int gidy = tidx.tile[0];
-    int idx = tidx.local[1];
-    int idy = tidx.local[0];
+    int gidx = tidx.tile[0];
+    int gidy = tidx.tile[1];
+    int idx = tidx.local[0];
+    int idy = tidx.local[1];
     int idt =  ( idy * TILESIZE ) + idx;
     int idxT = idt & (TILESIZE - 1);
     int idyT = idt / TILESIZE;
@@ -169,20 +169,20 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) / TILESIZE));
 
-    int xIndex = (gidx << shiftMTP) + idx;
-    int yIndex = ((gidy << shiftMTP) + idy) * ldc;
+    int xIndex = ((gidx << shiftMTP) + idx) * ldc;
+    int yIndex = (gidy << shiftMTP) + idy;
 
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
-        if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+        if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
+          CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
+          CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -192,17 +192,17 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus cgemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-				          Concurrency::array<float_2, 1> &A, long aOffset,
-				          Concurrency::array<float_2, 1> &B, long bOffset,
-				          Concurrency::array<float_2, 1> &C, long cOffset,
-				          int M, int N, int K, int lda, int ldb, int ldc,
-				          float_2 alpha, float_2 beta)
+hcblasStatus cgemm_TransAB_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+					       Concurrency::array<float_2, 1> &A, long aOffset,
+					       Concurrency::array<float_2, 1> &B, long bOffset,
+				   	       Concurrency::array<float_2, 1> &C, long cOffset,
+					       int M, int N, int K, int lda, int ldb, int ldc,
+					       float_2 alpha, float_2 beta)
 
 {
 #define TILESIZE 8
 #define STEPSIZE 8
-  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp) {
     int shiftFactor = Concurrency::fast_math::log2(STEPSIZE);
@@ -222,10 +222,10 @@ hcblasStatus cgemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vi
     float tempImg = 0.0;
     float CReal = 0.0;
     float CImg = 0.0;
-    int gidx = tidx.tile[1];
-    int gidy = tidx.tile[0];
-    int idx = tidx.local[1];
-    int idy = tidx.local[0];
+    int gidx = tidx.tile[0];
+    int gidy = tidx.tile[1];
+    int idx = tidx.local[0];
+    int idy = tidx.local[1];
     int idt = TILESIZE * idy + idx;
     int idxT = idt % TILESIZE;
     int idyT = idt / TILESIZE;
@@ -271,14 +271,14 @@ hcblasStatus cgemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vi
     tidx.barrier.wait();
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
-      CReal = C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
-      CImg = C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
+      CReal = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
+      CImg = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
-      C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
+      C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
+      C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
   });
 #undef TILESIZE
@@ -287,15 +287,16 @@ hcblasStatus cgemm_NoTransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vi
 }
 
 
-hcblasStatus cgemm_NoTransAB_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_view,
-					    Concurrency::array<float_2, 1> &A, long aOffset,
-					    Concurrency::array<float_2, 1> &B, long bOffset,
-					    Concurrency::array<float_2, 1> &C, long cOffset,
-					    int M, int N, int K, int lda, int ldb, int ldc,
-					    float_2 alpha, float_2 beta) {
+
+hcblasStatus cgemm_TransAB_rMajor_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_view,
+					         Concurrency::array<float_2, 1> &A, long aOffset,
+					         Concurrency::array<float_2, 1> &B, long bOffset,
+					         Concurrency::array<float_2, 1> &C, long cOffset,
+					         int M, int N, int K, int lda, int ldb, int ldc,
+					         float_2 alpha, float_2 beta) {
 #define TILESIZE 8
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp) {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -310,10 +311,10 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_
     tile_static float lAimg[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBreal[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBimg[TOTMICROTILEPROD + TILESIZE];
-    int gidx = tidx.tile[1];
-    int gidy = tidx.tile[0];
-    int idx = tidx.local[1];
-    int idy = tidx.local[0];
+    int gidx = tidx.tile[0];
+    int gidy = tidx.tile[1];
+    int idx = tidx.local[0];
+    int idy = tidx.local[1];
     int idt =  ( idy * TILESIZE ) + idx;
     int idxT = idt & (TILESIZE - 1);
     int idyT = idt / TILESIZE;
@@ -361,20 +362,20 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) / TILESIZE));
 
-    int xIndex = (gidx << shiftMTP) + idx;
-    int yIndex = ((gidy << shiftMTP) + idy) * ldc;
+    int xIndex = ((gidx << shiftMTP) + idx) * ldc;
+    int yIndex = (gidy << shiftMTP) + idy;
 
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
-        if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+        if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
+          CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
+          CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -384,15 +385,15 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS8XMTS2(Concurrency::accelerator_view &accl_
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus cgemm_NoTransA_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-					    Concurrency::array<float_2, 1> &A, long aOffset,
-					    Concurrency::array<float_2, 1> &B, long bOffset,
-					    Concurrency::array<float_2, 1> &C, long cOffset,
-					    int M, int N, int K, int lda, int ldb, int ldc,
-					    float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+					           Concurrency::array<float_2, 1> &A, long aOffset,
+					           Concurrency::array<float_2, 1> &B, long bOffset,
+					           Concurrency::array<float_2, 1> &C, long cOffset,
+					           int M, int N, int K, int lda, int ldb, int ldc,
+					           float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp) {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -407,10 +408,10 @@ hcblasStatus cgemm_NoTransA_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
     tile_static float lAimg[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBreal[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBimg[TOTMICROTILEPROD + TILESIZE];
-    int gidx = tidx.tile[1];
-    int gidy = tidx.tile[0];
-    int idx = tidx.local[1];
-    int idy = tidx.local[0];
+    int gidx = tidx.tile[0];
+    int gidy = tidx.tile[1];
+    int idx = tidx.local[0];
+    int idy = tidx.local[1];
     int idt = ( idy << shiftTS) + idx;
     int idxT = idt & ( TILESIZE - 1);
     int idyT = idt >> shiftTS;
@@ -458,20 +459,20 @@ hcblasStatus cgemm_NoTransA_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) >> shiftTS));
 
-    int xIndex = (gidx << shiftMTP) + idx;
-    int yIndex = ((gidy << shiftMTP) + idy) * ldc;
+    int xIndex = ((gidx << shiftMTP) + idx) * ldc;
+    int yIndex = (gidy << shiftMTP) + idy;
 
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
-        if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+        if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
+          CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
+          CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -481,15 +482,15 @@ hcblasStatus cgemm_NoTransA_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus cgemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-				         Concurrency::array<float_2, 1> &A, long aOffset,
-				         Concurrency::array<float_2, 1> &B, long bOffset,
-				         Concurrency::array<float_2, 1> &C, long cOffset,
-				         int M, int N, int K, int lda, int ldb, int ldc,
-				         float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransA_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+					        Concurrency::array<float_2, 1> &A, long aOffset,
+					        Concurrency::array<float_2, 1> &B, long bOffset,
+					        Concurrency::array<float_2, 1> &C, long cOffset,
+					        int M, int N, int K, int lda, int ldb, int ldc,
+					        float_2 alpha, float_2 beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
-  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp) {
     int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
@@ -509,10 +510,10 @@ hcblasStatus cgemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vie
     float tempImg = 0.0;
     float CReal = 0.0;
     float CImg = 0.0;
-    int gidx = tidx.tile[1];
-    int gidy = tidx.tile[0];
-    int idx = tidx.local[1];
-    int idy = tidx.local[0];
+    int gidx = tidx.tile[0];
+    int gidy = tidx.tile[1];
+    int idx = tidx.local[0];
+    int idy = tidx.local[1];
     int idt = TILESIZE * idy + idx;
     int idxT = idt % TILESIZE;
     int idyT = idt / TILESIZE;
@@ -555,14 +556,14 @@ hcblasStatus cgemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vie
     tidx.barrier.wait();
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
-      CReal = C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
-      CImg = C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
+      CReal = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
+      CImg = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
-      C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
+      C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
+      C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
   });
 #undef TILESIZE
@@ -570,15 +571,15 @@ hcblasStatus cgemm_NoTransB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_vie
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus cgemm_NoTransB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-				            Concurrency::array<float_2> &A, long aOffset,
-				            Concurrency::array<float_2> &B, long bOffset,
-					    Concurrency::array<float_2> &C, long cOffset,
-					    int M, int N, int K, int lda, int ldb, int ldc,
-					    float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransA_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+					           Concurrency::array<float_2> &A, long aOffset,
+					           Concurrency::array<float_2> &B, long bOffset,
+					           Concurrency::array<float_2> &C, long cOffset,
+					           int M, int N, int K, int lda, int ldb, int ldc,
+					           float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp) {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -593,10 +594,10 @@ hcblasStatus cgemm_NoTransB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
     tile_static float lAimg[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBreal[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBimg[TOTMICROTILEPROD + TILESIZE];
-    int gidx = tidx.tile[1];
-    int gidy = tidx.tile[0];
-    int idx = tidx.local[1];
-    int idy = tidx.local[0];
+    int gidx = tidx.tile[0];
+    int gidy = tidx.tile[1];
+    int idx = tidx.local[0];
+    int idy = tidx.local[1];
     int idt = ( idy << shiftTS ) + idx;
     int idxT = idt % TILESIZE ;
     int idyT = idt / TILESIZE;
@@ -645,20 +646,20 @@ hcblasStatus cgemm_NoTransB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) >> shiftTS));
 
-    int xIndex = (gidx << shiftMTP) + idx;
-    int yIndex = ((gidy << shiftMTP) + idy) * ldc;
+    int xIndex = ((gidx << shiftMTP) + idx) * ldc;
+    int yIndex = (gidy << shiftMTP) + idy;
 
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
-        if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+        if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
+          CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
+          CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -668,20 +669,20 @@ hcblasStatus cgemm_NoTransB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus cgemm_NoTransB_loopunroll(Concurrency::accelerator_view &accl_view,
-                                       Concurrency::array<float_2, 1> &A, long aOffset,
-                                       Concurrency::array<float_2, 1> &B, long bOffset,
-                                       Concurrency::array<float_2, 1> &C, long cOffset,
-                                       int M, int N, int K, int lda, int ldb, int ldc,
-                                       float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransA_rMajor_loopunroll(Concurrency::accelerator_view &accl_view,
+					      Concurrency::array<float_2, 1> &A, long aOffset,
+					      Concurrency::array<float_2, 1> &B, long bOffset,
+					      Concurrency::array<float_2, 1> &C, long cOffset,
+					      int M, int N, int K, int lda, int ldb, int ldc,
+					      float_2 alpha, float_2 beta) {
 #define THREADS   16
 #define TILE_DIM  16
-  Concurrency::extent<2> grdExt((N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
+  Concurrency::extent<2> grdExt((M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
   Concurrency::tiled_extent<THREADS, THREADS> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<THREADS, THREADS> tidx) restrict(amp) {
     float CValue = 0, CValue1 = 0;
-    int Row = tidx.global[0];
-    int Col = tidx.global[1];
+    int Row = tidx.global[1];
+    int Col = tidx.global[0];
     tile_static float Asreal[TILE_DIM][TILE_DIM];
     tile_static float Asimg[TILE_DIM][TILE_DIM];
     tile_static float Bsreal[TILE_DIM][TILE_DIM];
@@ -692,68 +693,68 @@ hcblasStatus cgemm_NoTransB_loopunroll(Concurrency::accelerator_view &accl_view,
     float CImg = 0.0;
 
     for (int k = 0; k < ((K + (TILE_DIM - 1)) & ~(TILE_DIM - 1)) ; k += TILE_DIM) {
-      if (k + tidx.local[1] < K && Row < N) {
-        Bsreal[tidx.local[0]][tidx.local[1]] = B[bOffset + Row * ldb + k + tidx.local[1]].x;
-        Bsimg[tidx.local[0]][tidx.local[1]] = B[bOffset + Row * ldb + k + tidx.local[1]].y;
+      if (k + tidx.local[0] < K && Row < N) {
+        Bsreal[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * ldb + k + tidx.local[0]].x;
+        Bsimg[tidx.local[1]][tidx.local[0]] = B[bOffset + Row * ldb + k + tidx.local[0]].y;
       } else {
-        Bsreal[tidx.local[0]][tidx.local[1]] = 0.0;
-        Bsimg[tidx.local[0]][tidx.local[1]] = 0.0;
+        Bsreal[tidx.local[1]][tidx.local[0]] = 0.0;
+        Bsimg[tidx.local[1]][tidx.local[0]] = 0.0;
       }
 
-      if (k + tidx.local[1] < K && (tidx.tile[1] * TILE_DIM + tidx.local[0]) < M) {
-        Asreal[tidx.local[0]][tidx.local[1]] = A[aOffset + ((tidx.tile[1] * TILE_DIM + tidx.local[0]) * lda) + k + tidx.local[1]].x;
-        Asimg[tidx.local[0]][tidx.local[1]] = A[aOffset + ((tidx.tile[1] * TILE_DIM + tidx.local[0]) * lda) + k + tidx.local[1]].y;
+      if (k + tidx.local[0] < K && (tidx.tile[0] * TILE_DIM + tidx.local[1]) < M) {
+        Asreal[tidx.local[1]][tidx.local[0]] = A[aOffset + ((tidx.tile[0] * TILE_DIM + tidx.local[1]) * lda) + k + tidx.local[0]].x;
+        Asimg[tidx.local[1]][tidx.local[0]] = A[aOffset + ((tidx.tile[0] * TILE_DIM + tidx.local[1]) * lda) + k + tidx.local[0]].y;
       } else {
-        Asreal[tidx.local[0]][tidx.local[1]] = 0.0;
-        Asimg[tidx.local[0]][tidx.local[1]] = 0.0;
+        Asreal[tidx.local[1]][tidx.local[0]] = 0.0;
+        Asimg[tidx.local[1]][tidx.local[0]] = 0.0;
       }
 
       tidx.barrier.wait();
       // Unrolled Matrix Mul operation
-      CValue += ((Bsreal[tidx.local[0]][0] * Asreal[tidx.local[1]][0]) - (Bsimg[tidx.local[0]][0] * Asimg[tidx.local[1]][0]) +
-                 (Bsreal[tidx.local[0]][1] * Asreal[tidx.local[1]][1]) - (Bsimg[tidx.local[0]][1] * Asimg[tidx.local[1]][1]) +
-                 (Bsreal[tidx.local[0]][2] * Asreal[tidx.local[1]][2]) - (Bsimg[tidx.local[0]][2] * Asimg[tidx.local[1]][2]) +
-                 (Bsreal[tidx.local[0]][3] * Asreal[tidx.local[1]][3]) - (Bsimg[tidx.local[0]][3] * Asimg[tidx.local[1]][3]) +
-                 (Bsreal[tidx.local[0]][4] * Asreal[tidx.local[1]][4]) - (Bsimg[tidx.local[0]][4] * Asimg[tidx.local[1]][4]) +
-                 (Bsreal[tidx.local[0]][5] * Asreal[tidx.local[1]][5]) - (Bsimg[tidx.local[0]][5] * Asimg[tidx.local[1]][5]) +
-                 (Bsreal[tidx.local[0]][6] * Asreal[tidx.local[1]][6]) - (Bsimg[tidx.local[0]][6] * Asimg[tidx.local[1]][6]) +
-                 (Bsreal[tidx.local[0]][7] * Asreal[tidx.local[1]][7]) - (Bsimg[tidx.local[0]][7] * Asimg[tidx.local[1]][7]) +
-                 (Bsreal[tidx.local[0]][8] * Asreal[tidx.local[1]][8]) - (Bsimg[tidx.local[0]][8] * Asimg[tidx.local[1]][8]) +
-                 (Bsreal[tidx.local[0]][9] * Asreal[tidx.local[1]][9]) - (Bsimg[tidx.local[0]][9] * Asimg[tidx.local[1]][9]) +
-                 (Bsreal[tidx.local[0]][10] * Asreal[tidx.local[1]][10]) - (Bsimg[tidx.local[0]][10] * Asimg[tidx.local[1]][10]) +
-                 (Bsreal[tidx.local[0]][11] * Asreal[tidx.local[1]][11]) - (Bsimg[tidx.local[0]][11] * Asimg[tidx.local[1]][11]) +
-                 (Bsreal[tidx.local[0]][12] * Asreal[tidx.local[1]][12]) - (Bsimg[tidx.local[0]][12] * Asimg[tidx.local[1]][12]) +
-                 (Bsreal[tidx.local[0]][13] * Asreal[tidx.local[1]][13]) - (Bsimg[tidx.local[0]][13] * Asimg[tidx.local[1]][13]) +
-                 (Bsreal[tidx.local[0]][14] * Asreal[tidx.local[1]][14]) - (Bsimg[tidx.local[0]][14] * Asimg[tidx.local[1]][14]) +
-                 (Bsreal[tidx.local[0]][15] * Asreal[tidx.local[1]][15]) - (Bsimg[tidx.local[0]][15] * Asimg[tidx.local[1]][15]));
-      CValue1 += ((Bsreal[tidx.local[0]][0] * Asimg[tidx.local[1]][0]) + (Bsimg[tidx.local[0]][0] * Asreal[tidx.local[1]][0]) +
-                  (Bsreal[tidx.local[0]][1] * Asimg[tidx.local[1]][1]) + (Bsimg[tidx.local[0]][1] * Asreal[tidx.local[1]][1]) +
-                  (Bsreal[tidx.local[0]][2] * Asimg[tidx.local[1]][2]) + (Bsimg[tidx.local[0]][2] * Asreal[tidx.local[1]][2]) +
-                  (Bsreal[tidx.local[0]][3] * Asimg[tidx.local[1]][3]) + (Bsimg[tidx.local[0]][3] * Asreal[tidx.local[1]][3]) +
-                  (Bsreal[tidx.local[0]][4] * Asimg[tidx.local[1]][4]) + (Bsimg[tidx.local[0]][4] * Asreal[tidx.local[1]][4]) +
-                  (Bsreal[tidx.local[0]][5] * Asimg[tidx.local[1]][5]) + (Bsimg[tidx.local[0]][5] * Asreal[tidx.local[1]][5]) +
-                  (Bsreal[tidx.local[0]][6] * Asimg[tidx.local[1]][6]) + (Bsimg[tidx.local[0]][6] * Asreal[tidx.local[1]][6]) +
-                  (Bsreal[tidx.local[0]][7] * Asimg[tidx.local[1]][7]) + (Bsimg[tidx.local[0]][7] * Asreal[tidx.local[1]][7]) +
-                  (Bsreal[tidx.local[0]][8] * Asimg[tidx.local[1]][8]) + (Bsimg[tidx.local[0]][8] * Asreal[tidx.local[1]][8]) +
-                  (Bsreal[tidx.local[0]][9] * Asimg[tidx.local[1]][9]) + (Bsimg[tidx.local[0]][9] * Asreal[tidx.local[1]][9]) +
-                  (Bsreal[tidx.local[0]][10] * Asimg[tidx.local[1]][10]) + (Bsimg[tidx.local[0]][10] * Asreal[tidx.local[1]][10]) +
-                  (Bsreal[tidx.local[0]][11] * Asimg[tidx.local[1]][11]) + (Bsimg[tidx.local[0]][11] * Asreal[tidx.local[1]][11]) +
-                  (Bsreal[tidx.local[0]][12] * Asimg[tidx.local[1]][12]) + (Bsimg[tidx.local[0]][12] * Asreal[tidx.local[1]][12]) +
-                  (Bsreal[tidx.local[0]][13] * Asimg[tidx.local[1]][13]) + (Bsimg[tidx.local[0]][13] * Asreal[tidx.local[1]][13]) +
-                  (Bsreal[tidx.local[0]][14] * Asimg[tidx.local[1]][14]) + (Bsimg[tidx.local[0]][14] * Asreal[tidx.local[1]][14]) +
-                  (Bsreal[tidx.local[0]][15] * Asimg[tidx.local[1]][15]) + (Bsimg[tidx.local[0]][15] * Asreal[tidx.local[1]][15]));
+      CValue += ((Bsreal[tidx.local[1]][0] * Asreal[tidx.local[0]][0]) - (Bsimg[tidx.local[1]][0] * Asimg[tidx.local[0]][0]) +
+                 (Bsreal[tidx.local[1]][1] * Asreal[tidx.local[0]][1]) - (Bsimg[tidx.local[1]][1] * Asimg[tidx.local[0]][1]) +
+                 (Bsreal[tidx.local[1]][2] * Asreal[tidx.local[0]][2]) - (Bsimg[tidx.local[1]][2] * Asimg[tidx.local[0]][2]) +
+                 (Bsreal[tidx.local[1]][3] * Asreal[tidx.local[0]][3]) - (Bsimg[tidx.local[1]][3] * Asimg[tidx.local[0]][3]) +
+                 (Bsreal[tidx.local[1]][4] * Asreal[tidx.local[0]][4]) - (Bsimg[tidx.local[1]][4] * Asimg[tidx.local[0]][4]) +
+                 (Bsreal[tidx.local[1]][5] * Asreal[tidx.local[0]][5]) - (Bsimg[tidx.local[1]][5] * Asimg[tidx.local[0]][5]) +
+                 (Bsreal[tidx.local[1]][6] * Asreal[tidx.local[0]][6]) - (Bsimg[tidx.local[1]][6] * Asimg[tidx.local[0]][6]) +
+                 (Bsreal[tidx.local[1]][7] * Asreal[tidx.local[0]][7]) - (Bsimg[tidx.local[1]][7] * Asimg[tidx.local[0]][7]) +
+                 (Bsreal[tidx.local[1]][8] * Asreal[tidx.local[0]][8]) - (Bsimg[tidx.local[1]][8] * Asimg[tidx.local[0]][8]) +
+                 (Bsreal[tidx.local[1]][9] * Asreal[tidx.local[0]][9]) - (Bsimg[tidx.local[1]][9] * Asimg[tidx.local[0]][9]) +
+                 (Bsreal[tidx.local[1]][10] * Asreal[tidx.local[0]][10]) - (Bsimg[tidx.local[1]][10] * Asimg[tidx.local[0]][10]) +
+                 (Bsreal[tidx.local[1]][11] * Asreal[tidx.local[0]][11]) - (Bsimg[tidx.local[1]][11] * Asimg[tidx.local[0]][11]) +
+                 (Bsreal[tidx.local[1]][12] * Asreal[tidx.local[0]][12]) - (Bsimg[tidx.local[1]][12] * Asimg[tidx.local[0]][12]) +
+                 (Bsreal[tidx.local[1]][13] * Asreal[tidx.local[0]][13]) - (Bsimg[tidx.local[1]][13] * Asimg[tidx.local[0]][13]) +
+                 (Bsreal[tidx.local[1]][14] * Asreal[tidx.local[0]][14]) - (Bsimg[tidx.local[1]][14] * Asimg[tidx.local[0]][14]) +
+                 (Bsreal[tidx.local[1]][15] * Asreal[tidx.local[0]][15]) - (Bsimg[tidx.local[1]][15] * Asimg[tidx.local[0]][15]));
+      CValue1 += ((Bsreal[tidx.local[1]][0] * Asimg[tidx.local[0]][0]) + (Bsimg[tidx.local[1]][0] * Asreal[tidx.local[0]][0]) +
+                  (Bsreal[tidx.local[1]][1] * Asimg[tidx.local[0]][1]) + (Bsimg[tidx.local[1]][1] * Asreal[tidx.local[0]][1]) +
+                  (Bsreal[tidx.local[1]][2] * Asimg[tidx.local[0]][2]) + (Bsimg[tidx.local[1]][2] * Asreal[tidx.local[0]][2]) +
+                  (Bsreal[tidx.local[1]][3] * Asimg[tidx.local[0]][3]) + (Bsimg[tidx.local[1]][3] * Asreal[tidx.local[0]][3]) +
+                  (Bsreal[tidx.local[1]][4] * Asimg[tidx.local[0]][4]) + (Bsimg[tidx.local[1]][4] * Asreal[tidx.local[0]][4]) +
+                  (Bsreal[tidx.local[1]][5] * Asimg[tidx.local[0]][5]) + (Bsimg[tidx.local[1]][5] * Asreal[tidx.local[0]][5]) +
+                  (Bsreal[tidx.local[1]][6] * Asimg[tidx.local[0]][6]) + (Bsimg[tidx.local[1]][6] * Asreal[tidx.local[0]][6]) +
+                  (Bsreal[tidx.local[1]][7] * Asimg[tidx.local[0]][7]) + (Bsimg[tidx.local[1]][7] * Asreal[tidx.local[0]][7]) +
+                  (Bsreal[tidx.local[1]][8] * Asimg[tidx.local[0]][8]) + (Bsimg[tidx.local[1]][8] * Asreal[tidx.local[0]][8]) +
+                  (Bsreal[tidx.local[1]][9] * Asimg[tidx.local[0]][9]) + (Bsimg[tidx.local[1]][9] * Asreal[tidx.local[0]][9]) +
+                  (Bsreal[tidx.local[1]][10] * Asimg[tidx.local[0]][10]) + (Bsimg[tidx.local[1]][10] * Asreal[tidx.local[0]][10]) +
+                  (Bsreal[tidx.local[1]][11] * Asimg[tidx.local[0]][11]) + (Bsimg[tidx.local[1]][11] * Asreal[tidx.local[0]][11]) +
+                  (Bsreal[tidx.local[1]][12] * Asimg[tidx.local[0]][12]) + (Bsimg[tidx.local[1]][12] * Asreal[tidx.local[0]][12]) +
+                  (Bsreal[tidx.local[1]][13] * Asimg[tidx.local[0]][13]) + (Bsimg[tidx.local[1]][13] * Asreal[tidx.local[0]][13]) +
+                  (Bsreal[tidx.local[1]][14] * Asimg[tidx.local[0]][14]) + (Bsimg[tidx.local[1]][14] * Asreal[tidx.local[0]][14]) +
+                  (Bsreal[tidx.local[1]][15] * Asimg[tidx.local[0]][15]) + (Bsimg[tidx.local[1]][15] * Asreal[tidx.local[0]][15]));
       tidx.barrier.wait();
     }
 
     if (Row < N && Col < M) {
-      CReal = C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].x;
-      CImg = C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].y;
+      CReal = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x;
+      CImg = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
-      C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
+      C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
+      C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
   });
 #undef THREADS
@@ -761,15 +762,15 @@ hcblasStatus cgemm_NoTransB_loopunroll(Concurrency::accelerator_view &accl_view,
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus cgemm_TransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
-                                        Concurrency::array<float_2, 1> &A, long aOffset,
-                                        Concurrency::array<float_2, 1> &B, long bOffset,
-                                        Concurrency::array<float_2, 1> &C, long cOffset,
-                                        int M, int N, int K, int lda, int ldb, int ldc,
-                                        float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransAB_rMajor_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view,
+					         Concurrency::array<float_2, 1> &A, long aOffset,
+					         Concurrency::array<float_2, 1> &B, long bOffset,
+					         Concurrency::array<float_2, 1> &C, long cOffset,
+				                 int M, int N, int K, int lda, int ldb, int ldc,
+					         float_2 alpha, float_2 beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
-  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp) {
     int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
@@ -789,10 +790,10 @@ hcblasStatus cgemm_TransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view
     float tempImg = 0.0;
     float CReal = 0.0;
     float CImg = 0.0;
-    int gidx = tidx.tile[1];
-    int gidy = tidx.tile[0];
-    int idx = tidx.local[1];
-    int idy = tidx.local[0];
+    int gidx = tidx.tile[0];
+    int gidy = tidx.tile[1];
+    int idx = tidx.local[0];
+    int idy = tidx.local[1];
     int idt = TILESIZE * idy + idx;
     int idxT = idt % TILESIZE;
     int idyT = idt / TILESIZE;
@@ -832,14 +833,14 @@ hcblasStatus cgemm_TransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view
     tidx.barrier.wait();
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
-      CReal = C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
-      CImg = C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
+      CReal = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
+      CImg = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
-      C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
+      C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
+      C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
   });
 #undef TILESIZE
@@ -847,15 +848,15 @@ hcblasStatus cgemm_TransAB_STEP_TS8XSS8(Concurrency::accelerator_view &accl_view
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus cgemm_TransAB_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
-				          Concurrency::array<float_2, 1> &A, long aOffset,
-				          Concurrency::array<float_2, 1> &B, long bOffset,
-				          Concurrency::array<float_2, 1> &C, long cOffset,
-				          int M, int N, int K, int lda, int ldb, int ldc,
-				          float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransAB_rMajor_STEP_TS16XSS16(Concurrency::accelerator_view &accl_view,
+					           Concurrency::array<float_2, 1> &A, long aOffset,
+					           Concurrency::array<float_2, 1> &B, long bOffset,
+					           Concurrency::array<float_2, 1> &C, long cOffset,
+					           int M, int N, int K, int lda, int ldb, int ldc,
+					           float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define STEPSIZE 16
-  Concurrency::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp) {
     int shiftFactor = Concurrency::fast_math::log2(TILESIZE);
@@ -875,10 +876,10 @@ hcblasStatus cgemm_TransAB_STEP_TS16XSS16(Concurrency::accelerator_view &accl_vi
     float tempImg = 0.0;
     float CReal = 0.0;
     float CImg = 0.0;
-    int gidx = tidx.tile[1];
-    int gidy = tidx.tile[0];
-    int idx = tidx.local[1];
-    int idy = tidx.local[0];
+    int gidx = tidx.tile[0];
+    int gidy = tidx.tile[1];
+    int idx = tidx.local[0];
+    int idy = tidx.local[1];
     int idt = TILESIZE * idy + idx;
     int idxT = idt % TILESIZE;
     int idyT = idt / TILESIZE;
@@ -918,14 +919,14 @@ hcblasStatus cgemm_TransAB_STEP_TS16XSS16(Concurrency::accelerator_view &accl_vi
     tidx.barrier.wait();
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
-      CReal = C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
-      CImg = C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
+      CReal = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
+      CImg = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
-      C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
+      C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
+      C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
   });
 #undef TILESIZE
@@ -933,15 +934,15 @@ hcblasStatus cgemm_TransAB_STEP_TS16XSS16(Concurrency::accelerator_view &accl_vi
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus cgemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
-				           Concurrency::array<float_2, 1> &A, long aOffset,
-				           Concurrency::array<float_2, 1> &B, long bOffset,
-				           Concurrency::array<float_2, 1> &C, long cOffset,
-				           int M, int N, int K, int lda, int ldb, int ldc,
-			  	           float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_view,
+						    Concurrency::array<float_2, 1> &A, long aOffset,
+						    Concurrency::array<float_2, 1> &B, long bOffset,
+						    Concurrency::array<float_2, 1> &C, long cOffset,
+						    int M, int N, int K, int lda, int ldb, int ldc,
+						    float_2 alpha, float_2 beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  Concurrency::extent<2> grdExt((((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  Concurrency::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   Concurrency::tiled_extent<TILESIZE, TILESIZE> t_ext(grdExt);
   Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (Concurrency::tiled_index<TILESIZE, TILESIZE> tidx) restrict(amp) {
     int shiftTS = Concurrency::fast_math::log2(TILESIZE);
@@ -956,10 +957,10 @@ hcblasStatus cgemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_v
     tile_static float lAimg[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBreal[TOTMICROTILEPROD + TILESIZE];
     tile_static float lBimg[TOTMICROTILEPROD + TILESIZE];
-    int gidx = tidx.tile[1];
-    int gidy = tidx.tile[0];
-    int idx = tidx.local[1];
-    int idy = tidx.local[0];
+    int gidx = tidx.tile[0];
+    int gidy = tidx.tile[1];
+    int idx = tidx.local[0];
+    int idy = tidx.local[1];
     int idt = ( idy << shiftTS) + idx;
     int idxT = idt & ( TILESIZE - 1);
     int idyT = idt >> shiftTS;
@@ -1007,20 +1008,20 @@ hcblasStatus cgemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_v
       tidx.barrier.wait();
     } while (++block_k < (((K + TILESIZE - 1) & ~(TILESIZE - 1)) >> shiftTS));
 
-    int xIndex = (gidx << shiftMTP) + idx;
-    int yIndex = ((gidy << shiftMTP) + idy) * ldc;
+    int xIndex = ((gidx << shiftMTP) + idx) * ldc;
+    int yIndex = (gidy << shiftMTP) + idy;
 
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
-        if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+        if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
+          CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
+          CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -1030,66 +1031,66 @@ hcblasStatus cgemm_TransAB_MICRO_TS16XMTS2(Concurrency::accelerator_view &accl_v
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus cgemm_NoTransAB(Concurrency::accelerator_view &accl_view,
-                             Concurrency::array<float_2, 1> &A, long aOffset,
-                             Concurrency::array<float_2, 1> &B, long bOffset,
-                             Concurrency::array<float_2, 1> &C, long cOffset,
-                             int M, int N, int K, int lda, int ldb, int ldc,
-                             float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_TransAB_rMajor(Concurrency::accelerator_view &accl_view,
+                                  Concurrency::array<float_2, 1> &A, long aOffset,
+                                  Concurrency::array<float_2, 1> &B, long bOffset,
+                                  Concurrency::array<float_2, 1> &C, long cOffset,
+                                  int M, int N, int K, int lda, int ldb, int ldc,
+                                  float_2 alpha, float_2 beta) {
   if (M < 600 && N < 600 && K >= 600 && K < 1800) {
-    return cgemm_NoTransAB_loopunroll(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_TransAB_rMajor_loopunroll(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if (M >= 600 && M < 6000 && N < 600 && K < 1800) {
-    return cgemm_NoTransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_TransAB_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if (M >= 1800 && M < 6000 && N < 10 && K >= 600 && K < 6000) {
-    return cgemm_NoTransAB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_TransAB_rMajor_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if (M >= 6000 && M < 10000 && N < 10 && K >= 1800 && K < 6000) {
-    return cgemm_NoTransAB_MICRO_TS8XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_TransAB_rMajor_MICRO_TS8XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else {
-    return cgemm_NoTransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_TransAB_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 }
 
-hcblasStatus cgemm_NoTransA(Concurrency::accelerator_view &accl_view,
-                            Concurrency::array<float_2, 1> &A, long aOffset,
-                            Concurrency::array<float_2, 1> &B, long bOffset,
-                            Concurrency::array<float_2, 1> &C, long cOffset,
-                            int M, int N, int K, int lda, int ldb, int ldc,
-                            float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransB_rMajor(Concurrency::accelerator_view &accl_view,
+                                   Concurrency::array<float_2, 1> &A, long aOffset,
+                                   Concurrency::array<float_2, 1> &B, long bOffset,
+                                   Concurrency::array<float_2, 1> &C, long cOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float_2 alpha, float_2 beta) {
   /*if ((M < 600 && N >= 600 && N < 1800 && K < 600)||(M >= 600 && M < 6000 && N <6000 && K < 600))
   { */
-  return cgemm_NoTransA_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  return cgemm_NoTransB_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   //}
 }
 
-hcblasStatus cgemm_NoTransB(Concurrency::accelerator_view &accl_view,
-                            Concurrency::array<float_2, 1> &A, long aOffset,
-                            Concurrency::array<float_2, 1> &B, long bOffset,
-                            Concurrency::array<float_2, 1> &C, long cOffset,
-                            int M, int N, int K, int lda, int ldb, int ldc,
-                            float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
+                                   Concurrency::array<float_2, 1> &A, long aOffset,
+                                   Concurrency::array<float_2, 1> &B, long bOffset,
+                                   Concurrency::array<float_2, 1> &C, long cOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float_2 alpha, float_2 beta) {
   if ((M >= 10 && M < 6000 && N < 600 && K < 10) || (  M >= 600 && M < 1800 && N < 10 && K >= 1800 && K < 6000) || ( M < 600 && N < 600 && K > 1800 && K < 6000)) {
-    return cgemm_NoTransB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_NoTransA_rMajor_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if (M >= 600 && M < 6000 && N < 600 && K < 600) {
-    return cgemm_NoTransB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_NoTransA_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if (M > 1800 && M < 6000 && N < 600 && K >= 1800 && K < 10000 ) {
-    return cgemm_NoTransB_loopunroll(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_NoTransA_rMajor_loopunroll(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else {
-    return cgemm_NoTransB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_NoTransA_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 }
 
-hcblasStatus cgemm_TransAB(Concurrency::accelerator_view &accl_view,
-                           Concurrency::array<float_2, 1> &A, long aOffset,
-                           Concurrency::array<float_2, 1> &B, long bOffset,
-                           Concurrency::array<float_2, 1> &C, long cOffset,
-                           int M, int N, int K, int lda, int ldb, int ldc,
-                           float_2 alpha, float_2 beta) {
+hcblasStatus cgemm_NoTransAB_rMajor(Concurrency::accelerator_view &accl_view,
+                                    Concurrency::array<float_2, 1> &A, long aOffset,
+                                    Concurrency::array<float_2, 1> &B, long bOffset,
+                                    Concurrency::array<float_2, 1> &C, long cOffset,
+                                    int M, int N, int K, int lda, int ldb, int ldc,
+                                    float_2 alpha, float_2 beta) {
   if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600)) {
-    return cgemm_TransAB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_NoTransAB_rMajor_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if ((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10)))) {
-    return cgemm_TransAB_STEP_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_NoTransAB_rMajor_STEP_TS16XSS16(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else { /*if (M < 1800 && N < 1800 && K < 1800)*/
-    return cgemm_TransAB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return cgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 }
 

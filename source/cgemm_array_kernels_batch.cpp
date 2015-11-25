@@ -1,4 +1,4 @@
-#include "cgemm_kernels.h"
+#include "cgemm_array_kernels.h"
 #include "amp_math.h"
 using namespace concurrency::fast_math;
 hcblasStatus cgemm_NoTransAB_batch_loopunroll(Concurrency::accelerator_view &accl_view,
