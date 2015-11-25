@@ -1,0 +1,371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CGEMM &mdash; HCBLAS  documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="HCBLAS  documentation" href="index.html" />
+    <link rel="up" title="Modules" href="Modules.html" />
+    <link rel="next" title="SGEMV" href="sgemv.html" />
+    <link rel="prev" title="SGEMM" href="sgemm.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="sgemv.html" title="SGEMV"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sgemm.html" title="SGEMM"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">HCBLAS  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="Modules.html" accesskey="U">Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="cgemm">
+<h1>CGEMM<a class="headerlink" href="#cgemm" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line">Complex valued general matrix-matrix multiplication.</div>
+<div class="line"><br /></div>
+<div class="line">Matrix-matrix products:</div>
+<div class="line"><br /></div>
+<div class="line-block">
+<div class="line">C := alpha*A*B     + beta*C</div>
+<div class="line">C := alpha*A^T*B   + beta*C</div>
+<div class="line">C := alpha*A*B^T   + beta*C</div>
+<div class="line">C := alpha*A^T*B^T + beta*C</div>
+<div class="line"><br /></div>
+</div>
+<div class="line">Where alpha and beta are scalars, and A, B and C are matrices.</div>
+<div class="line">matrix A - m x k matrix</div>
+<div class="line">matrix B - k x n matrix</div>
+<div class="line">matrix C - m x n matrix</div>
+<div class="line">() - the actual matrix and ()^T - transpose of the matrix</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="implementation-type-i">
+<h3>Implementation type I<a class="headerlink" href="#implementation-type-i" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are host float pointers.</strong></p>
+</div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_cgemm</strong> (<a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> alpha, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> A, long AOffset, long lda, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> B, long BOffset, long ldb, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> beta, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> C, long COffset, long ldc)</p>
+</div>
+<div class="section" id="implementation-type-ii">
+<h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ float array containers.</strong></p>
+</div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_cgemm</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const Concurrency::graphics::float_2 &amp;alpha, Concurrency::array&lt;float_2&gt; &amp;A, long AOffset, long lda, Concurrency::array&lt;float_2&gt; &amp;B, long BOffset, long ldb, const Concurrency::graphics::float_2 &amp;beta, Concurrency::array&lt;float_2&gt; &amp;C, long COffset, long ldc)</p>
+</div>
+<div class="section" id="implementation-type-iii">
+<h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ float array containers with batch processing.</strong></p>
+</div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_cgemm</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const Concurrency::graphics::float_2 &amp;alpha, Concurrency::array&lt;float_2&gt; &amp;A, const long AOffset, const long A_batchOffset, const long lda, Concurrency::array&lt;float_2&gt; &amp;B, const long BOffset, const long B_batchOffset, const long ldb, const Concurrency::graphics::float_2 &amp;beta, Concurrency::array&lt;float_2&gt; &amp;C, const long COffset, const long C_batchOffset, const long ldc, const int BatchSize)</p>
+</div>
+</div>
+<div class="section" id="detailed-description">
+<h2>Detailed Description<a class="headerlink" href="#detailed-description" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="function-documentation">
+<h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_cgemm (Concurrency::accelerator_view &amp;accl_view,
+                           hcblasOrder order,
+                           hcblasTranspose transA,
+                           hcblasTranspose transB,
+                           const int M,
+                           const int N,
+                           const int K,
+                           const Concurrency::graphics::float_2 &amp;alpha,
+                           Concurrency::array&lt;float_2&gt; &amp;A,
+                           long AOffset,
+                           long lda,
+                           Concurrency::array&lt;float_2&gt; &amp;B,
+                           long BOffset,
+                           long ldb,
+                           const Concurrency::graphics::float_2 &amp;beta,
+                           Concurrency::array&lt;float_2&gt; &amp;C,
+                           long COffset,
+                           long ldc)
+</pre></div>
+</div>
+</div></blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="19%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">In/out</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>[in]</td>
+<td>accl_view</td>
+<td><a class="reference external" href="https://msdn.microsoft.com/en-us/library/hh873132.aspx">Using accelerator and accelerator_view Objects</a></td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>order</td>
+<td>Row/Column order (RowMajor/ColMajor).</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>transA</td>
+<td>How matrix A is to be transposed (0 and 1 for NoTrans
+and Trans case respectively).</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>transB</td>
+<td>How matrix B is to be transposed (0 and 1 for NoTrans
+and Trans case respectively).</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>M</td>
+<td>Number of rows in matrix A.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>N</td>
+<td>Number of columns in matrix B.</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>K</td>
+<td>Number of columns in matrix A and rows in matrix B.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>alpha</td>
+<td>The factor of matrix A.</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>A</td>
+<td>Buffer object storing matrix A.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>AOffset</td>
+<td>Offset of the first element of the matrix A in the buffer
+object. Counted in elements.</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>lda</td>
+<td>Leading dimension of matrix A. It cannot be less than K when
+the order parameter is set to RowMajor, or less than M when
+the parameter is set to ColMajor.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>B</td>
+<td>Buffer object storing matrix B.</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>BOffset</td>
+<td>Offset of the first element of the matrix B in the buffer
+object. Counted in elements.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>ldb</td>
+<td>Leading dimension of matrix B. It cannot be less than N when
+the order parameter is set to RowMajor, or less than K when
+it is set to ColMajor.</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>beta</td>
+<td>The factor of matrix C.</td>
+</tr>
+<tr class="row-odd"><td>[out]</td>
+<td>C</td>
+<td>Buffer object storing matrix C.</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>COffset</td>
+<td>Offset of the first element of the matrix C in the buffer
+object. Counted in elements.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>ldc</td>
+<td>Leading dimension of matrix C. It cannot be less than N when
+the order parameter is set to RowMajor, or less than M when
+it is set to ColMajor.</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line">Implementation type III has 4 other parameters as follows,</div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="19%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">In/out</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>[in]</td>
+<td>A_batchOffset</td>
+<td>Batch Offset adding to the Offset of the first element of
+the matrix A in the buffer object. Counted in elements.
+Offset should be a multiple of m by k.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>B_batchOffset</td>
+<td>Batch Offset adding to the Offset of the first element of
+the matrix B in the buffer object. Counted in elements.
+Offset should be a multiple of n by k.</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>C_batchOffset</td>
+<td>Batch Offset adding to the Offset of the first element of
+the matrix C in the buffer object. Counted in elements.
+Offset should be a multiple of m by n.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>BatchSize</td>
+<td>The size of batch of threads to be processed in parallel for
+Matrices A, B and Output matrix C.</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">Returns,</div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">STATUS</th>
+<th class="head">DESCRIPTION</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>HCBLAS_SUCCESS</td>
+<td>Success</td>
+</tr>
+<tr class="row-odd"><td>HCBLAS_INVALID</td>
+<td>M, N or K is zero</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">CGEMM</a><ul>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#implementation-type-i">Implementation type I</a></li>
+<li><a class="reference internal" href="#implementation-type-ii">Implementation type II</a></li>
+<li><a class="reference internal" href="#implementation-type-iii">Implementation type III</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#detailed-description">Detailed Description</a></li>
+<li><a class="reference internal" href="#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sgemm.html"
+                        title="previous chapter">SGEMM</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sgemv.html"
+                        title="next chapter">SGEMV</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cgemm.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="sgemv.html" title="SGEMV"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sgemm.html" title="SGEMM"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">HCBLAS  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="Modules.html" >Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, MulticoreWare.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DASUM &mdash; HCBLAS  documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="HCBLAS  documentation" href="index.html" />
+    <link rel="up" title="Modules" href="Modules.html" />
+    <link rel="next" title="SDOT" href="sdot.html" />
+    <link rel="prev" title="SASUM" href="sasum.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="sdot.html" title="SDOT"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sasum.html" title="SASUM"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">HCBLAS  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="Modules.html" accesskey="U">Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="dasum">
+<h1>DASUM<a class="headerlink" href="#dasum" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line">Absolute sum of values of a vector (vector x) containing double elements (Double precision).</div>
+<div class="line"><br /></div>
+<div class="line">Where x is a n-dimensional vector.</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="implementation-type-i">
+<h3>Implementation type I<a class="headerlink" href="#implementation-type-i" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are host double pointers.</strong></p>
+</div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_dasum</strong> (const int N, double* x, const int incx, const long xOffset, double* y)</p>
+</div>
+<div class="section" id="implementation-type-ii">
+<h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ double array containers.</strong></p>
+</div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_dasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;x, const int incx, const long xOffset, double &amp;y)</p>
+</div>
+<div class="section" id="implementation-type-iii">
+<h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Inputs and Outputs are HC++ double array containers with batch processing.</strong></p>
+</div>
+</div></blockquote>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_dasum</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;double&gt; &amp;x, const int incx, const long xOffset, double &amp;y, const long x_batchOffset, const int BatchSize)</p>
+</div>
+</div>
+<div class="section" id="detailed-description">
+<h2>Detailed Description<a class="headerlink" href="#detailed-description" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="function-documentation">
+<h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_dasum (Concurrency::accelerator_view &amp;accl_view,
+                           const int N,
+                           Concurrency::array&lt;double&gt; &amp;x,
+                           const int incx,
+                           const long xOffset,
+                           double &amp;y)
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="19%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">In/out</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>[in]</td>
+<td>accl_view</td>
+<td><a class="reference external" href="https://msdn.microsoft.com/en-us/library/hh873132.aspx">Using accelerator and accelerator_view Objects</a></td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>N</td>
+<td>Number of elements in vector x.</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>x</td>
+<td>Buffer object storing vector x.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>incx</td>
+<td>Increment for the elements of x. Must not be zero.</td>
+</tr>
+<tr class="row-even"><td>[in]</td>
+<td>xOffset</td>
+<td>Offset of first element of vector x in buffer object.
+Counted in elements.</td>
+</tr>
+<tr class="row-odd"><td>[out]</td>
+<td>y</td>
+<td>Buffer object that will contain the absolute sum value.</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line">Implementation type III has 2 other parameters as follows,</div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="19%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">In/out</th>
+<th class="head">Parameters</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>[in]</td>
+<td>x_batchOffset</td>
+<td>Batch Offset of vector x in buffer object. Offset should be
+a multiple of n.</td>
+</tr>
+<tr class="row-odd"><td>[in]</td>
+<td>BatchSize</td>
+<td>The size of batch for vector x.</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">Returns,</div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">STATUS</th>
+<th class="head">DESCRIPTION</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>HCBLAS_SUCCESS</td>
+<td>Success</td>
+</tr>
+<tr class="row-odd"><td>HCBLAS_INVALID</td>
+<td>N or incx is zero</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">DASUM</a><ul>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#implementation-type-i">Implementation type I</a></li>
+<li><a class="reference internal" href="#implementation-type-ii">Implementation type II</a></li>
+<li><a class="reference internal" href="#implementation-type-iii">Implementation type III</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#detailed-description">Detailed Description</a></li>
+<li><a class="reference internal" href="#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sasum.html"
+                        title="previous chapter">SASUM</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sdot.html"
+                        title="next chapter">SDOT</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/dasum.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="sdot.html" title="SDOT"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sasum.html" title="SASUM"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">HCBLAS  documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="Modules.html" >Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, MulticoreWare.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

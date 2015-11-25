@@ -1,4 +1,7 @@
+CLANG_PATH="/opt/hcc/bin/clang++"
 
-  
-
-cmake ../../source -DCMAKE_C_COMPILER=${MCWCPPAMPROOT}/gmac_exp_build_cache/compiler/bin/clang  -DCMAKE_CXX_COMPILER=${MCWCPPAMPROOT}/gmac_exp_build_cache/compiler/bin/clang++ -DCMAKE_CXX_FLAGS=-fPIC
+if [ -x $CLANG_PATH ]; then
+       cmake ../../source -DCMAKE_C_COMPILER=/opt/hcc/bin/clang  -DCMAKE_CXX_COMPILER=/opt/hcc/bin/clang++ -DCMAKE_CXX_FLAGS=-fPIC
+else
+       cmake ../../source -DCMAKE_C_COMPILER=${MCWCPPAMPBUILD}/compiler/bin/clang  -DCMAKE_CXX_COMPILER=${MCWCPPAMPBUILD}/compiler/bin/clang++ -DCMAKE_CXX_FLAGS=-fPIC
+fi

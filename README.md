@@ -27,11 +27,30 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 * **AMD APP SDK** : Ver 2.9.1 launched on 18/8/2014 from [here](http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/)
 * **AMD Driver installer**: amd-driver-installer-14.301.1001-x86.x86_64
 
+
 ## Installation Steps:    
 
 ### A. C++ AMP Compiler Installation: 
+
+Use either (i) or (ii) to install the compiler.
+
+**(i) Install through debian package:**
+
+  Download the debian package from the link given below,
+  
+  [Compiler-Debians](https://multicorewareinc.egnyte.com/dl/TD5IwsNEx3)
+  
+  Install the package hcc-0.8.1544-a9f4d2f-ddba18d-Linux.deb 
+  
+  using the command,
+  
+    sudo dpkg -i <package_name>
+      e.g. sudo dpkg -i  hcc-0.8.1544-a9f4d2f-ddba18d-Linux.deb 
+      
+  Note: 
+      Ignore clamp-bolt, Bolt is not required for hcblas.
     
-** Build from source **
+**(ii) Build from source **
 
   To build the compiler from source follow the steps given below,
  
@@ -43,11 +62,11 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 
        * cd ~/mcw_cppamp 
    
-       * git clone https://bitbucket.org/multicoreware/cppamp-driver-ng.git src
+       * git clone https://bitbucket.org/multicoreware/cppamp-driver-ng-35.git src
 
        * cd ~/mcw_cppamp/src/
 
-       * git checkout origin/torch-specific
+       * git checkout origin/master
 
   (b) Create a build directory and configure using CMake.
 
@@ -81,34 +100,34 @@ With this the C++ AMP Compiler installation is complete.
 
        * cd ~/hcblas
 
-       * git checkout Development (for Array_view version of torch-specific branch) (or) git checkout Array_KALMAR_wrapper (for Array version of KALMAR)  
+       * git checkout Array_KALMAR_wrapper
    
-
 (ii) Platform-specific build
 
 (a) For Linux:  
 
        * cd ~/hcblas/Build/linux
        
-       * export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build> 
+       * If the compiler has build from source export the following,
+          export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
 
        * sh build.sh
 
        * make
 
 (b)  For Windows: (Prerequisite: Visual Studio 12 version )
-
+       
 1. For 32 Bit:
 
        * cd ~/hcblas/Build/vc11-x86
 
-       * make-solutions.bat (This creates a Visual studio solution for ampblas Library) 
+       * make-solutions.bat (This creates a Visual studio solution for hcblas Library) 
 
  2. For 64-bit:
 
        * cd ~/hcblas/Build/vc11-x86_64
 
-       * make-solutions.bat (This creates a Visual Studio solution for ampblas Library)
+       * make-solutions.bat (This creates a Visual Studio solution for hcblas Library)
        
 ### C. Unit testing
 
@@ -123,9 +142,7 @@ With this the C++ AMP Compiler installation is complete.
      * cd ~/hcblas/source/testfiles/build/linux
      
      * If the compiler has build from source export the following,
-       
-         export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
-           e.g. export MCWCPPAMPBUILD=/home/mcw/mcw_cppamp/build
+       export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
      
      * sh build.sh
      

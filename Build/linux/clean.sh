@@ -1,4 +1,5 @@
 rm -rf CMake*
 rm Makefile
 rm cmake*
-rm AMPBLAS
+rm libhcblas.so
+rm install_manifest.txt
