@@ -3,10 +3,10 @@
 #include <cstdlib> 
 #include <amp_short_vectors.h>
 #ifdef LINUX
-#include<cblas.h>
-#include<unistd.h>
+#include <cblas.h>
+#include <unistd.h>
 #else
-#include<io.h>
+#include <io.h>
 #endif
 using namespace std;
 int main(int argc, char** argv)
@@ -51,9 +51,9 @@ int main(int argc, char** argv)
 #ifdef LINUX 
     /* CBLAS Implementation */
     enum CBLAS_ORDER order;
-    enum CBLAS_TRANSPOSE Transa;
+    enum CBLAS_TRANSPOSE transa;
     order = CblasColMajor;
-    Transa = (typeA == NoTrans)? CblasNoTrans : CblasTrans;
+    transa = (typeA == NoTrans)? CblasNoTrans : CblasTrans;
     float *ycblas = (float *)calloc( col , sizeof(float));
 #endif   
     lenx = 1 + (row - 1) * abs(incX);
@@ -64,35 +64,29 @@ int main(int argc, char** argv)
     float *xSgemv = (float*)calloc( lenx , sizeof(float));
     float *ySgemv = (float*)calloc( leny , sizeof(float));
     float *ASgemv = (float *)calloc( lenx * leny , sizeof(float));
-    Concurrency::array<float> xView(lenx, xSgemv);
-    Concurrency::array<float> yView(leny, ySgemv);       
-    Concurrency::array<float> aMat(lenx * leny, ASgemv);
-    std::vector<float> HostX(lenx);
-    std::vector<float> HostY(leny);
-    std::vector<float> HostA(lenx * leny);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    for(int i = 0;i < lenx;i++) {
-        HostX[i] = rand() % 10;
-        xSgemv[i] = HostX[i];
-    }
-    for(int i = 0;i< lenx * leny;i++) {
-        HostA[i] = rand() % 25;
-        ASgemv[i] = HostA[i];
-    }
-    for(int iter=0; iter<10; iter++) {
+
+/* Implementation type I - Inputs and Outputs are host float pointers */
+
+    if(Imple_type ==1) {
+        for(int i = 0;i < lenx;i++) {
+            xSgemv[i] = rand() % 10;
+        }
+        for(int i = 0;i< lenx * leny;i++) {
+            ASgemv[i] = rand() % 25;
+        }
+        for(int iter=0; iter<10; iter++) {
         for(int i = 0;i < leny;i++) {
-            HostY[i] = rand() % 15;
-            ySgemv[i]= HostY[i];
+            ySgemv[i] = rand() % 15;
 #ifdef LINUX
             ycblas[i] = ySgemv[i];
 #endif
-    }
-    if(Imple_type ==1) {
+        }
         status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
 #ifdef LINUX
         lda = (hcOrder)? M : N;
-        cblas_sgemv( order, Transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
+        cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
         for(int i =0; i < leny; i ++){
             if (ySgemv[i] != ycblas[i]){
                 ispassed = 0;
@@ -106,8 +100,129 @@ int main(int argc, char** argv)
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+        }
     }
+
+/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
+
     else if(Imple_type ==2) {
+        Concurrency::array_view<float> xView(lenx, xSgemv);
+        Concurrency::array_view<float> yView(leny, ySgemv);
+        Concurrency::array_view<float> aMat(M * N, ASgemv);
+        for(int i = 0;i < lenx;i++) {
+           xView[i] = rand() % 10;
+           xSgemv[i] = xView[i];
+        }
+        for(int i = 0;i< lenx * leny;i++) {
+           aMat[i] = rand() % 25;
+           ASgemv[i] = aMat[i];
+        }
+        for(int iter = 0; iter < 10; iter++) {
+        for(int i = 0;i < leny;i++) {
+           yView[i] = rand() % 15;
+           ySgemv[i]= yView[i];
+#ifdef LINUX
+           ycblas[i] = ySgemv[i];
+#endif
+        }
+        status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
+#ifdef LINUX
+        if(hcOrder)
+                lda = M;
+        else
+                lda = N;
+        cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
+        for(int i =0; i < leny; i ++){
+            if (yView[i] != ycblas[i]){
+                ispassed = 0;
+                cout <<" HCSGEMV[" << i<< "] " << yView[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
+                break;
+            }
+            else
+                continue;
+        }
+        cout << (ispassed? "TEST PASSED": "TEST FAILED") << endl;
+#else
+        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+        }
+    }
+
+/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
+
+    else if(Imple_type ==3) {
+        float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));
+        float *ySgemvbatch = (float*)calloc( leny * batchSize, sizeof(float));
+        float *ASgemvbatch = (float *)calloc( row * col * batchSize, sizeof(float));
+#ifdef LINUX
+        float *ycblasbatch = (float *)calloc( col * batchSize, sizeof(float));
+#endif
+        Concurrency::array_view<float> xbatchView(lenx * batchSize, xSgemvbatch);
+        Concurrency::array_view<float> ybatchView(leny * batchSize, ySgemvbatch);
+        Concurrency::array_view<float> abatchMat(M * N * batchSize, ASgemvbatch);
+        for(int i = 0;i < lenx * batchSize;i++) {
+            xbatchView[i] = rand() % 10;
+            xSgemvbatch[i] = xbatchView[i];
+        }
+        for(int i = 0;i< lenx * leny * batchSize;i++){
+            abatchMat[i] = rand() % 25;
+            ASgemvbatch[i] = abatchMat[i];
+        }
+        for(int iter=0; iter<10; iter++) {
+        for(int i = 0;i < leny * batchSize;i++) {
+            ybatchView[i] = rand() % 15;
+            ySgemvbatch[i]= ybatchView[i];
+#ifdef LINUX
+            ycblasbatch[i] = ySgemvbatch[i];
+#endif
+        }
+
+        status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
+#ifdef LINUX
+        lda = (hcOrder)? M : N;
+        for(int i =0 ; i < batchSize; i++)
+            cblas_sgemv( order, transa, M, N, alpha, ASgemvbatch + i * M * N, lda , xSgemvbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
+        for(int i =0; i < leny * batchSize; i ++){
+            if (ybatchView[i] != ycblasbatch[i]){
+                ispassed = 0;
+                cout <<" HCSGEMV[" << i<< "] " << ybatchView[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblasbatch[i] << endl;
+                break;
+            }
+            else
+                continue;
+        }
+        cout << (ispassed? "TEST PASSED": "TEST FAILED") << endl;
+#else
+        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+        }
+   }
+
+/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
+
+    else if(Imple_type ==4) {
+        Concurrency::array<float> xView(lenx, xSgemv);
+        Concurrency::array<float> yView(leny, ySgemv);
+        Concurrency::array<float> aMat(lenx * leny, ASgemv);
+        std::vector<float> HostX(lenx);
+        std::vector<float> HostY(leny);
+        std::vector<float> HostA(lenx * leny);
+        for(int i = 0;i < lenx;i++) {
+           HostX[i] = rand() % 10;
+           xSgemv[i] = HostX[i];
+        }
+        for(int i = 0;i< lenx * leny;i++) {
+           HostA[i] = rand() % 25;
+           ASgemv[i] = HostA[i];
+        }
+        for(int iter=0; iter<10; iter++) {
+        for(int i = 0;i < leny;i++) {
+            HostY[i] = rand() % 15;
+            ySgemv[i]= HostY[i];
+#ifdef LINUX
+            ycblas[i] = ySgemv[i];
+#endif
+        }
         Concurrency::copy(begin(HostX), end(HostX), xView);
         Concurrency::copy(begin(HostY), end(HostY), yView);
         Concurrency::copy(begin(HostA), end(HostA), aMat);
@@ -115,7 +230,7 @@ int main(int argc, char** argv)
         Concurrency::copy(yView, begin(HostY));
 #ifdef LINUX
         lda = (hcOrder)? M: N;
-        cblas_sgemv( order, Transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
+        cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
         for(int i =0; i < leny; i ++){
             if (HostY[i] != ycblas[i]){
                 ispassed = 0;
@@ -129,7 +244,11 @@ int main(int argc, char** argv)
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+        }
     }
+
+/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+
     else{
         float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));
         float *ySgemvbatch = (float*)calloc( leny * batchSize, sizeof(float));
@@ -147,16 +266,17 @@ int main(int argc, char** argv)
             HostX_batch[i] = rand() % 10;
             xSgemvbatch[i] = HostX_batch[i];
         }
+        for(int i = 0;i< lenx * leny * batchSize;i++) {
+            HostA_batch[i] = rand() % 25;
+            ASgemvbatch[i] = HostA_batch[i]; 
+        }
+        for(int iter=0; iter<10; iter++) {
         for(int i = 0;i < leny * batchSize;i++) {
             HostY_batch[i] = rand() % 15;
             ySgemvbatch[i]= HostY_batch[i];
 #ifdef LINUX
             ycblasbatch[i] = ySgemvbatch[i];
 #endif
-        }
-        for(int i = 0;i< lenx * leny * batchSize;i++) {
-            HostA_batch[i] = rand() % 25;
-            ASgemvbatch[i] = HostA_batch[i]; 
         }
         Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
@@ -166,7 +286,7 @@ int main(int argc, char** argv)
 #ifdef LINUX
         lda = (hcOrder)? M : N;
         for(int i =0 ; i < batchSize; i++)
-            cblas_sgemv( order, Transa, M, N, alpha, ASgemvbatch + i * M * N, lda , xSgemvbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
+            cblas_sgemv( order, transa, M, N, alpha, ASgemvbatch + i * M * N, lda , xSgemvbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
         for(int i =0; i < leny * batchSize; i ++){
             if (HostY_batch[i] != ycblasbatch[i]){
                 ispassed = 0;
@@ -180,7 +300,7 @@ int main(int argc, char** argv)
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
-    }
+        }
    }
     return 0;
 

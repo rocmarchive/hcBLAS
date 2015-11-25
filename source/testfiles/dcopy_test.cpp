@@ -1,7 +1,7 @@
 #include <iostream>
 #include "../hcblas.h"
-#include <cstdlib>
-#ifdef LINUX 
+#include <cstdlib> 
+#ifdef LINUX
 #include "cblas.h"
 #endif
 using namespace std;
@@ -35,35 +35,29 @@ int main(int argc, char** argv)
     double *Ycblas = (double*)calloc(leny, sizeof(double));
     double *Ycblasbatch = (double*)calloc(leny * batchSize, sizeof(double));
 #endif
-    Concurrency::array<double> xView(lenx, X);
-    Concurrency::array<double> yView(leny, Y);
-    Concurrency::array<double> xbatchView(lenx * batchSize, Xbatch);
-    Concurrency::array<double> ybatchView(leny * batchSize, Ybatch);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    std::vector<double> HostX(lenx);
-    std::vector<double> HostY(leny);
-    std::vector<double> HostX_batch(lenx * batchSize);
-    std::vector<double> HostY_batch(leny * batchSize);
-    for(int i = 0;i < lenx;i++) {
-        HostX[i] = rand() % 10;
-        X[i] =  HostX[i];
-    }
-    for(int i = 0;i < leny;i++) {
-        HostY[i] =  rand() % 15;
-        Y[i] = HostY[i];
-#ifdef LINUX
-        Ycblas[i] = Y[i];
-#endif
-    }
+
+/* Implementation type I - Inputs and Outputs are host double pointers */
+
     if (Imple_type == 1) {
+        for(int i = 0;i < lenx;i++) {
+            X[i] = rand() % 10;
+        }
+        for(int i = 0;i < leny;i++) {
+            Y[i] =  rand() % 15;
+#ifdef LINUX
+            Ycblas[i] = Y[i];
+#endif
+        }
+
 	status = hc.hcblas_dcopy(N, X, incX, xOffset, Y, incY, yOffset);
 #ifdef LINUX
         cblas_dcopy( N, X, incX, Ycblas, incY);
         for(int i = 0; i < leny ; i++){
             if (Y[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" HCDCOPY[" << i<< "] " << Y[i] << " does not match with CBLASDCOPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" HCSCOPY[" << i<< "] " << Y[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
@@ -77,17 +71,102 @@ int main(int argc, char** argv)
         free(X);
         free(Y);
     }
+
+/* Implementation type II - Inputs and Outputs are HC++ double array_view containers */
+
     else if (Imple_type ==2) {
+        Concurrency::array_view<double> xView(lenx, X);
+        Concurrency::array_view<double> yView(leny, Y);
+        for(int i = 0;i < lenx;i++) {
+            xView[i] = rand() % 10;
+            X[i] = xView[i];
+        }
+        for(int i = 0;i < leny;i++) {
+            yView[i] =  rand() % 15;
+#ifdef LINUX
+            Ycblas[i] = yView[i];
+#endif
+        }
+        status = hc.hcblas_dcopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
+#ifdef LINUX
+        cblas_dcopy( N, X, incX, Ycblas, incY );
+        for(int i = 0; i < N ; i++) {
+            if (yView[i] != Ycblas[i]) {
+                ispassed = 0;
+                cout <<" HCSCOPY[" << i<< "] " << yView[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
+                break;
+            }
+            else
+                continue;
+        }
+        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+#else
+        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+
+     }
+
+/* Implementation type III - Inputs and Outputs are HC++ double array_view containers with batch processing */
+
+     else if(Imple_type == 3) {
+        Concurrency::array_view<double> xbatchView(lenx * batchSize, Xbatch);
+        Concurrency::array_view<double> ybatchView(leny * batchSize, Ybatch);
+        for(int i = 0;i < lenx * batchSize;i++) {
+            xbatchView[i] = rand() % 10;
+            Xbatch[i] = xbatchView[i];
+        }
+        for(int i = 0;i < leny * batchSize;i++) {
+            ybatchView[i] =  rand() % 15;
+#ifdef LINUX
+            Ycblasbatch[i] = ybatchView[i];
+#endif
+        }
+        status= hc.hcblas_dcopy(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
+#ifdef LINUX
+        for(int i = 0; i < batchSize; i++)
+                cblas_dcopy( N, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
+        for(int i =0; i < N * batchSize; i++) {
+            if (ybatchView[i] != Ycblasbatch[i]) {
+                ispassed = 0;
+                cout <<" HCSCOPY[" << i<< "] " << ybatchView[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;
+                break;
+            }
+            else
+              continue;
+        }
+        cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
+#else
+        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+    }
+
+/* Implementation type IV - Inputs and Outputs are HC++ double array containers */
+    
+    else if (Imple_type == 4) {
+        Concurrency::array<double> xView(lenx, X);
+        Concurrency::array<double> yView(leny, Y);
+        std::vector<double> HostX(lenx);
+        std::vector<double> HostY(leny);
+        for(int i = 0;i < lenx;i++){
+            HostX[i] = rand() % 10;
+            X[i] = HostX[i];
+        }
+        for(int i = 0;i < leny;i++){
+            HostY[i] =  rand() % 15;
+#ifdef LINUX
+            Ycblas[i] = Y[i];
+#endif
+        }
         Concurrency::copy(begin(HostX), end(HostX), xView);
         Concurrency::copy(begin(HostY), end(HostY), yView);
         status = hc.hcblas_dcopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
         Concurrency::copy(yView, begin(HostY));
 #ifdef LINUX
-        cblas_dcopy( N, X, incX, Ycblas, incY);
+        cblas_dcopy( N, X, incX, Ycblas, incY );
         for(int i = 0; i < leny; i++){
             if (HostY[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" HCDCOPY[" << i<< "] " << HostY[i] << " does not match with CBLASDCOPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" HCSCOPY[" << i<< "] " << HostY[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
@@ -98,12 +177,19 @@ int main(int argc, char** argv)
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
      }
-    else { 
+
+/* Implementation type V - Inputs and Outputs are HC++ double array containers with batch processing */
+
+    else{ 
+        Concurrency::array<double> xbatchView(lenx * batchSize, Xbatch);
+        Concurrency::array<double> ybatchView(leny * batchSize, Ybatch);
+        std::vector<double> HostX_batch(lenx * batchSize);
+        std::vector<double> HostY_batch(leny * batchSize);
         for(int i = 0;i < lenx * batchSize;i++){
             HostX_batch[i] = rand() % 10;
             Xbatch[i] = HostX_batch[i];
-         }
-       for(int i = 0;i < leny * batchSize;i++){
+        }
+        for(int i = 0;i < leny * batchSize;i++){
             HostY_batch[i] =  rand() % 15;
 #ifdef LINUX
             Ycblasbatch[i] = HostY_batch[i];
@@ -119,7 +205,7 @@ int main(int argc, char** argv)
         for(int i =0; i < leny * batchSize; i ++){
             if (HostY_batch[i] != Ycblasbatch[i]){
                 ispassed = 0;
-                cout <<" HCDCOPY[" << i<< "] " <<  HostY_batch[i] << " does not match with CBLASDCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;
+                cout <<" HCSCOPY[" << i<< "] " <<HostY_batch[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;
                 break;
             }
             else 

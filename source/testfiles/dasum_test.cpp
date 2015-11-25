@@ -33,23 +33,21 @@ int main(int argc, char** argv)
     long lenx = 1 + (N-1) * abs(incX);
     double *X = (double*)calloc(lenx, sizeof(double));
     double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
-    Concurrency::array<double> xView(lenx, X);
-    Concurrency::array<double> xbatchView(lenx * batchSize, Xbatch);
-    std::vector<double> HostX(lenx);
-    std::vector<double> HostX_batch(lenx * batchSize);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    for(int i = 0;i < lenx;i++) {
-        HostX[i] = rand() % 10;
-        X[i] = HostX[i];
-    }
+
+/* Implementation type I - Inputs and Outputs are host double pointers */
+
     if (Imple_type == 1) {
+        for(int i = 0;i < lenx;i++){
+            X[i] = rand() % 10;
+        }
 	status = hc.hcblas_dasum(N, X, incX, xOffset, &asumhcblas);
 #ifdef LINUX
         asumcblas = cblas_dasum( N, X, incX);
-        if (asumhcblas != asumcblas){
+        if (asumhcblas != asumcblas) {
             ispassed = 0;
-            cout <<" HCDASUM " << asumhcblas << " does not match with CBLASDASUM "<< asumcblas << endl;
+            cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
         }
         cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
 #else
@@ -57,15 +55,21 @@ int main(int argc, char** argv)
 #endif
         free(X);
     }
-      
-    else if (Imple_type ==2) {
-        Concurrency::copy(begin(HostX), end(HostX), xView);
+
+/* Implementation type II - Inputs and Outputs are HC++ double array_view containers */
+
+    else if (Imple_type == 2) {
+        Concurrency::array_view<double> xView(lenx, X);
+        for(int i = 0;i < lenx; i++) {
+            xView[i] = rand() % 10;
+            X[i] = xView[i];
+        }
         status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
 #ifdef LINUX
         asumcblas = cblas_dasum( N, X, incX);
-        if (asumhcblas != asumcblas){
+        if (asumhcblas != asumcblas) {
             ispassed = 0;
-            cout <<" HCDASUM " << asumhcblas << " does not match with CBLASDASUM "<< asumcblas << endl;
+            cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
         }
         cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
 #else
@@ -73,21 +77,73 @@ int main(int argc, char** argv)
 #endif
      }
 
-    else{ 
-        for(int i = 0;i < lenx * batchSize;i++){
+/* Implementation type III - Inputs and Outputs are HC++ double array_view containers with batch processing */
+
+     else if (Imple_type == 3) {
+        Concurrency::array_view<double> xbatchView(lenx * batchSize, Xbatch);
+        for(int i = 0;i < lenx * batchSize;i++) {
+            xbatchView[i] = rand() % 10;
+            Xbatch[i] = xbatchView[i];
+         }
+
+        status= hc.hcblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
+#ifdef LINUX
+        for(int i = 0; i < batchSize; i++){
+            asumcblastemp[i] = cblas_dasum( N, Xbatch + i * N, incX);
+            asumcblas += asumcblastemp[i];
+        }
+        if (asumhcblas != asumcblas){
+            ispassed = 0;
+            cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
+        }
+        cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
+#else
+        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+    }
+
+/* Implementation type IV - Inputs and Outputs are HC++ double array containers */
+      
+    else if (Imple_type == 4) {
+        Concurrency::array<double> xView(lenx, X);
+        std::vector<double> HostX(lenx);
+        for(int i = 0;i < lenx;i++){
+            HostX[i] = rand() % 10;
+            X[i] = HostX[i];
+        }
+        Concurrency::copy(begin(HostX), end(HostX), xView);
+        status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
+#ifdef LINUX
+        asumcblas = cblas_dasum( N, X, incX);
+        if (asumhcblas != asumcblas) {
+            ispassed = 0;
+            cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
+        }
+        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+#else
+        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+     }
+
+/* Implementation type V - Inputs and Outputs are HC++ double array containers with batch processing */
+
+    else{
+        Concurrency::array<double> xbatchView(lenx * batchSize, Xbatch);
+        std::vector<double> HostX_batch(lenx * batchSize);
+        for(int i = 0;i < lenx * batchSize;i++) {
             HostX_batch[i] = rand() % 10;
             Xbatch[i] = HostX_batch[i];
          }
         Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         status= hc.hcblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
 #ifdef LINUX
-        for(int i = 0; i < batchSize; i++){
+        for(int i = 0; i < batchSize; i++) {
         	asumcblastemp[i] = cblas_dasum( N, Xbatch + i * N, incX);
                 asumcblas += asumcblastemp[i];
         }
-        if (asumhcblas != asumcblas){
+        if (asumhcblas != asumcblas) {
             ispassed = 0;
-            cout <<" HCDASUM " << asumhcblas << " does not match with CBLASDASUM "<< asumcblas << endl;
+            cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
         }
         cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
 #else

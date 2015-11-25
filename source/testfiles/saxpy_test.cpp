@@ -33,25 +33,22 @@ int main(int argc, char** argv)
     long leny = 1 + (N-1) * abs(incY);
     float *X = (float*)calloc(lenx, sizeof(float));
     float *Y = (float*)calloc(leny, sizeof(float));
-    Concurrency::array<float> xView(lenx, X);
-    Concurrency::array<float> yView(leny, Y);
-    std::vector<float> HostX(lenx);
-    std::vector<float> HostY(leny);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-    for(int i = 0;i < lenx;i++){
-        HostX[i] = rand() % 10;
-        X[i] = HostX[i];
-    }
-    for(int iter=0; iter<10; iter++) {
+
+/* Implementation type I - Inputs and Outputs are host float pointers */
+ 
+    if (Imple_type == 1) {
+        for(int i = 0;i < lenx;i++){
+            X[i] = rand() % 10;
+        }
+        for(int iter=0; iter<10; iter++) {
         for(int i = 0;i < leny;i++){
-            HostY[i] =  rand() % 15;
-            Y[i] = HostY[i];
+            Y[i] =  rand() % 15;
 #ifdef LINUX
             Ycblas[i] = Y[i];
 #endif
-    }    
-    if (Imple_type == 1) {
+        }
 	status = hc.hcblas_saxpy(N, &alpha, X, incX, Y, incY , xOffset, yOffset);
 #ifdef LINUX
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
@@ -68,8 +65,103 @@ int main(int argc, char** argv)
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+        }
      }
-    else if(Imple_type ==2) {
+
+/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
+
+     else if (Imple_type ==2) {
+        Concurrency::array_view<float> xView(lenx, X);
+        Concurrency::array_view<float> yView(leny, Y);
+        for(int i = 0; i < lenx; i++) {
+            xView[i] = rand() % 10;
+            X[i] = xView[i];
+        }
+        for(int iter = 0; iter < 10; iter++) {
+        for(int i = 0; i < leny; i++) {
+            yView[i] =  rand() % 15;
+#ifdef LINUX
+            Ycblas[i] = Y[i];
+#endif
+        }
+        status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
+#ifdef LINUX
+        cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
+        for(int i = 0; i < leny ; i++){
+            if (yView[i] != Ycblas[i]){
+                ispassed = 0;
+                cout <<" HCSAXPY[" << i<< "] " << yView[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
+                break;
+            }
+            else
+                continue;
+        }
+        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+#else
+        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+        }
+     }
+
+/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
+
+    else if(Imple_type == 3) {
+        float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
+        float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
+#ifdef LINUX
+        float *Ycblasbatch = (float*)calloc(leny * batchSize, sizeof(float));
+#endif
+        Concurrency::array_view<float> xbatchView(lenx * batchSize, Xbatch);
+        Concurrency::array_view<float> ybatchView(leny * batchSize, Ybatch);
+        for(int i = 0;i < lenx * batchSize;i++){
+            xbatchView[i] = rand() % 10;
+            Xbatch[i] = xbatchView[i];
+        }
+        for(int iter = 0; iter < 10; iter++) {
+        for(int i = 0;i < leny * batchSize;i++){
+            ybatchView[i] =  rand() % 15;
+            Ybatch[i] = ybatchView[i];
+#ifdef LINUX
+            Ycblasbatch[i] = Ybatch[i];
+#endif
+         }
+        status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
+#ifdef LINUX
+        for(int i = 0; i < batchSize; i++)
+                cblas_saxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
+        for(int i =0; i < leny * batchSize; i++){
+            if (ybatchView[i] != Ycblasbatch[i]){
+                ispassed = 0;
+                cout <<" HCSAXPY[" << i<< "] " << ybatchView[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblasbatch[i] << endl;
+                break;
+            }
+            else
+              continue;
+        }
+        cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
+#else
+        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+        }
+    }
+
+/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
+    else if(Imple_type == 4) {
+        Concurrency::array<float> xView(lenx, X);
+        Concurrency::array<float> yView(leny, Y);
+        std::vector<float> HostX(lenx);
+        std::vector<float> HostY(leny);
+        for(int i = 0;i < lenx;i++){
+             HostX[i] = rand() % 10;
+             X[i] = HostX[i];
+        }
+        for(int iter=0; iter<10; iter++) {
+        for(int i = 0; i < leny; i++) {
+             HostY[i] =  rand() % 15;
+#ifdef LINUX
+             Ycblas[i] = HostY[i];
+#endif
+        }
         Concurrency::copy(begin(HostX), end(HostX), xView);
         Concurrency::copy(begin(HostY), end(HostY), yView);
         status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
@@ -89,7 +181,10 @@ int main(int argc, char** argv)
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+        }
      }
+
+/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
 
     else{
         float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
@@ -105,7 +200,8 @@ int main(int argc, char** argv)
             HostX_batch[i] = rand() % 10;
             Xbatch[i] = HostX_batch[i];
          }
-       for(int i = 0;i < leny * batchSize;i++){
+        for(int iter = 0; iter < 10; iter++) {
+        for(int i = 0;i < leny * batchSize;i++){
             HostY_batch[i] =  rand() % 15;
             Ybatch[i] = HostY_batch[i];
 #ifdef LINUX
@@ -132,7 +228,7 @@ int main(int argc, char** argv)
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+        }
     }
-  }
     return 0;
 }

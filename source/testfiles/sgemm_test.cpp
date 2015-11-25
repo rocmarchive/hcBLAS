@@ -10,7 +10,7 @@ int main(int argc,char* argv[])
 {  
     /* HCBLAS Implementation */
     Hcblaslibrary hc; 
-    if (argc < 7){
+    if (argc < 7) {
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;
     }
@@ -35,22 +35,22 @@ int main(int argc,char* argv[])
     long C_batchOffset = M * N;
     int batchSize = 128;
     hcblasOrder hcOrder = ColMajor;
-    hcblasTranspose typeA,typeB ;
+    hcblasTranspose typeA, typeB;
     hcblasStatus status;
     if((isTransA == 0 || isTransA == 1) && (isTransB == 0 || isTransB == 1)) {
-        if( isTransA == 0){
+        if(isTransA == 0) {
             typeA = NoTrans;
             lda = (hcOrder)? M : K;
         }
-        else{
+        else {
             typeA = Trans;
             lda = (hcOrder)? K : M;
         }
-        if( isTransB == 0){
+        if(isTransB == 0) {
             typeB = NoTrans;
             ldb = (hcOrder)? K : N;
         }
-        else{
+        else {
             typeB = Trans;
             ldb = (hcOrder)? N : K;
         }
@@ -74,37 +74,31 @@ int main(int argc,char* argv[])
     float *Asgemm = (float*) calloc(M * K, sizeof(float));
     float *Bsgemm = (float*) calloc(K * N, sizeof(float));
     float *Csgemm = (float*) calloc(M * N, sizeof(float));
-    Concurrency::array<float, 1> A_mat(K * M, Asgemm);
-    Concurrency::array<float, 1> B_mat(N * K, Bsgemm);
-    Concurrency::array<float, 1> C_mat(M * N, Csgemm);
     if(M > 3000 && N > 3000){
 	batchSize = 25;
     }
     if(M > 9000 && N > 9000){
         batchSize = 1;
     }
-    std::vector<float> HostA(M * K);
-    std::vector<float> HostB(K * N);
-    std::vector<float> HostC(M * N);
     std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view()); 
-    for(int i = 0; i < M * K; i++){
-        HostA[i] = rand()%100;
-        Asgemm[i] = HostA[i];
-    }
-    for(int i = 0; i < K * N;i++){
-        HostB[i] = rand() % 15;
-        Bsgemm[i] = HostB[i];
-    }
-    for(int iter = 0; iter < 10; iter++) { 
-        for(int i = 0; i < M * N;i++)  {
-            HostC[i] = rand() % 25;
+
+/* Implementation type I - Inputs and Outputs are host float pointers */
+
+       if(Imple_type == 1) {    
+            for(int i = 0; i < M * K; i++) {
+                Asgemm[i] = rand() % 100;
+            }
+            for(int i = 0; i < K * N;i++) {
+                Bsgemm[i] = rand() % 15;
+            }
+            for(int iter = 0; iter < 10; iter++) {
+            for(int i = 0; i < M * N;i++) {
+                Csgemm[i] = rand() % 25;
 #ifdef LINUX
-            C_cblas[i] = HostC[i];
+                C_cblas[i] = Csgemm[i];
 #endif
-            Csgemm[i] = HostC[i];
-        }
-       if(Imple_type == 1) {    /* SINGLE GPU CALL   */
+            }
             status = hc.hcblas_sgemm(hcOrder, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
 #ifdef LINUX
             cblas_sgemm(order, Transa, Transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc);
@@ -121,8 +115,123 @@ int main(int argc,char* argv[])
 #else
             cout << (status?"TEST FAILED":"TEST PASSED")<<endl;
 #endif
+           }
+       }
+
+/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
+
+       else if(Imple_type ==2) {
+            Concurrency::array_view<float> A_mat(K * M, Asgemm);
+            Concurrency::array_view<float> B_mat(N * K, Bsgemm);
+            Concurrency::array_view<float> C_mat(M * N, Csgemm);
+            for(int i = 0; i < M * K; i++) {
+                A_mat[i] = rand() % 100;
+                Asgemm[i] = A_mat[i];
+            }
+            for(int i = 0; i < K * N;i++) {
+                B_mat[i] = rand() % 15;
+                Bsgemm[i] = B_mat[i];
+            }
+            for(int iter = 0; iter < 10; iter++) {
+            for(int i = 0; i < M * N;i++) {
+                C_mat[i] = rand() % 25;
+                Csgemm[i] = C_mat[i];
+#ifdef LINUX
+                C_cblas[i] = C_mat[i];
+#endif
+            }
+            status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
+#ifdef LINUX
+            cblas_sgemm(order, Transa, Transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc);
+            for(int i = 0 ; i < M * N ; i++) {
+                if( C_cblas[i] != (C_mat[i])) {
+                    ispassed = 0;
+                    cout << " HCSGEMM["<<i<<"] = "<<C_mat[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i] << endl;
+                    break;
+                }
+                else
+                   continue;
+            }
+            cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
+#else
+            cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+           }
         }
-        else if(Imple_type ==2) {/* MULTIPLE GPU CALL */
+
+/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
+
+       else if(Imple_type ==3) {
+            float *Asgemm_batch = (float*) calloc(M * K, sizeof(float));
+            float *Bsgemm_batch = (float*) calloc(K * N, sizeof(float));
+            float *Csgemm_batch = (float*) calloc(M * N * batchSize, sizeof(float));
+#ifdef LINUX
+            float *CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));
+#endif
+            Concurrency::array_view<float> A_batch(K * M, Asgemm_batch);
+            Concurrency::array_view<float> B_batch(N * K, Bsgemm_batch);
+            Concurrency::array_view<float> C_batch(M * N * batchSize, Csgemm_batch);
+            for(int i = 0; i < M * K; i++) {
+                A_batch[i] = rand()%100;
+                Asgemm_batch[i] = A_batch[i];
+            }
+            for(int i = 0; i < K * N;i++) {
+                B_batch[i] = rand() % 15;
+                Bsgemm_batch[i] = B_batch[i];
+            }
+            for(int iter = 0; iter < 10; iter++) {
+            for(int i = 0; i < M * N * batchSize;i++) {
+                C_batch[i] = rand() % 25;
+                Csgemm_batch[i] = C_batch[i];
+#ifdef LINUX
+                CCblasbatch[i] = Csgemm_batch[i];
+#endif
+            }
+            status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+#ifdef LINUX
+            for(int i = 0; i < batchSize; i++)
+                cblas_sgemm( order, Transa, Transb, M, N, K, alpha, Asgemm_batch, lda, Bsgemm_batch, ldb, beta, CCblasbatch  + i * M * N ,ldc );
+            for(int i = 0 ; i < M * N * batchSize; i++) {
+                if( C_batch[i] != (CCblasbatch[i])) {
+                    ispassed = 0;
+                    cout << " HCSGEMM["<<i<<"] = "<<C_batch[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << CCblasbatch[i] << endl;
+                    break;
+                }
+                else
+                   continue;
+            }
+            cout << (ispassed?"TEST PASSED":"TEST FAILED")<< endl;
+#else
+            cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+#endif
+            }
+        }
+
+/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
+
+        else if(Imple_type == 4) {/* MULTIPLE GPU CALL */
+            Concurrency::array<float, 1> A_mat(K * M, Asgemm);
+            Concurrency::array<float, 1> B_mat(N * K, Bsgemm);
+            Concurrency::array<float, 1> C_mat(M * N, Csgemm);
+            std::vector<float> HostA(M * K);
+            std::vector<float> HostB(K * N);
+            std::vector<float> HostC(M * N);
+            for(int i = 0; i < M * K; i++) {
+                HostA[i] = rand()%100;
+                Asgemm[i] = HostA[i];
+            }
+            for(int i = 0; i < K * N;i++) {
+                HostB[i] = rand() % 15;
+                Bsgemm[i] = HostB[i];
+            }
+            for(int iter = 0; iter < 10; iter++) {
+            for(int i = 0; i < M * N;i++) {
+            HostC[i] = rand() % 25;
+#ifdef LINUX
+            C_cblas[i] = HostC[i];
+#endif
+            Csgemm[i] = HostC[i];
+            }
             Concurrency::copy(begin(HostA), end(HostA), A_mat);
             Concurrency::copy(begin(HostB), end(HostB), B_mat);
             Concurrency::copy(begin(HostC), end(HostC), C_mat);
@@ -143,10 +252,12 @@ int main(int argc,char* argv[])
 #else
             cout << (status?"TEST FAILED":"TEST PASSED")<<endl;
 #endif
+            }
         }
-     
+    
+/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+ 
         else {         
-           /* BATCH PROCESSING */
             float *Asgemm_batch = (float*) calloc(M * K, sizeof(float));
             float *Bsgemm_batch = (float*) calloc(K * N, sizeof(float));
             float *Csgemm_batch = (float*) calloc(M * N * batchSize, sizeof(float));
@@ -156,16 +267,19 @@ int main(int argc,char* argv[])
             Concurrency::array<float> A_batch(K * M, Asgemm_batch);
             Concurrency::array<float> B_batch(N * K, Bsgemm_batch);
             Concurrency::array<float> C_batch(M * N * batchSize, Csgemm_batch);
+            std::vector<float> HostA(M * K);
+            std::vector<float> HostB(K * N);
             std::vector<float> HostC_batch(M * N * batchSize);
-            for(int i = 0; i < M * K; i++){
+            for(int i = 0; i < M * K; i++) {
                 HostA[i] = rand()%100;
                 Asgemm_batch[i] = HostA[i];
             }
-            for(int i = 0; i < K * N;i++){
+            for(int i = 0; i < K * N;i++) {
                 HostB[i] = rand() % 15;
                 Bsgemm_batch[i] = HostB[i];
             }
-            for(int i = 0; i < M * N * batchSize;i++)  {
+            for(int iter = 0; iter < 10; iter++) {
+            for(int i = 0; i < M * N * batchSize;i++) {
                 HostC_batch[i] = rand() % 25;
                 Csgemm_batch[i] = HostC_batch[i];
 #ifdef LINUX
@@ -194,7 +308,7 @@ int main(int argc,char* argv[])
 #else
             cout << (status?"TEST FAILED":"TEST PASSED")<<endl;
 #endif
-    	}
+    	    } 
        } 
     return 0;   
 }
