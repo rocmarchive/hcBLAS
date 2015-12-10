@@ -2,7 +2,7 @@
 
 ##Introduction: ##
 
-This repository hosts the C++ AMP implementation of BLAS subroutines. The following are the sub-routines that are implemented
+This repository hosts the HCC implementation of BLAS subroutines. The following are the sub-routines that are implemented
 
 1. Sgemm  : Single Precision real valued general matrix-matrix multiplication
 2. Cgemm  : Complex valued general matrix matrix multiplication
@@ -30,11 +30,10 @@ This repository hosts the C++ AMP implementation of BLAS subroutines. The follow
 
 ## Installation Steps:    
 
-### A. C++ AMP Compiler Installation: 
+### A. HCC Compiler Installation: 
 
-Use either (i) or (ii) to install the compiler.
 
-**(i) Install through debian package:**
+**Install HCC compiler debian package:**
 
   Download the debian package from the link given below,
   
@@ -50,45 +49,7 @@ Use either (i) or (ii) to install the compiler.
   Note: 
       Ignore clamp-bolt, Bolt is not required for hcblas.
     
-**(ii) Build from source **
 
-  To build the compiler from source follow the steps given below,
- 
-  Make sure the parent directory chosen is say ~/ or any other folder of your choice. Lets take ~/ as an example
-
-  (a) Prepare a directory for work space
-
-       * mkdir ~/mcw_cppamp
-
-       * cd ~/mcw_cppamp 
-   
-       * git clone https://bitbucket.org/multicoreware/hcc.git src
-
-       * cd ~/mcw_cppamp/src/
-
-       * git checkout origin/master
-
-  (b) Create a build directory and configure using CMake.
-
-       * mkdir ~/mcw_cppamp/build
-
-       * cd ~/mcw_cppamp/build
-
-       * export CLAMP_NOTILECHECK=ON
-       
-       * cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON -DOPENCL_HEADER_DIR=<path to SDK's OpenCL headers> -DOPENCL_LIBRARY_DIR=<path to SDK's OpenCL library>, 
-
-       * for example cmake ../src -DCMAKE_BUILD_TYPE=Release -DCXXAMP_ENABLE_BOLT=ON  -DOPENCL_HEADER_DIR=/opt/AMDAPPSDK-2.9-1/include/CL/ -DOPENCL_LIBRARY_DIR=/opt/AMDAPPSDK-2.9-1/lib/x86_64/
-
-  (c) Build AMP
-
-       * cd ~/mcw_cppamp/build
-
-       * make [-j#] world && make          (# is the number of parallel builds. Generally it is # of CPU cores)
-
-       * For example: make -j8 world && make
-
-With this the C++ AMP Compiler installation is complete.
 
 ### B. HCBLAS Installation 
 
@@ -100,16 +61,13 @@ With this the C++ AMP Compiler installation is complete.
 
        * cd ~/hcblas
 
-       * git checkout Array_KALMAR_wrapper
+       * git checkout origin/master
    
 (ii) Platform-specific build
 
 (a) For Linux:  
 
        * cd ~/hcblas/Build/linux
-       
-       * If the compiler has build from source export the following,
-          export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
 
        * sh build.sh
 
@@ -140,9 +98,6 @@ With this the C++ AMP Compiler installation is complete.
 (a) For Linux:
 
      * cd ~/hcblas/source/testfiles/build/linux
-     
-     * If the compiler has build from source export the following,
-       export MCWCPPAMPBUILD=<path/to/mcw_cppamp/build>
      
      * sh build.sh
      
