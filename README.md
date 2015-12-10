@@ -60,8 +60,6 @@ This repository hosts the HCC implementation of BLAS subroutines. The following 
        * git clone https://bitbucket.org/multicoreware/hcblas.git 
 
        * cd ~/hcblas
-
-       * git checkout origin/master
    
 (ii) Platform-specific build
 
