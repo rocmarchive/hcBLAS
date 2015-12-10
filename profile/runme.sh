@@ -3,7 +3,7 @@
 cd $HCBLAS_PATH/Build/linux/
 sh clean.sh
 sh build.sh
-make install
+sudo make install
 cd $HCBLAS_PATH/source/testfiles/build/linux/
 sh clean.sh
 sh build.sh
