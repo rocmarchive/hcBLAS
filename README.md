@@ -71,7 +71,7 @@ This repository hosts the HCC implementation of BLAS subroutines. The following 
 
        * sh build.sh
 
-       * make
+       * sudo make install
 
 (b)  For Windows: (Prerequisite: Visual Studio 12 version )
        
