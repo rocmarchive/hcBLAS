@@ -62,7 +62,7 @@ Use either (i) or (ii) to install the compiler.
 
        * cd ~/mcw_cppamp 
    
-       * git clone https://bitbucket.org/multicoreware/cppamp-driver-ng-35.git src
+       * git clone https://bitbucket.org/multicoreware/hcc.git src
 
        * cd ~/mcw_cppamp/src/
 
@@ -227,4 +227,4 @@ Note:
 
        * cd ~/hcblas/source/testfiles/build/vc11-x86_64
 
-       * make-solutions.bat (This creates a Visual Studio solution for hcblastest Library)         
+       * make-solutions.bat (This creates a Visual Studio solution for hcblastest Library)
