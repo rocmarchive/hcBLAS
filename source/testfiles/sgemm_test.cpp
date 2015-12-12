@@ -92,7 +92,9 @@ int main(int argc,char* argv[])
             for(int i = 0; i < K * N;i++) {
                 Bsgemm[i] = rand() % 15;
             }
+#ifdef PROFILE
             for(int iter = 0; iter < 10; iter++) {
+#endif
             for(int i = 0; i < M * N;i++) {
                 Csgemm[i] = rand() % 25;
 #ifdef LINUX
@@ -115,7 +117,9 @@ int main(int argc,char* argv[])
 #else
             cout << (status?"TEST FAILED":"TEST PASSED")<<endl;
 #endif
+#ifdef PROFILE
            }
+#endif
        }
 
 /* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
@@ -132,7 +136,9 @@ int main(int argc,char* argv[])
                 B_mat[i] = rand() % 15;
                 Bsgemm[i] = B_mat[i];
             }
+#ifdef PROFILE
             for(int iter = 0; iter < 10; iter++) {
+#endif
             for(int i = 0; i < M * N;i++) {
                 C_mat[i] = rand() % 25;
                 Csgemm[i] = C_mat[i];
@@ -156,7 +162,9 @@ int main(int argc,char* argv[])
 #else
             cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+#ifdef PROFILE
            }
+#endif
         }
 
 /* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
@@ -179,7 +187,9 @@ int main(int argc,char* argv[])
                 B_batch[i] = rand() % 15;
                 Bsgemm_batch[i] = B_batch[i];
             }
+#ifdef PROFILE
             for(int iter = 0; iter < 10; iter++) {
+#endif
             for(int i = 0; i < M * N * batchSize;i++) {
                 C_batch[i] = rand() % 25;
                 Csgemm_batch[i] = C_batch[i];
@@ -204,7 +214,9 @@ int main(int argc,char* argv[])
 #else
             cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+#ifdef PROFILE
             }
+#endif
         }
 
 /* Implementation type IV - Inputs and Outputs are HC++ float array containers */
@@ -224,7 +236,9 @@ int main(int argc,char* argv[])
                 HostB[i] = rand() % 15;
                 Bsgemm[i] = HostB[i];
             }
+#ifdef PROFILE
             for(int iter = 0; iter < 10; iter++) {
+#endif
             for(int i = 0; i < M * N;i++) {
             HostC[i] = rand() % 25;
 #ifdef LINUX
@@ -252,7 +266,9 @@ int main(int argc,char* argv[])
 #else
             cout << (status?"TEST FAILED":"TEST PASSED")<<endl;
 #endif
+#ifdef PROFILE
             }
+#endif
         }
     
 /* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
@@ -278,7 +294,9 @@ int main(int argc,char* argv[])
                 HostB[i] = rand() % 15;
                 Bsgemm_batch[i] = HostB[i];
             }
+#ifdef PROFILE
             for(int iter = 0; iter < 10; iter++) {
+#endif
             for(int i = 0; i < M * N * batchSize;i++) {
                 HostC_batch[i] = rand() % 25;
                 Csgemm_batch[i] = HostC_batch[i];
@@ -308,7 +326,9 @@ int main(int argc,char* argv[])
 #else
             cout << (status?"TEST FAILED":"TEST PASSED")<<endl;
 #endif
+#ifdef PROFILE
     	    } 
+#endif
        } 
     return 0;   
 }

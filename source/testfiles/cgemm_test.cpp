@@ -110,7 +110,9 @@ int main(int argc, char* argv[])
              b[k++] = Bhc[i].real;
              b[k++] = Bhc[i].img;
         }
+#ifdef PROFILE
         for(int iter=0; iter<10; iter++) {
+#endif
         k = 0;
         for (int i = 0;i < M * N; i++) {
             Chc[i].real = rand() % 18;
@@ -135,7 +137,9 @@ int main(int argc, char* argv[])
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+#ifdef PROFILE
         }
+#endif
     }
 
 /* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
@@ -158,7 +162,9 @@ int main(int argc, char* argv[])
             b[k++] = B[i].x;
             b[k++] = B[i].y;
         }
+#ifdef PROFILE
         for(int iter=0; iter<10; iter++) {
+#endif
         k = 0;
         for (int i = 0;i < M * N; i++) {
             C[i].x = rand() % 18;
@@ -184,7 +190,9 @@ int main(int argc, char* argv[])
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+#ifdef PROFILE
         }
+#endif
     }
 
 /* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
@@ -211,8 +219,9 @@ int main(int argc, char* argv[])
            bbatch[k++] = Bbatch[i].x;
            bbatch[k++] = Bbatch[i].y;
         }
-
+#ifdef PROFILE
         for(int iter=0; iter<10; iter++) {
+#endif
         k = 0;
         for (int i = 0;i < M * N * batchSize; i++) {
            Cbatch[i].x = rand() % 18;
@@ -239,7 +248,9 @@ int main(int argc, char* argv[])
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+#ifdef PROFILE
         }
+#endif
     }
 
 /* Implementation type IV - Inputs and Outputs are HC++ float array containers */
@@ -265,7 +276,9 @@ int main(int argc, char* argv[])
             b[k++] = HostB[i].x;
             b[k++] = HostB[i].y;
         }
+#ifdef PROFILE
         for (int iter=0; iter<10; iter++) {
+#endif
         k = 0;
         for (int i = 0;i < M * N; i++) {
             HostC[i].x = rand() % 18;
@@ -294,7 +307,9 @@ int main(int argc, char* argv[])
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+#ifdef PROFILE
         }
+#endif
     }
 
 /* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
@@ -324,7 +339,9 @@ int main(int argc, char* argv[])
            bbatch[k++] = HostB[i].x;
            bbatch[k++] = HostB[i].y;
         }
+#ifdef PROFILE
         for(int iter=0; iter<10; iter++) {   
+#endif
         k = 0;
         for (int i = 0;i < M * N * batchSize; i++) {
            HostC_batch[i].x = rand() % 18;
@@ -353,7 +370,9 @@ int main(int argc, char* argv[])
 #else
         cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
 #endif
+#ifdef PROFILE
         }
+#endif
     }
     return 0;
 }

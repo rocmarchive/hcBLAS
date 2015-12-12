@@ -6,7 +6,7 @@ sh build.sh
 sudo make install
 cd $HCBLAS_PATH/source/testfiles/build/linux/
 sh clean.sh
-sh build.sh
+sh build.sh PROFILE=ON
 make
 cd $HCBLAS_PATH/profile/
 ./runmesgemm.sh
