@@ -1,28 +1,24 @@
 #!/bin/bash
-
-cd $HCBLAS_PATH/Build/linux/
-sh clean.sh
-sh build.sh
-sudo make install
-cd $HCBLAS_PATH/source/testfiles/build/linux/
+CURRENTDIR=$PWD
+cd $CURRENTDIR/../build/linux/
 sh clean.sh
 sh build.sh
 make
-cd $HCBLAS_PATH/source/testfiles/Unit_tests/
-path2sgemm="$HCBLAS_PATH/source/testfiles/build/linux/bin/sgemm"
-path2cgemm="$HCBLAS_PATH/source/testfiles/build/linux/bin/cgemm"
-path2sgemv="$HCBLAS_PATH/source/testfiles/build/linux/bin/sgemv"
-path2sger="$HCBLAS_PATH/source/testfiles/build/linux/bin/sger"
-path2saxpy="$HCBLAS_PATH/source/testfiles/build/linux/bin/saxpy"
-path2sscal="$HCBLAS_PATH/source/testfiles/build/linux/bin/sscal"
-path2dscal="$HCBLAS_PATH/source/testfiles/build/linux/bin/dscal"
-path2scopy="$HCBLAS_PATH/source/testfiles/build/linux/bin/scopy"
-path2dcopy="$HCBLAS_PATH/source/testfiles/build/linux/bin/dcopy"
-path2sasum="$HCBLAS_PATH/source/testfiles/build/linux/bin/sasum"
-path2dasum="$HCBLAS_PATH/source/testfiles/build/linux/bin/dasum"
-path2sdot="$HCBLAS_PATH/source/testfiles/build/linux/bin/sdot"
-path2ddot="$HCBLAS_PATH/source/testfiles/build/linux/bin/ddot"
-workingdir="$HCBLAS_PATH/source/testfiles/Unit_tests/"
+cd $CURRENTDIR/
+path2sgemm="$CURRENTDIR/../build/linux/bin/sgemm"
+path2cgemm="$CURRENTDIR/../build/linux/bin/cgemm"
+path2sgemv="$CURRENTDIR/../build/linux/bin/sgemv"
+path2sger="$CURRENTDIR/../build/linux/bin/sger"
+path2saxpy="$CURRENTDIR/../build/linux/bin/saxpy"
+path2sscal="$CURRENTDIR/../build/linux/bin/sscal"
+path2dscal="$CURRENTDIR/../build/linux/bin/dscal"
+path2scopy="$CURRENTDIR/../build/linux/bin/scopy"
+path2dcopy="$CURRENTDIR/../build/linux/bin/dcopy"
+path2sasum="$CURRENTDIR/../build/linux/bin/sasum"
+path2dasum="$CURRENTDIR/../build/linux/bin/dasum"
+path2sdot="$CURRENTDIR/../build/linux/bin/sdot"
+path2ddot="$CURRENTDIR/../build/linux/bin/ddot"
+workingdir="$CURRENTDIR"
 
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
