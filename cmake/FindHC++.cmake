@@ -40,11 +40,11 @@ if(EXISTS /opt/hcc/bin/clang++)
   # Build mode
   set (CLANG_AMP "${HC++_BIN_DIR}/clang++")
   set (CLAMP_CONFIG "${HC++_CONFIGURE_DIR}/clamp-config")
-  execute_process(COMMAND ${CLAMP_CONFIG} --bolt --cxxflags
+  execute_process(COMMAND ${CLAMP_CONFIG} --cxxflags
                   OUTPUT_VARIABLE CLAMP_CXXFLAGS)
   string(STRIP "${CLAMP_CXXFLAGS}" CLAMP_CXXFLAGS)
   set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS}")
-  execute_process(COMMAND ${CLAMP_CONFIG} --bolt --ldflags --shared
+  execute_process(COMMAND ${CLAMP_CONFIG} --ldflags --shared
                   OUTPUT_VARIABLE CLAMP_LDFLAGS)
   string(STRIP "${CLAMP_LDFLAGS}" CLAMP_LDFLAGS)
   set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS} -Wall -Wno-deprecated-register -Wno-deprecated-declarations")
@@ -72,52 +72,14 @@ elseif(EXISTS ${MCWHCCBUILD})
   # Build mode
   set (CLANG_AMP "${HC++_BIN_DIR}/clang++")
   set (CLAMP_CONFIG "${HC++_CONFIGURE_DIR}/clamp-config")
-  execute_process(COMMAND ${CLAMP_CONFIG} --build --bolt --cxxflags
+  execute_process(COMMAND ${CLAMP_CONFIG} --build --cxxflags
                   OUTPUT_VARIABLE CLAMP_CXXFLAGS)
   string(STRIP "${CLAMP_CXXFLAGS}" CLAMP_CXXFLAGS)
   set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS}")
-  execute_process(COMMAND ${CLAMP_CONFIG} --build --bolt --ldflags --shared
+  execute_process(COMMAND ${CLAMP_CONFIG} --build --ldflags --shared
                   OUTPUT_VARIABLE CLAMP_LDFLAGS)
   string(STRIP "${CLAMP_LDFLAGS}" CLAMP_LDFLAGS)
   set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS} -Wall -Wno-deprecated-register -Wno-deprecated-declarations")
-  set (CLAMP_LDFLAGS "${CLAMP_LDFLAGS}")
-
-else()
-  # Package from installation
-  find_path(HC++_INCLUDE_DIR hc.hpp
-            HINTS /opt /opt/kalmar/include)
-  find_library(HC++_LIBRARY NAMES mcwamp
-              HINTS /opt /opt/kalmar/lib)
-  find_path(HC++_BIN_DIR clang++
-            HINTS /opt/kalmar /opt/kalmar/bin)
-  set(HC++_LIBRARIES ${HC++_LIBRARY} )
-  set(HC++_INCLUDE_DIRS ${HC++_INCLUDE_DIR} )
-
-  include(FindPackageHandleStandardArgs)
-  # handle the QUIETLY and REQUIRED arguments and set HC++_FOUND to TRUE
-  # if all listed variables are TRUE
-  find_package_handle_standard_args(HC++  DEFAULT_MSG
-                                    HC++_BIN_DIR HC++_LIBRARY HC++_INCLUDE_DIR )
-  mark_as_advanced(HC++_BIN_DIR HC++_INCLUDE_DIR HC++_LIBRARY)
-  if (HC++_FOUND)
-    message(STATUS "HC++ Compiler found in ${HC++_BIN_DIR}../")
-    set(CMAKE_C_COMPILER ${HC++_BIN_DIR}/clang)
-    set(CMAKE_CXX_COMPILER ${HC++_BIN_DIR}/clang++)
-  elseif()
-    message(FATAL_ERROR "HC++ Compiler not found.")
-  endif()
-
-  # Installation mode
-  set (CLANG_AMP "${HC++_BIN_DIR}/clang++")
-  set (CLAMP_CONFIG "${HC++_BIN_DIR}/clamp-config")
-  execute_process(COMMAND ${CLAMP_CONFIG} --install --bolt --cxxflags
-                  OUTPUT_VARIABLE CLAMP_CXXFLAGS)
-  string(STRIP "${CLAMP_CXXFLAGS}" CLAMP_CXXFLAGS)
-  set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS}")
-  execute_process(COMMAND ${CLAMP_CONFIG} --install --bolt --ldflags --shared
-                  OUTPUT_VARIABLE CLAMP_LDFLAGS)
-  string(STRIP "${CLAMP_LDFLAGS}" CLAMP_LDFLAGS)
-  set (CLAMP_CXXFLAGS "-hc ${CLAMP_CXXFLAGS} -Wall -Wno-deprecated-register -Wno-deprecated-declarations")
   set (CLAMP_LDFLAGS "${CLAMP_LDFLAGS}")
 
 endif()
