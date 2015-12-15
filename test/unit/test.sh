@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 CURRENTDIR=$PWD
 cd $CURRENTDIR/../../lib/build/linux/
 sh clean.sh
@@ -113,6 +113,6 @@ if [ "$DIFF" != "" ]
 then
     echo "TEST FAILED"
 else
-    echo "TEST PASSED"
+    echo "All Unit Tests Passed!"
 fi 
 rm testlog*

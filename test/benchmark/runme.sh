@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 CURRENTDIR=$PWD
 export HCBLAS_PATH=$CURRENTDIR/../../
 cd $CURRENTDIR/../../lib/build/linux/

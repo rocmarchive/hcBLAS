@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 CURRENTDIR=$PWD
 input1=$1
 var1=${input1,,}
