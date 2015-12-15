@@ -58,9 +58,9 @@ int main(int argc, char** argv)
             ispassed = 0;
             cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
-        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
         free(X);
         free(Y);
@@ -86,9 +86,9 @@ int main(int argc, char** argv)
            ispassed = 0;
            cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
-        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 
      }
@@ -117,9 +117,9 @@ int main(int argc, char** argv)
             ispassed = 0;
             cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
-        cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
     }
 
@@ -147,9 +147,9 @@ int main(int argc, char** argv)
             ispassed = 0;
             cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
-        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
      }
 
@@ -180,9 +180,9 @@ int main(int argc, char** argv)
             ispassed = 0;
             cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
-        cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
     }
     return 0;

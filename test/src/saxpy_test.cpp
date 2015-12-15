@@ -63,9 +63,9 @@ int main(int argc, char** argv)
             else
                 continue;
         }
-        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }
@@ -102,9 +102,9 @@ int main(int argc, char** argv)
             else
                 continue;
         }
-        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }
@@ -148,9 +148,9 @@ int main(int argc, char** argv)
             else
               continue;
         }
-        cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }
@@ -191,9 +191,9 @@ int main(int argc, char** argv)
             else
                 continue;
         }
-        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }
@@ -242,9 +242,9 @@ int main(int argc, char** argv)
             else 
               continue;  
         }
-        cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }

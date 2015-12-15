@@ -54,10 +54,10 @@ int main(int argc, char** argv)
             else
                 continue;
         }
-        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
         free(Xcblas);
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
         free(X);  
     }
@@ -84,9 +84,9 @@ int main(int argc, char** argv)
             else
                 continue;
         }
-        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
      }
 
@@ -114,9 +114,9 @@ int main(int argc, char** argv)
             else
               continue;
         }
-        cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
     }
 
@@ -145,9 +145,9 @@ int main(int argc, char** argv)
             else
                 continue;
         }
-        cout << (ispassed? "TEST PASSED" : "TEST FAILED") <<endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
    }
 
@@ -177,9 +177,9 @@ int main(int argc, char** argv)
             else 
               continue;  
         }
-        cout << (ispassed? "TEST PASSED":"TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
     }
     return 0;

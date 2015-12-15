@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
     cBeta.y = cbeta.img  = 1;
 #ifdef LINUX 
     /* CBLAS implementation */
-    bool isPassed = 1;
+    bool ispassed = 1;
     float alpha[2], beta[2];
     CBLAS_ORDER order = CblasColMajor;
     enum CBLAS_TRANSPOSE Transa, Transb;
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && (k < M * N * 2)) ; i++, k = k + 2){
             if ((Chc[i].real != c[k]) || (Chc[i].img != c[k+1])){
-                isPassed = 0;
+                ispassed = 0;
                 cout <<" HCCGEMM_REAL[" << i<< "] " << Chc[i].real << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
                 cout <<" HCCGEMM_IMG[" << i<< "] " << Chc[i].img << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
             }
@@ -133,9 +133,9 @@ int main(int argc, char* argv[])
                continue;
          
          }
-        cout << (isPassed ? "TEST PASSED" : "TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((C[i].x != c[k]) || (C[i].y != c[k+1])){
-                isPassed = 0;
+                ispassed = 0;
                 cout <<" HCCGEMM_REAL[" << i<< "] " << C[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
                 cout <<" HCCGEMM_IMG[" << i<< "] " << C[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
             }
@@ -186,9 +186,9 @@ int main(int argc, char* argv[])
 
          }
 
-        cout << (isPassed ? "TEST PASSED" : "TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }
@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
              cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
             if ((Cbatch[i].x != cbatch[k]) || (Cbatch[i].y != cbatch[k+1])){
-                isPassed = 0;
+                ispassed = 0;
                 cout <<" HCCGEMM_REAL[" << i<< "] " << Cbatch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
                 cout <<" HCCGEMM_IMG[" << i<< "] " << Cbatch[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[k + 1] << endl;
             }
@@ -244,9 +244,9 @@ int main(int argc, char* argv[])
                continue;
 
         }
-        cout << (isPassed ? "TEST PASSED" : "TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }
@@ -295,7 +295,7 @@ int main(int argc, char* argv[])
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((HostC[i].x != c[k]) || (HostC[i].y != c[k+1])){
-                isPassed = 0;
+                ispassed = 0;
                 cout <<" HCCGEMM_REAL[" << i<< "] " << HostC[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
                 cout <<" HCCGEMM_IMG[" << i<< "] " << HostC[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
             }
@@ -303,9 +303,9 @@ int main(int argc, char* argv[])
                continue;
 
          }
-        cout << (isPassed ? "TEST PASSED" : "TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }
@@ -359,16 +359,16 @@ int main(int argc, char* argv[])
 	     cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
             if ((HostC_batch[i].x != cbatch[k]) || (HostC_batch[i].y != cbatch[k+1])){
-                isPassed = 0;
+                ispassed = 0;
                 cout <<" HCCGEMM_REAL[" << i<< "] " << HostC_batch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
                 cout <<" HCCGEMM_IMG[" << i<< "] " << HostC_batch[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[k + 1] << endl;
             }
             else
                continue;
         }
-        cout << (isPassed ? "TEST PASSED" : "TEST FAILED") << endl;
+        if(!ispassed) cout << "TEST FAILED" << endl; 
 #else
-        cout << (status?"TEST FAILED":"TEST PASSED")<< endl;
+        if(status) cout << "TEST FAILED" << endl; 
 #endif
 #ifdef PROFILE
         }

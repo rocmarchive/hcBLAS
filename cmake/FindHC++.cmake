@@ -18,11 +18,11 @@ endif()
 set(MCWHCCBUILD $ENV{MCWHCCBUILD})
 # Package built from sources
 # Compiler and configure file are two key factors to advance
-if(EXISTS /opt/clamp/bin/clang++)
+if(EXISTS /opt/hcc/bin/clang++)
   find_path(HC++_BIN_DIR clang++
-           HINTS /opt/clamp/bin)
+           HINTS /opt/hcc/bin)
   find_path(HC++_CONFIGURE_DIR clamp-config
-           HINTS /opt/clamp/bin)
+           HINTS /opt/hcc/bin)
   include(FindPackageHandleStandardArgs)
   # handle the QUIETLY and REQUIRED arguments and set HC++_FOUND to TRUE
   # if all listed variables are TRUE

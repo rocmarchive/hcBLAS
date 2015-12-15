@@ -18,11 +18,8 @@ To test:
 Each kernel test script needs kernel_input.txt file that stores inputs.
 The inputs to the kernels can be changed here if needed.
 
-$ export HCBLAS_PATH=<path/to/hcblas/>
-  for eg. export HCBLAS_PATH=~/hcblas/
+$ cd ~/hcblas/test/unit/
 
-$ cd ~/hcblas/source/testfiles/Unit_tests/
-
-$ ./Unittest.sh
+$ ./test.sh
 
 ===================================================================================

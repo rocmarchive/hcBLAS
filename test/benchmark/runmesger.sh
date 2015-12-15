@@ -1,8 +1,8 @@
 #!/bin/bash
-
-path2profiler=$PATH_TO_SPROFILE
-path2exe="$HCBLAS_PATH/source/testfiles/build/linux/Test_Executables/sger"
-workingdir="$HCBLAS_PATH/profile"
+CURRENTDIR=$PWD
+path2profiler="/opt/AMD/CodeXL_1.6.7247/x86_64/sprofile"
+path2exe="$CURRENTDIR/../build/linux/bin/sger"
+workingdir="$CURRENTDIR"
 profDir="$workingdir/sgerProfileData"
 mkdir -p $profDir
 if [ ! -x $path2profiler ]; then

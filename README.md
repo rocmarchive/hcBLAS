@@ -65,23 +65,25 @@ This repository hosts the HCC implementation of BLAS subroutines. The following 
 
 (a) For Linux:  
 
-       * cd ~/hcblas/Build/linux
+       * ./install.sh test=ON/OFF profile=ON/OFF
+         Where
+           test=OFF    - Build library and tests
+           test=ON     - Build library, tests and run test.sh
+           profile=OFF - HCBLAS profiling not enabled
+           profile=ON  - Enable HCBLAS profiling 
 
-       * sh build.sh
-
-       * sudo make install
 
 (b)  For Windows: (Prerequisite: Visual Studio 12 version )
        
 1. For 32 Bit:
 
-       * cd ~/hcblas/Build/vc11-x86
+       * cd ~/hcblas/lib/build/vc11-x86
 
        * make-solutions.bat (This creates a Visual studio solution for hcblas Library) 
 
  2. For 64-bit:
 
-       * cd ~/hcblas/Build/vc11-x86_64
+       * cd ~/hcblas/lib/build/vc11-x86_64
 
        * make-solutions.bat (This creates a Visual Studio solution for hcblas Library)
        
@@ -95,15 +97,13 @@ This repository hosts the HCC implementation of BLAS subroutines. The following 
     
 (a) For Linux:
 
-     * cd ~/hcblas/source/testfiles/build/linux
+     * cd ~/hcblas/test/unit/
      
-     * sh build.sh
+     * ./test.sh
      
-     * make
+     To test manually, 
 
-     To test:
-
-     * cd ~/hcblas/source/testfiles/build/linux/Test_Executables
+     * cd ~/hcblas/test/build/linux/bin/
      
 Note:
      
@@ -111,73 +111,75 @@ Note:
        where,            0 - noTrans (Operate with the actual matrix)
                          1 - Trans   (Operate with the transpose of the matrix)
                          
-     * Implementation type (Itype) takes 1, 2 or 3
-       where,            1 - Inputs and Outputs are host float pointers.
-                         2 - Inputs and Outputs are C++ AMP float array_View containers.
-                         3 - Inputs and Outputs are C++ AMP float array_View containers with batch processing.
+     * Implementation type (Itype) takes 1, 2, 3, 4 or 5
+       where,            1 - Inputs and Outputs are host float/double pointers.
+                         2 - Inputs and Outputs are HCC float/double array_View containers.
+                         3 - Inputs and Outputs are HCC float/double array_View containers with batch processing.
+                         4 - Inputs and Outputs are HCC float/double array containers.
+                         5 - Inputs and Outputs are HCC float/double array containers with batch processing.
      
   (1) SGEMM - Single Precision real valued general matrix-matrix multiplication 
      
-     * ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type (Itype) takes 1, 2 or 3)
+     * ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type (Itype) takes 1, 2, 3, 4 or 5)
   
   (2) CGEMM - Complex valued general matrix matrix multiplication
 
-     * ./cgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Itype takes 1, 2 or 3)
+     * ./cgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Itype takes 1, 2, 3, 4 or 5)
 
   (3) SGEMV - Single Precision real valued general matrix-vector multiplication
        
-     * ./sgemv M N Trans Itype(Here Trans take binary values 0 or 1 while Itype takes 1, 2 or 3)
+     * ./sgemv M N Trans Itype(Here Trans take binary values 0 or 1 while Itype takes 1, 2, 3, 4 or 5)
 
   (4) SGER - Single Precision General matrix rank 1 operation
  
-     * ./sger M N Itype(Itype takes 1, 2 or 3)
+     * ./sger M N Itype(Itype takes 1, 2, 3, 4 or 5)
 
   (5) SAXPY - Scale vector X and add to vector Y
     
-     * ./saxpy N Itype(Itype takes 1, 2 or 3)
+     * ./saxpy N Itype(Itype takes 1, 2, 3, 4 or 5)
 
   (6) SSCAL - Single Precision scaling of Vector X 
   
-     * ./sscal N Itype(Itype takes 1, 2 or 3)
+     * ./sscal N Itype(Itype takes 1, 2, 3, 4 or 5)
 
   (7) DSCAL - Double Precision scaling of Vector X
    
-     * ./dscal N Itype(Itype takes 1, 2 or 3)
+     * ./dscal N Itype(Itype takes 1, 2, 3, 4 or 5)
  
   (8) SCOPY - Single Precision Copy 
 
-     * ./scopy N Itype(Itype takes 1, 2 or 3)
+     * ./scopy N Itype(Itype takes 1, 2, 3, 4 or 5)
 
   (9) DCOPY - Double Precision Copy
    
-     * ./dcopy N Itype(Itype takes 1, 2 or 3)
+     * ./dcopy N Itype(Itype takes 1, 2, 3, 4 or 5)
 
   (10) SASUM - Single Precision sum of Absolute values
 
-     * ./sasum N Itype(Itype takes 1, 2 or 3)
+     * ./sasum N Itype(Itype takes 1, 2, 3, 4 or 5)
 
   (11) DASUM - Double Precision sum of Absolute values
 
-     * ./dasum N Itype(Itype takes 1, 2 or 3)
+     * ./dasum N Itype(Itype takes 1, 2, 3, 4 or 5)
 
   (12) SDOT - Single Precision Dot product
 
-     * ./sdot N Itype(Itype takes 1, 2 or 3)
+     * ./sdot N Itype(Itype takes 1, 2, 3, 4 or 5)
 
   (13) DDOT - Double Precision Dot product
 
-     * ./ddot N Itype(Itype takes 1, 2 or 3)
+     * ./ddot N Itype(Itype takes 1, 2, 3, 4 or 5)
      
 (b)  For Windows: (Prerequisite: Visual Studio 12 version )
        
 1. For 32 Bit:
 
-       * cd ~/hcblas/source/testfiles/build/vc11-x86
+       * cd ~/hcblas/test/build/vc11-x86
 
        * make-solutions.bat (This creates a Visual studio solution for hcblastest Library) 
 
  2. For 64-bit:
 
-       * cd ~/hcblas/source/testfiles/build/vc11-x86_64
+       * cd ~/hcblas/test/build/vc11-x86_64
 
        * make-solutions.bat (This creates a Visual Studio solution for hcblastest Library)

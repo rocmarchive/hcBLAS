@@ -10,7 +10,7 @@ Nval=str(sys.argv[3])
 Imple=str(sys.argv[4])
 HCBLAS_PATH=str(os.environ['HCBLAS_PATH'])
 inputfile=open(filename,"r")
-out = csv.writer(open(HCBLAS_PATH + "/profile/profileSummary_sger.csv","a"), delimiter='\t',quoting=csv.QUOTE_NONE)
+out = csv.writer(open(HCBLAS_PATH + "/test/benchmark/profileSummary_sger.csv","a"), delimiter='\t',quoting=csv.QUOTE_NONE)
 html=inputfile.read()
 
 soup = BeautifulSoup(html)
