@@ -1,3 +1,4 @@
+#include "hcblas.h"
 #include "hc_math.hpp"
 #define BLOCK_SIZE 256
 using namespace hc::fast_math;
@@ -13,8 +14,8 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     hc::extent<1> grdExt(len_X);
-    hc::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
-    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       tile_static float t[BLOCK_SIZE];
 
       for (int Col = 0; Col < lenY; Col++) {
@@ -45,7 +46,7 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
           int threadId = tidx.local[0];
           sh[tidx.local[0]] = 0;
 
-          for (int i = threadId; i < num_blocks; i += tidx.tile_dim0) {
+          for (int i = threadId; i < num_blocks; i += tidx.tile_dim[0]) {
             sh[threadId] += tempBuf[Col * num_blocks + i];
           }
 
@@ -67,8 +68,8 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
     });
   } else {
     hc::extent<1> grdExt(lenY * BLOCK_SIZE);
-    hc::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
-    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       int threadIdx = tidx.local[0];
       int blockIdx = tidx.tile[0];
       int Col = blockIdx;
@@ -111,8 +112,8 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     hc::extent<2> grdExt(batchSize, len_X);
-    hc::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
-    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       tile_static float t[BLOCK_SIZE];
       int elt = tidx.tile[0];
 
@@ -144,7 +145,7 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
           int threadId = tidx.local[1];
           sh[tidx.local[1]] = 0;
 
-          for (int i = threadId; i < num_blocks; i += tidx.tile_dim0) {
+          for (int i = threadId; i < num_blocks; i += tidx.tile_dim[0]) {
             sh[threadId] += tempBuf[Col * num_blocks + i];
           }
 
@@ -166,8 +167,8 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
     });
   } else {
     hc::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
-    hc::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
-    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       int elt = tidx.tile[0];
       int threadIdx = tidx.local[1];
       int blockIdx = tidx.tile[1];
@@ -211,8 +212,8 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     hc::extent<1> grdExt(len_X);
-    hc::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
-    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       tile_static float t[BLOCK_SIZE];
 
       for (int Col = 0; Col < lenY; Col++) {
@@ -243,7 +244,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
           int threadId = tidx.local[0];
           sh[tidx.local[0]] = 0;
 
-          for (int i = threadId; i < num_blocks; i += tidx.tile_dim0) {
+          for (int i = threadId; i < num_blocks; i += tidx.tile_dim[0]) {
             sh[threadId] += tempBuf[Col * num_blocks + i];
           }
 
@@ -265,8 +266,8 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
     });
   } else {
     hc::extent<1> grdExt(lenY * BLOCK_SIZE);
-    hc::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
-    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       int threadIdx = tidx.local[0];
       int blockIdx = tidx.tile[0];
       int Col = blockIdx;
@@ -309,8 +310,8 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     hc::extent<2> grdExt(batchSize, len_X);
-    hc::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
-    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       tile_static float t[BLOCK_SIZE];
       int elt = tidx.tile[0];
 
@@ -342,7 +343,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
           int threadId = tidx.local[1];
           sh[tidx.local[1]] = 0;
 
-          for (int i = threadId; i < num_blocks; i += tidx.tile_dim0) {
+          for (int i = threadId; i < num_blocks; i += tidx.tile_dim[0]) {
             sh[threadId] += tempBuf[Col * num_blocks + i];
           }
 
@@ -364,8 +365,8 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
     });
   } else {
     hc::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
-    hc::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
-    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       int elt = tidx.tile[0];
       int threadIdx = tidx.local[1];
       int blockIdx = tidx.tile[1];
@@ -406,7 +407,7 @@ static void gemv_NoTransA(hc::accelerator_view &accl_view,
                           float alpha, float beta, int lenX, int lenY) {
   long size = (lenY + 255) & ~255;
   hc::extent<1> compute_domain(size);
-  hc::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ = ] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
     int bx = tidx.tile[0];
     int tx = tidx.local[0];
     tile_static float Xds[BLOCK_SIZE];
@@ -448,7 +449,7 @@ static void gemv_NoTransA(hc::accelerator_view &accl_view,
                           float alpha, float beta, int lenX, int lenY, int batchSize) {
   long size = (lenY + 255) & ~255;
   hc::extent<2> compute_domain(batchSize, size);
-  hc::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ = ] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int bx = tidx.tile[1];
     int tx = tidx.local[1];
@@ -491,7 +492,7 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
                                  float alpha, float beta, int lenX, int lenY) {
   long size = (lenY + 255) & ~255;
   hc::extent<1> compute_domain(size);
-  hc::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ = ] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
     int bx = tidx.tile[0];
     int tx = tidx.local[0];
     tile_static float Xds[BLOCK_SIZE];
@@ -536,7 +537,7 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
                                  float alpha, float beta, int lenX, int lenY, int batchSize) {
   long size = (lenY + 255) & ~255;
   hc::extent<2> compute_domain(batchSize, size);
-  hc::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ = ] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int bx = tidx.tile[1];
     int tx = tidx.local[1];
