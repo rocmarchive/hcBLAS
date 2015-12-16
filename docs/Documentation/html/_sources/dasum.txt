@@ -21,14 +21,14 @@ Implementation type II
 
  .. note:: **Inputs and Outputs are HC++ double array containers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dasum** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<double> &x, const int incx, const long xOffset, double &y)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dasum** (hc::accelerator_view &accl_view, const int N, hc::array<double> &x, const int incx, const long xOffset, double &y)
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ double array containers with batch processing.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dasum** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<double> &x, const int incx, const long xOffset, double &y, const long x_batchOffset, const int BatchSize) 
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dasum** (hc::accelerator_view &accl_view, const int N, hc::array<double> &x, const int incx, const long xOffset, double &y, const long x_batchOffset, const int BatchSize) 
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -38,9 +38,9 @@ Function Documentation
 
 ::
 
-             hcblasStatus hcblas_dasum (Concurrency::accelerator_view &accl_view, 
+             hcblasStatus hcblas_dasum (hc::accelerator_view &accl_view, 
                                         const int N,
-                                        Concurrency::array<double> &x, 
+                                        hc::array<double> &x, 
                                         const int incx,
                                         const long xOffset, 
                                         double &y) 

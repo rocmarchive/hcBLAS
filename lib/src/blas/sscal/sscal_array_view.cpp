@@ -1,16 +1,16 @@
 #include "hcblas.h"
-#include <amp.h>
-#include "amp_math.h"
-using namespace concurrency::fast_math;
-using namespace concurrency;
+#include <hc.hpp>
+#include "hc_math.hpp"
+using namespace hc::fast_math;
+using namespace hc;
 #define BLOCK_SIZE 8
 
-void sscal_HC(Concurrency::accelerator_view &accl_view,
+void sscal_HC(hc::accelerator_view &accl_view,
               long n, float alpha,
-              Concurrency::array_view<float> &X, long incx, long xOffset) {
+              hc::array_view<float> &X, long incx, long xOffset) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
-  Concurrency::extent<1> compute_domain(size);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ = ] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+  hc::extent<1> compute_domain(size);
+  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
     if(tidx.global[0] < n) {
       long X_index = xOffset + tidx.global[0];
       X[X_index] = (isnan(X[X_index]) || isinf(X[X_index])) ? 0 : X[X_index];
@@ -19,13 +19,13 @@ void sscal_HC(Concurrency::accelerator_view &accl_view,
   });
 }
 
-void sscal_HC(Concurrency::accelerator_view &accl_view,
+void sscal_HC(hc::accelerator_view &accl_view,
               long n, float alpha,
-              Concurrency::array_view<float> &X, long incx, long xOffset,
+              hc::array_view<float> &X, long incx, long xOffset,
               long X_batchOffset, int batchSize) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
-  Concurrency::extent<2> compute_domain(batchSize, size);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ = ] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+  hc::extent<2> compute_domain(batchSize, size);
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
 
     if(tidx.global[1] < n) {
@@ -37,9 +37,9 @@ void sscal_HC(Concurrency::accelerator_view &accl_view,
 }
 
 // SSCAL Call Type II: Inputs and outputs are C++ HC float array_View containers
-hcblasStatus Hcblaslibrary :: hcblas_sscal(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sscal(hc::accelerator_view &accl_view,
     					   const int N, const float &alpha,
-  					   Concurrency::array_view<float> &X, const int incX,
+  					   hc::array_view<float> &X, const int incX,
 				           const long xOffset) {
   /*Check the conditions*/
   if (  N <= 0 || incX <= 0 ) {
@@ -59,9 +59,9 @@ hcblasStatus Hcblaslibrary :: hcblas_sscal(Concurrency::accelerator_view &accl_v
 }
 
 // SSCAL TYpe III - Overloaded function with arguments related to batch processing
-hcblasStatus Hcblaslibrary :: hcblas_sscal(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sscal(hc::accelerator_view &accl_view,
    					   const int N, const float &alpha,
-    					   Concurrency::array_view<float> &X, const int incX,
+    					   hc::array_view<float> &X, const int incX,
   					   const long xOffset, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  N <= 0 || incX <= 0 ) {

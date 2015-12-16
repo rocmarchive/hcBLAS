@@ -1,24 +1,24 @@
 #include "hcblas.h"
-#include <amp.h>
-#include <amp_math.h>
+#include <hc.hpp>
+#include <hc_math.hpp>
 #define BLOCK_SIZE 256
 using namespace concurrency::fast_math;
 using namespace concurrency;
 
-static void gemv_TransA(Concurrency::accelerator_view &accl_view,
-                        Concurrency::array<float> &A_mat, long aOffset,
-                        Concurrency::array<float> &X_vec, long xOffset,
-                        Concurrency::array<float> &Y_vec, long yOffset,
+static void gemv_TransA(hc::accelerator_view &accl_view,
+                        hc::array<float> &A_mat, long aOffset,
+                        hc::array<float> &X_vec, long xOffset,
+                        hc::array<float> &Y_vec, long yOffset,
                         float alpha, float beta, int lenX, int lenY) {
   if((lenX - lenY) > 5000) {
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int len_Y = (lenY + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     float* temp = (float*)malloc(num_blocks * len_Y * sizeof(float));
-    Concurrency::array<float> tempBuf( num_blocks * len_Y, temp);
-    Concurrency::extent<1> grdExt(len_X);
-    Concurrency::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
-    Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::array<float> tempBuf( num_blocks * len_Y, temp);
+    hc::extent<1> grdExt(len_X);
+    hc::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
+    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
       tile_static float t[BLOCK_SIZE];
 
       for (int Col = 0; Col < lenY; Col++) {
@@ -70,9 +70,9 @@ static void gemv_TransA(Concurrency::accelerator_view &accl_view,
       }
     });
   } else {
-    Concurrency::extent<1> grdExt(lenY * BLOCK_SIZE);
-    Concurrency::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
-    Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::extent<1> grdExt(lenY * BLOCK_SIZE);
+    hc::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
+    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
       int threadIdx = tidx.local[0];
       int blockIdx = tidx.tile[0];
       int Col = blockIdx;
@@ -105,20 +105,20 @@ static void gemv_TransA(Concurrency::accelerator_view &accl_view,
   }
 }
 
-static void gemv_TransA(Concurrency::accelerator_view &accl_view,
-                        Concurrency::array<float> &A_mat, long aOffset, long A_batchOffset,
-                        Concurrency::array<float> &X_vec, long xOffset, long X_batchOffset,
-                        Concurrency::array<float> &Y_vec, long yOffset, long Y_batchOffset,
+static void gemv_TransA(hc::accelerator_view &accl_view,
+                        hc::array<float> &A_mat, long aOffset, long A_batchOffset,
+                        hc::array<float> &X_vec, long xOffset, long X_batchOffset,
+                        hc::array<float> &Y_vec, long yOffset, long Y_batchOffset,
                         float alpha, float beta, int lenX, int lenY, int batchSize) {
   if((lenX - lenY) > 5000 ) {
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int len_Y = (lenY + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     float* temp = (float*)malloc(num_blocks * len_Y * sizeof(float));
-    Concurrency::array<float> tempBuf( num_blocks * len_Y, temp);
-    Concurrency::extent<2> grdExt(batchSize, len_X);
-    Concurrency::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
-    Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::array<float> tempBuf( num_blocks * len_Y, temp);
+    hc::extent<2> grdExt(batchSize, len_X);
+    hc::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
+    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
       tile_static float t[BLOCK_SIZE];
       int elt = tidx.tile[0];
 
@@ -171,9 +171,9 @@ static void gemv_TransA(Concurrency::accelerator_view &accl_view,
       }
     });
   } else {
-    Concurrency::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
-    Concurrency::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
-    Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
+    hc::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
+    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
       int elt = tidx.tile[0];
       int threadIdx = tidx.local[1];
       int blockIdx = tidx.tile[1];
@@ -207,20 +207,20 @@ static void gemv_TransA(Concurrency::accelerator_view &accl_view,
   }
 }
 
-static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
-                               Concurrency::array<float> &A_mat, long aOffset,
-                               Concurrency::array<float> &X_vec, long xOffset,
-                               Concurrency::array<float> &Y_vec, long yOffset,
+static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
+                               hc::array<float> &A_mat, long aOffset,
+                               hc::array<float> &X_vec, long xOffset,
+                               hc::array<float> &Y_vec, long yOffset,
                                float alpha, float beta, int lenX, int lenY) {
   if((lenX - lenY) > 5000) {
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int len_Y = (lenY + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     float* temp = (float*)malloc(num_blocks * len_Y * sizeof(float));
-    Concurrency::array<float> tempBuf( num_blocks * len_Y, temp);
-    Concurrency::extent<1> grdExt(len_X);
-    Concurrency::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
-    Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::array<float> tempBuf( num_blocks * len_Y, temp);
+    hc::extent<1> grdExt(len_X);
+    hc::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
+    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
       tile_static float t[BLOCK_SIZE];
 
       for (int Col = 0; Col < lenY; Col++) {
@@ -272,9 +272,9 @@ static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
       }
     });
   } else {
-    Concurrency::extent<1> grdExt(lenY * BLOCK_SIZE);
-    Concurrency::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
-    Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::extent<1> grdExt(lenY * BLOCK_SIZE);
+    hc::tiled_extent<BLOCK_SIZE> t_ext(grdExt);
+    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
       int threadIdx = tidx.local[0];
       int blockIdx = tidx.tile[0];
       int Col = blockIdx;
@@ -307,20 +307,20 @@ static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
   }
 }
 
-static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
-                               Concurrency::array<float> &A_mat, long aOffset, long A_batchOffset,
-                               Concurrency::array<float> &X_vec, long xOffset, long X_batchOffset,
-                               Concurrency::array<float> &Y_vec, long yOffset, long Y_batchOffset,
+static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
+                               hc::array<float> &A_mat, long aOffset, long A_batchOffset,
+                               hc::array<float> &X_vec, long xOffset, long X_batchOffset,
+                               hc::array<float> &Y_vec, long yOffset, long Y_batchOffset,
                                float alpha, float beta, int lenX, int lenY, int batchSize) {
   if((lenX - lenY) > 5000) {
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int len_Y = (lenY + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     float* temp = (float*)malloc(num_blocks * len_Y * sizeof(float));
-    Concurrency::array<float> tempBuf( num_blocks * len_Y, temp);
-    Concurrency::extent<2> grdExt(batchSize, len_X);
-    Concurrency::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
-    Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::array<float> tempBuf( num_blocks * len_Y, temp);
+    hc::extent<2> grdExt(batchSize, len_X);
+    hc::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
+    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
       tile_static float t[BLOCK_SIZE];
       int elt = tidx.tile[0];
 
@@ -373,9 +373,9 @@ static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
       }
     });
   } else {
-    Concurrency::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
-    Concurrency::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
-    Concurrency::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
+    hc::tiled_extent<1, BLOCK_SIZE> t_ext(grdExt);
+    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
       int elt = tidx.tile[0];
       int threadIdx = tidx.local[1];
       int blockIdx = tidx.tile[1];
@@ -409,14 +409,14 @@ static void gemv_TransA_rMajor(Concurrency::accelerator_view &accl_view,
   }
 }
 
-static void gemv_NoTransA(Concurrency::accelerator_view &accl_view,
-                          Concurrency::array<float> &A, long aOffset,
-                          Concurrency::array<float> &X, long xOffset,
-                          Concurrency::array<float> &Y, long yOffset,
+static void gemv_NoTransA(hc::accelerator_view &accl_view,
+                          hc::array<float> &A, long aOffset,
+                          hc::array<float> &X, long xOffset,
+                          hc::array<float> &Y, long yOffset,
                           float alpha, float beta, int lenX, int lenY) {
   long size = (lenY + 255) & ~255;
-  Concurrency::extent<1> compute_domain(size);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ =, &A, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+  hc::extent<1> compute_domain(size);
+  hc::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ =, &A, &X, &Y] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
     int bx = tidx.tile[0];
     int tx = tidx.local[0];
     tile_static float Xds[BLOCK_SIZE];
@@ -451,14 +451,14 @@ static void gemv_NoTransA(Concurrency::accelerator_view &accl_view,
   });
 }
 
-static void gemv_NoTransA(Concurrency::accelerator_view &accl_view,
-                          Concurrency::array<float> &A, long aOffset, long A_batchOffset,
-                          Concurrency::array<float> &X, long xOffset, long X_batchOffset,
-                          Concurrency::array<float> &Y, long yOffset, long Y_batchOffset,
+static void gemv_NoTransA(hc::accelerator_view &accl_view,
+                          hc::array<float> &A, long aOffset, long A_batchOffset,
+                          hc::array<float> &X, long xOffset, long X_batchOffset,
+                          hc::array<float> &Y, long yOffset, long Y_batchOffset,
                           float alpha, float beta, int lenX, int lenY, int batchSize) {
   long size = (lenY + 255) & ~255;
-  Concurrency::extent<2> compute_domain(batchSize, size);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ =, &A, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+  hc::extent<2> compute_domain(batchSize, size);
+  hc::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ =, &A, &X, &Y] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
     int elt = tidx.tile[0];
     int bx = tidx.tile[1];
     int tx = tidx.local[1];
@@ -494,14 +494,14 @@ static void gemv_NoTransA(Concurrency::accelerator_view &accl_view,
   });
 }
 
-static void gemv_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
-                                 Concurrency::array<float> &A, long aOffset,
-                                 Concurrency::array<float> &X, long xOffset,
-                                 Concurrency::array<float> &Y, long yOffset,
+static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
+                                 hc::array<float> &A, long aOffset,
+                                 hc::array<float> &X, long xOffset,
+                                 hc::array<float> &Y, long yOffset,
                                  float alpha, float beta, int lenX, int lenY) {
   long size = (lenY + 255) & ~255;
-  Concurrency::extent<1> compute_domain(size);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ =, &A, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+  hc::extent<1> compute_domain(size);
+  hc::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ =, &A, &X, &Y] (hc::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
     int bx = tidx.tile[0];
     int tx = tidx.local[0];
     tile_static float Xds[BLOCK_SIZE];
@@ -539,14 +539,14 @@ static void gemv_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
 
 
 
-static void gemv_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
-                                 Concurrency::array<float> &A, long aOffset, long A_batchOffset,
-                                 Concurrency::array<float> &X, long xOffset, long X_batchOffset,
-                                 Concurrency::array<float> &Y, long yOffset, long Y_batchOffset,
+static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
+                                 hc::array<float> &A, long aOffset, long A_batchOffset,
+                                 hc::array<float> &X, long xOffset, long X_batchOffset,
+                                 hc::array<float> &Y, long yOffset, long Y_batchOffset,
                                  float alpha, float beta, int lenX, int lenY, int batchSize) {
   long size = (lenY + 255) & ~255;
-  Concurrency::extent<2> compute_domain(batchSize, size);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ =, &A, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+  hc::extent<2> compute_domain(batchSize, size);
+  hc::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ =, &A, &X, &Y] (hc::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
     int elt = tidx.tile[0];
     int bx = tidx.tile[1];
     int tx = tidx.local[1];
@@ -582,11 +582,11 @@ static void gemv_NoTransA_rMajor(Concurrency::accelerator_view &accl_view,
   });
 }
 
-void gemv_HC(Concurrency::accelerator_view &accl_view,
+void gemv_HC(hc::accelerator_view &accl_view,
              char TransA, int M, int N, float alpha,
-             Concurrency::array<float> &A, long aOffset,
-             Concurrency::array<float> &X, long xOffset, long incX, float beta,
-             Concurrency::array<float> &Y, long yOffset, long incY) {
+             hc::array<float> &A, long aOffset,
+             hc::array<float> &X, long xOffset, long incX, float beta,
+             hc::array<float> &Y, long yOffset, long incY) {
   int lenX, lenY;
 
   if (TransA == 'n') {
@@ -599,7 +599,7 @@ void gemv_HC(Concurrency::accelerator_view &accl_view,
 
   if (alpha == 0) {
      std::vector<float> HostY(lenY);
-     Concurrency::copy(Y, begin(HostY));
+     hc::copy(Y, begin(HostY));
      if (beta == 0) {
        for (int j = 0; j < lenY; ++j) {
            HostY[yOffset + j] = 0;
@@ -609,7 +609,7 @@ void gemv_HC(Concurrency::accelerator_view &accl_view,
            HostY[yOffset + j] *= beta;
        }
      }
-    Concurrency::copy(begin(HostY), end(HostY), Y);
+    hc::copy(begin(HostY), end(HostY), Y);
     return;
   }
 
@@ -620,12 +620,12 @@ void gemv_HC(Concurrency::accelerator_view &accl_view,
   }
 }
 
-void gemv_HC(Concurrency::accelerator_view &accl_view,
+void gemv_HC(hc::accelerator_view &accl_view,
              char TransA, int M, int N, float alpha,
-             Concurrency::array<float> &A, long aOffset, long A_batchOffset,
-             Concurrency::array<float> &X, long xOffset, long X_batchOffset,
+             hc::array<float> &A, long aOffset, long A_batchOffset,
+             hc::array<float> &X, long xOffset, long X_batchOffset,
              long incX, float beta,
-             Concurrency::array<float> &Y, long yOffset, long Y_batchOffset,
+             hc::array<float> &Y, long yOffset, long Y_batchOffset,
              long incY, int batchSize) {
   int lenX, lenY;
 
@@ -639,7 +639,7 @@ void gemv_HC(Concurrency::accelerator_view &accl_view,
  
   if (alpha == 0) {
      std::vector<float> HostY(lenY * batchSize);
-     Concurrency::copy(Y, begin(HostY));
+     hc::copy(Y, begin(HostY));
      if (beta == 0) {
       for(int k = 0; k < batchSize; ++k) {
        for (int j = 0; j < lenY; ++j) {
@@ -653,7 +653,7 @@ void gemv_HC(Concurrency::accelerator_view &accl_view,
        }
       }
      }
-    Concurrency::copy(begin(HostY), end(HostY), Y);
+    hc::copy(begin(HostY), end(HostY), Y);
     return;
   }
 
@@ -664,11 +664,11 @@ void gemv_HC(Concurrency::accelerator_view &accl_view,
   }
 }
 
-void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
+void gemv_HC_rMajor(hc::accelerator_view &accl_view,
                     char TransA, int M, int N, float alpha,
-                    Concurrency::array<float> &A, long aOffset,
-                    Concurrency::array<float> &X, long xOffset, long incX, float beta,
-                    Concurrency::array<float> &Y, long yOffset, long incY) {
+                    hc::array<float> &A, long aOffset,
+                    hc::array<float> &X, long xOffset, long incX, float beta,
+                    hc::array<float> &Y, long yOffset, long incY) {
   int lenX, lenY;
 
   if (TransA == 'n') {
@@ -681,7 +681,7 @@ void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
 
   if (alpha == 0) {
      std::vector<float> HostY(lenY);
-     Concurrency::copy(Y, begin(HostY));
+     hc::copy(Y, begin(HostY));
      if (beta == 0) {
        for (int j = 0; j < lenY; ++j) {
            HostY[yOffset + j] = 0;
@@ -691,7 +691,7 @@ void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
            HostY[yOffset + j] *= beta;
        }
      }
-    Concurrency::copy(begin(HostY), end(HostY), Y);
+    hc::copy(begin(HostY), end(HostY), Y);
     return;
   }
 
@@ -702,12 +702,12 @@ void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
   }
 }
 
-void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
+void gemv_HC_rMajor(hc::accelerator_view &accl_view,
                     char TransA, int M, int N, float alpha,
-                    Concurrency::array<float> &A, long aOffset, long A_batchOffset,
-                    Concurrency::array<float> &X, long xOffset, long X_batchOffset,
+                    hc::array<float> &A, long aOffset, long A_batchOffset,
+                    hc::array<float> &X, long xOffset, long X_batchOffset,
                     long incX, float beta,
-                    Concurrency::array<float> &Y, long yOffset, long Y_batchOffset,
+                    hc::array<float> &Y, long yOffset, long Y_batchOffset,
                     long incY, int batchSize) {
   int lenX, lenY;
 
@@ -721,7 +721,7 @@ void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
 
   if (alpha == 0) {
      std::vector<float> HostY(lenY * batchSize);
-     Concurrency::copy(Y, begin(HostY));
+     hc::copy(Y, begin(HostY));
      if (beta == 0) {
       for(int k = 0; k < batchSize; ++k) {
        for (int j = 0; j < lenY; ++j) {
@@ -735,7 +735,7 @@ void gemv_HC_rMajor(Concurrency::accelerator_view &accl_view,
        }
       }
      }
-    Concurrency::copy(begin(HostY), end(HostY), Y);
+    hc::copy(begin(HostY), end(HostY), Y);
     return;
   }
 
@@ -762,8 +762,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
   long lenXt = 1 + (M - 1) * abs(incX);
   long lenYn = 1 + (M - 1) * abs(incY);
   long lenYt = 1 + (N - 1) * abs(incY);
-  Concurrency::array<float> aMat(M * N, A);
-  std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+  hc::array<float> aMat(M * N, A);
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].create_view());
   std::vector<float> HostA(M * N);
 
@@ -771,11 +771,11 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
     HostA[i] = A[i];
   }
 
-  Concurrency::copy(begin(HostA), end(HostA), aMat);
+  hc::copy(begin(HostA), end(HostA), aMat);
 
   if( type == 'n') {
-    Concurrency::array<float> xView(lenXn, X);
-    Concurrency::array<float> yView(lenYn, Y);
+    hc::array<float> xView(lenXn, X);
+    hc::array<float> yView(lenYn, Y);
     std::vector<float> HostX(lenXn);
     std::vector<float> HostY(lenYn);
 
@@ -804,8 +804,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
  }
 
 
-    Concurrency::copy(begin(HostX), end(HostX), xView);
-    Concurrency::copy(begin(HostY), end(HostY), yView);
+    hc::copy(begin(HostX), end(HostX), xView);
+    hc::copy(begin(HostY), end(HostY), yView);
 
     if(order) {
       gemv_HC(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
@@ -813,7 +813,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
       gemv_HC_rMajor(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
     }
 
-    Concurrency::copy(yView, begin(HostY));
+    hc::copy(yView, begin(HostY));
 
     for( int i = 0; i < lenYn; i++) {
       Y[i] = HostY[i];
@@ -821,8 +821,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
   }
 
   if( type == 't') {
-    Concurrency::array<float> xView(lenXt, X);
-    Concurrency::array<float> yView(lenYt, Y);
+    hc::array<float> xView(lenXt, X);
+    hc::array<float> yView(lenYt, Y);
     std::vector<float> HostX(lenXt);
     std::vector<float> HostY(lenYt);
 
@@ -849,8 +849,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
      }
     return HCBLAS_SUCCESS;
     }
-    Concurrency::copy(begin(HostX), end(HostX), xView);
-    Concurrency::copy(begin(HostY), end(HostY), yView);
+    hc::copy(begin(HostX), end(HostX), xView);
+    hc::copy(begin(HostY), end(HostY), yView);
 
     if(order) {
       gemv_HC(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
@@ -858,7 +858,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
       gemv_HC_rMajor(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
     }
 
-    Concurrency::copy(yView, begin(HostY));
+    hc::copy(yView, begin(HostY));
 
     for( int i = 0; i < lenYt; i++) {
       Y[i] = HostY[i];
@@ -869,13 +869,13 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
 }
 
 
-hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
 				           hcblasOrder order, hcblasTranspose type, const int M,
 				           const int N, const float &alpha,
-				           Concurrency::array<float> &A, const long aOffset, const int lda,
-				           Concurrency::array<float> &X, const long xOffset, const int incX,
+				           hc::array<float> &A, const long aOffset, const int lda,
+				           hc::array<float> &X, const long xOffset, const int incX,
 				           const float &beta,
-				           Concurrency::array<float> &Y, const long yOffset, const int incY) {
+				           hc::array<float> &Y, const long yOffset, const int incY) {
   /*Check the conditions*/
   if( M <= 0 || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
@@ -890,13 +890,13 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_v
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus Hcblaslibrary :: hcblas_sgemv(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
 				           hcblasOrder order, hcblasTranspose type, const int M,
-				           const int N, const float &alpha, Concurrency::array<float> &A,
+				           const int N, const float &alpha, hc::array<float> &A,
 				           const long aOffset, const long A_batchOffset, const int lda,
-				           Concurrency::array<float> &X,
+				           hc::array<float> &X,
 				           const long xOffset, const long X_batchOffset, const int incX,
-				           const float &beta, Concurrency::array<float> &Y,
+				           const float &beta, hc::array<float> &Y,
 				           const long yOffset, const long Y_batchOffset, const int incY, const int batchSize) {
   /*Check the conditions*/
   if( M <= 0 || N <= 0 || incX <= 0 || incY <= 0 ) {

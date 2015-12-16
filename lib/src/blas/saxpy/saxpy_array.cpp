@@ -1,18 +1,18 @@
 #include "hcblas.h"
-#include <amp.h>
-#include "amp_math.h"
-using namespace concurrency::fast_math;
-using namespace concurrency;
+#include <hc.hpp>
+#include "hc_math.hpp"
+using namespace hc::fast_math;
+using namespace hc;
 #define BLOCK_SIZE 256
 
-void axpy_HC(Concurrency::accelerator_view &accl_view,
+void axpy_HC(hc::accelerator_view &accl_view,
              long n, float alpha,
-             Concurrency::array<float> &X, long xOffset, long incx,
-             Concurrency::array<float> &Y, long yOffset, long incy) {
+             hc::array<float> &X, long xOffset, long incx,
+             hc::array<float> &Y, long yOffset, long incy) {
   if(n <= 102400) {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
-    Concurrency::extent<1> compute_domain(size);
-    Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ =, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::extent<1> compute_domain(size);
+    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       if(tidx.global[0] < n) {
         long Y_index = yOffset + tidx.global[0];
         Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
@@ -34,8 +34,8 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
 
     long size = (n / step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size / BLOCK_SIZE;
-    Concurrency::extent<1> compute_domain(size);
-    Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ =, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+    hc::extent<1> compute_domain(size);
+    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       if(tidx.tile[0] != nBlocks - 1) {
         for(int iter = 0; iter < step_sz; iter++) {
           long Y_index = yOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter * 256;
@@ -57,15 +57,15 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
   }
 }
 
-void axpy_HC(Concurrency::accelerator_view &accl_view,
+void axpy_HC(hc::accelerator_view &accl_view,
              long n, float alpha,
-             Concurrency::array<float> &X, long xOffset, long incx,
-             Concurrency::array<float> &Y, long yOffset, long incy,
+             hc::array<float> &X, long xOffset, long incx,
+             hc::array<float> &Y, long yOffset, long incy,
              long X_batchOffset, long Y_batchOffset, int batchSize) {
   if(n <= 102400) {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
-    Concurrency::extent<2> compute_domain(batchSize, size);
-    Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ =, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::extent<2> compute_domain(batchSize, size);
+    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       int elt = tidx.tile[0];
 
       if(tidx.global[1] < n) {
@@ -89,8 +89,8 @@ void axpy_HC(Concurrency::accelerator_view &accl_view,
 
     long size = (n / step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size / BLOCK_SIZE;
-    Concurrency::extent<2> compute_domain(batchSize, size);
-    Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ =, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+    hc::extent<2> compute_domain(batchSize, size);
+    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       int elt = tidx.tile[0];
 
       if(tidx.tile[1] != nBlocks - 1) {
@@ -126,8 +126,8 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(const int N, const float* alpha,
 
   int lenX = 1 + (N - 1) * abs(incX);
   int lenY = 1 + (N - 1) * abs(incY);
-  Concurrency::array<float> xView(lenX, X);
-  Concurrency::array<float> yView(lenY, Y);
+  hc::array<float> xView(lenX, X);
+  hc::array<float> yView(lenY, Y);
   std::vector<float> HostX(lenX);
   std::vector<float> HostY(lenY);
 
@@ -139,12 +139,12 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(const int N, const float* alpha,
     HostY[i] = Y[i];
   }
 
-  Concurrency::copy(begin(HostX), end(HostX), xView);
-  Concurrency::copy(begin(HostY), end(HostY), yView);
-  std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+  hc::copy(begin(HostX), end(HostX), xView);
+  hc::copy(begin(HostY), end(HostY), yView);
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].create_view());
   axpy_HC(accl_view, N, *alpha, xView, xOffset, incX, yView, yOffset, incY);
-  Concurrency::copy(yView, begin(HostY));
+  hc::copy(yView, begin(HostY));
 
   for(int i = 0 ; i < lenY; i++) {
     Y[i] = HostY[i];
@@ -154,10 +154,10 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(const int N, const float* alpha,
 }
 
 
-hcblasStatus Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
 				           const int N, const float &alpha,
-				           Concurrency::array<float> &X, const int incX,
-				           Concurrency::array<float> &Y, const int incY,
+				           hc::array<float> &X, const int incX,
+				           hc::array<float> &Y, const int incY,
 				           const long xOffset, const long yOffset)
 
 {
@@ -175,10 +175,10 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_v
 }
 
 
-hcblasStatus  Hcblaslibrary :: hcblas_saxpy(Concurrency::accelerator_view &accl_view,
+hcblasStatus  Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
 					    const int N, const float &alpha,
-					    Concurrency::array<float> &X, const int incX, const long X_batchOffset,
-					    Concurrency::array<float> &Y, const int incY, const long Y_batchOffset,
+					    hc::array<float> &X, const int incX, const long X_batchOffset,
+					    hc::array<float> &Y, const int incY, const long Y_batchOffset,
 					    const long xOffset, const long yOffset, const int batchSize)
 
 {

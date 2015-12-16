@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     float *xSger = (float*)calloc( lenx , sizeof(float));
     float *ySger = (float*)calloc( leny , sizeof(float));
     float *ASger = (float *)calloc( lenx * leny , sizeof(float));
-    std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
 /* Implementation type I - Inputs and Outputs are host float pointers */
@@ -187,9 +187,9 @@ int main(int argc, char** argv)
             std::vector<float> HostX(lenx);
             std::vector<float> HostY(leny);
             std::vector<float> HostA(lenx * leny);
-            Concurrency::array<float> xView(lenx, xSger);
-            Concurrency::array<float> yView(leny, ySger);
-            Concurrency::array<float> aMat( lenx * leny, ASger);
+            hc::array<float> xView(lenx, xSger);
+            hc::array<float> yView(leny, ySger);
+            hc::array<float> aMat( lenx * leny, ASger);
             for(int i = 0;i < lenx;i++) {
                 HostX[i] = rand() % 10;
                 xSger[i] = HostX[i];
@@ -207,11 +207,11 @@ int main(int argc, char** argv)
                 Acblas[i] = HostA[i];
 #endif
             }
-            Concurrency::copy(begin(HostX), end(HostX), xView);
-            Concurrency::copy(begin(HostY), end(HostY), yView);
-            Concurrency::copy(begin(HostA), end(HostA), aMat);
+            hc::copy(begin(HostX), end(HostX), xView);
+            hc::copy(begin(HostY), end(HostY), yView);
+            hc::copy(begin(HostA), end(HostA), aMat);
             status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
-            Concurrency::copy(aMat, begin(HostA));
+            hc::copy(aMat, begin(HostA));
 #ifdef LINUX
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
             for(int i =0; i < lenx * leny ; i++){
@@ -244,9 +244,9 @@ int main(int argc, char** argv)
             std::vector<float> HostX_batch(lenx * batchSize);
             std::vector<float> HostY_batch(leny * batchSize);
             std::vector<float> HostA_batch(lenx * leny * batchSize);
-            Concurrency::array<float> xbatchView(lenx * batchSize, xSgerbatch);
-            Concurrency::array<float> ybatchView(leny * batchSize, ySgerbatch);
-            Concurrency::array<float> abatchMat( lenx * leny * batchSize, ASgerbatch);
+            hc::array<float> xbatchView(lenx * batchSize, xSgerbatch);
+            hc::array<float> ybatchView(leny * batchSize, ySgerbatch);
+            hc::array<float> abatchMat( lenx * leny * batchSize, ASgerbatch);
             for(int i = 0;i < lenx * batchSize;i++){
                 HostX_batch[i] = rand() % 10;
                 xSgerbatch[i] = HostX_batch[i];
@@ -265,11 +265,11 @@ int main(int argc, char** argv)
 #endif
                 ASgerbatch[i] = HostA_batch[i];
             }
-            Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-            Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
-            Concurrency::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
+            hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
+            hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
+            hc::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
             status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-            Concurrency::copy(abatchMat, begin(HostA_batch));
+            hc::copy(abatchMat, begin(HostA_batch));
 #ifdef LINUX
             for(int i = 0; i < batchSize; i++)
                cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda); 

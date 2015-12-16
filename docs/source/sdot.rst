@@ -21,14 +21,14 @@ Implementation type II
 
  .. note:: **Inputs and Outputs are HC++ float array containers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sdot** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, Concurrency::array<float> &y, const int incy, const long yOffset, float &dot)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sdot** (hc::accelerator_view &accl_view, const int N, hc::array<float> &x, const int incx, const long xOffset, hc::array<float> &y, const int incy, const long yOffset, float &dot)
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sdot** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<float> &x, const int incx, const long xOffset, Concurrency::array<float> &y, const int incy, const long yOffset, float &dot, const long x_batchOffset, const long y_batchOffset, const int BatchSize) 
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sdot** (hc::accelerator_view &accl_view, const int N, hc::array<float> &x, const int incx, const long xOffset, hc::array<float> &y, const int incy, const long yOffset, float &dot, const long x_batchOffset, const long y_batchOffset, const int BatchSize) 
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -38,12 +38,12 @@ Function Documentation
 
 ::
 
-             hcblasStatus hcblas_sdot (Concurrency::accelerator_view &accl_view, 
+             hcblasStatus hcblas_sdot (hc::accelerator_view &accl_view, 
                                        const int N,
-                                       Concurrency::array<float> &x, 
+                                       hc::array<float> &x, 
                                        const int incx, 
                                        const long xOffset,
-                                       Concurrency::array<float> &y, 
+                                       hc::array<float> &y, 
                                        const int incy, 
                                        const long yOffset, 
                                        float &dot)

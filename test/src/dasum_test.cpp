@@ -33,7 +33,7 @@ int main(int argc, char** argv)
     long lenx = 1 + (N-1) * abs(incX);
     double *X = (double*)calloc(lenx, sizeof(double));
     double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
-    std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
 /* Implementation type I - Inputs and Outputs are host double pointers */
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 /* Implementation type II - Inputs and Outputs are HC++ double array_view containers */
 
     else if (Imple_type == 2) {
-        Concurrency::array_view<double> xView(lenx, X);
+        hc::array_view<double> xView(lenx, X);
         for(int i = 0;i < lenx; i++) {
             xView[i] = rand() % 10;
             X[i] = xView[i];
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 /* Implementation type III - Inputs and Outputs are HC++ double array_view containers with batch processing */
 
      else if (Imple_type == 3) {
-        Concurrency::array_view<double> xbatchView(lenx * batchSize, Xbatch);
+        hc::array_view<double> xbatchView(lenx * batchSize, Xbatch);
         for(int i = 0;i < lenx * batchSize;i++) {
             xbatchView[i] = rand() % 10;
             Xbatch[i] = xbatchView[i];
@@ -105,13 +105,13 @@ int main(int argc, char** argv)
 /* Implementation type IV - Inputs and Outputs are HC++ double array containers */
       
     else if (Imple_type == 4) {
-        Concurrency::array<double> xView(lenx, X);
+        hc::array<double> xView(lenx, X);
         std::vector<double> HostX(lenx);
         for(int i = 0;i < lenx;i++){
             HostX[i] = rand() % 10;
             X[i] = HostX[i];
         }
-        Concurrency::copy(begin(HostX), end(HostX), xView);
+        hc::copy(begin(HostX), end(HostX), xView);
         status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
 #ifdef LINUX
         asumcblas = cblas_dasum( N, X, incX);
@@ -128,13 +128,13 @@ int main(int argc, char** argv)
 /* Implementation type V - Inputs and Outputs are HC++ double array containers with batch processing */
 
     else{
-        Concurrency::array<double> xbatchView(lenx * batchSize, Xbatch);
+        hc::array<double> xbatchView(lenx * batchSize, Xbatch);
         std::vector<double> HostX_batch(lenx * batchSize);
         for(int i = 0;i < lenx * batchSize;i++) {
             HostX_batch[i] = rand() % 10;
             Xbatch[i] = HostX_batch[i];
          }
-        Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
+        hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         status= hc.hcblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
 #ifdef LINUX
         for(int i = 0; i < batchSize; i++) {

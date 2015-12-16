@@ -91,7 +91,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sgemm</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;A, const long lda, Concurrency::array&lt;float&gt; &amp;B, const long ldb, const float &amp;beta, Concurrency::array&lt;float&gt; &amp;C, const long ldc, const long AOffset, const long BOffset, const long COffset)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sgemm</strong> (hc::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const float &amp;alpha, hc::array&lt;float&gt; &amp;A, const long lda, hc::array&lt;float&gt; &amp;B, const long ldb, const float &amp;beta, hc::array&lt;float&gt; &amp;C, const long ldc, const long AOffset, const long BOffset, const long COffset)</p>
 </div>
 <div class="section" id="implementation-type-iii">
 <h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
@@ -101,7 +101,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers with batch processing.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sgemm</strong> (Concurrency::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const float &amp;alpha, Concurrency::array&lt;float&gt; &amp;A, const long lda, const long A_batchOffset, Concurrency::array&lt;float&gt; &amp;B, const long ldb, const long B_batchOffset, const float &amp;beta, Concurrency::array&lt;float&gt; &amp;C, const long ldc, const long C_batchOffset, const long AOffset, const long BOffset, const long COffset, const int BatchSize)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sgemm</strong> (hc::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transA, <a class="reference external" href="HCBLAS_TYPES.html">hcblasTranspose</a> transB, const int M, const int N, const int K, const float &amp;alpha, hc::array&lt;float&gt; &amp;A, const long lda, const long A_batchOffset, hc::array&lt;float&gt; &amp;B, const long ldb, const long B_batchOffset, const float &amp;beta, hc::array&lt;float&gt; &amp;C, const long ldc, const long C_batchOffset, const long AOffset, const long BOffset, const long COffset, const int BatchSize)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -109,7 +109,7 @@
 </div>
 <div class="section" id="function-documentation">
 <h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_sgemm (Concurrency::accelerator_view &amp;accl_view,
+<div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_sgemm (hc::accelerator_view &amp;accl_view,
                            hcblasOrder order,
                            hcblasTranspose transA,
                            hcblasTranspose transB,
@@ -117,12 +117,12 @@
                            const int N,
                            const int K,
                            const float &amp;alpha,
-                           Concurrency::array&lt;float&gt; &amp;A,
+                           hc::array&lt;float&gt; &amp;A,
                            const long lda,
-                           Concurrency::array&lt;float&gt; &amp;B,
+                           hc::array&lt;float&gt; &amp;B,
                            const long ldb,
                            const float &amp;beta,
-                           Concurrency::array&lt;float&gt; &amp;C,
+                           hc::array&lt;float&gt; &amp;C,
                            const long ldc,
                            const long AOffset,
                            const long BOffset,

@@ -12,10 +12,10 @@ hcblasStatus Hcblaslibrary:: hcblas_cgemm(hcblasOrder order, hcblasTranspose typ
 				          const hcComplex* beta,
 				          hcComplex* C, long cOffset,
 				          long ldc) {
-  Concurrency::array<float_2, 1> Acmplx(M * K * 2);
-  Concurrency::array<float_2, 1> Bcmplx(N * K * 2);
-  Concurrency::array<float_2, 1> Ccmplx(M * N * 2);
-  std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+  hc::array<float_2, 1> Acmplx(M * K * 2);
+  hc::array<float_2, 1> Bcmplx(N * K * 2);
+  hc::array<float_2, 1> Ccmplx(M * N * 2);
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].create_view());
   float_2 Calpha(alpha->real, alpha->img);
   float_2 Cbeta(beta->real, beta->img);
@@ -74,9 +74,9 @@ hcblasStatus Hcblaslibrary:: hcblas_cgemm(hcblasOrder order, hcblasTranspose typ
     return status;
   }
 
-  Concurrency::copy(begin(HostA), end(HostA), Acmplx);
-  Concurrency::copy(begin(HostB), end(HostB), Bcmplx);
-  Concurrency::copy(begin(HostC), end(HostC), Ccmplx);
+  hc::copy(begin(HostA), end(HostA), Acmplx);
+  hc::copy(begin(HostB), end(HostB), Bcmplx);
+  hc::copy(begin(HostC), end(HostC), Ccmplx);
 
   // Start the operations
   if(order) {
@@ -105,7 +105,7 @@ hcblasStatus Hcblaslibrary:: hcblas_cgemm(hcblasOrder order, hcblasTranspose typ
     }
   }
 
-  Concurrency::copy(Ccmplx, begin(HostC));
+  hc::copy(Ccmplx, begin(HostC));
 
   for ( int i = 0 ; i <  M * N; i++) {
     C[i].real = HostC[i].x;
@@ -116,15 +116,15 @@ hcblasStatus Hcblaslibrary:: hcblas_cgemm(hcblasOrder order, hcblasTranspose typ
 }
 
 // CGEMM Call Type II: Inputs and outputs are C++ HC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
 				           hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,
 					   const Concurrency::graphics::float_2 &Calpha,
-					   Concurrency::array<float_2> &Acmplx, long aOffset, long lda,
-					   Concurrency::array<float_2> &Bcmplx, long bOffset, long ldb,
+					   hc::array<float_2> &Acmplx, long aOffset, long lda,
+					   hc::array<float_2> &Bcmplx, long bOffset, long ldb,
 					   const Concurrency::graphics::float_2 &Cbeta,
-					   Concurrency::array<float_2> &Ccmplx, long cOffset, long ldc) {
+					   hc::array<float_2> &Ccmplx, long cOffset, long ldc) {
   int i, j;
   hcblasStatus status = HCBLAS_SUCCESS;
   float tempReal = 0.0, tempImg = 0.0;
@@ -186,17 +186,17 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_v
 }
 
 /* CGEMM Call Type III - Overloaded function with arguments related to batch processing */
-hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
 					   hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,
 					   const Concurrency::graphics::float_2 &Calpha,
-					   Concurrency::array<float_2> &Acmplx,
+					   hc::array<float_2> &Acmplx,
 					   const long aOffset, const long A_batchOffset, const long lda,
-					   Concurrency::array<float_2> &Bcmplx,
+					   hc::array<float_2> &Bcmplx,
 					   const long bOffset, const long B_batchOffset, const long ldb,
 					   const Concurrency::graphics::float_2 &Cbeta,
-					   Concurrency::array<float_2> &Ccmplx,
+					   hc::array<float_2> &Ccmplx,
 					   const long cOffset, const long C_batchOffset, const long ldc, const int batchSize) {
   int i, j, k;
   hcblasStatus status = HCBLAS_SUCCESS;
