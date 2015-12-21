@@ -65,7 +65,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
   if(n <= 102400) {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     hc::extent<2> compute_domain(batchSize, size);
-    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       int elt = tidx.tile[0];
 
       if(tidx.global[1] < n) {
