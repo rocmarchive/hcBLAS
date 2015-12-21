@@ -113,6 +113,6 @@ if [ "$DIFF" != "" ]
 then
     echo "TEST FAILED"
 else
-    echo "TEST PASSED"
+    echo "All Unit Tests Passed!"
 fi 
 rm testlog*

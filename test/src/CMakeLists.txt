@@ -53,12 +53,12 @@ ELSE(WIN32)
   if(EXISTS ${MCWHCCBUILD})
     execute_process(COMMAND ${HCC_CONFIG} --build --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
-    execute_process(COMMAND ${HCC_CONFIG} --build --ldflags --shared
+    execute_process(COMMAND ${HCC_CONFIG} --build --ldflags 
                             OUTPUT_VARIABLE HCC_LDFLAGS)
   else(EXISTS ${MCWHCCBUILD})
     execute_process(COMMAND ${HCC_CONFIG} --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
-    execute_process(COMMAND ${HCC_CONFIG} --ldflags --shared
+    execute_process(COMMAND ${HCC_CONFIG} --ldflags 
                             OUTPUT_VARIABLE HCC_LDFLAGS)
   endif(EXISTS ${MCWHCCBUILD})
 
