@@ -1,15 +1,34 @@
 #!/bin/bash
+#CURRENT_WORK_DIRECTORY
 CURRENTDIR=$PWD
+
+#Move to library build
 cd $CURRENTDIR/../../lib/build/linux/
 sh clean.sh
+
+#Invoke build script
 sh build.sh
+
+#Install the library
 sudo make install
+
+#Move to test build
 cd $CURRENTDIR/../build/linux/
 sh clean.sh
+
+#Invoke the build script
 sh build.sh
+
+#Build tests
 make
+
+#Start Unit tests
 cd $CURRENTDIR/
+
+#Temporary log file to compare with original log file
 echo "TEST PASSED" >> testlog_temp.txt
+
+#Path to executables
 path2sgemm="$CURRENTDIR/../build/linux/bin/sgemm"
 path2cgemm="$CURRENTDIR/../build/linux/bin/cgemm"
 path2sgemv="$CURRENTDIR/../build/linux/bin/sgemv"
@@ -25,6 +44,7 @@ path2sdot="$CURRENTDIR/../build/linux/bin/sdot"
 path2ddot="$CURRENTDIR/../build/linux/bin/ddot"
 workingdir="$CURRENTDIR"
 
+#SGEMM TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Nvalue=$(echo $line | cut -f2 -d" " )
@@ -38,8 +58,11 @@ while read line; do
     else
       echo $path2sgemm "doesnot exist"
     fi
+
+#Input file for SGEMM
 done < $workingdir/sgemm_input.txt
 
+#CGEMM TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Nvalue=$(echo $line | cut -f2 -d" " )
@@ -53,8 +76,11 @@ while read line; do
     else
       echo $path2cgemm "doesnot exist"
     fi
+
+#Input file for CGEMM
 done < $workingdir/sgemm_input.txt                              
 
+#SGEMV TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Nvalue=$(echo $line | cut -f2 -d" " )
@@ -66,8 +92,11 @@ while read line; do
     else
       echo $path2sgemv "doesnot exist"
     fi
+
+#Input file for SGEMV
 done < $workingdir/sgemv_input.txt
 
+#SGER TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Nvalue=$(echo $line | cut -f2 -d" " )
@@ -78,8 +107,11 @@ while read line; do
     else
       echo $path2sger "doesnot exist"
     fi
+
+#Input file for SGER
 done < $workingdir/sger_input.txt
 
+#SAXPY, (D/S)SCAL, (D/S)COPY, (D/S)ASUM, (D/S)DOT TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Implem=$(echo $line | cut -f2 -d" " )
@@ -105,14 +137,23 @@ while read line; do
     else
       echo "Executables doesnot exist"
     fi
+
+#Input file for SAXPY, (D/S)SCAL, (D/S)COPY, (D/S)ASUM, (D/S)DOT
 done < $workingdir/saxpy_input.txt
 
+#All logs are appended to testlog file 
+#Adding TEST PASSED to the log file
 echo "TEST PASSED" >> testlog.txt
+
+#Difference between temporary log file and test log file is null
+#when all tests are passed 
 DIFF=$(diff testlog.txt testlog_temp.txt)
 if [ "$DIFF" != "" ] 
 then
     echo "TEST FAILED"
 else
     echo "All Unit Tests Passed!"
-fi 
+fi
+
+#Remove test log files 
 rm testlog*
