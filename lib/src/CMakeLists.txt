@@ -18,21 +18,6 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 #Setting a variable for source files
 SET (SRCS ${BLASSRC})
 
-IF(WIN32)
-  #include the additional libraries 
-  #settings->c/c++->general->additional directories 
-  SET(SRCS ${SRCS})
-  ADD_DEFINITIONS(-D__LITTLE_ENDIAN__)
-  ADD_DEFINITIONS(-DTARGET_OS_WIN32=1)
-    
-  IF(MSVC)
-    ADD_DEFINITIONS(/W3)
-    ADD_EXECUTABLE(${PROJECT_NAME} ${SRCS})
-    INSTALL(TARGETS ${PROJECT_NAME} DESTINATION lib)
-  ELSE(MSVC)
-    MESSAGE(FATAL_ERROR "TARGET IDE ISNT VISUAL STUDIO 11/12.... EXITING")
-  ENDIF(MSVC)
-ELSE(WIN32)
   # Choice to take compilation flags from source or package
   if(EXISTS ${MCWHCCBUILD})
     execute_process(COMMAND ${HCC_CONFIG} --build --cxxflags
@@ -61,5 +46,3 @@ ELSE(WIN32)
   SET_PROPERTY(TARGET "${PROJECT_NAME}.so" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS}")
   INSTALL(TARGETS "${PROJECT_NAME}.so" DESTINATION "/usr/lib/")
   INSTALL(FILES "include/hcblas.h" DESTINATION include)
-
-ENDIF(WIN32)

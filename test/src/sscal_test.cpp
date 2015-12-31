@@ -1,9 +1,7 @@
 #include <iostream>
 #include "hcblas.h"
 #include <cstdlib> 
-#ifdef LINUX 
 #include "cblas.h"
-#endif
 using namespace std;
 int main(int argc, char** argv)
 {   
@@ -24,12 +22,10 @@ int main(int argc, char** argv)
     long lenx = 1 + (N-1) * abs(incX);
     float *X = (float*)calloc(lenx, sizeof(float));
     float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-#ifdef LINUX 
     /* CBLAS implementation */
     bool ispassed = 1;
     float *Xcblas = (float*)calloc(lenx, sizeof(float));
     float *Xcblasbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-#endif
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
@@ -38,12 +34,9 @@ int main(int argc, char** argv)
     if (Imple_type == 1) {
         for(int i = 0;i < lenx;i++){
             X[i] = rand() % 10;
-#ifdef LINUX
             Xcblas[i] = X[i];
-#endif
         }
 	status = hc.hcblas_sscal(N, &alpha, X, incX, xOffset);
-#ifdef LINUX
         cblas_sscal( N, alpha, Xcblas, incX);
         for(int i = 0; i < lenx ; i++){
             if (X[i] != Xcblas[i]){
@@ -56,9 +49,7 @@ int main(int argc, char** argv)
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
         free(Xcblas);
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
         free(X);  
     }
 
@@ -68,12 +59,9 @@ int main(int argc, char** argv)
         hc::array_view<float> xView(lenx, X);
         for(int i = 0;i < lenx;i++) {
             xView[i] = rand() % 10;
-#ifdef LINUX
             Xcblas[i] = xView[i];
-#endif
         }
         status = hc.hcblas_sscal(accl_view, N, alpha, xView, incX, xOffset);
-#ifdef LINUX
         cblas_sscal( N, alpha, Xcblas, incX );
         for(int i = 0; i < lenx ; i++){
             if (xView[i] != Xcblas[i]){
@@ -85,9 +73,7 @@ int main(int argc, char** argv)
                 continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
      }
 
 /* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
@@ -96,12 +82,9 @@ int main(int argc, char** argv)
         hc::array_view<float> xbatchView(lenx * batchSize, Xbatch);
         for(int i = 0;i < lenx * batchSize;i++){
             xbatchView[i] = rand() % 10;
-#ifdef LINUX
             Xcblasbatch[i] = xbatchView[i];
-#endif
         }
         status= hc.hcblas_sscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-#ifdef LINUX
         for(int i = 0; i < batchSize; i++)
                 cblas_sscal( N, alpha, Xcblasbatch + i * N, incX);
         for(int i =0; i < lenx * batchSize; i ++){
@@ -114,9 +97,7 @@ int main(int argc, char** argv)
               continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
     }
 
 /* Implementation type IV - Inputs and Outputs are HC++ float array containers */
@@ -126,13 +107,10 @@ int main(int argc, char** argv)
         std::vector<float> HostX(lenx);
         for(int i = 0;i < lenx;i++){
             HostX[i] = rand() % 10;
-#ifdef LINUX
             Xcblas[i] = HostX[i];
-#endif
         }
         hc::copy(begin(HostX), end(HostX), xView);
         status = hc.hcblas_sscal(accl_view, N, alpha, xView, incX, xOffset);
-#ifdef LINUX
         hc::copy(xView, begin(HostX));  
         cblas_sscal( N, alpha, Xcblas, incX );
         for(int i = 0; i < lenx ; i++){
@@ -145,9 +123,7 @@ int main(int argc, char** argv)
                 continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
    }
 
 /* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
@@ -157,14 +133,11 @@ int main(int argc, char** argv)
         std::vector<float> HostX_batch(lenx * batchSize); 
         for(int i = 0;i < lenx * batchSize;i++){
             HostX_batch[i] = rand() % 10;
-#ifdef LINUX
             Xcblasbatch[i] =  HostX_batch[i];
-#endif
          }
         hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         status= hc.hcblas_sscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
         hc::copy(xbatchView, begin(HostX_batch));  
-#ifdef LINUX
         for(int i = 0; i < batchSize; i++)
         	cblas_sscal( N, alpha, Xcblasbatch + i * N, incX);
         for(int i =0; i < lenx * batchSize; i ++){
@@ -177,9 +150,7 @@ int main(int argc, char** argv)
               continue;  
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
     }
     return 0;
 }

@@ -1,9 +1,7 @@
 #include <iostream>
 #include "hcblas.h"
 #include <cstdlib> 
-#ifdef LINUX
 #include "cblas.h"
-#endif
 using namespace std;
 int main(int argc, char** argv)
 {   
@@ -24,11 +22,9 @@ int main(int argc, char** argv)
     long Y_batchOffset = N;
     int batchSize = 128;
     hcblasStatus status;
-#ifdef LINUX
     /* CBLAS implementation */
     bool ispassed = 1;
     float *Ycblas = (float*)calloc(N, sizeof(float));
-#endif
     long lenx = 1 + (N-1) * abs(incX);
     long leny = 1 + (N-1) * abs(incY);
     float *X = (float*)calloc(lenx, sizeof(float));
@@ -47,12 +43,9 @@ int main(int argc, char** argv)
 #endif
         for(int i = 0;i < leny;i++){
             Y[i] =  rand() % 15;
-#ifdef LINUX
             Ycblas[i] = Y[i];
-#endif
         }
 	status = hc.hcblas_saxpy(N, &alpha, X, incX, Y, incY , xOffset, yOffset);
-#ifdef LINUX
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
         for(int i = 0; i < leny ; i++){
             if (Y[i] != Ycblas[i]){
@@ -64,9 +57,7 @@ int main(int argc, char** argv)
                 continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -86,12 +77,9 @@ int main(int argc, char** argv)
 #endif
         for(int i = 0; i < leny; i++) {
             yView[i] =  rand() % 15;
-#ifdef LINUX
             Ycblas[i] = Y[i];
-#endif
         }
         status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
-#ifdef LINUX
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
         for(int i = 0; i < leny ; i++){
             if (yView[i] != Ycblas[i]){
@@ -103,9 +91,7 @@ int main(int argc, char** argv)
                 continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -116,9 +102,7 @@ int main(int argc, char** argv)
     else if(Imple_type == 3) {
         float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
         float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
-#ifdef LINUX
         float *Ycblasbatch = (float*)calloc(leny * batchSize, sizeof(float));
-#endif
         hc::array_view<float> xbatchView(lenx * batchSize, Xbatch);
         hc::array_view<float> ybatchView(leny * batchSize, Ybatch);
         for(int i = 0;i < lenx * batchSize;i++){
@@ -131,12 +115,9 @@ int main(int argc, char** argv)
         for(int i = 0;i < leny * batchSize;i++){
             ybatchView[i] =  rand() % 15;
             Ybatch[i] = ybatchView[i];
-#ifdef LINUX
             Ycblasbatch[i] = Ybatch[i];
-#endif
          }
         status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-#ifdef LINUX
         for(int i = 0; i < batchSize; i++)
                 cblas_saxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
         for(int i =0; i < leny * batchSize; i++){
@@ -149,9 +130,7 @@ int main(int argc, char** argv)
               continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -172,15 +151,12 @@ int main(int argc, char** argv)
 #endif
         for(int i = 0; i < leny; i++) {
              HostY[i] =  rand() % 15;
-#ifdef LINUX
              Ycblas[i] = HostY[i];
-#endif
         }
         hc::copy(begin(HostX), end(HostX), xView);
         hc::copy(begin(HostY), end(HostY), yView);
         status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
         hc::copy(yView, begin(HostY));
-#ifdef LINUX
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
         for(int i = 0; i < leny ; i++){
             if (HostY[i] != Ycblas[i]){
@@ -192,9 +168,7 @@ int main(int argc, char** argv)
                 continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -205,9 +179,7 @@ int main(int argc, char** argv)
     else{
         float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
         float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
-#ifdef LINUX
         float *Ycblasbatch = (float*)calloc(N * batchSize, sizeof(float));
-#endif
         hc::array<float> xbatchView(lenx * batchSize, Xbatch);
         hc::array<float> ybatchView(leny * batchSize, Ybatch);
         std::vector<float> HostX_batch(lenx * batchSize);
@@ -222,15 +194,12 @@ int main(int argc, char** argv)
         for(int i = 0;i < leny * batchSize;i++){
             HostY_batch[i] =  rand() % 15;
             Ybatch[i] = HostY_batch[i];
-#ifdef LINUX
             Ycblasbatch[i] = Ybatch[i];
-#endif
          }
         hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
         status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
         hc::copy(ybatchView, begin(HostY_batch));
-#ifdef LINUX
         for(int i = 0; i < batchSize; i++)
         	cblas_saxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
         for(int i =0; i < leny * batchSize; i ++){
@@ -243,9 +212,7 @@ int main(int argc, char** argv)
               continue;  
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif

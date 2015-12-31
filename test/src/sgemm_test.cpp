@@ -1,9 +1,7 @@
 #include <iostream>
 #include "hcblas.h"
 #include <cstdlib>
-#ifdef LINUX
 #include "cblas.h"
-#endif
 using namespace std;
 
 int main(int argc,char* argv[])
@@ -61,7 +59,6 @@ int main(int argc,char* argv[])
     } 
     ldc = (hcOrder)? M : N;
 
-#ifdef LINUX 
     /* CBLAS implementation */
     bool ispassed = 1;
     enum CBLAS_ORDER order;
@@ -70,7 +67,6 @@ int main(int argc,char* argv[])
     Transa = (typeA == NoTrans)?CblasNoTrans:CblasTrans;
     Transb = (typeB == NoTrans)?CblasNoTrans:CblasTrans;
     float *C_cblas = (float*) calloc(M * N, sizeof(float));
-#endif
     float *Asgemm = (float*) calloc(M * K, sizeof(float));
     float *Bsgemm = (float*) calloc(K * N, sizeof(float));
     float *Csgemm = (float*) calloc(M * N, sizeof(float));
@@ -97,12 +93,9 @@ int main(int argc,char* argv[])
 #endif
             for(int i = 0; i < M * N;i++) {
                 Csgemm[i] = rand() % 25;
-#ifdef LINUX
                 C_cblas[i] = Csgemm[i];
-#endif
             }
             status = hc.hcblas_sgemm(hcOrder, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-#ifdef LINUX
             cblas_sgemm(order, Transa, Transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc);
             for(int i = 0 ; i < M * N ; i++) { 
                 if( C_cblas[i] != (Csgemm[i])) {
@@ -114,9 +107,7 @@ int main(int argc,char* argv[])
                    continue;
             }
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
             if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
            }
 #endif
@@ -142,12 +133,9 @@ int main(int argc,char* argv[])
             for(int i = 0; i < M * N;i++) {
                 C_mat[i] = rand() % 25;
                 Csgemm[i] = C_mat[i];
-#ifdef LINUX
                 C_cblas[i] = C_mat[i];
-#endif
             }
             status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-#ifdef LINUX
             cblas_sgemm(order, Transa, Transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc);
             for(int i = 0 ; i < M * N ; i++) {
                 if( C_cblas[i] != (C_mat[i])) {
@@ -159,9 +147,7 @@ int main(int argc,char* argv[])
                    continue;
             }
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
             if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
            }
 #endif
@@ -173,9 +159,7 @@ int main(int argc,char* argv[])
             float *Asgemm_batch = (float*) calloc(M * K, sizeof(float));
             float *Bsgemm_batch = (float*) calloc(K * N, sizeof(float));
             float *Csgemm_batch = (float*) calloc(M * N * batchSize, sizeof(float));
-#ifdef LINUX
             float *CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));
-#endif
             hc::array_view<float> A_batch(K * M, Asgemm_batch);
             hc::array_view<float> B_batch(N * K, Bsgemm_batch);
             hc::array_view<float> C_batch(M * N * batchSize, Csgemm_batch);
@@ -193,12 +177,9 @@ int main(int argc,char* argv[])
             for(int i = 0; i < M * N * batchSize;i++) {
                 C_batch[i] = rand() % 25;
                 Csgemm_batch[i] = C_batch[i];
-#ifdef LINUX
                 CCblasbatch[i] = Csgemm_batch[i];
-#endif
             }
             status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-#ifdef LINUX
             for(int i = 0; i < batchSize; i++)
                 cblas_sgemm( order, Transa, Transb, M, N, K, alpha, Asgemm_batch, lda, Bsgemm_batch, ldb, beta, CCblasbatch  + i * M * N ,ldc );
             for(int i = 0 ; i < M * N * batchSize; i++) {
@@ -211,9 +192,7 @@ int main(int argc,char* argv[])
                    continue;
             }
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
             if(status) cout << "TEST FAILED" << endl;
-#endif
 #ifdef PROFILE
             }
 #endif
@@ -241,9 +220,7 @@ int main(int argc,char* argv[])
 #endif
             for(int i = 0; i < M * N;i++) {
             HostC[i] = rand() % 25;
-#ifdef LINUX
             C_cblas[i] = HostC[i];
-#endif
             Csgemm[i] = HostC[i];
             }
             hc::copy(begin(HostA), end(HostA), A_mat);
@@ -251,7 +228,6 @@ int main(int argc,char* argv[])
             hc::copy(begin(HostC), end(HostC), C_mat);
             status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat,ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
             hc::copy(C_mat, begin(HostC));
-#ifdef LINUX
             cblas_sgemm( order, Transa, Transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc);
             for(int i = 0 ; i < M * N ; i++) { 
                 if( C_cblas[i] != (HostC[i])) {
@@ -263,9 +239,7 @@ int main(int argc,char* argv[])
                    continue;
             } 
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
            if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
             }
 #endif
@@ -277,9 +251,7 @@ int main(int argc,char* argv[])
             float *Asgemm_batch = (float*) calloc(M * K, sizeof(float));
             float *Bsgemm_batch = (float*) calloc(K * N, sizeof(float));
             float *Csgemm_batch = (float*) calloc(M * N * batchSize, sizeof(float));
-#ifdef LINUX
             float *CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));                     
-#endif
             hc::array<float> A_batch(K * M, Asgemm_batch);
             hc::array<float> B_batch(N * K, Bsgemm_batch);
             hc::array<float> C_batch(M * N * batchSize, Csgemm_batch);
@@ -300,16 +272,13 @@ int main(int argc,char* argv[])
             for(int i = 0; i < M * N * batchSize;i++) {
                 HostC_batch[i] = rand() % 25;
                 Csgemm_batch[i] = HostC_batch[i];
-#ifdef LINUX
                 CCblasbatch[i] = Csgemm_batch[i];
-#endif
             } 
             hc::copy(begin(HostA), end(HostA), A_batch);
             hc::copy(begin(HostB), end(HostB), B_batch);
             hc::copy(begin(HostC_batch), end(HostC_batch), C_batch);
             status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch,ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
             hc::copy(C_batch, begin(HostC_batch));         
-#ifdef LINUX 
             for(int i = 0; i < batchSize; i++)
                 cblas_sgemm( order, Transa, Transb, M, N, K, alpha, Asgemm_batch, lda, Bsgemm_batch, ldb, beta, CCblasbatch  + i * M * N ,ldc );
 
@@ -323,9 +292,7 @@ int main(int argc,char* argv[])
                    continue;
             }
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
            if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
     	    } 
 #endif

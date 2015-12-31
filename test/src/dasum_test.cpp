@@ -1,9 +1,7 @@
 #include <iostream>
 #include "hcblas.h"
 #include <cstdlib> 
-#ifdef LINUX
 #include "cblas.h"
-#endif
 using namespace std;
 int main(int argc, char** argv)
 {   
@@ -23,12 +21,10 @@ int main(int argc, char** argv)
     long X_batchOffset = N;
     if(N > 10000)
 	batchSize = 50;
-#ifdef LINUX
     /* CBLAS implementation */
     bool ispassed = 1;
     double asumcblas = 0.0;
     double *asumcblastemp = (double*)calloc(batchSize, sizeof(double));
-#endif
     /* CBLAS implementation */
     long lenx = 1 + (N-1) * abs(incX);
     double *X = (double*)calloc(lenx, sizeof(double));
@@ -43,16 +39,13 @@ int main(int argc, char** argv)
             X[i] = rand() % 10;
         }
 	status = hc.hcblas_dasum(N, X, incX, xOffset, &asumhcblas);
-#ifdef LINUX
         asumcblas = cblas_dasum( N, X, incX);
         if (asumhcblas != asumcblas) {
             ispassed = 0;
             cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
         free(X);
     }
 
@@ -65,16 +58,13 @@ int main(int argc, char** argv)
             X[i] = xView[i];
         }
         status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
-#ifdef LINUX
         asumcblas = cblas_dasum( N, X, incX);
         if (asumhcblas != asumcblas) {
             ispassed = 0;
             cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
      }
 
 /* Implementation type III - Inputs and Outputs are HC++ double array_view containers with batch processing */
@@ -87,7 +77,6 @@ int main(int argc, char** argv)
          }
 
         status= hc.hcblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
-#ifdef LINUX
         for(int i = 0; i < batchSize; i++){
             asumcblastemp[i] = cblas_dasum( N, Xbatch + i * N, incX);
             asumcblas += asumcblastemp[i];
@@ -97,9 +86,7 @@ int main(int argc, char** argv)
             cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; ;
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
     }
 
 /* Implementation type IV - Inputs and Outputs are HC++ double array containers */
@@ -113,16 +100,13 @@ int main(int argc, char** argv)
         }
         hc::copy(begin(HostX), end(HostX), xView);
         status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
-#ifdef LINUX
         asumcblas = cblas_dasum( N, X, incX);
         if (asumhcblas != asumcblas) {
             ispassed = 0;
             cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
      }
 
 /* Implementation type V - Inputs and Outputs are HC++ double array containers with batch processing */
@@ -136,7 +120,6 @@ int main(int argc, char** argv)
          }
         hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         status= hc.hcblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
-#ifdef LINUX
         for(int i = 0; i < batchSize; i++) {
         	asumcblastemp[i] = cblas_dasum( N, Xbatch + i * N, incX);
                 asumcblas += asumcblastemp[i];
@@ -146,9 +129,7 @@ int main(int argc, char** argv)
             cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; ;
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
     }
     return 0;
 }

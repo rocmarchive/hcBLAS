@@ -2,12 +2,8 @@
 #include<iostream>
 #include<amp_short_vectors.h>
 #include "hcblas.h"
-#ifdef LINUX
 #include<cblas.h>
 #include<unistd.h>
-#else
-#include<io.h>
-#endif
 using namespace Concurrency::graphics;
 using namespace hc;
 using namespace std;
@@ -65,7 +61,6 @@ int main(int argc, char* argv[])
     cAlpha.y = calpha.img  = 1;
     cBeta.x = cbeta.real = 1;
     cBeta.y = cbeta.img  = 1;
-#ifdef LINUX 
     /* CBLAS implementation */
     bool ispassed = 1;
     float alpha[2], beta[2];
@@ -77,7 +72,6 @@ int main(int argc, char* argv[])
     alpha[1] = calpha.img;
     beta[0] = cbeta.real;
     beta[1] = cbeta.img;
-#endif
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     hc::accelerator_view accl_view = (acc[1].create_view());
     float* a = (float *)malloc(sizeof(float )* M * K * 2);
@@ -121,7 +115,6 @@ int main(int argc, char* argv[])
             c[k++] = Chc[i].img;
         }
     	status = hc.hcblas_cgemm(hcOrder, typeA, typeB, M, N, K, &calpha, Ahc, aOffset, lda, Bhc, bOffset, ldb, &cbeta, Chc, cOffset, ldc);
-#ifdef LINUX
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && (k < M * N * 2)) ; i++, k = k + 2){
             if ((Chc[i].real != c[k]) || (Chc[i].img != c[k+1])){
@@ -134,9 +127,7 @@ int main(int argc, char* argv[])
          
          }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -173,7 +164,6 @@ int main(int argc, char* argv[])
             c[k++] = C[i].y;
         }
         status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
-#ifdef LINUX
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((C[i].x != c[k]) || (C[i].y != c[k+1])){
@@ -187,9 +177,7 @@ int main(int argc, char* argv[])
          }
 
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -231,7 +219,6 @@ int main(int argc, char* argv[])
         }
 
         status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
-#ifdef LINUX
         for(int i = 0; i < batchSize;i++)
              cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -245,9 +232,7 @@ int main(int argc, char* argv[])
 
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -291,7 +276,6 @@ int main(int argc, char* argv[])
         hc::copy(begin(HostC), end(HostC), C);
     	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
         hc::copy(C, begin(HostC));
-#ifdef LINUX
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((HostC[i].x != c[k]) || (HostC[i].y != c[k+1])){
@@ -304,9 +288,7 @@ int main(int argc, char* argv[])
 
          }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -354,7 +336,6 @@ int main(int argc, char* argv[])
         hc::copy(begin(HostC_batch), end(HostC_batch), Cbatch);
     	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
         hc::copy(Cbatch, begin(HostC_batch));  
-#ifdef LINUX
         for(int i = 0; i < batchSize;i++)
 	     cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -367,9 +348,7 @@ int main(int argc, char* argv[])
                continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif

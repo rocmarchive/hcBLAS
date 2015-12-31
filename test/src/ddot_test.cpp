@@ -1,9 +1,7 @@
 #include <iostream>
 #include "hcblas.h"
 #include <cstdlib> 
-#ifdef LINUX
 #include "cblas.h"
-#endif
 using namespace std;
 int main(int argc, char** argv)
 {   
@@ -26,12 +24,10 @@ int main(int argc, char** argv)
     hcblasStatus status;
     if (N > 5000)
 	batchSize = 50;
-#ifdef LINUX 
     /* CBLAS implementation */
     bool ispassed = 1;
     double  dotcblas = 0.0;
     double *dotcblastemp =(double*)calloc(batchSize, sizeof(double));
-#endif
     /* CBLAS implementation */
     long lenx = 1 + (N-1) * abs(incX);
     long leny = 1 + (N-1) * abs(incY);
@@ -52,16 +48,13 @@ int main(int argc, char** argv)
              Y[i] = rand() % 15;
         }
 	status = hc.hcblas_ddot(N, X, incX, xOffset, Y, incY, yOffset, &dothcblas);
-#ifdef LINUX
         dotcblas = cblas_ddot( N, X, incX, Y, incY);
         if (dothcblas != dotcblas){
             ispassed = 0;
             cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
         free(X);
         free(Y);
     }
@@ -80,16 +73,12 @@ int main(int argc, char** argv)
             Y[i] = yView[i];
         }
         status = hc.hcblas_ddot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-#ifdef LINUX 
         dotcblas = cblas_ddot( N, X, incX, Y, incY);
         if (dothcblas != dotcblas){
            ispassed = 0;
            cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
-        if(status) cout << "TEST FAILED" << endl; 
-#endif
 
      }
 
@@ -108,7 +97,6 @@ int main(int argc, char** argv)
          }
 
         status= hc.hcblas_ddot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-#ifdef LINUX 
         for(int i = 0; i < batchSize; i++){
             dotcblastemp[i] = cblas_ddot( N, Xbatch + i * N, incX, Ybatch + i * N, incY);
             dotcblas += dotcblastemp[i];
@@ -118,9 +106,7 @@ int main(int argc, char** argv)
             cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
     }
 
 /* Implementation type IV - Inputs and Outputs are HC++ double array containers */
@@ -141,16 +127,13 @@ int main(int argc, char** argv)
         hc::copy(begin(HostX), end(HostX), xView);
         hc::copy(begin(HostY), end(HostY), yView);
         status = hc.hcblas_ddot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-#ifdef LINUX
         dotcblas = cblas_ddot( N, X, incX, Y, incY);
         if (dothcblas != dotcblas){
             ispassed = 0;
             cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
      }
 
 /* Implementation type V - Inputs and Outputs are HC++ double array containers with batch processing */
@@ -171,7 +154,6 @@ int main(int argc, char** argv)
         hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
         hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
         status= hc.hcblas_ddot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-#ifdef LINUX
         for(int i = 0; i < batchSize; i++){
         	dotcblastemp[i] = cblas_ddot( N, Xbatch + i * N, incX, Ybatch + i * N, incY);
                 dotcblas += dotcblastemp[i];
@@ -181,9 +163,7 @@ int main(int argc, char** argv)
             cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
     }
     return 0;
 }

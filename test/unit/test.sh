@@ -4,7 +4,7 @@ CURRENTDIR=$PWD
 
 #Move to library build
 cd $CURRENTDIR/../../lib/build/linux/
-sh clean.sh
+#sh clean.sh
 
 #Invoke build script
 sh build.sh
@@ -14,7 +14,7 @@ sudo make install
 
 #Move to test build
 cd $CURRENTDIR/../build/linux/
-sh clean.sh
+#sh clean.sh
 
 #Invoke the build script
 sh build.sh
@@ -151,9 +151,11 @@ DIFF=$(diff testlog.txt testlog_temp.txt)
 if [ "$DIFF" != "" ] 
 then
     echo "TEST FAILED"
+    rm testlog_temp.txt
 else
     echo "All Unit Tests Passed!"
+    rm testlog*
 fi
 
 #Remove test log files 
-rm testlog*
+#rm testlog*
