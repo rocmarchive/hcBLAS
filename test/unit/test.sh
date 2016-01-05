@@ -127,15 +127,78 @@ done < $current_work_dir/saxpy_input.txt
 #All logs are appended to testlog file 
 #Adding TEST PASSED to the log file
 echo "TEST PASSED" >> testlog.txt
+red=`tput setaf 1`
+green=`tput setaf 2`
+reset=`tput sgr0`
 
 #Difference between temporary log file and test log file is null
 #when all tests are passed 
 DIFF=$(diff testlog.txt testlog_temp.txt)
 if [ "$DIFF" != "" ] 
 then
-    echo "TEST FAILED"
+    echo "${red}Functionality check ----- [ FAILED ]${reset}"
     rm testlog_temp.txt
 else
-    echo "All Unit Tests Passed!"
+    echo "${green}Functionality check ----- [ PASSED ]${reset}"
     rm testlog*
 fi
+
+# Move to gtest bin
+working_dir1="$current_work_dir/../../build/test/unit/gtest/bin/"
+cd $working_dir1
+
+#Gtest functions
+path2testsscal="$working_dir1/test_sscal"
+path2testdscal="$working_dir1/test_dscal"
+path2testscopy="$working_dir1/test_scopy"
+path2testdcopy="$working_dir1/test_dcopy"
+path2testsasum="$working_dir1/test_sasum"
+path2testdasum="$working_dir1/test_dasum"
+path2testsdot="$working_dir1/test_sdot"
+path2testddot="$working_dir1/test_ddot"
+path2testsaxpy="$working_dir1/test_saxpy"
+path2testsger="$working_dir1/test_sger"
+path2testsgemv="$working_dir1/test_sgemv"
+
+runcmd1="$path2testsscal >> gtestlog.txt"
+eval $runcmd1
+
+runcmd2="$path2testdscal >> gtestlog.txt"
+eval $runcmd2
+
+runcmd3="$path2testscopy >> gtestlog.txt"
+eval $runcmd3
+
+runcmd4="$path2testdcopy >> gtestlog.txt"
+eval $runcmd4
+
+runcmd5="$path2testsasum >> gtestlog.txt"
+eval $runcmd5
+
+runcmd6="$path2testdasum >> gtestlog.txt"
+eval $runcmd6
+
+runcmd7="$path2testsdot >> gtestlog.txt"
+eval $runcmd7
+
+runcmd8="$path2testddot >> gtestlog.txt"
+eval $runcmd8
+
+runcmd9="$path2testsaxpy >> gtestlog.txt"
+eval $runcmd9
+
+runcmd10="$path2testsger >> gtestlog.txt"
+eval $runcmd10
+
+runcmd11="$path2testsgemv >> gtestlog.txt"
+eval $runcmd11
+
+Log_file="$working_dir1/gtestlog.txt"
+if grep -q FAILED "$Log_file";
+then
+    echo "${red}GTEST               ---- [ FAILED ]${reset}"
+else
+    echo "${green}GTEST               ---- [ PASSED ]${reset}"
+    rm $working_dir1/gtestlog.txt
+fi
+

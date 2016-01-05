@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 #add_subdirectory(hcblas_sgemm)
 #add_subdirectory(hcblas_cgemm)
-#add_subdirectory(hcblas_sgemv)
+add_subdirectory(hcblas_sgemv)
 add_subdirectory(hcblas_sger)
 add_subdirectory(hcblas_saxpy)
 add_subdirectory(hcblas_sscal)

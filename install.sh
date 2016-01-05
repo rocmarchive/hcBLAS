@@ -74,17 +74,19 @@ mkdir $current_work_dir/build/test/unit/gtest/bin/
 set -e
 
 make
+red=`tput setaf 1`
+green=`tput setaf 2`
+reset=`tput sgr0`
 
 #Various possibilities of test and profile arguments
 #Test=OFF and Profile=OFF (Build library and tests)
 if (([ "$var1" = "test=off" ] && [ "$var2" = "profile=off" ]) || ([ "$var1" = "profile=off" ] && [ "$var2" = "test=off" ])); then
-   echo "HCBLAS Installation Completed!"
+   echo "${green}HCBLAS Installation Completed!${reset}"
 #Test=ON and Profile=OFF (Build and test the library)
 elif (([ "$var1" = "test=on" ] && [ "$var2" = "profile=off" ]) || ([ "$var1" = "profile=off" ] && [ "$var2" = "test=on" ])); then
    cd $current_work_dir/test/unit/
 # Invoke test script 
    ./test.sh
-   echo "HCBLAS Installation Completed!"
 # Test=ON and Profile=ON (Build, test and profile the library)
 elif (([ "$var1" = "profile=on" ] && [ "$var2" = "test=on" ]) || ([ "$var1" = "test=on" ] && [ "$var2" = "profile=on" ])); then
    cd $current_work_dir/test/unit/
@@ -93,11 +95,9 @@ elif (([ "$var1" = "profile=on" ] && [ "$var2" = "test=on" ]) || ([ "$var1" = "t
    cd $current_work_dir/test/benchmark/
 #Invoke profiling script
    ./runme.sh
-   echo "HCBLAS Installation Completed!"
 # Test=OFF and Profile=ON (Build and profile the library)
 elif (([ "$var1" = "profile=on" ] && [ "$var2" = "test=off" ]) || ([ "$var1" = "test=off" ] && [ "$var2" = "profile=on" ])); then
    cd $current_work_dir/test/benchmark/
 #Invoke profiling script
    ./runme.sh
-   echo "HCBLAS Installation Completed!"
 fi 

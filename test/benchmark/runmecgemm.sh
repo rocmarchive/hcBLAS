@@ -5,10 +5,10 @@
 CURRENTDIR=$PWD
 
 #Path to profile
-path2profiler="/opt/AMD/CodeXL_1.6.7247/x86_64/sprofile"
+path2profiler="/opt/AMD/CodeXL*/x86_64/sprofile"
 
 #Path to CGEMM executable
-path2exe="$CURRENTDIR/../build/linux/bin/cgemm"
+path2exe="$CURRENTDIR/../../build/test/src/bin/cgemm"
 workingdir="$CURRENTDIR"
 
 #Create Profile Data directory to store profile results

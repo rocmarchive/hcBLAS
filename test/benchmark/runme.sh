@@ -7,25 +7,7 @@ CURRENTDIR=$PWD
 #Export HCBLAS_PATH to be used by python scripts
 export HCBLAS_PATH=$CURRENTDIR/../../
 
-#Move to library build
-cd $CURRENTDIR/../../lib/build/linux/
-sh clean.sh
-
-#Invoke build script
-sh build.sh
-
-#Install the library
-sudo make install
-
-#Move to test build
-cd $CURRENTDIR/../build/linux/
-sh clean.sh
-
-#Invoke build script and enable PROFILE
-sh build.sh PROFILE=ON
-
-#Build the tests
-make
+cd $CURRENTDIR/../../build/test/ && cmake -DCMAKE_CXX_FLAGS=-fPIC $HCBLAS_PATH/test/ -DPROFILE=ON && make
 
 #Move to test benchmark 
 cd $CURRENTDIR
@@ -45,4 +27,8 @@ cd $CURRENTDIR
 #Profile SGEMV
 ./runmesgemv.sh
 
-echo "HCBLAS Profiling Completed!"
+red=`tput setaf 1`
+green=`tput setaf 2`
+reset=`tput sgr0`
+
+echo "${green}HCBLAS Profiling Completed!${reset}"
