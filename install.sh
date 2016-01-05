@@ -70,7 +70,7 @@ cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_CO
 set +e
 mkdir $current_work_dir/build/test/src/bin/
 #mkdir $current_work_dir/build/test/example/bin/
-#mkdir $current_work_dir/build/test/unit/bin/
+mkdir $current_work_dir/build/test/unit/gtest/bin/
 set -e
 
 make
