@@ -1,48 +1,31 @@
 #!/bin/bash
-#CURRENT_WORK_DIRECTORY
-CURRENTDIR=$PWD
+#This script is invoked to test all generators of the hcblas library 
+#Preliminary version
 
-#Move to library build
-cd $CURRENTDIR/../../lib/build/linux/
-#sh clean.sh
+# CURRENT_WORK_DIRECTORY
+current_work_dir=$PWD
 
-#Invoke build script
-sh build.sh
-
-#Install the library
-sudo make install
-
-#Move to test build
-cd $CURRENTDIR/../build/linux/
-#sh clean.sh
-
-#Invoke the build script
-sh build.sh
-
-#Build tests
-make
-
-#Start Unit tests
-cd $CURRENTDIR/
+# Move to src test bin
+working_dir="$current_work_dir/../../build/test/src/bin/"
+cd $working_dir
 
 #Temporary log file to compare with original log file
 echo "TEST PASSED" >> testlog_temp.txt
 
 #Path to executables
-path2sgemm="$CURRENTDIR/../build/linux/bin/sgemm"
-path2cgemm="$CURRENTDIR/../build/linux/bin/cgemm"
-path2sgemv="$CURRENTDIR/../build/linux/bin/sgemv"
-path2sger="$CURRENTDIR/../build/linux/bin/sger"
-path2saxpy="$CURRENTDIR/../build/linux/bin/saxpy"
-path2sscal="$CURRENTDIR/../build/linux/bin/sscal"
-path2dscal="$CURRENTDIR/../build/linux/bin/dscal"
-path2scopy="$CURRENTDIR/../build/linux/bin/scopy"
-path2dcopy="$CURRENTDIR/../build/linux/bin/dcopy"
-path2sasum="$CURRENTDIR/../build/linux/bin/sasum"
-path2dasum="$CURRENTDIR/../build/linux/bin/dasum"
-path2sdot="$CURRENTDIR/../build/linux/bin/sdot"
-path2ddot="$CURRENTDIR/../build/linux/bin/ddot"
-workingdir="$CURRENTDIR"
+path2sgemm="$working_dir/sgemm"
+path2cgemm="$working_dir/cgemm"
+path2sgemv="$working_dir/sgemv"
+path2sger="$working_dir/sger"
+path2saxpy="$working_dir/saxpy"
+path2sscal="$working_dir/sscal"
+path2dscal="$working_dir/dscal"
+path2scopy="$working_dir/scopy"
+path2dcopy="$working_dir/dcopy"
+path2sasum="$working_dir/sasum"
+path2dasum="$working_dir/dasum"
+path2sdot="$working_dir/sdot"
+path2ddot="$working_dir/ddot"
 
 #SGEMM TEST
 while read line; do
@@ -60,7 +43,7 @@ while read line; do
     fi
 
 #Input file for SGEMM
-done < $workingdir/sgemm_input.txt
+done < $current_work_dir/sgemm_input.txt
 
 #CGEMM TEST
 while read line; do
@@ -78,7 +61,7 @@ while read line; do
     fi
 
 #Input file for CGEMM
-done < $workingdir/sgemm_input.txt                              
+done < $current_work_dir/sgemm_input.txt                              
 
 #SGEMV TEST
 while read line; do
@@ -94,7 +77,7 @@ while read line; do
     fi
 
 #Input file for SGEMV
-done < $workingdir/sgemv_input.txt
+done < $current_work_dir/sgemv_input.txt
 
 #SGER TEST
 while read line; do
@@ -109,7 +92,7 @@ while read line; do
     fi
 
 #Input file for SGER
-done < $workingdir/sger_input.txt
+done < $current_work_dir/sger_input.txt
 
 #SAXPY, (D/S)SCAL, (D/S)COPY, (D/S)ASUM, (D/S)DOT TEST
 while read line; do
@@ -139,7 +122,7 @@ while read line; do
     fi
 
 #Input file for SAXPY, (D/S)SCAL, (D/S)COPY, (D/S)ASUM, (D/S)DOT
-done < $workingdir/saxpy_input.txt
+done < $current_work_dir/saxpy_input.txt
 
 #All logs are appended to testlog file 
 #Adding TEST PASSED to the log file
@@ -156,6 +139,3 @@ else
     echo "All Unit Tests Passed!"
     rm testlog*
 fi
-
-#Remove test log files 
-#rm testlog*

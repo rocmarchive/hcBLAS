@@ -1,35 +1,13 @@
-#!/bin/bash
 # This script is invoked to uninstall the hcblas library and test sources
+# Preliminary version
 
 # CURRENT_WORK_DIRECTORY
-CURRENTDIR=$PWD
+current_work_dir=$PWD
 
-#Move to library build
-cd $CURRENTDIR/lib/build/linux/
+# Remove system wide installed lib and headers
+sudo xargs rm < $current_work_dir/build/install_manifest.txt
 
-#Invoke clean script
-sh clean.sh
+# Remove build
+sudo rm -rf $current_work_dir/build
 
-#Move to test build
-cd $CURRENTDIR/test/build/linux/
-
-#Invoke clean script
-sh clean.sh
-
-#Move to test benchmark
-cd $CURRENTDIR/test/benchmark/
-
-#Remove profile data
-rm profileSummary*
-rm -rf *ProfileData/
-
-#Remove installed libraries and headers
-sudo rm /usr/lib/libhcblas.so
-sudo rm /usr/local/include/hcblas.h
-
-#Remove CMake progress folders
-DIRECTORY=$CURRENTDIR/lib/build/linux/CMakeFiles
-if [ -d "$DIRECTORY" ]; then
-  cd $CURRENTDIR/lib/build/linux/
-  sudo rm -rf CMakeFiles
-fi
+# TODO: ADD More options
