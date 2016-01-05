@@ -196,9 +196,9 @@ eval $runcmd11
 Log_file="$working_dir1/gtestlog.txt"
 if grep -q FAILED "$Log_file";
 then
-    echo "${red}GTEST               ---- [ FAILED ]${reset}"
+    echo "${red}GTEST               ----- [ FAILED ]${reset}"
 else
-    echo "${green}GTEST               ---- [ PASSED ]${reset}"
+    echo "${green}GTEST               ----- [ PASSED ]${reset}"
     rm $working_dir1/gtestlog.txt
 fi
 

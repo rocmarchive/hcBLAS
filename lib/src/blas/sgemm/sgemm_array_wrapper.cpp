@@ -85,7 +85,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hcblasOrder order,
 				           const long bOffset,
 				           const long cOffset) {
   // Quick return if possible
-  if (!M || !N || !K) {
+  if (!M || !N || !K || A == NULL || B == NULL || C == NULL || alpha == NULL || beta == NULL ) {
     return HCBLAS_INVALID;
   }
   hc::array<float> A_mat(K * M, A);
