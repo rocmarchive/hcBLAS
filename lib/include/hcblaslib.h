@@ -6,8 +6,8 @@
 *
 */
 
-#ifndef HCBLAS_H
-#define HCBLAS_H
+#ifndef HCBLASLIB_H
+#define HCBLASLIB_H
 
 #include <iostream>
 #include "hc.hpp"
