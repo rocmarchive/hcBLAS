@@ -1,4 +1,4 @@
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include <cstdlib> 
 #include <amp_short_vectors.h>
 #include <unistd.h>

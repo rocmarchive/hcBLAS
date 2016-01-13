@@ -1,4 +1,4 @@
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include <hc.hpp>
 #include <hc_math.hpp>
 using namespace hc;

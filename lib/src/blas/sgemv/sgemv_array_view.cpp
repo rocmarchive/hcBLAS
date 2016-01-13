@@ -1,4 +1,4 @@
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include "hc_math.hpp"
 #define BLOCK_SIZE 256
 using namespace hc::fast_math;

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
 using namespace std;

@@ -1,6 +1,6 @@
 /*
 *
-*  FILENAME : hcblas.h
+*  FILENAME : hcblaslib.h
 *  This file is the top level header file which includes the Hcblaslilbrary class
 *  for performing five blas operations ( saxpy, sger, sgemv, sgemm, cgemm )
 *

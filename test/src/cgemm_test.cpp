@@ -1,7 +1,7 @@
 #include<hc.hpp>
 #include<iostream>
 #include<amp_short_vectors.h>
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include<cblas.h>
 #include<unistd.h>
 using namespace Concurrency::graphics;

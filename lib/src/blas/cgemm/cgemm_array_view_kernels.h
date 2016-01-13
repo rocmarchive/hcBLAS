@@ -1,4 +1,4 @@
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include <assert.h>
 #include <vector>
 #include <hc.hpp>
