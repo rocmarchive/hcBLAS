@@ -4,8 +4,8 @@
 # Once done this will define
 #  HC++_FOUND - System has HC++
 #  HC++_BIN_DIR - The HC++ binaries directories
-#  CLAMP_CXXFLAGS - The HC++ compilation flags
-#  CLAMP_LDFLAGS - The HC++ linker flags
+#  HCC_CXXFLAGS - The HC++ compilation flags
+#  HCC_LDFLAGS - The HC++ linker flags
 
 # The following are available when in installation mode
 #  HC++_INCLUDE_DIRS - The HC++ include directories
@@ -21,7 +21,7 @@ set(MCWHCCBUILD $ENV{MCWHCCBUILD})
 if(EXISTS /opt/hcc/bin/clang++)
   find_path(HC++_BIN_DIR clang++
            HINTS /opt/hcc/bin)
-  find_path(HC++_CONFIGURE_DIR clamp-config
+  find_path(HC++_CONFIGURE_DIR hcc-config
            HINTS /opt/hcc/bin)
   include(FindPackageHandleStandardArgs)
   # handle the QUIETLY and REQUIRED arguments and set HC++_FOUND to TRUE
@@ -39,21 +39,21 @@ if(EXISTS /opt/hcc/bin/clang++)
 
   # Build mode
   set (CLANG_AMP "${HC++_BIN_DIR}/clang++")
-  set (CLAMP_CONFIG "${HC++_CONFIGURE_DIR}/clamp-config")
-  execute_process(COMMAND ${CLAMP_CONFIG} --cxxflags
-                  OUTPUT_VARIABLE CLAMP_CXXFLAGS)
-  string(STRIP "${CLAMP_CXXFLAGS}" CLAMP_CXXFLAGS)
-  set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS}")
-  execute_process(COMMAND ${CLAMP_CONFIG} --ldflags --shared
-                  OUTPUT_VARIABLE CLAMP_LDFLAGS)
-  string(STRIP "${CLAMP_LDFLAGS}" CLAMP_LDFLAGS)
-  set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS} -Wall -Wno-deprecated-register -Wno-deprecated-declarations")
-  set (CLAMP_LDFLAGS "${CLAMP_LDFLAGS}")
+  set (HCC_CONFIG "${HC++_CONFIGURE_DIR}/hcc-config")
+  execute_process(COMMAND ${HCC_CONFIG} --cxxflags
+                  OUTPUT_VARIABLE HCC_CXXFLAGS)
+  string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
+  set (HCC_CXXFLAGS "${HCC_CXXFLAGS}")
+  execute_process(COMMAND ${HCC_CONFIG} --ldflags --shared
+                  OUTPUT_VARIABLE HCC_LDFLAGS)
+  string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
+  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -Wall -Wno-deprecated-register -Wno-deprecated-declarations")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS}")
 
 elseif(EXISTS ${MCWHCCBUILD})
   find_path(HC++_BIN_DIR clang++
            HINTS ${MCWHCCBUILD}/compiler/bin)
-  find_path(HC++_CONFIGURE_DIR clamp-config
+  find_path(HC++_CONFIGURE_DIR hcc-config
            HINTS ${MCWHCCBUILD}/build/Release/bin)
   include(FindPackageHandleStandardArgs)
   # handle the QUIETLY and REQUIRED arguments and set HC++_FOUND to TRUE
@@ -71,16 +71,16 @@ elseif(EXISTS ${MCWHCCBUILD})
 
   # Build mode
   set (CLANG_AMP "${HC++_BIN_DIR}/clang++")
-  set (CLAMP_CONFIG "${HC++_CONFIGURE_DIR}/clamp-config")
-  execute_process(COMMAND ${CLAMP_CONFIG} --build --cxxflags
-                  OUTPUT_VARIABLE CLAMP_CXXFLAGS)
-  string(STRIP "${CLAMP_CXXFLAGS}" CLAMP_CXXFLAGS)
-  set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS}")
-  execute_process(COMMAND ${CLAMP_CONFIG} --build --ldflags --shared
-                  OUTPUT_VARIABLE CLAMP_LDFLAGS)
-  string(STRIP "${CLAMP_LDFLAGS}" CLAMP_LDFLAGS)
-  set (CLAMP_CXXFLAGS "${CLAMP_CXXFLAGS} -Wall -Wno-deprecated-register -Wno-deprecated-declarations")
-  set (CLAMP_LDFLAGS "${CLAMP_LDFLAGS}")
+  set (HCC_CONFIG "${HC++_CONFIGURE_DIR}/hcc-config")
+  execute_process(COMMAND ${HCC_CONFIG} --build --cxxflags
+                  OUTPUT_VARIABLE HCC_CXXFLAGS)
+  string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
+  set (HCC_CXXFLAGS "${HCC_CXXFLAGS}")
+  execute_process(COMMAND ${HCC_CONFIG} --build --ldflags --shared
+                  OUTPUT_VARIABLE HCC_LDFLAGS)
+  string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
+  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -Wall -Wno-deprecated-register -Wno-deprecated-declarations")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS}")
 
 endif()
 

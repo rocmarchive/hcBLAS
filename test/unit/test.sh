@@ -1,30 +1,33 @@
-#!/bin/bash -e
-CURRENTDIR=$PWD
-cd $CURRENTDIR/../../lib/build/linux/
-sh clean.sh
-sh build.sh
-sudo make install
-cd $CURRENTDIR/../build/linux/
-sh clean.sh
-sh build.sh
-make
-cd $CURRENTDIR/
-echo "TEST PASSED" >> testlog_temp.txt
-path2sgemm="$CURRENTDIR/../build/linux/bin/sgemm"
-path2cgemm="$CURRENTDIR/../build/linux/bin/cgemm"
-path2sgemv="$CURRENTDIR/../build/linux/bin/sgemv"
-path2sger="$CURRENTDIR/../build/linux/bin/sger"
-path2saxpy="$CURRENTDIR/../build/linux/bin/saxpy"
-path2sscal="$CURRENTDIR/../build/linux/bin/sscal"
-path2dscal="$CURRENTDIR/../build/linux/bin/dscal"
-path2scopy="$CURRENTDIR/../build/linux/bin/scopy"
-path2dcopy="$CURRENTDIR/../build/linux/bin/dcopy"
-path2sasum="$CURRENTDIR/../build/linux/bin/sasum"
-path2dasum="$CURRENTDIR/../build/linux/bin/dasum"
-path2sdot="$CURRENTDIR/../build/linux/bin/sdot"
-path2ddot="$CURRENTDIR/../build/linux/bin/ddot"
-workingdir="$CURRENTDIR"
+#!/bin/bash
+#This script is invoked to test all generators of the hcblas library 
+#Preliminary version
 
+# CURRENT_WORK_DIRECTORY
+current_work_dir=$PWD
+
+# Move to src test bin
+working_dir="$current_work_dir/../../build/test/src/bin/"
+cd $working_dir
+
+#Temporary log file to compare with original log file
+echo "TEST PASSED" >> testlog_temp.txt
+
+#Path to executables
+path2sgemm="$working_dir/sgemm"
+path2cgemm="$working_dir/cgemm"
+path2sgemv="$working_dir/sgemv"
+path2sger="$working_dir/sger"
+path2saxpy="$working_dir/saxpy"
+path2sscal="$working_dir/sscal"
+path2dscal="$working_dir/dscal"
+path2scopy="$working_dir/scopy"
+path2dcopy="$working_dir/dcopy"
+path2sasum="$working_dir/sasum"
+path2dasum="$working_dir/dasum"
+path2sdot="$working_dir/sdot"
+path2ddot="$working_dir/ddot"
+
+#SGEMM TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Nvalue=$(echo $line | cut -f2 -d" " )
@@ -38,8 +41,11 @@ while read line; do
     else
       echo $path2sgemm "doesnot exist"
     fi
-done < $workingdir/sgemm_input.txt
 
+#Input file for SGEMM
+done < $current_work_dir/sgemm_input.txt
+
+#CGEMM TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Nvalue=$(echo $line | cut -f2 -d" " )
@@ -53,8 +59,11 @@ while read line; do
     else
       echo $path2cgemm "doesnot exist"
     fi
-done < $workingdir/sgemm_input.txt                              
 
+#Input file for CGEMM
+done < $current_work_dir/sgemm_input.txt                              
+
+#SGEMV TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Nvalue=$(echo $line | cut -f2 -d" " )
@@ -66,8 +75,11 @@ while read line; do
     else
       echo $path2sgemv "doesnot exist"
     fi
-done < $workingdir/sgemv_input.txt
 
+#Input file for SGEMV
+done < $current_work_dir/sgemv_input.txt
+
+#SGER TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Nvalue=$(echo $line | cut -f2 -d" " )
@@ -78,8 +90,11 @@ while read line; do
     else
       echo $path2sger "doesnot exist"
     fi
-done < $workingdir/sger_input.txt
 
+#Input file for SGER
+done < $current_work_dir/sger_input.txt
+
+#SAXPY, (D/S)SCAL, (D/S)COPY, (D/S)ASUM, (D/S)DOT TEST
 while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Implem=$(echo $line | cut -f2 -d" " )
@@ -105,14 +120,46 @@ while read line; do
     else
       echo "Executables doesnot exist"
     fi
-done < $workingdir/saxpy_input.txt
 
+#Input file for SAXPY, (D/S)SCAL, (D/S)COPY, (D/S)ASUM, (D/S)DOT
+done < $current_work_dir/saxpy_input.txt
+
+#All logs are appended to testlog file 
+#Adding TEST PASSED to the log file
 echo "TEST PASSED" >> testlog.txt
+red=`tput setaf 1`
+green=`tput setaf 2`
+reset=`tput sgr0`
+
+#Difference between temporary log file and test log file is null
+#when all tests are passed 
 DIFF=$(diff testlog.txt testlog_temp.txt)
 if [ "$DIFF" != "" ] 
 then
-    echo "TEST FAILED"
+    echo "${red}Functionality check ----- [ FAILED ]${reset}"
+    rm testlog_temp.txt
 else
-    echo "All Unit Tests Passed!"
-fi 
-rm testlog*
+    echo "${green}Functionality check ----- [ PASSED ]${reset}"
+    rm testlog*
+fi
+
+# Move to gtest bin
+working_dir1="$current_work_dir/../../build/test/unit/gtest/bin/"
+cd $working_dir1
+
+#Gtest functions
+unittest="$working_dir1/unittest"
+
+runcmd1="$unittest >> gtestlog.txt"
+eval $runcmd1
+
+Log_file="$working_dir1/gtestlog.txt"
+if grep -q FAILED "$Log_file";
+then
+    echo "${red}GTEST               ----- [ FAILED ]${reset}"
+else
+    echo "${green}GTEST               ----- [ PASSED ]${reset}"
+    rm $working_dir1/gtestlog.txt
+fi
+
+

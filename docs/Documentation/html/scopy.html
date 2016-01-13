@@ -82,7 +82,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_scopy</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;float&gt; &amp;x, const int incx, const long xOffset, Concurrency::array&lt;float&gt; &amp;y, const int incy, const long yOffset)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_scopy</strong> (hc::accelerator_view &amp;accl_view, const int N, hc::array&lt;float&gt; &amp;x, const int incx, const long xOffset, hc::array&lt;float&gt; &amp;y, const int incy, const long yOffset)</p>
 </div>
 <div class="section" id="implementation-type-iii">
 <h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
@@ -92,7 +92,7 @@
 <p class="last"><strong>Inputs and Outputs are HC++ float array containers with batch processing.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_scopy</strong> (Concurrency::accelerator_view &amp;accl_view, const int N, Concurrency::array&lt;float&gt; &amp;x, const int incx, const long xOffset, Concurrency::array&lt;float&gt; &amp;y, const int incy, const long yOffset, const long x_batchOffset, const long y_batchOffset, const int BatchSize)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_scopy</strong> (hc::accelerator_view &amp;accl_view, const int N, hc::array&lt;float&gt; &amp;x, const int incx, const long xOffset, hc::array&lt;float&gt; &amp;y, const int incy, const long yOffset, const long x_batchOffset, const long y_batchOffset, const int BatchSize)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -100,12 +100,12 @@
 </div>
 <div class="section" id="function-documentation">
 <h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_scopy (Concurrency::accelerator_view &amp;accl_view,
+<div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_scopy (hc::accelerator_view &amp;accl_view,
                            const int N,
-                           Concurrency::array&lt;float&gt; &amp;x,
+                           hc::array&lt;float&gt; &amp;x,
                            const int incx,
                            const long xOffset,
-                           Concurrency::array&lt;float&gt; &amp;y,
+                           hc::array&lt;float&gt; &amp;y,
                            const int incy,
                            const long yOffset)
 </pre></div>

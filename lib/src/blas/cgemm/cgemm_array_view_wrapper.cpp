@@ -2,15 +2,15 @@
 
 // CGEMM Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 // CGEMM Call Type II: Inputs and outputs are C++ HC float array_View containers
-hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
   					   hcblasOrder order, hcblasTranspose typeA,
    					   hcblasTranspose typeB, const int M,
  					   const int N, const int K,
  					   const Concurrency::graphics::float_2 &Calpha,
- 					   Concurrency::array_view<float_2> &Acmplx, long aOffset, long lda,
- 					   Concurrency::array_view<float_2> &Bcmplx, long bOffset, long ldb,
+ 					   hc::array_view<float_2> &Acmplx, long aOffset, long lda,
+ 					   hc::array_view<float_2> &Bcmplx, long bOffset, long ldb,
  					   const Concurrency::graphics::float_2 &Cbeta,
- 					   Concurrency::array_view<float_2> &Ccmplx, long cOffset, long ldc) {
+ 					   hc::array_view<float_2> &Ccmplx, long cOffset, long ldc) {
   int i, j;
   hcblasStatus status = HCBLAS_SUCCESS;
   float tempReal = 0.0, tempImg = 0.0;
@@ -72,17 +72,17 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_v
 }
 
 /* CGEMM Call Type III - Overloaded function with arguments related to batch processing */
-hcblasStatus Hcblaslibrary :: hcblas_cgemm(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
  					   hcblasOrder order, hcblasTranspose typeA,
  					   hcblasTranspose typeB, const int M,
  					   const int N, const int K,
  					   const Concurrency::graphics::float_2 &Calpha,
- 					   Concurrency::array_view<float_2> &Acmplx,
+ 					   hc::array_view<float_2> &Acmplx,
  					   const long aOffset, const long A_batchOffset, const long lda,
- 					   Concurrency::array_view<float_2> &Bcmplx,
+ 					   hc::array_view<float_2> &Bcmplx,
  					   const long bOffset, const long B_batchOffset, const long ldb,
  					   const Concurrency::graphics::float_2 &Cbeta,
- 					   Concurrency::array_view<float_2> &Ccmplx,
+ 					   hc::array_view<float_2> &Ccmplx,
  					   const long cOffset, const long C_batchOffset, const long ldc, const int batchSize) {
   int i, j, k;
   hcblasStatus status = HCBLAS_SUCCESS;

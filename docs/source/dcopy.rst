@@ -23,14 +23,14 @@ Implementation type II
 
  .. note:: **Inputs and Outputs are HC++ double array containers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dcopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<double> &x, const int incx, const long xOffset, Concurrency::array<double> &y, const int incy, const long yOffset) 
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dcopy** (hc::accelerator_view &accl_view, const int N, hc::array<double> &x, const int incx, const long xOffset, hc::array<double> &y, const int incy, const long yOffset) 
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ double array containers with batch processing.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dcopy** (Concurrency::accelerator_view &accl_view, const int N, Concurrency::array<double> &x, const int incx, const long xOffset, Concurrency::array<double> &y, const int incy, const long yOffset, const long x_batchOffset, const long y_batchOffset, const int BatchSize) 
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dcopy** (hc::accelerator_view &accl_view, const int N, hc::array<double> &x, const int incx, const long xOffset, hc::array<double> &y, const int incy, const long yOffset, const long x_batchOffset, const long y_batchOffset, const int BatchSize) 
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -40,12 +40,12 @@ Function Documentation
 
 ::
 
-              hcblasStatus hcblas_dcopy (Concurrency::accelerator_view &accl_view, 
+              hcblasStatus hcblas_dcopy (hc::accelerator_view &accl_view, 
                                          const int N,
-                                         Concurrency::array<double> &x, 
+                                         hc::array<double> &x, 
                                          const int incx, 
                                          const long xOffset,
-                                         Concurrency::array<double> &y, 
+                                         hc::array<double> &y, 
                                          const int incy, 
                                          const long yOffset)
 

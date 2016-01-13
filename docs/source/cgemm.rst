@@ -32,14 +32,14 @@ Implementation type II
 
  .. note:: **Inputs and Outputs are HC++ float array containers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_cgemm** (Concurrency::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, `hcblasTranspose <HCBLAS_TYPES.html>`_ transB, const int M, const int N, const int K, const Concurrency::graphics::float_2 &alpha, Concurrency::array<float_2> &A, long AOffset, long lda, Concurrency::array<float_2> &B, long BOffset, long ldb, const Concurrency::graphics::float_2 &beta, Concurrency::array<float_2> &C, long COffset, long ldc) 
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_cgemm** (hc::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, `hcblasTranspose <HCBLAS_TYPES.html>`_ transB, const int M, const int N, const int K, const hc::graphics::float_2 &alpha, hc::array<float_2> &A, long AOffset, long lda, hc::array<float_2> &B, long BOffset, long ldb, const hc::graphics::float_2 &beta, hc::array<float_2> &C, long COffset, long ldc) 
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_cgemm** (Concurrency::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, `hcblasTranspose <HCBLAS_TYPES.html>`_ transB, const int M, const int N, const int K, const Concurrency::graphics::float_2 &alpha, Concurrency::array<float_2> &A, const long AOffset, const long A_batchOffset, const long lda, Concurrency::array<float_2> &B, const long BOffset, const long B_batchOffset, const long ldb, const Concurrency::graphics::float_2 &beta, Concurrency::array<float_2> &C, const long COffset, const long C_batchOffset, const long ldc, const int BatchSize)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_cgemm** (hc::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, `hcblasTranspose <HCBLAS_TYPES.html>`_ transB, const int M, const int N, const int K, const hc::graphics::float_2 &alpha, hc::array<float_2> &A, const long AOffset, const long A_batchOffset, const long lda, hc::array<float_2> &B, const long BOffset, const long B_batchOffset, const long ldb, const hc::graphics::float_2 &beta, hc::array<float_2> &C, const long COffset, const long C_batchOffset, const long ldc, const int BatchSize)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -49,22 +49,22 @@ Function Documentation
 
  ::
 
-             hcblasStatus hcblas_cgemm (Concurrency::accelerator_view &accl_view, 
+             hcblasStatus hcblas_cgemm (hc::accelerator_view &accl_view, 
                                         hcblasOrder order, 
                                         hcblasTranspose transA, 
                                         hcblasTranspose transB, 
                                         const int M, 
                                         const int N, 
                                         const int K, 
-                                        const Concurrency::graphics::float_2 &alpha, 
-                                        Concurrency::array<float_2> &A, 
+                                        const hc::graphics::float_2 &alpha, 
+                                        hc::array<float_2> &A, 
                                         long AOffset, 
                                         long lda, 
-                                        Concurrency::array<float_2> &B, 
+                                        hc::array<float_2> &B, 
                                         long BOffset, 
                                         long ldb, 
-                                        const Concurrency::graphics::float_2 &beta, 
-                                        Concurrency::array<float_2> &C, 
+                                        const hc::graphics::float_2 &beta, 
+                                        hc::array<float_2> &C, 
                                         long COffset, 
                                         long ldc)
 

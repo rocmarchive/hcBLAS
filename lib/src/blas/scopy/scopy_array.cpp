@@ -1,17 +1,17 @@
 #include "hcblas.h"
-#include <amp.h>
-#include "amp_math.h"
-using namespace concurrency::fast_math;
+#include <hc.hpp>
+#include "hc_math.hpp"
+using namespace hc::fast_math;
 
-using namespace concurrency;
+using namespace hc;
 #define BLOCK_SIZE 8
 
-void scopy_HC(Concurrency::accelerator_view &accl_view, long n,
-              Concurrency::array<float> &X, long incx, long xOffset,
-              Concurrency::array<float> &Y, long incy, long yOffset) {
+void scopy_HC(hc::accelerator_view &accl_view, long n,
+              hc::array<float> &X, long incx, long xOffset,
+              hc::array<float> &Y, long incy, long yOffset) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
-  Concurrency::extent<1> compute_domain(size);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<BLOCK_SIZE>(), [ =, &X, &Y] (Concurrency::tiled_index<BLOCK_SIZE> tidx) restrict(amp) {
+  hc::extent<1> compute_domain(size);
+  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
     if(tidx.global[0] < n) {
       long Y_index = yOffset + tidx.global[0];
       Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
@@ -20,13 +20,13 @@ void scopy_HC(Concurrency::accelerator_view &accl_view, long n,
   });
 }
 
-void scopy_HC(Concurrency::accelerator_view &accl_view, long n,
-              Concurrency::array<float> &X, long incx, long xOffset,
-              Concurrency::array<float> &Y, long incy, long yOffset,
+void scopy_HC(hc::accelerator_view &accl_view, long n,
+              hc::array<float> &X, long incx, long xOffset,
+              hc::array<float> &Y, long incy, long yOffset,
               long X_batchOffset, long Y_batchOffset, int batchSize) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
-  Concurrency::extent<2> compute_domain(batchSize, size);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, BLOCK_SIZE>(), [ =, &X, &Y] (Concurrency::tiled_index<1, BLOCK_SIZE> tidx) restrict(amp) {
+  hc::extent<2> compute_domain(batchSize, size);
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
 
     if(tidx.global[1] < n) {
@@ -46,8 +46,8 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(const int N, float* X, const int incX
 
   int lenX = 1 + (N - 1) * abs(incX);
   int lenY = 1 + (N - 1) * abs(incY);
-  Concurrency::array<float> xView(lenX, X);
-  Concurrency::array<float> yView(lenY, Y);
+  hc::array<float> xView(lenX, X);
+  hc::array<float> yView(lenY, Y);
   std::vector<float> HostX(lenX);
   std::vector<float> HostY(lenY);
 
@@ -59,12 +59,12 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(const int N, float* X, const int incX
     HostY[i] = Y[i];
   }
 
-  Concurrency::copy(begin(HostX), end(HostX), xView);
-  Concurrency::copy(begin(HostY), end(HostY), yView);
-  std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+  hc::copy(begin(HostX), end(HostX), xView);
+  hc::copy(begin(HostY), end(HostY), yView);
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].create_view());
   scopy_HC(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
-  Concurrency::copy(yView, begin(HostY));
+  hc::copy(yView, begin(HostY));
 
   for(int i = 0 ; i < lenY; i++) {
     Y[i] = HostY[i];
@@ -74,9 +74,9 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(const int N, float* X, const int incX
 }
 
 // SCOPY Call Type II: Inputs and outputs are C++ HC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_scopy(Concurrency::accelerator_view &accl_view, const int N,
-				           Concurrency::array<float> &X, const int incX, const long xOffset,
-				           Concurrency::array<float> &Y, const int incY, const long yOffset) {
+hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, const int N,
+				           hc::array<float> &X, const int incX, const long xOffset,
+				           hc::array<float> &Y, const int incY, const long yOffset) {
   /*Check the conditions*/
   if (  N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
@@ -87,9 +87,9 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(Concurrency::accelerator_view &accl_v
 }
 
 // SCOPY TYpe III - Overloaded function with arguments related to batch processing
-hcblasStatus Hcblaslibrary :: hcblas_scopy(Concurrency::accelerator_view &accl_view, const int N,
-				           Concurrency::array<float> &X, const int incX, const long xOffset,
-				           Concurrency::array<float> &Y, const int incY, const long yOffset,
+hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, const int N,
+				           hc::array<float> &X, const int incX, const long xOffset,
+				           hc::array<float> &Y, const int incY, const long yOffset,
 				           const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  N <= 0 || incX <= 0 || incY <= 0 ) {

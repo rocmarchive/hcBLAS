@@ -1,15 +1,11 @@
-#include<amp.h>
+#include<hc.hpp>
 #include<iostream>
 #include<amp_short_vectors.h>
 #include "hcblas.h"
-#ifdef LINUX
 #include<cblas.h>
 #include<unistd.h>
-#else
-#include<io.h>
-#endif
 using namespace Concurrency::graphics;
-using namespace Concurrency;
+using namespace hc;
 using namespace std;
 int main(int argc, char* argv[])
 {
@@ -65,7 +61,6 @@ int main(int argc, char* argv[])
     cAlpha.y = calpha.img  = 1;
     cBeta.x = cbeta.real = 1;
     cBeta.y = cbeta.img  = 1;
-#ifdef LINUX 
     /* CBLAS implementation */
     bool ispassed = 1;
     float alpha[2], beta[2];
@@ -77,9 +72,8 @@ int main(int argc, char* argv[])
     alpha[1] = calpha.img;
     beta[0] = cbeta.real;
     beta[1] = cbeta.img;
-#endif
-    std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+    hc::accelerator_view accl_view = (acc[1].create_view());
     float* a = (float *)malloc(sizeof(float )* M * K * 2);
     float* b = (float *)malloc(sizeof(float )* K * N * 2);
     float* c = (float *)malloc(sizeof(float )* M * N * 2);
@@ -121,7 +115,6 @@ int main(int argc, char* argv[])
             c[k++] = Chc[i].img;
         }
     	status = hc.hcblas_cgemm(hcOrder, typeA, typeB, M, N, K, &calpha, Ahc, aOffset, lda, Bhc, bOffset, ldb, &cbeta, Chc, cOffset, ldc);
-#ifdef LINUX
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && (k < M * N * 2)) ; i++, k = k + 2){
             if ((Chc[i].real != c[k]) || (Chc[i].img != c[k+1])){
@@ -134,9 +127,7 @@ int main(int argc, char* argv[])
          
          }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -145,9 +136,9 @@ int main(int argc, char* argv[])
 /* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
     
     else if(Imple_type ==2){
-        Concurrency::array_view<float_2> A(M * K * 2);
-        Concurrency::array_view<float_2> B(N * K * 2);
-        Concurrency::array_view<float_2> C(M * N * 2);
+        hc::array_view<float_2> A(M * K * 2);
+        hc::array_view<float_2> B(N * K * 2);
+        hc::array_view<float_2> C(M * N * 2);
         int k = 0;
         for (int i = 0;i < M * K; i++) {
             A[i].x = rand() % 10;
@@ -173,7 +164,6 @@ int main(int argc, char* argv[])
             c[k++] = C[i].y;
         }
         status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
-#ifdef LINUX
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((C[i].x != c[k]) || (C[i].y != c[k+1])){
@@ -187,9 +177,7 @@ int main(int argc, char* argv[])
          }
 
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -198,9 +186,9 @@ int main(int argc, char* argv[])
 /* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
 
     else if(Imple_type == 3) {
-        Concurrency::array_view<float_2> Abatch(M * K * 2);
-        Concurrency::array_view<float_2> Bbatch(N * K * 2);
-        Concurrency::array_view<float_2> Cbatch(M * N * 2 * batchSize);
+        hc::array_view<float_2> Abatch(M * K * 2);
+        hc::array_view<float_2> Bbatch(N * K * 2);
+        hc::array_view<float_2> Cbatch(M * N * 2 * batchSize);
         float* abatch = (float *)malloc(sizeof(float )* M * K * 2);
         float* bbatch = (float *)malloc(sizeof(float )* K * N * 2);
         float* cbatch = (float *)malloc(sizeof(float )* M * N * 2 * batchSize);
@@ -231,7 +219,6 @@ int main(int argc, char* argv[])
         }
 
         status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
-#ifdef LINUX
         for(int i = 0; i < batchSize;i++)
              cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -245,9 +232,7 @@ int main(int argc, char* argv[])
 
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -256,9 +241,9 @@ int main(int argc, char* argv[])
 /* Implementation type IV - Inputs and Outputs are HC++ float array containers */
 
     else if(Imple_type ==4) {
-        Concurrency::array<float_2> A(M * K * 2);
-        Concurrency::array<float_2> B(N * K * 2);
-        Concurrency::array<float_2> C(M * N * 2);
+        hc::array<float_2> A(M * K * 2);
+        hc::array<float_2> B(N * K * 2);
+        hc::array<float_2> C(M * N * 2);
         std::vector<float_2> HostA(M * K * 2);
         std::vector<float_2> HostB(K * N * 2);
         std::vector<float_2> HostC(M * N * 2);
@@ -286,12 +271,11 @@ int main(int argc, char* argv[])
             c[k++] = HostC[i].x ;
             c[k++] = HostC[i].y;
         }
-        Concurrency::copy(begin(HostA), end(HostA), A);
-        Concurrency::copy(begin(HostB), end(HostB), B);
-        Concurrency::copy(begin(HostC), end(HostC), C);
+        hc::copy(begin(HostA), end(HostA), A);
+        hc::copy(begin(HostB), end(HostB), B);
+        hc::copy(begin(HostC), end(HostC), C);
     	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
-        Concurrency::copy(C, begin(HostC));
-#ifdef LINUX
+        hc::copy(C, begin(HostC));
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((HostC[i].x != c[k]) || (HostC[i].y != c[k+1])){
@@ -304,9 +288,7 @@ int main(int argc, char* argv[])
 
          }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif
@@ -315,9 +297,9 @@ int main(int argc, char* argv[])
 /* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
 
     else{
-        Concurrency::array<float_2> Abatch(M * K * 2);
-        Concurrency::array<float_2> Bbatch(N * K * 2);
-        Concurrency::array<float_2> Cbatch(M * N * 2 * batchSize);
+        hc::array<float_2> Abatch(M * K * 2);
+        hc::array<float_2> Bbatch(N * K * 2);
+        hc::array<float_2> Cbatch(M * N * 2 * batchSize);
         float* abatch = (float *)malloc(sizeof(float )* M * K * 2);
         float* bbatch = (float *)malloc(sizeof(float )* K * N * 2);
         float* cbatch = (float *)malloc(sizeof(float )* M * N * 2 * batchSize);
@@ -349,12 +331,11 @@ int main(int argc, char* argv[])
            cbatch[k++] = HostC_batch[i].x ;
            cbatch[k++] = HostC_batch[i].y;
         }  
-        Concurrency::copy(begin(HostA), end(HostA), Abatch);
-        Concurrency::copy(begin(HostB), end(HostB), Bbatch);
-        Concurrency::copy(begin(HostC_batch), end(HostC_batch), Cbatch);
+        hc::copy(begin(HostA), end(HostA), Abatch);
+        hc::copy(begin(HostB), end(HostB), Bbatch);
+        hc::copy(begin(HostC_batch), end(HostC_batch), Cbatch);
     	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
-        Concurrency::copy(Cbatch, begin(HostC_batch));  
-#ifdef LINUX
+        hc::copy(Cbatch, begin(HostC_batch));  
         for(int i = 0; i < batchSize;i++)
 	     cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -367,9 +348,7 @@ int main(int argc, char* argv[])
                continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
         if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
         }
 #endif

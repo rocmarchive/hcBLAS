@@ -1,25 +1,25 @@
 #include "hcblas.h"
-#include <amp.h>
-#include <amp_math.h>
+#include <hc.hpp>
+#include <hc_math.hpp>
 #define TILE_SIZE 256
-using namespace concurrency::fast_math;
-using namespace concurrency;
+using namespace hc::fast_math;
+using namespace hc;
 
-double dasum_HC(Concurrency::accelerator_view &accl_view,
-                long n, Concurrency::array<double, 1> &xView, long incx, long xOffset, double Y) {
+double dasum_HC(hc::accelerator_view &accl_view,
+                long n, hc::array<double, 1> &xView, long incx, long xOffset, double Y) {
   Y = 0.0;
   // runtime sizes
   unsigned int tile_count = (n + TILE_SIZE - 1) / TILE_SIZE;
   // simultaneous live threads
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
-  concurrency::array<double, 1> global_buffer(tile_count);
-  concurrency::array_view<double, 1> global_buffer_view(global_buffer);
+  hc::array<double, 1> global_buffer(tile_count);
+  hc::array_view<double, 1> global_buffer_view(global_buffer);
   // configuration
-  concurrency::extent<1> extent(thread_count);
-  concurrency::parallel_for_each(
-    extent.tile<TILE_SIZE>(),
-  [ =, &xView] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp) {
+  hc::extent<1> extent(thread_count);
+  hc::parallel_for_each(
+    extent.tile(TILE_SIZE),
+  [ =, &xView] (hc::tiled_index<1>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
     // indexes
@@ -32,7 +32,7 @@ double dasum_HC(Concurrency::accelerator_view &accl_view,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += Concurrency::fast_math::fabs(xView[xOffset + concurrency::index<1>(idx)]);
+      smem += hc::fast_math::fabs(xView[xOffset + hc::index<1>(idx)]);
       // next chunk
       idx += thread_count;
     }
@@ -108,8 +108,8 @@ double dasum_HC(Concurrency::accelerator_view &accl_view,
   return Y;
 }
 
-double dasum_HC(Concurrency::accelerator_view &accl_view,
-                long n, Concurrency::array<double, 1> &xView, long incx, long xOffset, double Y,
+double dasum_HC(hc::accelerator_view &accl_view,
+                long n, hc::array<double, 1> &xView, long incx, long xOffset, double Y,
                 long X_batchOffset, int batchSize) {
   Y = 0.0;
   // runtime sizes
@@ -117,13 +117,13 @@ double dasum_HC(Concurrency::accelerator_view &accl_view,
   // simultaneous live threads
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
-  concurrency::array<double, 1> global_buffer(batchSize * tile_count);
-  concurrency::array_view<double, 1> global_buffer_view(global_buffer);
+  hc::array<double, 1> global_buffer(batchSize * tile_count);
+  hc::array_view<double, 1> global_buffer_view(global_buffer);
   // configuration
-  concurrency::extent<2> extent(batchSize, thread_count);
-  concurrency::parallel_for_each(
-    extent.tile<1, TILE_SIZE>(),
-  [ =, &xView] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp) {
+  hc::extent<2> extent(batchSize, thread_count);
+  hc::parallel_for_each(
+    extent.tile(1, TILE_SIZE),
+  [ =, &xView] (hc::tiled_index<2>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
     // indexes
@@ -137,7 +137,7 @@ double dasum_HC(Concurrency::accelerator_view &accl_view,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += Concurrency::fast_math::fabs(xView[xOffset + X_batchOffset * elt + concurrency::index<1>(idx)]);
+      smem += hc::fast_math::fabs(xView[xOffset + X_batchOffset * elt + hc::index<1>(idx)]);
       // next chunk
       idx += thread_count;
     }
@@ -220,23 +220,23 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(const int N, double* X, const int inc
   }
 
   int lenX = 1 + (N - 1) * abs(incX);
-  Concurrency::array<double, 1> xView(lenX, X);
+  hc::array<double, 1> xView(lenX, X);
   std::vector<double> HostX(lenX);
 
   for( int i = 0; i < lenX; i++) {
     HostX[i] = X[i];
   }
 
-  Concurrency::copy(begin(HostX), end(HostX), xView);
-  std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+  hc::copy(begin(HostX), end(HostX), xView);
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].create_view());
   *Y = dasum_HC(accl_view, N, xView, incX, xOffset, *Y);
   return HCBLAS_SUCCESS;
 }
 
 // DASUM Call Type II: Inputs and outputs are C++ HC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_dasum(Concurrency::accelerator_view &accl_view, const int N,
-				           Concurrency::array<double> &X, const int incX,
+hcblasStatus Hcblaslibrary :: hcblas_dasum(hc::accelerator_view &accl_view, const int N,
+				           hc::array<double> &X, const int incX,
 				           const long xOffset, double &Y) {
   /*Check the conditions*/
   if (  N <= 0 || incX <= 0 ) {
@@ -248,8 +248,8 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(Concurrency::accelerator_view &accl_v
 }
 
 // SASUM TYpe III - Overloaded function with arguments related to batch processing
-hcblasStatus Hcblaslibrary :: hcblas_dasum(Concurrency::accelerator_view &accl_view, const int N,
-				           Concurrency::array<double> &X, const int incX,
+hcblasStatus Hcblaslibrary :: hcblas_dasum(hc::accelerator_view &accl_view, const int N,
+				           hc::array<double> &X, const int incX,
 				           const long xOffset, double &Y, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  N <= 0 || incX <= 0 ) {

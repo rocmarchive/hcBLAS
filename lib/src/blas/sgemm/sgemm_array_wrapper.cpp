@@ -1,14 +1,14 @@
 #include "sgemm_array_kernels.h"
 
 // Sgemm Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
-hcblasStatus gemm_HC(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_HC(hc::accelerator_view &accl_view,
                      const int order, char TransA, char TransB,
                      const int M, const int N, const int K,
-                     const float alpha, Concurrency::array<float> &A_mat,
+                     const float alpha, hc::array<float> &A_mat,
                      long aOffset, long lda,
-                     Concurrency::array<float> &B_mat,
+                     hc::array<float> &B_mat,
                      long bOffset, long ldb, const float beta,
-                     Concurrency::array<float> &C_mat,
+                     hc::array<float> &C_mat,
                      long cOffset, long ldc,
                      long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset = 0, int batchSize = 0) {
   hcblasStatus status = HCBLAS_SUCCESS;
@@ -85,13 +85,13 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hcblasOrder order,
 				           const long bOffset,
 				           const long cOffset) {
   // Quick return if possible
-  if (!M || !N || !K) {
+  if (!M || !N || !K || A == NULL || B == NULL || C == NULL || alpha == NULL || beta == NULL ) {
     return HCBLAS_INVALID;
   }
-  Concurrency::array<float> A_mat(K * M, A);
-  Concurrency::array<float> B_mat(N * K, B);
-  Concurrency::array<float> C_mat(M * N, C);
-  std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+  hc::array<float> A_mat(K * M, A);
+  hc::array<float> B_mat(N * K, B);
+  hc::array<float> C_mat(M * N, C);
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].create_view());
   std::vector<float> HostA(M * K);
   std::vector<float> HostB(K * N);
@@ -135,13 +135,13 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hcblasOrder order,
 
     return status;
   }
-  Concurrency::copy(begin(HostA), end(HostA), A_mat);
-  Concurrency::copy(begin(HostB), end(HostB), B_mat);
-  Concurrency::copy(begin(HostC), end(HostC), C_mat);
+  hc::copy(begin(HostA), end(HostA), A_mat);
+  hc::copy(begin(HostB), end(HostB), B_mat);
+  hc::copy(begin(HostC), end(HostC), C_mat);
   status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, *alpha,
                                 A_mat, aOffset, lda, B_mat, bOffset, ldb,
                                 *beta, C_mat, cOffset, ldc);
-  Concurrency::copy(C_mat, begin(HostC));
+  hc::copy(C_mat, begin(HostC));
 
   for(int i = 0; i < M * N; i++)  {
     C[i] = HostC[i];
@@ -152,15 +152,15 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hcblasOrder order,
 
 
 // Sgemm Call Type II: Inputs and outputs are C++ HC float array_View containers
-hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
+hcblasStatus  Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
 					    hcblasOrder order,
 					    hcblasTranspose typeA,
 					    hcblasTranspose typeB, const int M,
 					    const int N, const int K, const float &alpha,
-					    Concurrency::array<float> &A, const long lda,
-					    Concurrency::array<float> &B, const long ldb,
+					    hc::array<float> &A, const long lda,
+					    hc::array<float> &B, const long ldb,
 					    const float &beta,
-					    Concurrency::array<float> &C, const long ldc,
+					    hc::array<float> &C, const long ldc,
 					    const long aOffset, const long bOffset, const long cOffset) {
   int i, j;
   float temp;
@@ -174,7 +174,7 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_
   // For alpha = 0
   if (alpha == 0) {
     std::vector<float> HostC(M * N);
-    Concurrency::copy(C, begin(HostC));
+    hc::copy(C, begin(HostC));
     if (beta == 0) {
       for (j = 0; j < N; ++j) {
         for (i = 0; i < M; ++i) {
@@ -189,7 +189,7 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_
         }
       }
     }
-    Concurrency::copy(begin(HostC), end(HostC), C);
+    hc::copy(begin(HostC), end(HostC), C);
     return status;
   }
 
@@ -200,15 +200,15 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_
 }
 
 /* SGEMM- Overloaded function with arguments related to batch processing */
-hcblasStatus Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
 					   hcblasOrder order,
 					   hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K, const float &alpha,
-					   Concurrency::array<float> &A, const long lda, const long A_batchOffset,
-					   Concurrency::array<float> &B, const long ldb, const long B_batchOffset,
+					   hc::array<float> &A, const long lda, const long A_batchOffset,
+					   hc::array<float> &B, const long ldb, const long B_batchOffset,
 					   const float &beta,
-					   Concurrency::array<float> &C, const long ldc, const long C_batchOffset,
+					   hc::array<float> &C, const long ldc, const long C_batchOffset,
 					   const long aOffset, const long bOffset, const long cOffset, const int batchSize) {
   int i, j, k;
   float temp;
@@ -222,7 +222,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_v
   // For alpha = 0
   if (alpha == 0) {
     std::vector<float> HostC(M * N * batchSize);
-    Concurrency::copy(C, begin(HostC));
+    hc::copy(C, begin(HostC));
     if (beta == 0) {
      for ( k = 0; k < batchSize; ++k) {
       for (j = 0; j < N; ++j) {
@@ -241,7 +241,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_v
       }
      }
     }
-    Concurrency::copy(begin(HostC), end(HostC), C);
+    hc::copy(begin(HostC), end(HostC), C);
     return status;
   }
 

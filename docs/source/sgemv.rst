@@ -28,14 +28,14 @@ Implementation type II
 
  .. note:: **Inputs and Outputs are HC++ float array containers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sgemv** (Concurrency::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, const int M, const int N, const float &alpha, Concurrency::array<float> &A, const long AOffset, const int lda, Concurrency::array<float> &x, const long xOffset, const int incx, const float &beta, Concurrency::array<float> &y, const long yOffset, const int incy)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sgemv** (hc::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, const int M, const int N, const float &alpha, hc::array<float> &A, const long AOffset, const int lda, hc::array<float> &x, const long xOffset, const int incx, const float &beta, hc::array<float> &y, const long yOffset, const int incy)
 
 Implementation type III
 -----------------------
 
  .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
 	
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sgemv** (Concurrency::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, const int M, const int N, const float &alpha, Concurrency::array<float> &A, const long AOffset, const long A_batchOffset, const int lda, Concurrency::array<float> &x, const long xOffset, const long x_batchOffset, const int incx, const float &beta, Concurrency::array<float> &y, const long yOffset, const long y_batchOffset, const int incy, const int BatchSize)
+`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sgemv** (hc::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, `hcblasTranspose <HCBLAS_TYPES.html>`_ transA, const int M, const int N, const float &alpha, hc::array<float> &A, const long AOffset, const long A_batchOffset, const int lda, hc::array<float> &x, const long xOffset, const long x_batchOffset, const int incx, const float &beta, hc::array<float> &y, const long yOffset, const long y_batchOffset, const int incy, const int BatchSize)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -45,20 +45,20 @@ Function Documentation
 
  ::
 
-              hcblasStatus hcblas_sgemv (Concurrency::accelerator_view &accl_view, 
+              hcblasStatus hcblas_sgemv (hc::accelerator_view &accl_view, 
                                          hcblasOrder order, 
                                          hcblasTranspose transA, 
                                          const int M, 
                                          const int N, 
                                          const float &alpha, 
-                                         Concurrency::array<float> &A, 
+                                         hc::array<float> &A, 
                                          const long AOffset, 
                                          const int lda, 
-                                         Concurrency::array<float> &x, 
+                                         hc::array<float> &x, 
                                          const long xOffset, 
                                          const int incx, 
                                          const float &beta, 
-                                         Concurrency::array<float> &y, 
+                                         hc::array<float> &y, 
                                          const long yOffset, 
                                          const int incy)
 

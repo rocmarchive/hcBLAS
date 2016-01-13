@@ -1,14 +1,14 @@
 #include "sgemm_array_view_kernels.h"
 
 // Sgemm Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
-hcblasStatus gemm_HC(Concurrency::accelerator_view &accl_view,
+hcblasStatus gemm_HC(hc::accelerator_view &accl_view,
                      const int order, char TransA, char TransB,
                      const int M, const int N, const int K,
-                     const float alpha, Concurrency::array_view<float> &A_mat,
+                     const float alpha, hc::array_view<float> &A_mat,
                      long aOffset, long lda,
-                     Concurrency::array_view<float> &B_mat,
+                     hc::array_view<float> &B_mat,
                      long bOffset, long ldb, const float beta,
-                     Concurrency::array_view<float> &C_mat,
+                     hc::array_view<float> &C_mat,
                      long cOffset, long ldc,
                      long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset = 0, int batchSize = 0) {
   int i, j, k;
@@ -102,15 +102,15 @@ hcblasStatus gemm_HC(Concurrency::accelerator_view &accl_view,
 }
 
 // Sgemm Call Type II: Inputs and outputs are C++ HC float array_View containers
-hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
+hcblasStatus  Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
  					    hcblasOrder order,
 					    hcblasTranspose typeA,
 					    hcblasTranspose typeB, const int M,
 					    const int N, const int K, const float &alpha,
-					    Concurrency::array_view<float> &A, const long lda,
-					    Concurrency::array_view<float> &B, const long ldb,
+					    hc::array_view<float> &A, const long lda,
+					    hc::array_view<float> &B, const long ldb,
 					    const float &beta,
-					    Concurrency::array_view<float> &C, const long ldc,
+					    hc::array_view<float> &C, const long ldc,
 					    const long aOffset, const long bOffset, const long cOffset) {
   hcblasStatus status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A,
                                 aOffset, lda, B, bOffset, ldb, beta, C,
@@ -119,15 +119,15 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_
 }
 
 /* SGEMM- Overloaded function with arguments related to batch processing */
-hcblasStatus Hcblaslibrary :: hcblas_sgemm(Concurrency::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
 					   hcblasOrder order,
  					   hcblasTranspose typeA,
  					   hcblasTranspose typeB, const int M,
  					   const int N, const int K, const float &alpha,
- 					   Concurrency::array_view<float> &A, const long lda, const long A_batchOffset,
- 					   Concurrency::array_view<float> &B, const long ldb, const long B_batchOffset,
+ 					   hc::array_view<float> &A, const long lda, const long A_batchOffset,
+ 					   hc::array_view<float> &B, const long ldb, const long B_batchOffset,
  					   const float &beta,
- 					   Concurrency::array_view<float> &C, const long ldc, const long C_batchOffset,
+ 					   hc::array_view<float> &C, const long ldc, const long C_batchOffset,
  					   const long aOffset, const long bOffset, const long cOffset, const int batchSize) {
   hcblasStatus status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
           bOffset, ldb, beta, C, cOffset, ldc, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);

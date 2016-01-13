@@ -1,9 +1,7 @@
 #include <iostream>
 #include "hcblas.h"
 #include <cstdlib>
-#ifdef LINUX 
 #include "cblas.h"
-#endif
 using namespace std;
 int main(int argc, char** argv)
 {
@@ -33,17 +31,15 @@ int main(int argc, char** argv)
     lda = (hcOrder)? M : N;  
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
-#ifdef LINUX
     /* CBLAS implementation */
     bool ispassed = 1;
     enum CBLAS_ORDER order;
     order = CblasColMajor;
     float *Acblas = (float *)calloc( lenx * leny , sizeof(float));
-#endif
     float *xSger = (float*)calloc( lenx , sizeof(float));
     float *ySger = (float*)calloc( leny , sizeof(float));
     float *ASger = (float *)calloc( lenx * leny , sizeof(float));
-    std::vector<Concurrency::accelerator>acc = Concurrency::accelerator::get_all();
+    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
 /* Implementation type I - Inputs and Outputs are host float pointers */
@@ -60,12 +56,9 @@ int main(int argc, char** argv)
 #endif
             for(int i = 0;i< lenx * leny ;i++) {
                 ASger[i] = rand() % 25;
-#ifdef LINUX
                 Acblas[i] = ASger[i];
-#endif
             }
             status = hc.hcblas_sger(hcOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
-#ifdef LINUX
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
             for(int i =0; i < lenx * leny ; i++){
                 if (ASger[i] != Acblas[i]){
@@ -77,9 +70,7 @@ int main(int argc, char** argv)
                     continue;
             }
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
             if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
             }
 #endif
@@ -104,12 +95,9 @@ int main(int argc, char** argv)
 #endif
             for(int i = 0;i< lenx * leny ;i++) {
                 aMat[i] = rand() % 25;
-#ifdef LINUX
                 Acblas[i] = aMat[i];
-#endif
             }
             status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda);
-#ifdef LINUX
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
             for(int i =0; i < lenx * leny ; i++){
                 if (aMat[i] != Acblas[i]){
@@ -121,9 +109,7 @@ int main(int argc, char** argv)
                     continue;
             }
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
             if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
             }
 #endif
@@ -135,9 +121,7 @@ int main(int argc, char** argv)
             float *xSgerbatch = (float*)calloc( lenx * batchSize, sizeof(float));
             float *ySgerbatch = (float*)calloc( leny * batchSize, sizeof(float));
             float *ASgerbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-#ifdef LINUX
             float *Acblasbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-#endif
             array_view<float> xbatchView(lenx * batchSize, xSgerbatch);
             array_view<float> ybatchView(leny * batchSize, ySgerbatch);
             array_view<float> abatchMat( lenx * leny * batchSize, ASgerbatch);
@@ -154,13 +138,10 @@ int main(int argc, char** argv)
 #endif
             for(int i = 0;i< lenx * leny * batchSize;i++) {
                 abatchMat[i] = rand() % 25;
-#ifdef LINUX
                 Acblasbatch[i] = abatchMat[i];
-#endif
                 ASgerbatch[i] = abatchMat[i];
             }
             status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-#ifdef LINUX
             for(int i = 0; i < batchSize; i++)
                cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda);
             for(int i =0; i < lenx * leny * batchSize; i++){
@@ -173,9 +154,7 @@ int main(int argc, char** argv)
                   continue;
             }
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
             if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
          }
 #endif
@@ -187,9 +166,9 @@ int main(int argc, char** argv)
             std::vector<float> HostX(lenx);
             std::vector<float> HostY(leny);
             std::vector<float> HostA(lenx * leny);
-            Concurrency::array<float> xView(lenx, xSger);
-            Concurrency::array<float> yView(leny, ySger);
-            Concurrency::array<float> aMat( lenx * leny, ASger);
+            hc::array<float> xView(lenx, xSger);
+            hc::array<float> yView(leny, ySger);
+            hc::array<float> aMat( lenx * leny, ASger);
             for(int i = 0;i < lenx;i++) {
                 HostX[i] = rand() % 10;
                 xSger[i] = HostX[i];
@@ -203,16 +182,13 @@ int main(int argc, char** argv)
 #endif
             for(int i = 0;i< lenx * leny ;i++) {
                 HostA[i] = rand() % 25;
-#ifdef LINUX
                 Acblas[i] = HostA[i];
-#endif
             }
-            Concurrency::copy(begin(HostX), end(HostX), xView);
-            Concurrency::copy(begin(HostY), end(HostY), yView);
-            Concurrency::copy(begin(HostA), end(HostA), aMat);
+            hc::copy(begin(HostX), end(HostX), xView);
+            hc::copy(begin(HostY), end(HostY), yView);
+            hc::copy(begin(HostA), end(HostA), aMat);
             status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
-            Concurrency::copy(aMat, begin(HostA));
-#ifdef LINUX
+            hc::copy(aMat, begin(HostA));
             cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
             for(int i =0; i < lenx * leny ; i++){
                 if (HostA[i] != Acblas[i]){
@@ -224,9 +200,7 @@ int main(int argc, char** argv)
                     continue;
             }
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
             if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
             }
 #endif
@@ -238,15 +212,13 @@ int main(int argc, char** argv)
             float *xSgerbatch = (float*)calloc( lenx * batchSize, sizeof(float));
             float *ySgerbatch = (float*)calloc( leny * batchSize, sizeof(float));
             float *ASgerbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-#ifdef LINUX
             float *Acblasbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-#endif
             std::vector<float> HostX_batch(lenx * batchSize);
             std::vector<float> HostY_batch(leny * batchSize);
             std::vector<float> HostA_batch(lenx * leny * batchSize);
-            Concurrency::array<float> xbatchView(lenx * batchSize, xSgerbatch);
-            Concurrency::array<float> ybatchView(leny * batchSize, ySgerbatch);
-            Concurrency::array<float> abatchMat( lenx * leny * batchSize, ASgerbatch);
+            hc::array<float> xbatchView(lenx * batchSize, xSgerbatch);
+            hc::array<float> ybatchView(leny * batchSize, ySgerbatch);
+            hc::array<float> abatchMat( lenx * leny * batchSize, ASgerbatch);
             for(int i = 0;i < lenx * batchSize;i++){
                 HostX_batch[i] = rand() % 10;
                 xSgerbatch[i] = HostX_batch[i];
@@ -260,17 +232,14 @@ int main(int argc, char** argv)
 #endif
             for(int i = 0;i< lenx * leny * batchSize;i++){
                 HostA_batch[i] = rand() % 25;
-#ifdef LINUX
                 Acblasbatch[i] = HostA_batch[i];
-#endif
                 ASgerbatch[i] = HostA_batch[i];
             }
-            Concurrency::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-            Concurrency::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
-            Concurrency::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
+            hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
+            hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
+            hc::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
             status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-            Concurrency::copy(abatchMat, begin(HostA_batch));
-#ifdef LINUX
+            hc::copy(abatchMat, begin(HostA_batch));
             for(int i = 0; i < batchSize; i++)
                cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda); 
             for(int i =0; i < lenx * leny * batchSize; i++){
@@ -283,9 +252,7 @@ int main(int argc, char** argv)
                   continue;  
             }
             if(!ispassed) cout << "TEST FAILED" << endl; 
-#else
             if(status) cout << "TEST FAILED" << endl; 
-#endif
 #ifdef PROFILE
             }
 #endif

@@ -1,18 +1,18 @@
 #include "hcblas.h"
-#include <amp.h>
-#include "amp_math.h"
-using namespace concurrency::fast_math;
-using namespace concurrency;
+#include <hc.hpp>
+#include "hc_math.hpp"
+using namespace hc::fast_math;
+using namespace hc;
 
-void ger_HC(Concurrency::accelerator_view &accl_view,
+void ger_HC(hc::accelerator_view &accl_view,
             long m, long n, float alpha,
-            Concurrency::array_view<float> &x, long xOffset, long incx,
-            Concurrency::array_view<float> &y, long yOffset, long incy,
-            Concurrency::array_view<float> &a, long aOffset, long lda) {
+            hc::array_view<float> &x, long xOffset, long incx,
+            hc::array_view<float> &y, long yOffset, long incy,
+            hc::array_view<float> &a, long aOffset, long lda) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
-  Concurrency::extent<2> compute_domain(M, N);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<16, 16>(), [ = ] (Concurrency::tiled_index<16, 16> tidx) restrict(amp) {
+  hc::extent<2> compute_domain(M, N);
+  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int i = tidx.global[0];
     int j = tidx.global[1];
 
@@ -24,18 +24,18 @@ void ger_HC(Concurrency::accelerator_view &accl_view,
   });
 }
 
-void ger_HC(Concurrency::accelerator_view &accl_view,
+void ger_HC(hc::accelerator_view &accl_view,
             long m, long n, float alpha,
-            Concurrency::array_view<float> &x,
+            hc::array_view<float> &x,
             long xOffset, long X_batchOffset, long incx,
-            Concurrency::array_view<float> &y,
+            hc::array_view<float> &y,
             long yOffset, long Y_batchOffset, long incy,
-            Concurrency::array_view<float> &a,
+            hc::array_view<float> &a,
             long aOffset, long A_batchOffset, long lda, int batchSize) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
-  Concurrency::extent<3> compute_domain(batchSize, M, N);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, 16, 16>(), [ = ] (Concurrency::tiled_index<1, 16, 16> tidx) restrict(amp) {
+  hc::extent<3> compute_domain(batchSize, M, N);
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int i = tidx.global[1];
     int j = tidx.global[2];
@@ -48,15 +48,15 @@ void ger_HC(Concurrency::accelerator_view &accl_view,
   });
 }
 
-void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
+void ger_HC_rMajor(hc::accelerator_view &accl_view,
                    long m, long n, float alpha,
-                   Concurrency::array_view<float> &x, long xOffset, long incx,
-                   Concurrency::array_view<float> &y, long yOffset, long incy,
-                   Concurrency::array_view<float> &a, long aOffset, long lda) {
+                   hc::array_view<float> &x, long xOffset, long incx,
+                   hc::array_view<float> &y, long yOffset, long incy,
+                   hc::array_view<float> &a, long aOffset, long lda) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
-  Concurrency::extent<2> compute_domain(N, M);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<16, 16>(), [ = ] (Concurrency::tiled_index<16, 16> tidx) restrict(amp) {
+  hc::extent<2> compute_domain(N, M);
+  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int i = tidx.global[1];
     int j = tidx.global[0];
 
@@ -68,18 +68,18 @@ void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
   });
 }
 
-void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
+void ger_HC_rMajor(hc::accelerator_view &accl_view,
                    long m, long n, float alpha,
-                   Concurrency::array_view<float> &x,
+                   hc::array_view<float> &x,
                    long xOffset, long X_batchOffset, long incx,
-                   Concurrency::array_view<float> &y,
+                   hc::array_view<float> &y,
                    long yOffset, long Y_batchOffset, long incy,
-                   Concurrency::array_view<float> &a,
+                   hc::array_view<float> &a,
                    long aOffset, long A_batchOffset, long lda, int batchSize) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
-  Concurrency::extent<3> compute_domain(batchSize, N, M);
-  Concurrency::parallel_for_each(accl_view, compute_domain.tile<1, 16, 16>(), [ = ] (Concurrency::tiled_index<1, 16, 16> tidx) restrict(amp) {
+  hc::extent<3> compute_domain(batchSize, N, M);
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int i = tidx.global[2];
     int j = tidx.global[1];
@@ -92,11 +92,11 @@ void ger_HC_rMajor(Concurrency::accelerator_view &accl_view,
   });
 }
 
-hcblasStatus Hcblaslibrary ::hcblas_sger(Concurrency::accelerator_view &accl_view, hcblasOrder order,
+hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
                                          const int M, const int N, const float &alpha,
-                                         Concurrency::array_view<float> &X, const long xOffset, const int incX,
-                                         Concurrency::array_view<float> &Y, const long yOffset, const int incY,
-                                         Concurrency::array_view<float> &A, const long aOffset, const int lda) {
+                                         hc::array_view<float> &X, const long xOffset, const int incX,
+                                         hc::array_view<float> &Y, const long yOffset, const int incY,
+                                         hc::array_view<float> &A, const long aOffset, const int lda) {
   /*Check the conditions*/
   if (N <= 0 || M <= 0 || incX == 0 || incY == 0) {
     return HCBLAS_INVALID;
@@ -115,13 +115,13 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(Concurrency::accelerator_view &accl_vie
   return HCBLAS_SUCCESS;
 }
 
-hcblasStatus Hcblaslibrary :: hcblas_sger(Concurrency::accelerator_view &accl_view, hcblasOrder order,
+hcblasStatus Hcblaslibrary :: hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
                                           const int M, const int N, const float &alpha,
-                                          Concurrency::array_view<float> &X,
+                                          hc::array_view<float> &X,
                                           const long xOffset, const long X_batchOffset, const int incX,
-                                          Concurrency::array_view<float> &Y,
+                                          hc::array_view<float> &Y,
                                           const long yOffset, const long Y_batchOffset, const int incY,
-                                          Concurrency::array_view<float> &A,
+                                          hc::array_view<float> &A,
                                           const long aOffset, const long A_batchOffset, const int lda, int batchSize) {
   /*Check the conditions*/
   if (N <= 0 || M <= 0 || incX == 0 || incY == 0) {

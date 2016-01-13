@@ -1,26 +1,26 @@
 #include "hcblas.h"
-#include <amp.h>
-#include <amp_math.h>
+#include <hc.hpp>
+#include <hc_math.hpp>
 #define TILE_SIZE 256
-using namespace concurrency;
-using namespace concurrency::fast_math;
+using namespace hc;
+using namespace hc::fast_math;
 
-float ddot_HC(Concurrency::accelerator_view &accl_view, long n,
-              Concurrency::array_view<double, 1> &xView, long incx, long xOffset,
-              Concurrency::array_view<double, 1> &yView, long incy, long yOffset, double out) {
+float ddot_HC(hc::accelerator_view &accl_view, long n,
+              hc::array_view<double, 1> &xView, long incx, long xOffset,
+              hc::array_view<double, 1> &yView, long incy, long yOffset, double out) {
   out = 0.0;
   // runtime sizes
   unsigned int tile_count = (n + TILE_SIZE - 1) / TILE_SIZE;
   // simultaneous live threads
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
-  concurrency::array<double, 1> global_buffer(tile_count);
-  concurrency::array_view<double, 1> global_buffer_view(global_buffer);
+  hc::array<double, 1> global_buffer(tile_count);
+  hc::array_view<double, 1> global_buffer_view(global_buffer);
   // configuration
-  concurrency::extent<1> extent(thread_count);
-  concurrency::parallel_for_each(
-    extent.tile<TILE_SIZE>(),
-  [ = ] (concurrency::tiled_index<TILE_SIZE> tid) restrict(amp) {
+  hc::extent<1> extent(thread_count);
+  hc::parallel_for_each(
+    extent.tile(TILE_SIZE),
+  [ = ] (hc::tiled_index<1>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
     // indexes
@@ -33,7 +33,7 @@ float ddot_HC(Concurrency::accelerator_view &accl_view, long n,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += xView[xOffset + concurrency::index<1>(idx)] * yView[yOffset + concurrency::index<1>(idx)];
+      smem += xView[xOffset + hc::index<1>(idx)] * yView[yOffset + hc::index<1>(idx)];
       // next chunk
       idx += thread_count;
     }
@@ -109,9 +109,9 @@ float ddot_HC(Concurrency::accelerator_view &accl_view, long n,
   return out;
 }
 
-float ddot_HC(Concurrency::accelerator_view &accl_view, long n,
-              Concurrency::array_view<double, 1> &xView, long incx, long xOffset,
-              Concurrency::array_view<double, 1> &yView, long incy, long yOffset, double out,
+float ddot_HC(hc::accelerator_view &accl_view, long n,
+              hc::array_view<double, 1> &xView, long incx, long xOffset,
+              hc::array_view<double, 1> &yView, long incy, long yOffset, double out,
               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 
 {
@@ -121,13 +121,13 @@ float ddot_HC(Concurrency::accelerator_view &accl_view, long n,
   // simultaneous live threads
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
-  concurrency::array<double, 1> global_buffer(batchSize * tile_count);
-  concurrency::array_view<double, 1> global_buffer_view(global_buffer);
+  hc::array<double, 1> global_buffer(batchSize * tile_count);
+  hc::array_view<double, 1> global_buffer_view(global_buffer);
   // configuration
-  concurrency::extent<2> extent(batchSize, thread_count);
-  concurrency::parallel_for_each(
-    extent.tile<1, TILE_SIZE>(),
-  [ = ] (concurrency::tiled_index<1, TILE_SIZE> tid) restrict(amp) {
+  hc::extent<2> extent(batchSize, thread_count);
+  hc::parallel_for_each(
+    extent.tile(1, TILE_SIZE),
+  [ = ] (hc::tiled_index<2>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
     // indexes
@@ -141,7 +141,7 @@ float ddot_HC(Concurrency::accelerator_view &accl_view, long n,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += xView[xOffset + X_batchOffset * elt + concurrency::index<1>(idx)] * yView[yOffset + Y_batchOffset * elt + concurrency::index<1>(idx)];
+      smem += xView[xOffset + X_batchOffset * elt + hc::index<1>(idx)] * yView[yOffset + Y_batchOffset * elt + hc::index<1>(idx)];
       // next chunk
       idx += thread_count;
     }
@@ -218,9 +218,9 @@ float ddot_HC(Concurrency::accelerator_view &accl_view, long n,
 }
 
 // DDOT Call Type II: Inputs and outputs are C++ HC float array_View containers
-hcblasStatus Hcblaslibrary :: hcblas_ddot(Concurrency::accelerator_view &accl_view, const int N,
-   					  Concurrency::array_view<double> &X, const int incX, const long xOffset,
-                                          Concurrency::array_view<double> &Y, const int incY, const long yOffset, double &dot) {
+hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const int N,
+   					  hc::array_view<double> &X, const int incX, const long xOffset,
+                                          hc::array_view<double> &Y, const int incY, const long yOffset, double &dot) {
   /*Check the conditions*/
   if (N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
@@ -231,9 +231,9 @@ hcblasStatus Hcblaslibrary :: hcblas_ddot(Concurrency::accelerator_view &accl_vi
 }
 
 // DDOT TYpe III - Overloaded function with arguments related to batch processing
-hcblasStatus Hcblaslibrary :: hcblas_ddot(Concurrency::accelerator_view &accl_view, const int N,
-   					  Concurrency::array_view<double> &X, const int incX, const long xOffset,
-  					  Concurrency::array_view<double> &Y, const int incY, const long yOffset, double &dot,
+hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const int N,
+   					  hc::array_view<double> &X, const int incX, const long xOffset,
+  					  hc::array_view<double> &Y, const int incY, const long yOffset, double &dot,
    					  const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  N <= 0 || incX <= 0 || incY <= 0 ) {

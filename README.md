@@ -20,14 +20,6 @@ This repository hosts the HCC implementation of BLAS subroutines. The following 
 
 ##Repository Structure: ##
 
-##Prerequisites: ##
-* **dGPU**:  AMD firepro S9150
-* **OS** : Ubuntu 14.04 LTS
-* **Ubuntu Pack**: libc6-dev-i386
-* **AMD APP SDK** : Ver 2.9.1 launched on 18/8/2014 from [here](http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/)
-* **AMD Driver installer**: amd-driver-installer-14.301.1001-x86.x86_64
-
-
 ## Installation Steps:    
 
 ### A. HCC Compiler Installation: 
@@ -63,7 +55,7 @@ This repository hosts the HCC implementation of BLAS subroutines. The following 
    
 (ii) Platform-specific build
 
-(a) For Linux:  
+(a) Only Supported on Linux:  
 
        * ./install.sh test=ON/OFF profile=ON/OFF
          Where
@@ -72,20 +64,6 @@ This repository hosts the HCC implementation of BLAS subroutines. The following 
            profile=OFF - HCBLAS profiling not enabled
            profile=ON  - Enable HCBLAS profiling 
 
-
-(b)  For Windows: (Prerequisite: Visual Studio 12 version )
-       
-1. For 32 Bit:
-
-       * cd ~/hcblas/lib/build/vc11-x86
-
-       * make-solutions.bat (This creates a Visual studio solution for hcblas Library) 
-
- 2. For 64-bit:
-
-       * cd ~/hcblas/lib/build/vc11-x86_64
-
-       * make-solutions.bat (This creates a Visual Studio solution for hcblas Library)
        
 ### C. Unit testing
 
@@ -169,17 +147,4 @@ Note:
   (13) DDOT - Double Precision Dot product
 
      * ./ddot N Itype(Itype takes 1, 2, 3, 4 or 5)
-     
-(b)  For Windows: (Prerequisite: Visual Studio 12 version )
-       
-1. For 32 Bit:
 
-       * cd ~/hcblas/test/build/vc11-x86
-
-       * make-solutions.bat (This creates a Visual studio solution for hcblastest Library) 
-
- 2. For 64-bit:
-
-       * cd ~/hcblas/test/build/vc11-x86_64
-
-       * make-solutions.bat (This creates a Visual Studio solution for hcblastest Library)
