@@ -74,7 +74,7 @@ hcblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 /*
 * SGEMM - NoTransAB case - Row major Access
@@ -148,7 +148,7 @@ hcblasStatus gemm_NoTransAB_rMajor_batch_STEP_NBK_TS16XSS16(hc::accelerator_view
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -227,7 +227,7 @@ hcblasStatus gemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &a
   });
 #undef TILESIZE
 #undef MICROTILESIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -303,7 +303,7 @@ hcblasStatus gemm_NoTransA_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl_
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -390,7 +390,7 @@ hcblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &a
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -477,7 +477,7 @@ hcblasStatus gemm_NoTransA_rMajor_batch_STEP_NBK_TS16XSS16(hc::accelerator_view 
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -565,7 +565,7 @@ hcblasStatus gemm_NoTransA_rMajor_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view
   });
 #undef TILESIZE
 #undef MICROTILESIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -645,7 +645,7 @@ hcblasStatus gemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &ac
   });
 #undef TILESIZE
 #undef MICROTILESIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 /*
 * SGEMM - NoTransB case - Row major Access
@@ -730,7 +730,7 @@ hcblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS16XSS16(hc::accelerator_view 
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -817,7 +817,7 @@ hcblasStatus gemm_NoTransB_rMajor_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view
   });
 #undef TILESIZE
 #undef MICROTILESIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -893,7 +893,7 @@ hcblasStatus gemm_NoTransB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl_
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -969,7 +969,7 @@ hcblasStatus gemm_NoTransB_rMajor_batch_STEP_TS16XSS16(hc::accelerator_view &acc
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -1049,7 +1049,7 @@ hcblasStatus gemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &ac
   });
 #undef TILESIZE
 #undef MICROTILESIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -1135,7 +1135,7 @@ hcblasStatus gemm_NoTransB_rMajor_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &a
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -1222,7 +1222,7 @@ hcblasStatus gemm_TransAB_rMajor_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view 
   });
 #undef TILESIZE
 #undef MICROTILESIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -1300,7 +1300,7 @@ hcblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &ac
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 /*
 * SGEMM - TransAB case - Row major Access
@@ -1377,7 +1377,7 @@ hcblasStatus gemm_TransAB_rMajor_batch_STEP_NBK_TS16XSS16(hc::accelerator_view &
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -1457,7 +1457,7 @@ hcblasStatus gemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &acc
   });
 #undef TILESIZE
 #undef MICROTILESIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 /*
@@ -1537,7 +1537,7 @@ hcblasStatus gemm_TransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl_v
   });
 #undef TILESIZE
 #undef STEPSIZE
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus gemm_TransAB_rMajor_batch_largeM(hc::accelerator_view &accl_view,
@@ -1617,7 +1617,7 @@ hcblasStatus gemm_TransAB_rMajor_batch_largeM(hc::accelerator_view &accl_view,
 #undef TILESIZE_B
 #undef MICROTILESIZE_A
 #undef MICROTILESIZE_B
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus gemm_NoTransB_rMajor_batch_largeM(hc::accelerator_view &accl_view,
@@ -1701,7 +1701,7 @@ hcblasStatus gemm_NoTransB_rMajor_batch_largeM(hc::accelerator_view &accl_view,
 #undef TILESIZE_B
 #undef MICROTILESIZE_A
 #undef MICROTILESIZE_B
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus gemm_NoTransA_rMajor_batch_largeM(hc::accelerator_view &accl_view,
@@ -1781,7 +1781,7 @@ hcblasStatus gemm_NoTransA_rMajor_batch_largeM(hc::accelerator_view &accl_view,
 #undef TILESIZE_B
 #undef MICROTILESIZE_A
 #undef MICROTILESIZE_B
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 

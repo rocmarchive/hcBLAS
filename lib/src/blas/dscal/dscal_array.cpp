@@ -59,7 +59,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dscal(const int N, const double* alpha,
   for(int i = 0 ; i < lenX; i++) {
      X[i] = HostX[i];
   }
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
   }
 
   hc::copy(begin(HostX), end(HostX), xView);
@@ -72,7 +72,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dscal(const int N, const double* alpha,
     X[i] = HostX[i];
   }
 
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // DSCAL Call Type II: Inputs and outputs are C++ HC float array containers
@@ -93,11 +93,11 @@ hcblasStatus Hcblaslibrary :: hcblas_dscal(hc::accelerator_view &accl_view,
      HostX[xOffset + i] = 0.0;
    }
    hc::copy(begin(HostX), end(HostX), X);
-   return HCBLAS_SUCCESS;
+   return HCBLAS_SUCCEEDS;
   }
 
   dscal_HC(accl_view, N, alpha, X, incX, xOffset);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // DSCAL TYpe III - Overloaded function with arguments related to batch processing
@@ -120,10 +120,10 @@ hcblasStatus Hcblaslibrary :: hcblas_dscal(hc::accelerator_view &accl_view,
      }
    }
    hc::copy(begin(HostX), end(HostX), X);
-   return HCBLAS_SUCCESS;
+   return HCBLAS_SUCCEEDS;
   }
 
   dscal_HC(accl_view, N, alpha, X, incX, xOffset, X_batchOffset, batchSize);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 

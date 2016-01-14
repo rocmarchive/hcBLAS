@@ -800,7 +800,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
     for( int i = 0; i < lenYn; i++) {
       Y[i] = HostY[i];
     }
-    return HCBLAS_SUCCESS;
+    return HCBLAS_SUCCEEDS;
  }
 
 
@@ -847,7 +847,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
      for( int i = 0; i < lenYn; i++) {
        Y[i] = HostY[i];
      }
-    return HCBLAS_SUCCESS;
+    return HCBLAS_SUCCEEDS;
     }
     hc::copy(begin(HostX), end(HostX), xView);
     hc::copy(begin(HostY), end(HostY), yView);
@@ -865,7 +865,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose ty
     }
   }
 
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 
@@ -887,7 +887,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
     gemv_HC_rMajor(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY);
   }
 
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
@@ -909,7 +909,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
     gemv_HC_rMajor(accl_view, type, M, N, alpha, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, incX, beta, Y, yOffset, Y_batchOffset, incY, batchSize);
   }
 
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 

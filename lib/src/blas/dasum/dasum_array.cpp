@@ -231,7 +231,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(const int N, double* X, const int inc
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].create_view());
   *Y = dasum_HC(accl_view, N, xView, incX, xOffset, *Y);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // DASUM Call Type II: Inputs and outputs are C++ HC float array containers
@@ -244,7 +244,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(hc::accelerator_view &accl_view, cons
   }
 
   Y = dasum_HC(accl_view, N, X, incX, xOffset, Y);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // SASUM TYpe III - Overloaded function with arguments related to batch processing
@@ -257,6 +257,6 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(hc::accelerator_view &accl_view, cons
   }
 
   Y = dasum_HC(accl_view, N, X, incX, xOffset, Y, X_batchOffset, batchSize);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 

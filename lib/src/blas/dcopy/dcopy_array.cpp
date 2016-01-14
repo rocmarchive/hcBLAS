@@ -69,7 +69,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dcopy(const int N, double* X, const int inc
     Y[i] = HostY[i];
   }
 
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // DCOPY Call Type II: Inputs and outputs are C++ HC float array containers
@@ -82,7 +82,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dcopy(hc::accelerator_view &accl_view, cons
   }
 
   dcopy_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // DCOPY TYpe III - Overloaded function with arguments related to batch processing
@@ -96,6 +96,6 @@ hcblasStatus Hcblaslibrary :: hcblas_dcopy(hc::accelerator_view &accl_view, cons
   }
 
   dcopy_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 

@@ -244,7 +244,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(const int N, float* X, const int incX,
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].create_view());
   *dot = sdot_HC(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, *dot);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // SDOT Call Type II: Inputs and outputs are C++ HC float array containers
@@ -259,7 +259,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const
   }
 
   dot = sdot_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // SDOT TYpe III - Overloaded function with arguments related to batch processing
@@ -273,7 +273,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const
   }
 
   dot = sdot_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot, X_batchOffset, Y_batchOffset, batchSize);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 

@@ -11,7 +11,7 @@ hcblasStatus gemm_HC(hc::accelerator_view &accl_view,
                      hc::array<float> &C_mat,
                      long cOffset, long ldc,
                      long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset = 0, int batchSize = 0) {
-  hcblasStatus status = HCBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCEEDS;
   // Start the operations
 
   if (order) {
@@ -111,7 +111,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hcblasOrder order,
  
   int i, j;
   float temp;
-  hcblasStatus status = HCBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCEEDS;
 
   // For alpha = 0
   if (*alpha == 0) {
@@ -164,7 +164,7 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
 					    const long aOffset, const long bOffset, const long cOffset) {
   int i, j;
   float temp;
-  hcblasStatus status = HCBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCEEDS;
 
   // Quick return if possible
   if (!M || !N || !K) {
@@ -212,7 +212,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
 					   const long aOffset, const long bOffset, const long cOffset, const int batchSize) {
   int i, j, k;
   float temp;
-  hcblasStatus status = HCBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCEEDS;
 
   // Quick return if possible
   if (!M || !N || !K) {

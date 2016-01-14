@@ -103,7 +103,7 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblas
   }
 
   if(alpha == 0) {
-    return HCBLAS_SUCCESS;
+    return HCBLAS_SUCCEEDS;
   }
 
   if(order) {
@@ -112,7 +112,7 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblas
     ger_HC_rMajor(accl_view, M, N, alpha, X, xOffset, incX, Y, yOffset, incY, A, aOffset, N);
   }
 
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus Hcblaslibrary :: hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
@@ -129,7 +129,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sger(hc::accelerator_view &accl_view, hcbla
   }
 
   if(alpha == 0) {
-    return HCBLAS_SUCCESS;
+    return HCBLAS_SUCCEEDS;
   }
 
   if(order) {
@@ -138,5 +138,5 @@ hcblasStatus Hcblaslibrary :: hcblas_sger(hc::accelerator_view &accl_view, hcbla
     ger_HC_rMajor(accl_view, M, N, alpha, X, xOffset, X_batchOffset, incX, Y, yOffset, Y_batchOffset, incY, A, aOffset, A_batchOffset, N, batchSize);
   }
 
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }

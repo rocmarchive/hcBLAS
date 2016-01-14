@@ -12,7 +12,7 @@ hcblasStatus gemm_HC(hc::accelerator_view &accl_view,
                      long cOffset, long ldc,
                      long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset = 0, int batchSize = 0) {
   int i, j, k;
-  hcblasStatus status = HCBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCEEDS;
 
   // Quick return if possible
   if (!M || !N || !K) {

@@ -47,7 +47,7 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, cons
   }
 
   scopy_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // SCOPY TYpe III - Overloaded function with arguments related to batch processing
@@ -61,6 +61,6 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, cons
   }
 
   scopy_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 

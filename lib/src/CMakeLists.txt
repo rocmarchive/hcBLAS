@@ -15,7 +15,7 @@ PROJECT (${PROJECT_NAME})
 MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
 #Setting a variable for source files
-SET (SRCS ${BLASSRC})
+SET (SRCS ${BLASSRC} hcblas.cpp)
 
   # Choice to take compilation flags from source or package
   if(EXISTS ${MCWHCCBUILD})
@@ -42,4 +42,4 @@ SET (SRCS ${BLASSRC})
   ADD_EXECUTABLE("${PROJECT_NAME}.so" ${SRCS})
   SET_PROPERTY(TARGET "${PROJECT_NAME}.so" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS}")
   INSTALL(TARGETS "${PROJECT_NAME}.so" DESTINATION "/usr/lib/")
-  INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcblaslib.h" DESTINATION include)
+  INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcblaslib.h" ${CMAKE_CURRENT_SOURCE_DIR}/../include/hcblas.h DESTINATION include)

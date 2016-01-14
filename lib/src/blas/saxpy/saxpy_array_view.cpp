@@ -128,11 +128,11 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
   }
 
   if ( alpha == 0) {
-    return HCBLAS_SUCCESS;
+    return HCBLAS_SUCCEEDS;
   }
 
   axpy_HC(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 
@@ -148,10 +148,10 @@ hcblasStatus  Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
   }
 
   if ( alpha == 0) {
-    return HCBLAS_SUCCESS;
+    return HCBLAS_SUCCEEDS;
   }
 
   axpy_HC(accl_view, N, alpha, X, xOffset, incX, Y, yOffset, incY, X_batchOffset, Y_batchOffset, batchSize);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 

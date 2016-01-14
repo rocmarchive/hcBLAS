@@ -12,7 +12,7 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
  					   const Concurrency::graphics::float_2 &Cbeta,
  					   hc::array_view<float_2> &Ccmplx, long cOffset, long ldc) {
   int i, j;
-  hcblasStatus status = HCBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCEEDS;
   float tempReal = 0.0, tempImg = 0.0;
   // Quick return if possible
   if (!M || !N || !K) {
@@ -85,7 +85,7 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
  					   hc::array_view<float_2> &Ccmplx,
  					   const long cOffset, const long C_batchOffset, const long ldc, const int batchSize) {
   int i, j, k;
-  hcblasStatus status = HCBLAS_SUCCESS;
+  hcblasStatus status = HCBLAS_SUCCEEDS;
   float tempReal = 0.0, tempImg = 0.0;
   // Quick return if possible
   if (!M || !N || !K) {

@@ -51,11 +51,11 @@ hcblasStatus Hcblaslibrary :: hcblas_sscal(hc::accelerator_view &accl_view,
    for (int i = 0; i < lenX; i++) {
      X[xOffset + i] = 0.0;
    }
-   return HCBLAS_SUCCESS;
+   return HCBLAS_SUCCEEDS;
   }
 
   sscal_HC(accl_view, N, alpha, X, incX, xOffset);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 // SSCAL TYpe III - Overloaded function with arguments related to batch processing
@@ -75,10 +75,10 @@ hcblasStatus Hcblaslibrary :: hcblas_sscal(hc::accelerator_view &accl_view,
         X[xOffset + X_batchOffset * j + i] = 0.0;
     }
    }
-   return HCBLAS_SUCCESS;
+   return HCBLAS_SUCCEEDS;
   }
 
   sscal_HC(accl_view, N, alpha, X, incX, xOffset, X_batchOffset, batchSize);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 

@@ -770,7 +770,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
     gemv_HC_rMajor(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY, tempBuf);
   }
   free(temp);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
@@ -798,5 +798,5 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
     gemv_HC_rMajor(accl_view, type, M, N, alpha, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, incX, beta, Y, yOffset, Y_batchOffset, incY, tempBuf, batchSize);
   }
   free(temp);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }

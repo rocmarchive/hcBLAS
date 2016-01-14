@@ -18,7 +18,7 @@ using namespace Concurrency::graphics;
 using namespace std;
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {
-    HCBLAS_SUCCESS = 0,
+    HCBLAS_SUCCEEDS = 0,
     HCBLAS_INVALID = -1
 };
 
