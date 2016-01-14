@@ -10,10 +10,10 @@
 // passed to all subsequent library function calls. The context should be destroyed at the end using 
 // hcblasDestroy().
 
-typedef Hcblaslibrary hcblasHandle_t;
+typedef hcblasHandle_t Hcblaslibrary;
 
 
-// Type hcblasStatus
+// 2.2.2. hcblasStatus_t
 
 // The type  hcblasStatus  is used for function status returns. HCBLAS 
 // helper functions return status directly, while the status of HCBLAS 
@@ -41,8 +41,15 @@ enum hcblasOperation_t {
   HCBLAS_OP_N,  // The Non transpose operation is selected
   HCBLAS_OP_T,  // Transpose operation is selected
   HCBLAS_OP_C   // Conjugate transpose operation is selected
-};
+}
   
+// 2.2.4. hcComplex
+
+// hcComplex is used in Complex-precision functions
+
+typedef float2 hcFloatComplex;
+typedef hcFloatComplex hcComplex;
+
 // hcblas Helper functions 
 
 // 1. hcblasCreate()
@@ -300,8 +307,8 @@ hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
 // y = α op ( A ) x + β y
 // where A is a m × n matrix stored in column-major format, x and y are vectors, and α and β are scalars. Also, for matrix A
 // op ( A ) = A             if transa == HCBLAS_OP_N 
-//            tranpose A    if transa == HCBLAS_OP_T   
-//            A^H           if transa == HCBLAS_OP_H
+//            A^T           if transa == HCBLAS_OP_T   
+//            A^H           if transa == HCBLAS_OP_C
 
 // Param.       Memory           In/out         Meaning
 // -------------------------------------------------------------------------------------
@@ -369,6 +376,131 @@ hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *A, int lda);
+
+// HCBLAS Level-3 Function Reference
+
+// The Level-3 Basic Linear Algebra Subprograms (BLAS3) functions perform matrix-matrix operations.
+// Unless otherwise specified <type> and <t> have the following meanings:
+
+// <type>       <t>          Meaning
+// ---------------------------------------------------
+// float     ‘s’ or ‘S’      real single-precision
+// double    ‘d’ or ‘D’      real double-precision
+// hcComplex ‘c’ or ‘C’      complex single-precision
+
+// 1. hcblas<t>gemm()
+
+// This function performs the matrix-matrix multiplication
+// C = α op ( A ) op ( B ) + β C
+// where α and β are scalars, and A , B and C are matrices stored in column-major format with dimensions 
+// op ( A ) m × k , op ( B ) k × n and C m × n , respectively. Also, for matrix A
+// op ( A ) = A   if  transa == HCBLAS_OP_N 
+//            A^T if  transa == HCBLAS_OP_T 
+//            A^H if  transa == HCBLAS_OP_C
+// and op ( B ) is defined similarly for matrix B .
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// transa       host             input          operation op(A) that is non- or (conj.) transpose.
+// transb       host             input          operation op(B) that is non- or (conj.) transpose.
+// m            host             input          number of rows of matrix op(A) and C.
+// n            host             input          number of rows of matrix op(B) and C.
+// k            host             input          number of columns of op(A) and rows of op(B).
+// alpha        host or device   input          <type> scalar used for multiplication.
+// A            device           input          <type> array of dimensions lda x k with lda>=max(1,m) 
+//                                              if transa == HCBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.
+// lda          host             input          leading dimension of two-dimensional array used to store the matrix A.
+// B            device           input          <type> array of dimension ldb x n with ldb>=max(1,k) 
+//                                              if transa == HCBLAS_OP_N and ldb x k with ldb>=max(1,n) otherwise.
+// ldb          host             input          leading dimension of two-dimensional array used to store matrix B.
+// beta         host or device   input          <type> scalar used for multiplication. If beta==0, C does not have to be a valid input.
+// C            device           in/out         <type> array of dimensions ldc x n with ldc>=max(1,m).
+// ldc          host             input          leading dimension of a two-dimensional array used to store the matrix C.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k<0 
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const float           *alpha,
+                           const float           *A, int lda,
+                           const float           *B, int ldb,
+                           const float           *beta,
+                           float           *C, int ldc);
+hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const hcComplex       *alpha,
+                           const hcComplex       *A, int lda,
+                           const hcComplex       *B, int ldb,
+                           const hcComplex       *beta,
+                           hcComplex       *C, int ldc);
+
+// 2. hcblas<t>gemmBatched()
+
+// This function performs the matrix-matrix multiplications of an array of matrices.
+// C [ i ] = α op ( A [ i ] ) op ( B [ i ] ) + β C [ i ] ,  for i  ∈ [ 0 , batchCount − 1 ]
+// where α and β are scalars, and A , B and C are arrays of pointers to matrices stored in 
+// column-major format with dimensions op ( A [ i ] ) m × k , op ( B [ i ] ) k × n and C [ i ] m × n , 
+// respectively. Also, for matrix A
+// op ( A ) = A   if  transa == HCBLAS_OP_N 
+//            A^T if  transa == HCBLAS_OP_T 
+//            A^H if  transa == HCBLAS_OP_C
+// and op ( B [ i ] ) is defined similarly for matrix B [ i ] .
+
+// This function is intended to be used for matrices of small sizes where the launch overhead is a significant factor.
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// transa       host             input          operation op(A) that is non- or (conj.) transpose.
+// transb       host             input          operation op(B) that is non- or (conj.) transpose.
+// m            host             input          number of rows of matrix op(A) and C.
+// n            host             input          number of rows of matrix op(B) and C.
+// k            host             input          number of columns of op(A) and rows of op(B).
+// alpha        host or device   input          <type> scalar used for multiplication.
+// Aarray       device           input          array of pointers to <type> array, with each array of dim. lda x k with lda>=max(1,m)
+//                                              if transa == HCBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.
+// lda          host             input          leading dimension of two-dimensional array used to store the matrix A[i].
+// Barray       device           input          array of pointers to <type> array, with each array of dim.ldb x n with ldb>=max(1,k)
+//                                              if transa == HCBLAS_OP_N and ldb x k with ldb>=max(1,n) otherwise.
+// ldb          host             input          leading dimension of two-dimensional array used to store matrix B[i].
+// beta         host or device   input          <type> scalar used for multiplication. If beta==0, C does not have to be a valid input.
+// Carray       device           in/out         array of pointers to <type> array, with each array of dim.ldc x n with ldc>=max(1,m).
+// ldc          host             input          leading dimension of a two-dimensional array used to store the matrix C[i].
+// batchCount   host             input          number of pointers contained in Aarray, Barray and Carray.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k,batchCount<0
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
+                                  hcblasOperation_t transa, hcblasOperation_t transb,
+                                  int m, int n, int k,
+                                  const float           *alpha,
+                                  const float           *Aarray[], int lda,
+                                  const float           *Barray[], int ldb,
+                                  const float           *beta,
+                                  float           *Carray[], int ldc, int batchCount);
+hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
+                                  hcblasOperation_t transa, hcblasOperation_t transb,
+                                  int m, int n, int k,
+                                  const hcComplex       *alpha,
+                                  const hcComplex       *Aarray[], int lda,
+                                  const hcComplex       *Barray[], int ldb,
+                                  const hcComplex       *beta,
+                                  hcComplex       *Carray[], int ldc, int batchCount);
 
 
 #endif
