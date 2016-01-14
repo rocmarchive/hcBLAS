@@ -10,8 +10,7 @@
 // passed to all subsequent library function calls. The context should be destroyed at the end using 
 // hcblasDestroy().
 
-typedef hcblasHandle_t Hcblaslibrary;
-
+typedef Hcblaslibrary hcblasHandle_t;
 
 // 2.2.2. hcblasStatus_t
 
@@ -41,7 +40,7 @@ enum hcblasOperation_t {
   HCBLAS_OP_N,  // The Non transpose operation is selected
   HCBLAS_OP_T,  // Transpose operation is selected
   HCBLAS_OP_C   // Conjugate transpose operation is selected
-}
+};
   
 // 2.2.4. hcComplex
 
