@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
         return -1;
     }
     ldc = (hcOrder)? M : N;
-    struct hcComplex calpha,cbeta;
+    struct hc_Complex calpha,cbeta;
     Concurrency::graphics::float_2 cAlpha, cBeta;
     cAlpha.x = calpha.real = 1;
     cAlpha.y = calpha.img  = 1;
@@ -87,9 +87,9 @@ int main(int argc, char* argv[])
 /* Implementation type I - Inputs and Outputs are host float pointers */
 
     if(Imple_type == 1) {
-        struct hcComplex *Ahc = (struct hcComplex *) calloc(M * K, sizeof(struct hcComplex ));
-        struct hcComplex *Bhc = (struct hcComplex *) calloc(K * N, sizeof(struct hcComplex ));
-        struct hcComplex *Chc = (struct hcComplex *) calloc(M * N, sizeof(struct hcComplex ));
+        struct hc_Complex *Ahc = (struct hc_Complex *) calloc(M * K, sizeof(struct hc_Complex ));
+        struct hc_Complex *Bhc = (struct hc_Complex *) calloc(K * N, sizeof(struct hc_Complex ));
+        struct hc_Complex *Chc = (struct hc_Complex *) calloc(M * N, sizeof(struct hc_Complex ));
         int k = 0;
         for (int i = 0;i < M * K; i++) { 
              Ahc[i].real = rand() % 10;

@@ -35,7 +35,7 @@ enum hcblasTranspose {
     Trans = 't'
 };
 
-struct hcComplex
+struct hc_Complex
 {
      float real;
      float img;
@@ -232,10 +232,10 @@ class Hcblaslibrary
     hcblasStatus hcblas_cgemm(hcblasOrder order, hcblasTranspose typeA,
                               hcblasTranspose typeB, const int M, 
                               const int N, const int K,
-                              const hcComplex *alpha,
-                              const hcComplex *A, const long aOffset, const long lda,
-                              const hcComplex *B, const long bOffset, const long ldb,
-                              const hcComplex *beta, hcComplex *C,
+                              const hc_Complex *alpha,
+                              const hc_Complex *A, const long aOffset, const long lda,
+                              const hc_Complex *B, const long bOffset, const long ldb,
+                              const hc_Complex *beta, hc_Complex *C,
                               const long cOffset, const long ldc);
 
 /* CGEMM - Overloaded function with arguments of type hc::array_view */     

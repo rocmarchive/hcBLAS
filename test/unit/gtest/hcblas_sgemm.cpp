@@ -236,7 +236,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_3) {
     long A_batchOffset = 0;
     long B_batchOffset = 0;
     long C_batchOffset = M * N;
-    int batchSize = 128;
+    int batchSize = 32;
     hcblasOrder hcOrder;
     hcblasTranspose typeA, typeB;
     hcblasStatus status;

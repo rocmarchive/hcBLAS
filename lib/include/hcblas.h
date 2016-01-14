@@ -47,6 +47,7 @@ enum hcblasOperation_t {
 // hcComplex is used in Complex-precision functions
 
 typedef float2 hcFloatComplex;
+typedef hcFloatComplex hcComplex;
 
 // hcblas Helper functions 
 

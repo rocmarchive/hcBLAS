@@ -5,12 +5,12 @@
 hcblasStatus Hcblaslibrary:: hcblas_cgemm(hcblasOrder order, hcblasTranspose typeA,
 				          hcblasTranspose typeB,
 				          const int M, const int N,
-				          const int K, const hcComplex* alpha,
-				          const hcComplex* A, long aOffset,
-				          long lda, const hcComplex* B,
+				          const int K, const hc_Complex* alpha,
+				          const hc_Complex* A, long aOffset,
+				          long lda, const hc_Complex* B,
 				          long bOffset, long ldb,
-				          const hcComplex* beta,
-				          hcComplex* C, long cOffset,
+				          const hc_Complex* beta,
+				          hc_Complex* C, long cOffset,
 				          long ldc) {
   hc::array<float_2, 1> Acmplx(M * K * 2);
   hc::array<float_2, 1> Bcmplx(N * K * 2);
