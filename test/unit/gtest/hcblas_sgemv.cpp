@@ -44,10 +44,10 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     }
     /* Proper call with column major */
     status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status =  hc.hcblas_sgemv(RowMajor, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* x is NULL */
     status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, x1, xOffset, incX, &beta, ySgemv, yOffset, incY);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -78,11 +78,11 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     /* alpha and beta is 0 */
     alpha = 0; beta = 0;
     status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 and beta is 1*/
     beta = 1;
     status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 /* NoTransA */
     hcOrder = ColMajor;
@@ -103,10 +103,10 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     }
     /* Proper call with column major */
     status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv1, aOffset, lda, xSgemv1, xOffset, incX, &beta, ySgemv1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status =  hc.hcblas_sgemv(RowMajor, typeA, M, N, &alpha, ASgemv1, aOffset, lda, xSgemv1, xOffset, incX, &beta, ySgemv1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 }
 
 TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
@@ -151,10 +151,10 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     }
     /* Proper call with column major */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* M is 0 */
     status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -170,11 +170,11 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     /* alpha and beta is 0 */
     alpha = 0; beta = 0;
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 and beta is 1*/
     beta = 1;
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 /* NoTransA */
     hcOrder = ColMajor;
@@ -198,10 +198,10 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     }
     /* Proper call with column major */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat1, aOffset, lda, xView1, xOffset, incX, beta, yView1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, aMat1, aOffset, lda, xView1, xOffset, incX, beta, yView1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     }
 
@@ -252,10 +252,10 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_3) {
    }
  /* Proper call with column major */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* M is 0 */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -271,11 +271,11 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_3) {
     /* alpha and beta is 0 */
     alpha = 0; beta = 0;
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 and beta is 1*/
     beta = 1;
     status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
 /* NoTransA */
    hcOrder = ColMajor;
@@ -299,10 +299,10 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_3) {
    }
    /* Proper call with column major */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat1, aOffset, A_batchOffset, lda, xbatchView1, xOffset, X_batchOffset, incX, beta, ybatchView1, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, abatchMat1, aOffset, A_batchOffset, lda, xbatchView1, xOffset, X_batchOffset, incX, beta, ybatchView1, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 }
 
 TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_4) {
@@ -355,10 +355,10 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_4) {
     hc::copy(begin(HostA), end(HostA), aMat);
     /* Proper call with column major */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* M is 0 */
     status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -374,11 +374,11 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_4) {
     /* alpha and beta is 0 */
     alpha = 0; beta = 0;
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 and beta is 1*/
     beta = 1;
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 /* NoTransA */
     hcOrder = ColMajor;
@@ -408,10 +408,10 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_4) {
     hc::copy(begin(HostA1), end(HostA1), aMat1);
     /* Proper call with column major */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat1, aOffset, lda, xView1, xOffset, incX, beta, yView1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, aMat1, aOffset, lda, xView1, xOffset, incX, beta, yView1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     hc::copy(yView, begin(HostY));
 }
 
@@ -469,10 +469,10 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_5) {
     hc::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
     /* Proper call with column major */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* M is 0 */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -488,11 +488,11 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_5) {
     /* alpha and beta is 0 */
     alpha = 0; beta = 0;
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 and beta is 1*/
     beta = 1;
     status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
 /* NoTransA */
     hcOrder = ColMajor;
@@ -522,8 +522,8 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_5) {
     hc::copy(begin(HostA_batch1), end(HostA_batch1), abatchMat1);
    /* Proper call with column major */
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat1, aOffset, A_batchOffset, lda, xbatchView1, xOffset, X_batchOffset, incX, beta, ybatchView1, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, abatchMat1, aOffset, A_batchOffset, lda, xbatchView1, xOffset, X_batchOffset, incX, beta, ybatchView1, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 }

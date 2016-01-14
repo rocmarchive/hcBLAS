@@ -28,7 +28,7 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_1) {
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* Proper call */
     status = hc.hcblas_dcopy(N, X, incX, xOffset, Y, incY, yOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     /* N is 0 */
     N = 0;
     status = hc.hcblas_dcopy(N, X, incX, xOffset, Y, incY, yOffset); 
@@ -69,7 +69,7 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_2) {
     }
     /* Proper call */
     status = hc.hcblas_dcopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* N is 0 */
     N = 0;
     status = hc.hcblas_dcopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
@@ -112,7 +112,7 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_3) {
     }
     /* Proper call */
     status= hc.hcblas_dcopy(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* N is 0 */
     N = 0;
     status= hc.hcblas_dcopy(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
@@ -156,7 +156,7 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_4) {
    hc::copy(begin(HostY), end(HostY), yView);
    /* Proper call */
    status = hc.hcblas_dcopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status = hc.hcblas_dcopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
@@ -204,7 +204,7 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_5) {
    hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
    /* Proper call */
    status= hc.hcblas_dcopy(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status= hc.hcblas_dcopy(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);

@@ -35,12 +35,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_1) {
     // Column major */
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(ColMajor, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_sgemm(RowMajor, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // NoTransA TransB */  
     typeA = NoTrans;
@@ -48,12 +48,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_1) {
     // Column major */
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(ColMajor, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(RowMajor, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // TransA NoTransB */
     typeA = Trans;
@@ -61,12 +61,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_1) {
     // Column major */
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(ColMajor, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_sgemm(RowMajor, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
 // TransA TransB */
     typeA = Trans;
@@ -74,12 +74,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_1) {
     // Column major */
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(ColMajor, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(RowMajor, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
     typeA = NoTrans;
     typeB = NoTrans;
@@ -88,10 +88,10 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_1) {
     //alpha = 0 */
     alpha = 0; beta = 0;
     status = hc.hcblas_sgemm(hcOrder, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     beta = 1;
     status = hc.hcblas_sgemm(hcOrder, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     // A is NULL */
     status = hc.hcblas_sgemm(hcOrder, typeA, typeB, M, N, K, &alpha, NULL, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -158,12 +158,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
     // Column major */
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // NoTransA TransB */  
     typeA = NoTrans;
@@ -171,12 +171,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
     // Column major */
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // TransA NoTransB */
     typeA = Trans;
@@ -184,12 +184,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
     // Column major */
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
 // TransA TransB */
     typeA = Trans;
@@ -197,12 +197,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
     // Column major */
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset); 
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
     typeA = NoTrans;
     typeB = NoTrans;
@@ -210,9 +210,9 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
     hcOrder = ColMajor;
     //alpha is 0 */
     status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, 0, A_mat, lda, B_mat, ldb, 0, C_mat, ldc, aOffset, bOffset, cOffset); 
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, 0, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset); 
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     // M is 0 */ 
     status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, 0, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -267,12 +267,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_3) {
     // Column major */
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // NoTransA TransB */  
     typeA = NoTrans;
@@ -280,12 +280,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_3) {
     // Column major */
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // TransA NoTransB */
     typeA = Trans;
@@ -293,12 +293,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_3) {
     // Column major */
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
 // TransA TransB */
     typeA = Trans;
@@ -306,21 +306,21 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_3) {
     // Column major */
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
     typeA = NoTrans;
     typeB = NoTrans;
     lda = M; ldb = K ; ldc = M;
     // alpha is 0 */
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, 0, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     // M is 0 */ 
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, 0, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -377,12 +377,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_4) {
     // Column major */
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // NoTransA TransB */  
     typeA = NoTrans;
@@ -390,12 +390,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_4) {
     // Column major */
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // TransA NoTransB */
     typeA = Trans;
@@ -403,12 +403,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_4) {
     // Column major */
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
 // TransA TransB */
     typeA = Trans;
@@ -416,12 +416,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_4) {
     // Column major */
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset); 
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
     typeA = NoTrans;
     typeB = NoTrans;
@@ -429,9 +429,9 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_4) {
     hcOrder = ColMajor;
     // alpha is 0 */
     status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, 0, A_mat, lda, B_mat, ldb, 0, C_mat, ldc, aOffset, bOffset, cOffset); 
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, 0, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset); 
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     // M is 0 */ 
     status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, 0, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -492,12 +492,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_5) {
     // Column major 
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major 
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     // NoTransA TransB   
     typeA = NoTrans;
@@ -505,12 +505,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_5) {
     // Column major 
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major  
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     // TransA NoTransB 
     typeA = Trans;
@@ -518,12 +518,12 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_5) {
     // Column major
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
 
     // TransA TransB 
     typeA = Trans;
@@ -531,21 +531,21 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_5) {
     // Column major 
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     typeA = NoTrans;
     typeB = NoTrans;
     lda = M; ldb = K ; ldc = M;
 
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, 0, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, 0, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID);
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, 0, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);

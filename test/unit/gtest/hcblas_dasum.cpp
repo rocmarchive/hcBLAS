@@ -21,7 +21,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_1) {
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* Proper call */
     status = hc.hcblas_dasum(N, X, incX, xOffset, &asumhcblas);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     /* N is 0 */
     N = 0;
     status = hc.hcblas_dasum(N, X, incX, xOffset, &asumhcblas); 
@@ -52,7 +52,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_2) {
     }
     /* Proper call */
     status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* N is 0 */
     N = 0;
     status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
@@ -83,7 +83,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_3) {
     }
     /* Proper call */
     status= hc.hcblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* N is 0 */
     N = 0;
     status= hc.hcblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
@@ -114,7 +114,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_4) {
    hc::copy(begin(HostX), end(HostX), xView);
    /* Proper call */
    status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status = hc.hcblas_dasum(accl_view, N, xView, incX, xOffset, asumhcblas);
@@ -148,7 +148,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_5) {
    hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
    /* Proper call */
    status= hc.hcblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status= hc.hcblas_dasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);

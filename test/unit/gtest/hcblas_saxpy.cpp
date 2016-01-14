@@ -32,11 +32,11 @@ TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_1) {
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* Proper call */
     status = hc.hcblas_saxpy(N, &alpha, X, incX, Y, incY , xOffset, yOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS); 
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS); 
     /* alpha is 0*/
     alpha = 0;
     status = hc.hcblas_saxpy(N, &alpha, X, incX, Y, incY , xOffset, yOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS); 
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS); 
     /* N is 0 */
     N = 0;
     status = hc.hcblas_saxpy(N, &alpha, X, incX, Y, incY , xOffset, yOffset);
@@ -78,11 +78,11 @@ TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_2) {
     }
     /* Proper call */
     status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     alpha = 0;
     status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* N is 0 */
     N = 0;
     status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
@@ -126,11 +126,11 @@ TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_3) {
     }
     /* Proper call */
     status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     alpha = 0;
     status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* N is 0 */
     N = 0;
     status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
@@ -175,11 +175,11 @@ TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_4) {
    hc::copy(begin(HostY), end(HostY), yView);
    /* Proper call */
    status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* alpha is 0 */
    alpha = 0;
    status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
@@ -228,11 +228,11 @@ TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_5) {
    hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
    /* Proper call */
    status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* alpha is 0*/
    alpha = 0;
    status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);

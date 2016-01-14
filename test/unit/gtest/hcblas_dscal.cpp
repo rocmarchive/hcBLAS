@@ -21,11 +21,11 @@ TEST(hcblas_dscal, func_correct_dscal_Implementation_type_1) {
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* alpha is some scalar */
     status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0*/
     alpha = 0;
     status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     /* N is 0 */
     N = 0;
     status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
@@ -56,11 +56,11 @@ TEST(hcblas_dscal, func_correct_dscal_Implementation_type_2) {
     }
     /* alpha is some scalar */
     status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     alpha = 0; 
     status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* N is 0 */
     N = 0;
     status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
@@ -91,11 +91,11 @@ TEST(hcblas_dscal, func_correct_dscal_Implementation_type_3) {
     }
     /* alpha is some scalar */
     status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     alpha = 0;
     status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* N is 0 */
     N = 0;
     status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
@@ -126,11 +126,11 @@ TEST(hcblas_dscal, func_correct_dscal_Implementation_type_4) {
    hc::copy(begin(HostX), end(HostX), xView);
    /* alpha is some scalar */
    status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* alpha is 0 */
    alpha = 0;
    status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
@@ -165,11 +165,11 @@ TEST(hcblas_dscal, func_correct_dscal_Implementation_type_5) {
    hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
    /* alpha is some scalar */
    status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* alpha is 0 */
    alpha = 0;  
    status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);

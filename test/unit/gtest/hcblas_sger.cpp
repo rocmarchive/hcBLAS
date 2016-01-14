@@ -38,13 +38,13 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
 
     /* Proper call column major*/
     status = hc.hcblas_sger(hcOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    
     hcOrder = RowMajor;
     lda = (hcOrder)? M : N;
     /* Proper call row major*/
     status = hc.hcblas_sger(hcOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     /* x is NULL */
     status = hc.hcblas_sger(hcOrder, M , N , &alpha, x1, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
@@ -61,7 +61,7 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
     /* alpha is 0 */
     alpha = 0;
     status = hc.hcblas_sger(hcOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* M is 0 */
     status = hc.hcblas_sger(hcOrder, 0 , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -114,16 +114,16 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_2) {
     }
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     hcOrder = RowMajor;
     lda = (hcOrder)? M : N;
     /* Proper call with row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , 0 , xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* M is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, 0 , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda);
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -181,16 +181,16 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_3) {
 
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     hcOrder = RowMajor;
     lda = (hcOrder)? M : N;
     /* Proper call with Row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , 0, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* M is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, 0 , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -249,16 +249,16 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_4) {
     hc::copy(begin(HostA), end(HostA), aMat);
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     hcOrder = RowMajor;
     lda = (hcOrder)? M : N;
     /* Proper call with row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , 0, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* M is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, 0 , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
     EXPECT_EQ(status, HCBLAS_INVALID);
@@ -323,15 +323,15 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_5) {
     hc::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     hcOrder = RowMajor;
     lda = (hcOrder)? M : N;
     /* Proper call with row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , 0, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* M is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, 0 , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
     EXPECT_EQ(status, HCBLAS_INVALID);
