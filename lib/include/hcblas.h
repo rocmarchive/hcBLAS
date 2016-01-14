@@ -58,7 +58,89 @@ enum hcblasOperation_t {
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle);
 
-// 2.
+// 2. hcblasDestory()
+
+// This function releases hardware resources used by the HCBLAS library. 
+// This function is usually the last call with a particular handle to the HCBLAS library.
+
+// Return Values
+// ---------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS            the shut down succeeded
+// HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
+
+hcblasStatus_t hcblasDestroy(hcblasHandle_t handle);
+
+// 3. hcblasSetVector()
+
+// This function copies n elements from a vector x in host memory space to a vector y in GPU memory space. 
+// Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between 
+// consecutive elements is given by incx for the source vector x and by incy for the destination vector y.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS            the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE      the parameters incx, incy, elemSize<=0
+// HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
+
+hcblasStatus_t hcblasSetVector(int n, int elemSize, const void *x, int incx, void *y, int incy);
+
+// 4. hcblasGetVector()
+
+// This function copies n elements from a vector x in GPU memory space to a vector y in host memory space. 
+// Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between 
+// consecutive elements is given by incx for the source vector and incy for the destination vector y.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS            the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE      the parameters incx, incy, elemSize<=0
+// HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
+
+hcblasStatus_t hcblasGetVector(int n, int elemSize, const void *x, int incx, void *y, int incy);
+
+// 5. hcblasSetMatrix()
+
+// This function copies a tile of rows x cols elements from a matrix A in host memory space to a 
+// matrix B in GPU memory space. It is assumed that each element requires storage of elemSize bytes 
+// and that both matrices are stored in column-major format, with the leading dimension of the source 
+// matrix A and destination matrix B given in lda and ldb, respectively.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS            the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE      the parameters rows, cols<0 or elemSize, lda, ldb<=0
+// HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
+
+hcblasStatus_t hcblasSetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
+
+// 6. hcblasGetMatrix()
+
+// This function copies a tile of rows x cols elements from a matrix A in GPU memory space to 
+// a matrix B in host memory space. It is assumed that each element requires storage of elemSize 
+// bytes and that both matrices are stored in column-major format, with the leading dimension of 
+// the source matrix A and destination matrix B given in lda and ldb, respectively.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS            the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE      the parameters rows, cols<0 or elemSize, lda, ldb<=0
+// HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
+ 
+hcblasStatus_t hcblasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
+
+// 7. 
+
+
+
+
+
+
+
+
 
 
 
