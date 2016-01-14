@@ -21,7 +21,7 @@ typedef Hcblaslibrary hcblasHandle_t;
 // following values are defined: 
 
 enum hcblasStatus_t {
-  HCBLAS_SUCCESS,                 // Function succeeds
+  HCBLAS_STATUS_SUCCESS,          // Function succeeds
   HCBLAS_STATUS_NOT_INITIALIZED,  // HCBLAS library not initialized
   HCBLAS_STATUS_ALLOC_FAILED,     // resource allocation failed
   HCBLAS_STATUS_INVALID_VALUE,    // unsupported numerical value was passed to function
