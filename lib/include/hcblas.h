@@ -283,7 +283,92 @@ hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
                             const double          *alpha,
                             double          *x, int incx);
  
+// HCBLAS Level-2 Function Reference
 
+// The Level-2 Basic Linear Algebra Subprograms (BLAS2) functions perform matrix-vector operations.
+// Unless otherwise specified <type> and <t> have the following meanings:
+
+// <type>       <t>          Meaning
+// ---------------------------------------------------
+// float     ‘s’ or ‘S’      real single-precision
+// double    ‘d’ or ‘D’      real double-precision
+// hcComplex ‘c’ or ‘C’      complex single-precision
+
+// 1. hcblas<t>gemv()
+
+// This function performs the matrix-vector multiplication
+// y = α op ( A ) x + β y
+// where A is a m × n matrix stored in column-major format, x and y are vectors, and α and β are scalars. Also, for matrix A
+// op ( A ) = A             if transa == HCBLAS_OP_N 
+//            tranpose A    if transa == HCBLAS_OP_T   
+//            A^H           if transa == HCBLAS_OP_H
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// trans        host             input          operation op(A) that is non- or (conj.) transpose.
+// m            host             input          number of rows of matrix A.
+// n            host             input          number of columns of matrix A.
+// alpha        host or device   input          <type> scalar used for multiplication.
+// A            device           input          <type> array of dimension lda x n with lda >= max(1,m)
+//                                              if transa==HCBLAS_OP_N and lda x m with lda >= max(1,n) otherwise.
+// lda          host             input          leading dimension of two-dimensional array used to store matrix A.
+// x            device           input          <type> vector with n elements if transa==HCBLAS_OP_N and m elements otherwise.
+// incx         host             input          stride between consecutive elements of x.
+// beta         host or device   input          <type> scalar used for multiplication, if beta==0 
+//                                              then y does not have to be a valid input.
+// y            device           in/out         <type> vector with m elements if transa==HCBLAS_OP_N and n elements otherwise.
+// incy         host             input          stride between consecutive elements of y.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n<0 or incx,incy=0
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
+                           int m, int n,
+                           const float           *alpha,
+                           const float           *A, int lda,
+                           const float           *x, int incx,
+                           const float           *beta,
+                           float           *y, int incy);
+
+// 2. hcblas<t>ger()
+
+// This function performs the rank-1 update
+// A = α x y T + A if ger(),geru() is called 
+//     α x y H + A if gerc() is called
+// where A is a m × n matrix stored in column-major format, x and y are vectors, and α is a scalar.
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// m            host             input          number of rows of matrix A.
+// n            host             input          number of columns of matrix A.
+// alpha        host or device   input          <type> scalar used for multiplication.
+// x            device           input          <type> vector with m elements.
+// incx         host             input          stride between consecutive elements of x.
+// y            device           in/out         <type> vector with n elements.
+// incy         host             input          stride between consecutive elements of y.
+// A            device           in/out         <type> array of dimension lda x n with lda >= max(1,m).
+// lda          host             input          leading dimension of two-dimensional array used to store matrix A.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n<0 or incx,incy=0
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
+                           const float           *alpha,
+                           const float           *x, int incx,
+                           const float           *y, int incy,
+                           float           *A, int lda);
 
 
 #endif
