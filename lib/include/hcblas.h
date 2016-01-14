@@ -132,23 +132,157 @@ hcblasStatus_t hcblasSetMatrix(int rows, int cols, int elemSize, const void *A, 
  
 hcblasStatus_t hcblasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
 
-// 7. 
+// HCBLAS Level-1 function reference
 
+// Level-1 Basic Linear Algebra Subprograms (BLAS1) functions perform scalar and vector based operations. 
+// We will use abbreviations <type> for type and <t> for the corresponding short type to make a more concise 
+// and clear presentation of the implemented functions. 
+// Unless otherwise specified <type> and <t> have the following meanings:
 
+// <type> 	<t> 	     Meaning
+// ---------------------------------------------------
+// float     ‘s’ or ‘S’      real single-precision
+// double    ‘d’ or ‘D’      real double-precision
+// hcComplex ‘c’ or ‘C’      complex single-precision
 
+// The abbreviation Re(.) and Im(.) will stand for the real and imaginary part of a number, respectively.
 
+// 1. hcblas<t>asum()
 
+// This function computes the sum of the absolute values of the elements of vector x.
 
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// n            host             input          number of elements in the vector x.
+// x            device           input          <type> vector with elements.
+// incx         host             input          stride between consecutive elements of x.
+// result       host or device   output         the resulting index, which is 0.0 if n,incx<=0.
 
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_ALLOC_FAILED      the reduction buffer could not be allocated
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
+hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, int n,
+                            const float           *x, int incx, float  *result);
+hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, int n,
+                            const double          *x, int incx, double *result);
 
+// 2. hcblas<t>axpy()
 
+// This function multiplies the vector x by the scalar α and adds it to the vector y overwriting 
+// the latest vector with the result.
 
+// Param. 	Memory 	         In/out 	Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// alpha        host or device   input          <type> scalar used for multiplication.
+// n            host             input          number of elements in the vector x and y.
+// x            device           input          <type> vector with n elements.
+// incx         host             input          stride between consecutive elements of x.
+// y            device           in/out         <type> vector with n elements.
+// incy         host             input          stride between consecutive elements of y.
 
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
+hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
+                           const float           *alpha,
+                           const float           *x, int incx,
+                           float                 *y, int incy);
 
+// 3. hcblas<t>copy()
 
+// This function copies the vector x into the vector y.
 
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// n            host             input          number of elements in the vector x and y.
+// x            device           input          <type> vector with n elements.
+// incx         host             input          stride between consecutive elements of x.
+// y            device           in/out         <type> vector with n elements.
+// incy         host             input          stride between consecutive elements of y.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
+                           const float           *x, int incx,
+                           float                 *y, int incy);
+hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
+                           const double          *x, int incx,
+                           double                *y, int incy);
+
+// 4. hcblas<t>dot()
+
+// This function computes the dot product of vectors x and y.
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// n            host             input          number of elements in the vector x and y.
+// x            device           input          <type> vector with n elements.
+// incx         host             input          stride between consecutive elements of x.
+// y            device           in/out         <type> vector with n elements.
+// incy         host             input          stride between consecutive elements of y.
+// result       host or device   output         the resulting dot product, which is 0.0 if n<=0.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_ALLOC_FAILED      the reduction buffer could not be allocated
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasSdot (hcblasHandle_t handle, int n,
+                           const float           *x, int incx,
+                           const float           *y, int incy,
+                           float           *result);
+hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
+                           const double          *x, int incx,
+                           const double          *y, int incy,
+                           double          *result);
+
+// 5. hcblas<t>scal()
+
+// This function scales the vector x by the scalar α and overwrites it with the result.
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// alpha        host or device   input          <type> scalar used for multiplication.
+// n            host             input          number of elements in the vector x and y.
+// x            device           input          <type> vector with n elements.
+// incx         host             input          stride between consecutive elements of x.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
+                            const float           *alpha,
+                            float           *x, int incx);
+hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
+                            const double          *alpha,
+                            double          *x, int incx);
+ 
 
 
 
