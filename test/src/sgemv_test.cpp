@@ -61,135 +61,10 @@ int main(int argc, char** argv)
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
-/* Implementation type I - Inputs and Outputs are host float pointers */
 
-    if(Imple_type ==1) {
-        for(int i = 0;i < lenx;i++) {
-            xSgemv[i] = rand() % 10;
-        }
-        for(int i = 0;i< lenx * leny;i++) {
-            ASgemv[i] = rand() % 25;
-        }
-#ifdef PROFILE
-        for(int iter=0; iter<10; iter++) {
-#endif
-        for(int i = 0;i < leny;i++) {
-            ySgemv[i] = rand() % 15;
-            ycblas[i] = ySgemv[i];
-        }
-        status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-        lda = (hcOrder)? M : N;
-        cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
-        for(int i =0; i < leny; i ++){
-            if (ySgemv[i] != ycblas[i]){
-                ispassed = 0;
-                cout <<" HCSGEMV[" << i<< "] " << ySgemv[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
-                break;
-            }
-            else
-                continue;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-        }
-#endif
-    }
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
 
-/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
-
-    else if(Imple_type ==2) {
-        hc::array_view<float> xView(lenx, xSgemv);
-        hc::array_view<float> yView(leny, ySgemv);
-        hc::array_view<float> aMat(M * N, ASgemv);
-        for(int i = 0;i < lenx;i++) {
-           xView[i] = rand() % 10;
-           xSgemv[i] = xView[i];
-        }
-        for(int i = 0;i< lenx * leny;i++) {
-           aMat[i] = rand() % 25;
-           ASgemv[i] = aMat[i];
-        }
-#ifdef PROFILE
-        for(int iter = 0; iter < 10; iter++) {
-#endif
-        for(int i = 0;i < leny;i++) {
-           yView[i] = rand() % 15;
-           ySgemv[i]= yView[i];
-           ycblas[i] = ySgemv[i];
-        }
-        status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-        if(hcOrder)
-                lda = M;
-        else
-                lda = N;
-        cblas_sgemv( order, transa, M, N, alpha, ASgemv, lda , xSgemv, incX, beta, ycblas, incY );
-        for(int i =0; i < leny; i ++){
-            if (yView[i] != ycblas[i]){
-                ispassed = 0;
-                cout <<" HCSGEMV[" << i<< "] " << yView[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblas[i] << endl;
-                break;
-            }
-            else
-                continue;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-        }
-#endif
-    }
-
-/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
-
-    else if(Imple_type ==3) {
-        float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));
-        float *ySgemvbatch = (float*)calloc( leny * batchSize, sizeof(float));
-        float *ASgemvbatch = (float *)calloc( row * col * batchSize, sizeof(float));
-        float *ycblasbatch = (float *)calloc( col * batchSize, sizeof(float));
-        hc::array_view<float> xbatchView(lenx * batchSize, xSgemvbatch);
-        hc::array_view<float> ybatchView(leny * batchSize, ySgemvbatch);
-        hc::array_view<float> abatchMat(M * N * batchSize, ASgemvbatch);
-        for(int i = 0;i < lenx * batchSize;i++) {
-            xbatchView[i] = rand() % 10;
-            xSgemvbatch[i] = xbatchView[i];
-        }
-        for(int i = 0;i< lenx * leny * batchSize;i++){
-            abatchMat[i] = rand() % 25;
-            ASgemvbatch[i] = abatchMat[i];
-        }
-#ifdef PROFILE
-        for(int iter=0; iter<10; iter++) {
-#endif
-        for(int i = 0;i < leny * batchSize;i++) {
-            ybatchView[i] = rand() % 15;
-            ySgemvbatch[i]= ybatchView[i];
-            ycblasbatch[i] = ySgemvbatch[i];
-        }
-
-        status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-        lda = (hcOrder)? M : N;
-        for(int i =0 ; i < batchSize; i++)
-            cblas_sgemv( order, transa, M, N, alpha, ASgemvbatch + i * M * N, lda , xSgemvbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
-        for(int i =0; i < leny * batchSize; i ++){
-            if (ybatchView[i] != ycblasbatch[i]){
-                ispassed = 0;
-                cout <<" HCSGEMV[" << i<< "] " << ybatchView[i] << " does not match with CBLASSGEMV[" << i <<"] "<< ycblasbatch[i] << endl;
-                break;
-            }
-            else
-                continue;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-        }
-#endif
-   }
-
-/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
-
-    else if(Imple_type ==4) {
+    if(Imple_type == 1) {
         hc::array<float> xView(lenx, xSgemv);
         hc::array<float> yView(leny, ySgemv);
         hc::array<float> aMat(lenx * leny, ASgemv);
@@ -235,7 +110,7 @@ int main(int argc, char** argv)
 #endif
     }
 
-/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
 
     else{
         float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));

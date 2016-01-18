@@ -37,43 +37,7 @@ void scopy_HC(hc::accelerator_view &accl_view, long n,
   });
 }
 
-// SCOPY call Type I - SSCAL Inputs and Outputs are host float pointers
-hcblasStatus Hcblaslibrary :: hcblas_scopy(const int N, float* X, const int incX, const long xOffset,
-   					   float* Y, const int incY, const long yOffset) {
-  if (Y == NULL || X == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
-    return HCBLAS_INVALID;
-  }
-
-  int lenX = 1 + (N - 1) * abs(incX);
-  int lenY = 1 + (N - 1) * abs(incY);
-  hc::array<float> xView(lenX, X);
-  hc::array<float> yView(lenY, Y);
-  std::vector<float> HostX(lenX);
-  std::vector<float> HostY(lenY);
-
-  for( int i = 0; i < lenX; i++) {
-    HostX[i] = X[i];
-  }
-
-  for( int i = 0; i < lenY; i++) {
-    HostY[i] = Y[i];
-  }
-
-  hc::copy(begin(HostX), end(HostX), xView);
-  hc::copy(begin(HostY), end(HostY), yView);
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
-  scopy_HC(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
-  hc::copy(yView, begin(HostY));
-
-  for(int i = 0 ; i < lenY; i++) {
-    Y[i] = HostY[i];
-  }
-
-  return HCBLAS_SUCCEEDS;
-}
-
-// SCOPY Call Type II: Inputs and outputs are C++ HC float array containers
+// SCOPY Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, const int N,
 				           hc::array<float> &X, const int incX, const long xOffset,
 				           hc::array<float> &Y, const int incY, const long yOffset) {
@@ -86,7 +50,7 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, cons
   return HCBLAS_SUCCEEDS;
 }
 
-// SCOPY TYpe III - Overloaded function with arguments related to batch processing
+// SCOPY Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, const int N,
 				           hc::array<float> &X, const int incX, const long xOffset,
 				           hc::array<float> &Y, const int incY, const long yOffset,

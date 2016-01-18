@@ -84,163 +84,9 @@ int main(int argc, char* argv[])
         batchSize = 1;
     }
 
-/* Implementation type I - Inputs and Outputs are host float pointers */
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
 
     if(Imple_type == 1) {
-        struct hc_Complex *Ahc = (struct hc_Complex *) calloc(M * K, sizeof(struct hc_Complex ));
-        struct hc_Complex *Bhc = (struct hc_Complex *) calloc(K * N, sizeof(struct hc_Complex ));
-        struct hc_Complex *Chc = (struct hc_Complex *) calloc(M * N, sizeof(struct hc_Complex ));
-        int k = 0;
-        for (int i = 0;i < M * K; i++) { 
-             Ahc[i].real = rand() % 10;
-             Ahc[i].img = rand() % 20;
-             a[k++] = Ahc[i].real;
-             a[k++] = Ahc[i].img;
-        }
-        k = 0;
-        for (int i = 0;i < K * N; i++) {
-             Bhc[i].real = rand() % 15;
-             Bhc[i].img = rand() % 25;
-             b[k++] = Bhc[i].real;
-             b[k++] = Bhc[i].img;
-        }
-#ifdef PROFILE
-        for(int iter=0; iter<10; iter++) {
-#endif
-        k = 0;
-        for (int i = 0;i < M * N; i++) {
-            Chc[i].real = rand() % 18;
-            Chc[i].img = rand() % 28;
-            c[k++] = Chc[i].real;
-            c[k++] = Chc[i].img;
-        }
-    	status = hc.hcblas_cgemm(hcOrder, typeA, typeB, M, N, K, &calpha, Ahc, aOffset, lda, Bhc, bOffset, ldb, &cbeta, Chc, cOffset, ldc);
-        cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
-        for(int i = 0,k = 0; ((i < M * N) && (k < M * N * 2)) ; i++, k = k + 2){
-            if ((Chc[i].real != c[k]) || (Chc[i].img != c[k+1])){
-                ispassed = 0;
-                cout <<" HCCGEMM_REAL[" << i<< "] " << Chc[i].real << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
-                cout <<" HCCGEMM_IMG[" << i<< "] " << Chc[i].img << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
-            }
-            else
-               continue;
-         
-         }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-        }
-#endif
-    }
-
-/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
-    
-    else if(Imple_type ==2){
-        hc::array_view<float_2> A(M * K * 2);
-        hc::array_view<float_2> B(N * K * 2);
-        hc::array_view<float_2> C(M * N * 2);
-        int k = 0;
-        for (int i = 0;i < M * K; i++) {
-            A[i].x = rand() % 10;
-            A[i].y = rand() % 20;
-            a[k++] = A[i].x;
-            a[k++] = A[i].y;
-        }
-        k = 0;
-        for (int i = 0;i < K * N; i++) {
-            B[i].x = rand() % 15;
-            B[i].y = rand() % 25;
-            b[k++] = B[i].x;
-            b[k++] = B[i].y;
-        }
-#ifdef PROFILE
-        for(int iter=0; iter<10; iter++) {
-#endif
-        k = 0;
-        for (int i = 0;i < M * N; i++) {
-            C[i].x = rand() % 18;
-            C[i].y = rand() % 28;
-            c[k++] = C[i].x ;
-            c[k++] = C[i].y;
-        }
-        status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
-        cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
-        for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
-            if ((C[i].x != c[k]) || (C[i].y != c[k+1])){
-                ispassed = 0;
-                cout <<" HCCGEMM_REAL[" << i<< "] " << C[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
-                cout <<" HCCGEMM_IMG[" << i<< "] " << C[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
-            }
-            else
-               continue;
-
-         }
-
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-        }
-#endif
-    }
-
-/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
-
-    else if(Imple_type == 3) {
-        hc::array_view<float_2> Abatch(M * K * 2);
-        hc::array_view<float_2> Bbatch(N * K * 2);
-        hc::array_view<float_2> Cbatch(M * N * 2 * batchSize);
-        float* abatch = (float *)malloc(sizeof(float )* M * K * 2);
-        float* bbatch = (float *)malloc(sizeof(float )* K * N * 2);
-        float* cbatch = (float *)malloc(sizeof(float )* M * N * 2 * batchSize);
-        int k = 0;
-        for (int i = 0;i < M * K; i++) {
-           Abatch[i].x = rand() % 10;
-           Abatch[i].y = rand() % 20;
-           abatch[k++] = Abatch[i].x;
-           abatch[k++] = Abatch[i].y;
-        }
-
-        k = 0;
-        for (int i = 0;i < K * N; i++) {
-           Bbatch[i].x = rand() % 15;
-           Bbatch[i].y = rand() % 25;
-           bbatch[k++] = Bbatch[i].x;
-           bbatch[k++] = Bbatch[i].y;
-        }
-#ifdef PROFILE
-        for(int iter=0; iter<10; iter++) {
-#endif
-        k = 0;
-        for (int i = 0;i < M * N * batchSize; i++) {
-           Cbatch[i].x = rand() % 18;
-           Cbatch[i].y = rand() % 28;
-           cbatch[k++] = Cbatch[i].x ;
-           cbatch[k++] = Cbatch[i].y;
-        }
-
-        status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
-        for(int i = 0; i < batchSize;i++)
-             cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-        for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-            if ((Cbatch[i].x != cbatch[k]) || (Cbatch[i].y != cbatch[k+1])){
-                ispassed = 0;
-                cout <<" HCCGEMM_REAL[" << i<< "] " << Cbatch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
-                cout <<" HCCGEMM_IMG[" << i<< "] " << Cbatch[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[k + 1] << endl;
-            }
-            else
-               continue;
-
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-        }
-#endif
-    }
-
-/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
-
-    else if(Imple_type ==4) {
         hc::array<float_2> A(M * K * 2);
         hc::array<float_2> B(N * K * 2);
         hc::array<float_2> C(M * N * 2);
@@ -294,7 +140,7 @@ int main(int argc, char* argv[])
 #endif
     }
 
-/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
 
     else{
         hc::array<float_2> Abatch(M * K * 2);

@@ -42,127 +42,9 @@ int main(int argc, char** argv)
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
-/* Implementation type I - Inputs and Outputs are host float pointers */
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
 
         if(Imple_type == 1) {
-            for(int i = 0;i < lenx;i++) {
-                xSger[i] = rand() % 10;
-            }
-            for(int i = 0;i < leny;i++) {
-                ySger[i] = rand() % 15;
-            }
-#ifdef PROFILE
-            for(int iter=0; iter<10; iter++) {
-#endif
-            for(int i = 0;i< lenx * leny ;i++) {
-                ASger[i] = rand() % 25;
-                Acblas[i] = ASger[i];
-            }
-            status = hc.hcblas_sger(hcOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
-            cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
-            for(int i =0; i < lenx * leny ; i++){
-                if (ASger[i] != Acblas[i]){
-                    ispassed = 0;
-                    cout <<" HCSGER[" << i<< "] " << ASger[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
-                    break;
-                }
-                else
-                    continue;
-            }
-            if(!ispassed) cout << "TEST FAILED" << endl; 
-            if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-            }
-#endif
-        }
-
-/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
-
-        else if(Imple_type == 2){
-            array_view<float> xView(lenx, xSger);
-            array_view<float> yView(leny, ySger);
-            array_view<float> aMat( M * N, ASger);
-            for(int i = 0;i < lenx;i++) {
-                xView[i] = rand() % 10;
-                xSger[i] = xView[i];
-            }
-            for(int i = 0;i < leny;i++) {
-                yView[i] = rand() % 15;
-                ySger[i] = yView[i];
-            }
-#ifdef PROFILE
-            for(int iter = 0; iter < 10; iter++) {
-#endif
-            for(int i = 0;i< lenx * leny ;i++) {
-                aMat[i] = rand() % 25;
-                Acblas[i] = aMat[i];
-            }
-            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda);
-            cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
-            for(int i =0; i < lenx * leny ; i++){
-                if (aMat[i] != Acblas[i]){
-                    ispassed = 0;
-                    cout <<" HCSGER[" << i<< "] " << aMat[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
-                    break;
-                }
-                else
-                    continue;
-            }
-            if(!ispassed) cout << "TEST FAILED" << endl; 
-            if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-            }
-#endif
-        }
-
-/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
-
-        else if(Imple_type == 3){
-            float *xSgerbatch = (float*)calloc( lenx * batchSize, sizeof(float));
-            float *ySgerbatch = (float*)calloc( leny * batchSize, sizeof(float));
-            float *ASgerbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-            float *Acblasbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-            array_view<float> xbatchView(lenx * batchSize, xSgerbatch);
-            array_view<float> ybatchView(leny * batchSize, ySgerbatch);
-            array_view<float> abatchMat( lenx * leny * batchSize, ASgerbatch);
-            for(int i = 0;i < lenx * batchSize;i++) {
-                xbatchView[i] = rand() % 10;
-                xSgerbatch[i] = xbatchView[i];
-            }
-            for(int i = 0;i < leny * batchSize;i++) {
-                ybatchView[i] = rand() % 15;
-                ySgerbatch[i] = ybatchView[i];
-            }
-#ifdef PROFILE
-            for(int iter = 0; iter < 10; iter++) {
-#endif
-            for(int i = 0;i< lenx * leny * batchSize;i++) {
-                abatchMat[i] = rand() % 25;
-                Acblasbatch[i] = abatchMat[i];
-                ASgerbatch[i] = abatchMat[i];
-            }
-            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-            for(int i = 0; i < batchSize; i++)
-               cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda);
-            for(int i =0; i < lenx * leny * batchSize; i++){
-               if (abatchMat[i] != Acblasbatch[i]){
-                   ispassed = 0;
-                   cout <<" HCSGER[" << i<< "] " << abatchMat[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblasbatch[i] << endl;
-                   break;
-               }
-            else
-                  continue;
-            }
-            if(!ispassed) cout << "TEST FAILED" << endl; 
-            if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-         }
-#endif
-      }
-
-/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
-
-        else if(Imple_type == 4) {
             std::vector<float> HostX(lenx);
             std::vector<float> HostY(leny);
             std::vector<float> HostA(lenx * leny);
@@ -206,7 +88,7 @@ int main(int argc, char** argv)
 #endif
         }
 
-/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
 
         else{
             float *xSgerbatch = (float*)calloc( lenx * batchSize, sizeof(float));

@@ -37,45 +37,7 @@ void sscal_HC(hc::accelerator_view &accl_view,
   });
 }
 
-// SSCAL call Type I - SSCAL Inputs and Outputs are host float pointers
-hcblasStatus Hcblaslibrary :: hcblas_sscal(const int N, const float* alpha,
-				           float* X, const int incX, const long xOffset) {
-  if (alpha == NULL || X == NULL || N <= 0 || incX <= 0 ) {
-    return HCBLAS_INVALID;
-  }
-
-  int lenX = 1 + (N - 1) * abs(incX);
-  hc::array<float> xView(lenX, X);
-  std::vector<float> HostX(lenX);
-
-  for( int i = 0; i < lenX; i++) {
-    HostX[i] = X[i];
-  }
-
-  if ( *alpha == 0 ) {
-   for (int i = 0; i < lenX; i++) {
-     HostX[xOffset + i] = 0.0;
-   }
-  for(int i = 0 ; i < lenX; i++) {
-     X[i] = HostX[i];
-  }
-  return HCBLAS_SUCCEEDS;
-  }  
-
-  hc::copy(begin(HostX), end(HostX), xView);
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
-  sscal_HC(accl_view, N, *alpha, xView, incX, xOffset);
-  hc::copy(xView, begin(HostX));
-
-  for(int i = 0 ; i < lenX; i++) {
-    X[i] = HostX[i];
-  }
-
-  return HCBLAS_SUCCEEDS;
-}
-
-// SSCAL Call Type II: Inputs and outputs are C++ HC float array containers
+// SSCAL Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_sscal(hc::accelerator_view &accl_view,
 				           const int N, const float &alpha,
 				           hc::array<float> &X, const int incX,
@@ -100,7 +62,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sscal(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-// SSCAL TYpe III - Overloaded function with arguments related to batch processing
+// SSCAL Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_sscal(hc::accelerator_view &accl_view,
 				           const int N, const float &alpha,
 				           hc::array<float> &X, const int incX,

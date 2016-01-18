@@ -79,128 +79,10 @@ int main(int argc,char* argv[])
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view()); 
 
-/* Implementation type I - Inputs and Outputs are host float pointers */
 
-       if(Imple_type == 1) {    
-            for(int i = 0; i < M * K; i++) {
-                Asgemm[i] = rand() % 100;
-            }
-            for(int i = 0; i < K * N;i++) {
-                Bsgemm[i] = rand() % 15;
-            }
-#ifdef PROFILE
-            for(int iter = 0; iter < 10; iter++) {
-#endif
-            for(int i = 0; i < M * N;i++) {
-                Csgemm[i] = rand() % 25;
-                C_cblas[i] = Csgemm[i];
-            }
-            status = hc.hcblas_sgemm(hcOrder, typeA, typeB, M, N, K, &alpha, Asgemm, lda, Bsgemm,ldb, &beta, Csgemm, ldc, aOffset, bOffset, cOffset);
-            cblas_sgemm(order, Transa, Transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc);
-            for(int i = 0 ; i < M * N ; i++) { 
-                if( C_cblas[i] != (Csgemm[i])) {
-                    ispassed = 0;
-                    cout << " HCSGEMM["<<i<<"] = "<<Csgemm[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i] << endl;
-                    break;
-                }
-                else
-                   continue;
-            }
-            if(!ispassed) cout << "TEST FAILED" << endl; 
-            if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-           }
-#endif
-       }
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
 
-/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
-
-       else if(Imple_type ==2) {
-            hc::array_view<float> A_mat(K * M, Asgemm);
-            hc::array_view<float> B_mat(N * K, Bsgemm);
-            hc::array_view<float> C_mat(M * N, Csgemm);
-            for(int i = 0; i < M * K; i++) {
-                A_mat[i] = rand() % 100;
-                Asgemm[i] = A_mat[i];
-            }
-            for(int i = 0; i < K * N;i++) {
-                B_mat[i] = rand() % 15;
-                Bsgemm[i] = B_mat[i];
-            }
-#ifdef PROFILE
-            for(int iter = 0; iter < 10; iter++) {
-#endif
-            for(int i = 0; i < M * N;i++) {
-                C_mat[i] = rand() % 25;
-                Csgemm[i] = C_mat[i];
-                C_cblas[i] = C_mat[i];
-            }
-            status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_mat, lda, B_mat, ldb, beta, C_mat, ldc, aOffset, bOffset, cOffset);
-            cblas_sgemm(order, Transa, Transb, M, N, K, alpha, Asgemm, lda, Bsgemm, ldb, beta, C_cblas, ldc);
-            for(int i = 0 ; i < M * N ; i++) {
-                if( C_cblas[i] != (C_mat[i])) {
-                    ispassed = 0;
-                    cout << " HCSGEMM["<<i<<"] = "<<C_mat[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i] << endl;
-                    break;
-                }
-                else
-                   continue;
-            }
-            if(!ispassed) cout << "TEST FAILED" << endl; 
-            if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-           }
-#endif
-        }
-
-/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
-
-       else if(Imple_type ==3) {
-            float *Asgemm_batch = (float*) calloc(M * K, sizeof(float));
-            float *Bsgemm_batch = (float*) calloc(K * N, sizeof(float));
-            float *Csgemm_batch = (float*) calloc(M * N * batchSize, sizeof(float));
-            float *CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));
-            hc::array_view<float> A_batch(K * M, Asgemm_batch);
-            hc::array_view<float> B_batch(N * K, Bsgemm_batch);
-            hc::array_view<float> C_batch(M * N * batchSize, Csgemm_batch);
-            for(int i = 0; i < M * K; i++) {
-                A_batch[i] = rand()%100;
-                Asgemm_batch[i] = A_batch[i];
-            }
-            for(int i = 0; i < K * N;i++) {
-                B_batch[i] = rand() % 15;
-                Bsgemm_batch[i] = B_batch[i];
-            }
-#ifdef PROFILE
-            for(int iter = 0; iter < 10; iter++) {
-#endif
-            for(int i = 0; i < M * N * batchSize;i++) {
-                C_batch[i] = rand() % 25;
-                Csgemm_batch[i] = C_batch[i];
-                CCblasbatch[i] = Csgemm_batch[i];
-            }
-            status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
-            for(int i = 0; i < batchSize; i++)
-                cblas_sgemm( order, Transa, Transb, M, N, K, alpha, Asgemm_batch, lda, Bsgemm_batch, ldb, beta, CCblasbatch  + i * M * N ,ldc );
-            for(int i = 0 ; i < M * N * batchSize; i++) {
-                if( C_batch[i] != (CCblasbatch[i])) {
-                    ispassed = 0;
-                    cout << " HCSGEMM["<<i<<"] = "<<C_batch[i]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << CCblasbatch[i] << endl;
-                    break;
-                }
-                else
-                   continue;
-            }
-            if(!ispassed) cout << "TEST FAILED" << endl; 
-            if(status) cout << "TEST FAILED" << endl;
-#ifdef PROFILE
-            }
-#endif
-        }
-
-/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
-
-        else if(Imple_type == 4) {/* MULTIPLE GPU CALL */
+       if(Imple_type == 1) {/* MULTIPLE GPU CALL */
             hc::array<float, 1> A_mat(K * M, Asgemm);
             hc::array<float, 1> B_mat(N * K, Bsgemm);
             hc::array<float, 1> C_mat(M * N, Csgemm);
@@ -245,7 +127,7 @@ int main(int argc,char* argv[])
 #endif
         }
     
-/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
  
         else {         
             float *Asgemm_batch = (float*) calloc(M * K, sizeof(float));

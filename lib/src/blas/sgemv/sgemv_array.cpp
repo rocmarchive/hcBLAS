@@ -746,129 +746,7 @@ void gemv_HC_rMajor(hc::accelerator_view &accl_view,
   }
 }
 
-
-
-hcblasStatus Hcblaslibrary :: hcblas_sgemv(hcblasOrder order, hcblasTranspose type,
-				           const int M, const int N,
-				           const float* alpha, float* A, const long aOffset,
-				           const int lda, float* X, const long xOffset,
-				           const int incX, const float* beta,
-				           float* Y, const long yOffset, const int incY) {
-  if(alpha == NULL || X == NULL || Y == NULL || A == NULL || M <= 0 || N <= 0 || beta == NULL || incX <= 0 || incY <= 0 ) {
-    return HCBLAS_INVALID;
-  }
-
-  long lenXn = 1 + (N - 1) * abs(incX);
-  long lenXt = 1 + (M - 1) * abs(incX);
-  long lenYn = 1 + (M - 1) * abs(incY);
-  long lenYt = 1 + (N - 1) * abs(incY);
-  hc::array<float> aMat(M * N, A);
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
-  std::vector<float> HostA(M * N);
-
-  for( int i = 0; i < M * N; i++) {
-    HostA[i] = A[i];
-  }
-
-  hc::copy(begin(HostA), end(HostA), aMat);
-
-  if( type == 'n') {
-    hc::array<float> xView(lenXn, X);
-    hc::array<float> yView(lenYn, Y);
-    std::vector<float> HostX(lenXn);
-    std::vector<float> HostY(lenYn);
-
-    for( int i = 0; i < lenXn; i++) {
-      HostX[i] = X[i];
-    }
-
-    for( int i = 0; i < lenYn; i++) {
-      HostY[i] = Y[i];
-    }
-
-    if (*alpha == 0) {
-    if (*beta == 0) {
-      for (int j = 0; j < lenYn; ++j) {
-          HostY[yOffset + j] = 0;
-      }
-    } else {
-      for (int j = 0; j < lenYn; ++j) {
-          HostY[yOffset + j] *=  (*beta);
-      }
-    }
-    for( int i = 0; i < lenYn; i++) {
-      Y[i] = HostY[i];
-    }
-    return HCBLAS_SUCCEEDS;
- }
-
-
-    hc::copy(begin(HostX), end(HostX), xView);
-    hc::copy(begin(HostY), end(HostY), yView);
-
-    if(order) {
-      gemv_HC(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
-    } else {
-      gemv_HC_rMajor(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
-    }
-
-    hc::copy(yView, begin(HostY));
-
-    for( int i = 0; i < lenYn; i++) {
-      Y[i] = HostY[i];
-    }
-  }
-
-  if( type == 't') {
-    hc::array<float> xView(lenXt, X);
-    hc::array<float> yView(lenYt, Y);
-    std::vector<float> HostX(lenXt);
-    std::vector<float> HostY(lenYt);
-
-    for( int i = 0; i < lenXt; i++) {
-      HostX[i] = X[i];
-    }
-
-    for( int i = 0; i < lenYt; i++) {
-      HostY[i] = Y[i];
-    }
-    
-    if (*alpha == 0) {
-     if (*beta == 0) {
-       for (int j = 0; j < lenYt; ++j) {
-           HostY[yOffset + j] = 0;
-       }
-     } else {
-       for (int j = 0; j < lenYt; ++j) {
-           HostY[yOffset + j] *=  (*beta);
-       }
-     }
-     for( int i = 0; i < lenYn; i++) {
-       Y[i] = HostY[i];
-     }
-    return HCBLAS_SUCCEEDS;
-    }
-    hc::copy(begin(HostX), end(HostX), xView);
-    hc::copy(begin(HostY), end(HostY), yView);
-
-    if(order) {
-      gemv_HC(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
-    } else {
-      gemv_HC_rMajor(accl_view, type, M, N, *alpha, aMat, aOffset, xView, xOffset, incX, *beta, yView, yOffset, incY);
-    }
-
-    hc::copy(yView, begin(HostY));
-
-    for( int i = 0; i < lenYt; i++) {
-      Y[i] = HostY[i];
-    }
-  }
-
-  return HCBLAS_SUCCEEDS;
-}
-
-
+/* SGEMV - Type I : inputs and outputs are float array containers */
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
 				           hcblasOrder order, hcblasTranspose type, const int M,
 				           const int N, const float &alpha,
@@ -890,6 +768,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
+/* SGEMV - Type II : Inputs and outputs are float array containers with batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
 				           hcblasOrder order, hcblasTranspose type, const int M,
 				           const int N, const float &alpha, hc::array<float> &A,

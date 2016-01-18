@@ -32,66 +32,9 @@ int main(int argc, char** argv)
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
-/* Implementation type I - Inputs and Outputs are host float pointers */
-
-    if (Imple_type == 1) {
-        for(int i = 0;i < lenx;i++){
-            X[i] = rand() % 10;
-        }
-	status = hc.hcblas_sasum(N, X, incX, xOffset, &asumhcblas);
-        asumcblas = cblas_sasum( N, X, incX);
-        if (asumhcblas != asumcblas) {
-            ispassed = 0;
-            cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-        free(X);
-    }
-
-/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
-
-    else if (Imple_type == 2) {
-        hc::array_view<float> xView(lenx, X);
-        for(int i = 0;i < lenx; i++) {
-            xView[i] = rand() % 10;
-            X[i] = xView[i];
-        }
-        status = hc.hcblas_sasum(accl_view, N, xView, incX, xOffset, asumhcblas);
-        asumcblas = cblas_sasum( N, X, incX);
-        if (asumhcblas != asumcblas) {
-            ispassed = 0;
-            cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-     }
-
-/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
-
-     else if (Imple_type == 3) {
-        hc::array_view<float> xbatchView(lenx * batchSize, Xbatch);
-        for(int i = 0;i < lenx * batchSize;i++) {
-            xbatchView[i] = rand() % 10;
-            Xbatch[i] = xbatchView[i];
-         }
-
-        status= hc.hcblas_sasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
-        for(int i = 0; i < batchSize; i++){
-            asumcblastemp[i] = cblas_sasum( N, Xbatch + i * N, incX);
-            asumcblas += asumcblastemp[i];
-        }
-        if (asumhcblas != asumcblas){
-            ispassed = 0;
-            cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-    }
-
-/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
       
-    else if (Imple_type == 4) {
+    if (Imple_type == 1) {
         hc::array<float> xView(lenx, X);
         std::vector<float> HostX(lenx);
         for(int i = 0;i < lenx;i++){
@@ -109,7 +52,7 @@ int main(int argc, char** argv)
         if(status) cout << "TEST FAILED" << endl; 
      }
 
-/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
 
     else{
         hc::array<float> xbatchView(lenx * batchSize, Xbatch);

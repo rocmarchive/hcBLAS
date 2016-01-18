@@ -1,121 +1,6 @@
 #include "cgemm_array_kernels.h"
 
-// CGEMM Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
-// CGEMM Call Type 1: Inputs and Outputs are host float pointers
-hcblasStatus Hcblaslibrary:: hcblas_cgemm(hcblasOrder order, hcblasTranspose typeA,
-				          hcblasTranspose typeB,
-				          const int M, const int N,
-				          const int K, const hc_Complex* alpha,
-				          const hc_Complex* A, long aOffset,
-				          long lda, const hc_Complex* B,
-				          long bOffset, long ldb,
-				          const hc_Complex* beta,
-				          hc_Complex* C, long cOffset,
-				          long ldc) {
-  hc::array<float_2, 1> Acmplx(M * K * 2);
-  hc::array<float_2, 1> Bcmplx(N * K * 2);
-  hc::array<float_2, 1> Ccmplx(M * N * 2);
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
-  float_2 Calpha(alpha->real, alpha->img);
-  float_2 Cbeta(beta->real, beta->img);
-  std::vector<float_2> HostA(M * K * 2);
-  std::vector<float_2> HostB(K * N * 2);
-  std::vector<float_2> HostC(M * N * 2);
-
-  for ( int i = 0 ; i <  M * K; i++) {
-    HostA[i].x = A[i].real;
-    HostA[i].y = A[i].img;
-  }
-
-  for ( int i = 0 ; i <  K * N; i++) {
-    HostB[i].x = B[i].real;
-    HostB[i].y = B[i].img;
-  }
-
-  for ( int i = 0 ; i <  M * N; i++) {
-    HostC[i].x = C[i].real;
-    HostC[i].y = C[i].img;
-  }
-  
-  int i, j;
-  hcblasStatus status = HCBLAS_SUCCEEDS;
-  float tempReal = 0.0, tempImg = 0.0;
-  // Quick return if possible
-  if (!M || !N || !K) {
-    return HCBLAS_INVALID;
-  }
-
-  // For alpha = 0
-  if (!Calpha.x  && !Calpha.y) {
-    if (!Cbeta.x && !Cbeta.y) {
-      for (j = 0; j < N; ++j) {
-        for (i = 0; i < M; ++i) {
-          HostC[cOffset + i + j * ldc].x = 0;
-          HostC[cOffset + i + j * ldc].y = 0;
-        }
-      } 
-    } else {
-      for (j = 0; j < N; ++j) {
-        for (i = 0; i < M; ++i) {
-          tempReal = HostC[cOffset + i + j * ldc].x;
-          tempImg =  HostC[cOffset + i + j * ldc].y;
-          HostC[cOffset + i + j * ldc].x = (tempReal * Cbeta.x - tempImg * Cbeta.y);
-          HostC[cOffset + i + j * ldc].y = (tempReal * Cbeta.y + tempImg * Cbeta.x);
-        }
-      }
-    }
-
-    for ( int i = 0 ; i <  M * N; i++) {
-      C[i].real = HostC[i].x;
-      C[i].img = HostC[i].y;
-    }
-
-    return status;
-  }
-
-  hc::copy(begin(HostA), end(HostA), Acmplx);
-  hc::copy(begin(HostB), end(HostB), Bcmplx);
-  hc::copy(begin(HostC), end(HostC), Ccmplx);
-
-  // Start the operations
-  if(order) {
-    if (typeB == NoTrans) {
-      if (typeA == NoTrans) {
-        status = cgemm_NoTransAB(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-      } else {
-        status = cgemm_NoTransB(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-      }
-    } else if (typeA == NoTrans) {
-      status = cgemm_NoTransA(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-    } else {
-      status = cgemm_TransAB(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-    }
-  } else {
-    if (typeB == NoTrans) {
-      if (typeA == NoTrans) {
-        status = cgemm_NoTransAB_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-      } else {
-        status = cgemm_NoTransB_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-      }
-    } else if (typeA == NoTrans) {
-      status = cgemm_NoTransA_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-    } else {
-      status = cgemm_TransAB_rMajor(accl_view, Acmplx, aOffset, Bcmplx, bOffset, Ccmplx, cOffset, M, N, K, lda, ldb, ldc, Calpha, Cbeta);
-    }
-  }
-
-  hc::copy(Ccmplx, begin(HostC));
-
-  for ( int i = 0 ; i <  M * N; i++) {
-    C[i].real = HostC[i].x;
-    C[i].img = HostC[i].y;
-  }
-
-  return status;
-}
-
-// CGEMM Call Type II: Inputs and outputs are C++ HC float array containers
+// CGEMM Call Type I: Inputs and outputs are C++ HC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
 				           hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
@@ -185,7 +70,7 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
   return status;
 }
 
-/* CGEMM Call Type III - Overloaded function with arguments related to batch processing */
+/* CGEMM Call Type II - Overloaded function with arguments related to batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
 					   hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,

@@ -213,28 +213,7 @@ float sasum_HC(hc::accelerator_view &accl_view,
   return Y;
 }
 
-// SASUM call Type I - Inputs and Outputs are host float pointers
-hcblasStatus Hcblaslibrary :: hcblas_sasum(const int N, float* X, const int incX, const long xOffset, float* Y) {
-  if ( X == NULL || N <= 0 || incX <= 0 ) {
-    return HCBLAS_INVALID;
-  }
-
-  int lenX = 1 + (N - 1) * abs(incX);
-  hc::array<float, 1> xView(lenX, X);
-  std::vector<float> HostX(lenX);
-
-  for( int i = 0; i < lenX; i++) {
-    HostX[i] = X[i];
-  }
-
-  hc::copy(begin(HostX), end(HostX), xView);
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
-  *Y = sasum_HC(accl_view, N, xView, incX, xOffset, *Y);
-  return HCBLAS_SUCCEEDS;
-}
-
-// SASUM Call Type II: Inputs and outputs are C++ HC float array containers
+// SASUM Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view &accl_view, const int N,
 				           hc::array<float> &X, const int incX,
 				           const long xOffset, float &Y) {
@@ -247,7 +226,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view &accl_view, cons
   return HCBLAS_SUCCEEDS;
 }
 
-// SASUM TYpe III - Overloaded function with arguments related to batch processing
+// SASUM Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view &accl_view, const int N,
 				           hc::array<float> &X, const int incX,
 				           const long xOffset, float &Y, const long X_batchOffset, const int batchSize) {

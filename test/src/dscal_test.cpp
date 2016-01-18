@@ -29,81 +29,9 @@ int main(int argc, char** argv)
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
-/* Implementation type I - Inputs and Outputs are host double pointers */
-
+/* Implementation type I - Inputs and Outputs are HCC double array containers */
+    
     if (Imple_type == 1) {
-        for(int i = 0;i < lenx;i++){
-            X[i] = rand() % 10;
-            Xcblas[i] = X[i];
-        }
-	status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
-        cblas_dscal( N, alpha, Xcblas, incX);
-        for(int i = 0; i < lenx ; i++){
-            if (X[i] != Xcblas[i]){
-                ispassed = 0;
-                cout <<" HCSSCAL[" << i<< "] " << X[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblas[i] << endl;
-                break;
-            }
-            else
-                continue;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        free(Xcblas);
-        if(status) cout << "TEST FAILED" << endl; 
-        free(X);  
-    }
-
-/* Implementation type II - Inputs and Outputs are HC++ double array_view containers */
-
-    else if (Imple_type == 2){
-        hc::array_view<double> xView(lenx, X);
-        for(int i = 0;i < lenx;i++) {
-            xView[i] = rand() % 10;
-            Xcblas[i] = xView[i];
-        }
-        status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-        cblas_dscal( N, alpha, Xcblas, incX );
-        for(int i = 0; i < lenx ; i++){
-            if (xView[i] != Xcblas[i]){
-                ispassed = 0;
-                cout <<" HCSSCAL[" << i<< "] " << xView[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblas[i] << endl;
-                break;
-            }
-            else
-                continue;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-     }
-
-/* Implementation type III - Inputs and Outputs are HC++ double array_view containers with batch processing */
-    
-     else if(Imple_type == 3) {
-        hc::array_view<double> xbatchView(lenx * batchSize, Xbatch);
-        for(int i = 0;i < lenx * batchSize;i++){
-            xbatchView[i] = rand() % 10;
-            Xbatch[i] = xbatchView[i];
-            Xcblasbatch[i] = Xbatch[i];
-        }
-        status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-        for(int i = 0; i < batchSize; i++)
-                cblas_dscal( N, alpha, Xcblasbatch + i * N, incX);
-        for(int i =0; i < lenx * batchSize; i ++){
-            if (xbatchView[i] != Xcblasbatch[i]){
-                ispassed = 0;
-                cout <<" HCSSCAL[" << i<< "] " << xbatchView[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
-                break;
-            }
-            else
-              continue;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-    }
-
-/* Implementation type IV - Inputs and Outputs are HC++ double array containers */
-    
-    else if (Imple_type == 4) {
         hc::array<double> xView(lenx, X);
         std::vector<double> HostX(lenx);
         for(int i = 0;i < lenx;i++){
@@ -127,7 +55,7 @@ int main(int argc, char** argv)
         if(status) cout << "TEST FAILED" << endl; 
    }
 
-/* Implementation type V - Inputs and Outputs are HC++ double array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
 
     else{
         hc::array<double> xbatchView(lenx * batchSize, Xbatch);

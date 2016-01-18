@@ -31,113 +31,9 @@ int main(int argc, char** argv)
     float *Y = (float*)calloc(leny, sizeof(float));
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
-
-/* Implementation type I - Inputs and Outputs are host float pointers */
  
-    if (Imple_type == 1) {
-        for(int i = 0;i < lenx;i++){
-            X[i] = rand() % 10;
-        }
-#ifdef PROFILE
-        for(int iter=0; iter<10; iter++) {
-#endif
-        for(int i = 0;i < leny;i++){
-            Y[i] =  rand() % 15;
-            Ycblas[i] = Y[i];
-        }
-	status = hc.hcblas_saxpy(N, &alpha, X, incX, Y, incY , xOffset, yOffset);
-        cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
-        for(int i = 0; i < leny ; i++){
-            if (Y[i] != Ycblas[i]){
-                ispassed = 0;
-                cout <<" HCSAXPY[" << i<< "] " << Y[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
-                break;
-            }
-            else
-                continue;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-        }
-#endif
-     }
-
-/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
-
-     else if (Imple_type ==2) {
-        hc::array_view<float> xView(lenx, X);
-        hc::array_view<float> yView(leny, Y);
-        for(int i = 0; i < lenx; i++) {
-            xView[i] = rand() % 10;
-            X[i] = xView[i];
-        }
-#ifdef PROFILE
-        for(int iter = 0; iter < 10; iter++) {
-#endif
-        for(int i = 0; i < leny; i++) {
-            yView[i] =  rand() % 15;
-            Ycblas[i] = Y[i];
-        }
-        status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
-        cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
-        for(int i = 0; i < leny ; i++){
-            if (yView[i] != Ycblas[i]){
-                ispassed = 0;
-                cout <<" HCSAXPY[" << i<< "] " << yView[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
-                break;
-            }
-            else
-                continue;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-        }
-#endif
-     }
-
-/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
-
-    else if(Imple_type == 3) {
-        float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-        float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
-        float *Ycblasbatch = (float*)calloc(leny * batchSize, sizeof(float));
-        hc::array_view<float> xbatchView(lenx * batchSize, Xbatch);
-        hc::array_view<float> ybatchView(leny * batchSize, Ybatch);
-        for(int i = 0;i < lenx * batchSize;i++){
-            xbatchView[i] = rand() % 10;
-            Xbatch[i] = xbatchView[i];
-        }
-#ifdef PROFILE
-        for(int iter = 0; iter < 10; iter++) {
-#endif
-        for(int i = 0;i < leny * batchSize;i++){
-            ybatchView[i] =  rand() % 15;
-            Ybatch[i] = ybatchView[i];
-            Ycblasbatch[i] = Ybatch[i];
-         }
-        status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-        for(int i = 0; i < batchSize; i++)
-                cblas_saxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
-        for(int i =0; i < leny * batchSize; i++){
-            if (ybatchView[i] != Ycblasbatch[i]){
-                ispassed = 0;
-                cout <<" HCSAXPY[" << i<< "] " << ybatchView[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblasbatch[i] << endl;
-                break;
-            }
-            else
-              continue;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-        }
-#endif
-    }
-
-/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
-    else if(Imple_type == 4) {
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+    if(Imple_type == 1) {
         hc::array<float> xView(lenx, X);
         hc::array<float> yView(leny, Y);
         std::vector<float> HostX(lenx);
@@ -174,7 +70,7 @@ int main(int argc, char** argv)
 #endif
      }
 
-/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HC++ float array containers with batch processing */
 
     else{
         float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));

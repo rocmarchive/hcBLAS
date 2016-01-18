@@ -92,59 +92,7 @@ void ger_HC_rMajor(hc::accelerator_view &accl_view,
   });
 }
 
-hcblasStatus Hcblaslibrary :: hcblas_sger(hcblasOrder order, const int M, const int N,
-				          const float* alpha, float* X,
-				          const long xOffset, const int incX,
-				          float* Y, const long yOffset,
-				          const int incY, float* A,
-				          const long aOffset, const int lda) {
-  if (alpha == NULL || X == NULL || Y == NULL || N <= 0 || M <= 0 || A == NULL || incX == 0 || incY == 0) {
-    return HCBLAS_INVALID;
-  }
-
-  long lenX = 1 + (M - 1) * abs(incX);
-  long lenY = 1 + (N - 1) * abs(incY);
-  hc::array<float> xView(lenX, X);
-  hc::array<float> yView(lenY, Y);
-  hc::array<float> aMat(M * N, A);
-  std::vector<float> HostX(lenX);
-  std::vector<float> HostY(lenY);
-  std::vector<float> HostA(M * N);
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
-
-  for( int i = 0; i < lenX; i++) {
-    HostX[i] = X[i];
-  }
-
-  for( int i = 0; i < lenY; i++) {
-    HostY[i] = Y[i];
-  }
-
-  for( int i = 0; i < M * N; i++) {
-    HostA[i] = A[i];
-  }
-
-  hc::copy(begin(HostX), end(HostX), xView);
-  hc::copy(begin(HostY), end(HostY), yView);
-  hc::copy(begin(HostA), end(HostA), aMat);
-
-  if(order) {
-    ger_HC(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, M);
-  } else {
-    ger_HC_rMajor(accl_view, M, N, *alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, N);
-  }
-
-  hc::copy(aMat, begin(HostA));
-
-  for( int i = 0; i < M * N; i++) {
-    A[i] = HostA[i];
-  }
-
-  return HCBLAS_SUCCEEDS;
-}
-
-
+/* SGER - Type I : Inputs and outputs are float array containers */
 hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
 				         const int M, const int N, const float &alpha,
 				         hc::array<float> &X, const long xOffset, const int incX,
@@ -168,6 +116,7 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblas
   return HCBLAS_SUCCEEDS;
 }
 
+/* SGER - Type II : Inputs and outputs are float array containers with batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
 				          const int M, const int N, const float &alpha,
 				          hc::array<float> &X,

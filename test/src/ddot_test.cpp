@@ -38,80 +38,9 @@ int main(int argc, char** argv)
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
-/* Implementation type I - Inputs and Outputs are host double pointers */
-
-    if (Imple_type == 1) {
-        for(int i = 0;i < lenx;i++){
-             X[i] = rand() % 10;
-        }
-        for(int i = 0;i < leny;i++){
-             Y[i] = rand() % 15;
-        }
-	status = hc.hcblas_ddot(N, X, incX, xOffset, Y, incY, yOffset, &dothcblas);
-        dotcblas = cblas_ddot( N, X, incX, Y, incY);
-        if (dothcblas != dotcblas){
-            ispassed = 0;
-            cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-        free(X);
-        free(Y);
-    }
-
-/* Implementation type II - Inputs and Outputs are HC++ double array_view containers */
-      
-    else if (Imple_type ==2) {
-        hc::array_view<double> xView(lenx, X);
-        hc::array_view<double> yView(leny, Y);
-        for(int i = 0;i < lenx;i++) {
-            xView[i] = rand() % 10;
-            X[i] = xView[i];
-        }
-        for(int i = 0;i < leny;i++) {
-            yView[i] = rand() % 15;
-            Y[i] = yView[i];
-        }
-        status = hc.hcblas_ddot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-        dotcblas = cblas_ddot( N, X, incX, Y, incY);
-        if (dothcblas != dotcblas){
-           ispassed = 0;
-           cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-
-     }
-
-/* Implementation type III - Inputs and Outputs are HC++ double array_view containers with batch processing */
+/* Implementation type I - Inputs and Outputs are HCC double array containers */
     
-   else if (Imple_type == 3) {
-        hc::array_view<double> xbatchView(lenx * batchSize, Xbatch);
-        hc::array_view<double> ybatchView(leny * batchSize, Ybatch);
-        for(int i = 0;i < lenx * batchSize;i++){
-            xbatchView[i] = rand() % 10;
-            Xbatch[i] = xbatchView[i];
-         }
-       for(int i = 0;i < leny * batchSize;i++){
-            ybatchView[i] =  rand() % 15;
-            Ybatch[i] = ybatchView[i];
-         }
-
-        status= hc.hcblas_ddot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-        for(int i = 0; i < batchSize; i++){
-            dotcblastemp[i] = cblas_ddot( N, Xbatch + i * N, incX, Ybatch + i * N, incY);
-            dotcblas += dotcblastemp[i];
-        }
-        if (dothcblas != dotcblas){
-            ispassed = 0;
-            cout <<" HCSDOT " << dothcblas << " does not match with CBLASSDOT "<< dotcblas << endl;
-        }
-        if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
-    }
-
-/* Implementation type IV - Inputs and Outputs are HC++ double array containers */
-    
-    else if (Imple_type == 4){
+    if (Imple_type == 1){
          hc::array<double> xView(lenx, X);
          hc::array<double> yView(leny, Y);
          std::vector<double> HostX(lenx);
@@ -136,7 +65,7 @@ int main(int argc, char** argv)
         if(status) cout << "TEST FAILED" << endl; 
      }
 
-/* Implementation type V - Inputs and Outputs are HC++ double array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
 
     else{
         hc::array<double> xbatchView(lenx * batchSize, Xbatch);

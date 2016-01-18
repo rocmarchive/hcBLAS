@@ -216,38 +216,7 @@ float ddot_HC(hc::accelerator_view &accl_view, long n,
   return out;
 }
 
-
-// DDOT Call Type II: Inputs and outputs are C++ HC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_ddot(const int N, double* X, const int incX, const long xOffset,
-    					  double* Y, const int incY, const long yOffset, double* dot) {
-  if (Y == NULL || X == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
-    return HCBLAS_INVALID;
-  }
-
-  int lenX = 1 + (N - 1) * abs(incX);
-  int lenY = 1 + (N - 1) * abs(incY);
-  hc::array<double, 1> xView(lenX, X);
-  hc::array<double, 1> yView(lenY, Y);
-  std::vector<double> HostX(lenX);
-  std::vector<double> HostY(lenY);
-
-  for( int i = 0; i < lenX; i++) {
-    HostX[i] = X[i];
-  }
-
-  for( int i = 0; i < lenY; i++) {
-    HostY[i] = Y[i];
-  }
-
-  hc::copy(begin(HostX), end(HostX), xView);
-  hc::copy(begin(HostY), end(HostY), yView);
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
-  *dot = ddot_HC(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, *dot);
-  return HCBLAS_SUCCEEDS;
-}
-
-// DDOT Call Type II: Inputs and outputs are C++ HC float array containers
+// DDOT Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const int N,
 				          hc::array<double> &X, const int incX, const long xOffset,
 				          hc::array<double> &Y, const int incY, const long yOffset, double &dot)
@@ -262,7 +231,7 @@ hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const
   return HCBLAS_SUCCEEDS;
 }
 
-// DDOT TYpe III - Overloaded function with arguments related to batch processing
+// DDOT Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const int N,
 				          hc::array<double> &X, const int incX, const long xOffset,
 				          hc::array<double> &Y, const int incY, const long yOffset, double &dot,

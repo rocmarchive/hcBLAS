@@ -216,38 +216,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   return out;
 }
 
-
-// SDOT call Type I - SSCAL Inputs and Outputs are host float pointers
-hcblasStatus Hcblaslibrary :: hcblas_sdot(const int N, float* X, const int incX, const long xOffset,
-    					  float* Y, const int incY, const long yOffset, float* dot) {
-  if (Y == NULL || X == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
-    return HCBLAS_INVALID;
-  }
-
-  int lenX = 1 + (N - 1) * abs(incX);
-  int lenY = 1 + (N - 1) * abs(incY);
-  hc::array<float, 1> xView(lenX, X);
-  hc::array<float, 1> yView(lenY, Y);
-  std::vector<float> HostX(lenX);
-  std::vector<float> HostY(lenY);
-
-  for( int i = 0; i < lenX; i++) {
-    HostX[i] = X[i];
-  }
-
-  for( int i = 0; i < lenY; i++) {
-    HostY[i] = Y[i];
-  }
-
-  hc::copy(begin(HostX), end(HostX), xView);
-  hc::copy(begin(HostY), end(HostY), yView);
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
-  *dot = sdot_HC(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, *dot);
-  return HCBLAS_SUCCEEDS;
-}
-
-// SDOT Call Type II: Inputs and outputs are C++ HC float array containers
+// SDOT Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const int N,
 				          hc::array<float> &X, const int incX, const long xOffset,
 				          hc::array<float> &Y, const int incY, const long yOffset, float &dot)
@@ -262,7 +231,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const
   return HCBLAS_SUCCEEDS;
 }
 
-// SDOT TYpe III - Overloaded function with arguments related to batch processing
+// SDOT Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const int N,
 				          hc::array<float> &X, const int incX, const long xOffset,
 				          hc::array<float> &Y, const int incY, const long yOffset, float &dot,
