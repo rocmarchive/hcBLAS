@@ -7,8 +7,8 @@ using namespace hc;
 #define BLOCK_SIZE 8
 
 void dcopy_HC(hc::accelerator_view &accl_view, long n,
-              hc::array<double> &X, long incx, long xOffset,
-              hc::array<double> &Y, long incy, long yOffset) {
+              double *X, long incx, long xOffset,
+              double *Y, long incy, long yOffset) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
   hc::extent<1> compute_domain(size);
   hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
@@ -21,8 +21,8 @@ void dcopy_HC(hc::accelerator_view &accl_view, long n,
 }
 
 void dcopy_HC(hc::accelerator_view &accl_view, long n,
-              hc::array<double> &X, long incx, long xOffset,
-              hc::array<double> &Y, long incy, long yOffset,
+              double *X, long incx, long xOffset,
+              double *Y, long incy, long yOffset,
               long X_batchOffset, long Y_batchOffset, int batchSize) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
   hc::extent<2> compute_domain(batchSize, size);
@@ -39,10 +39,10 @@ void dcopy_HC(hc::accelerator_view &accl_view, long n,
 
 // DCOPY Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_dcopy(hc::accelerator_view &accl_view, const int N,
-    					   hc::array<double> &X, const int incX, const long xOffset,
-				           hc::array<double> &Y, const int incY, const long yOffset) {
+    					   double *X, const int incX, const long xOffset,
+				           double *Y, const int incY, const long yOffset) {
   /*Check the conditions*/
-  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
+  if ( X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -52,11 +52,11 @@ hcblasStatus Hcblaslibrary :: hcblas_dcopy(hc::accelerator_view &accl_view, cons
 
 // DCOPY Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_dcopy(hc::accelerator_view &accl_view, const int N,
-				           hc::array<double> &X, const int incX, const long xOffset,
-				           hc::array<double> &Y, const int incY, const long yOffset,
+				           double *X, const int incX, const long xOffset,
+				           double *Y, const int incY, const long yOffset,
 				           const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
-  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
+  if ( X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 

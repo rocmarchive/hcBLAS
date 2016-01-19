@@ -21,20 +21,16 @@ int main(int argc, char** argv)
     int batchSize = 128;
     long X_batchOffset = N; 
     long lenx = 1 + (N-1) * abs(incX);
-    float *X = (float*)calloc(lenx, sizeof(float)); //host input
-    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));//host input
     std::vector<hc::accelerator>accs = hc::accelerator::get_all();
     accelerator_view accl_view = (accs[1].create_view());
-    float* devX = hc::am_alloc(sizeof(float) * lenx, accs[1], 0);
-    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, accs[1], 0);
-    /* CBLAS implementation */
     bool ispassed = 1;
-    float *Xcblas = (float*)calloc(lenx, sizeof(float));
-    float *Xcblasbatch = (float*)calloc(lenx * batchSize, sizeof(float));
 
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
     
     if (Imple_type == 1) {
+	float *X = (float*)calloc(lenx, sizeof(float)); //host input
+	float *Xcblas = (float*)calloc(lenx, sizeof(float));
+        float* devX = hc::am_alloc(sizeof(float) * lenx, accs[1], 0);
         for(int i = 0;i < lenx;i++){
             X[i] = rand() % 10;
             Xcblas[i] = X[i];
@@ -53,12 +49,18 @@ int main(int argc, char** argv)
                 continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
+        if(status) cout << "TEST FAILED" << endl;
+        hc::am_free(devX);
+        free(X);
+        free(Xcblas);	
    }
 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
 
-    else{ 
+    else{
+	float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));//host input
+        float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, accs[1], 0);
+        float *Xcblasbatch = (float*)calloc(lenx * batchSize, sizeof(float));	
         for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;
             Xcblasbatch[i] =  Xbatch[i];
@@ -79,6 +81,9 @@ int main(int argc, char** argv)
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
         if(status) cout << "TEST FAILED" << endl; 
+	hc::am_free(devXbatch);
+	free(Xbatch);
+	free(Xcblasbatch);
     }
     return 0;
 }

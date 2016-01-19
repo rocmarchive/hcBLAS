@@ -21,20 +21,16 @@ int main(int argc, char** argv)
     int batchSize = 128;
     long X_batchOffset = N; 
     long lenx = 1 + (N-1) * abs(incX);
-    double *X = (double*)calloc(lenx, sizeof(double)); //host input
-    double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));//host input
     std::vector<hc::accelerator>accs = hc::accelerator::get_all();
     accelerator_view accl_view = (accs[1].create_view());
-    double* devX = hc::am_alloc(sizeof(double) * lenx, accs[1], 0);
-    double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, accs[1], 0);
-    /* CBLAS implementation */
     bool ispassed = 1;
-    double *Xcblas = (double*)calloc(lenx, sizeof(double));
-    double *Xcblasbatch = (double*)calloc(lenx * batchSize, sizeof(double));
 
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
     
     if (Imple_type == 1) {
+	double *X = (double*)calloc(lenx, sizeof(double)); //host input
+	double *Xcblas = (double*)calloc(lenx, sizeof(double));
+        double* devX = hc::am_alloc(sizeof(double) * lenx, accs[1], 0);
         for(int i = 0;i < lenx;i++){
             X[i] = rand() % 10;
             Xcblas[i] = X[i];
@@ -46,19 +42,25 @@ int main(int argc, char** argv)
         for(int i = 0; i < lenx ; i++){
             if (X[i] != Xcblas[i]){
                 ispassed = 0;
-                cout <<" HCSSCAL[" << i<< "] " << X[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblas[i] << endl;
+                cout <<" HCDSCAL[" << i<< "] " << X[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblas[i] << endl;
                 break;
             }
             else
                 continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
+        if(status) cout << "TEST FAILED" << endl;
+        hc::am_free(devX);
+        free(X);
+        free(Xcblas);	
    }
 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
 
-    else{ 
+    else{
+	double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));//host input
+        double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, accs[1], 0);
+        double *Xcblasbatch = (double*)calloc(lenx * batchSize, sizeof(double));	
         for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;
             Xcblasbatch[i] =  Xbatch[i];
@@ -71,7 +73,7 @@ int main(int argc, char** argv)
         for(int i =0; i < lenx * batchSize; i ++){
             if (Xbatch[i] != Xcblasbatch[i]){
                 ispassed = 0;
-                cout <<" HCSSCAL[" << i<< "] " << Xbatch[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
+                cout <<" HCDSCAL[" << i<< "] " << Xbatch[i] << " does not match with CBLASDSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
                 break;
             }
             else 
@@ -79,6 +81,9 @@ int main(int argc, char** argv)
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
         if(status) cout << "TEST FAILED" << endl; 
+	hc::am_free(devXbatch);
+	free(Xbatch);
+	free(Xcblasbatch);
     }
     return 0;
 }

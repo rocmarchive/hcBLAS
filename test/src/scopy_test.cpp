@@ -2,6 +2,8 @@
 #include "hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
+#include "hc_am.hpp"
+
 using namespace std;
 int main(int argc, char** argv)
 {   
@@ -18,80 +20,79 @@ int main(int argc, char** argv)
     int incY = 1;
     long yOffset = 0;
     hcblasStatus status;
-    int batchSize = 128;
+    int batchSize = 32;
     long X_batchOffset = N;
     long Y_batchOffset = N;
     long lenx = 1 + (N-1) * abs(incX);
     long leny = 1 + (N-1) * abs(incY);
-    float *X = (float*)calloc(lenx, sizeof(float));
-    float *Y = (float*)calloc(leny, sizeof(float));
-    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-    float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
     /* CBLAS implementation */
     bool ispassed = 1;
-    float *Ycblas = (float*)calloc(leny, sizeof(float));
-    float *Ycblasbatch = (float*)calloc(leny * batchSize, sizeof(float));
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
 /* Implementation type I - Inputs and Outputs are HCC float array containers */
     
     if (Imple_type == 1) {
-        hc::array<float> xView(lenx, X);
-        hc::array<float> yView(leny, Y);
-        std::vector<float> HostX(lenx);
-        std::vector<float> HostY(leny);
+	float *X = (float*)calloc(lenx, sizeof(float));
+	float *Y = (float*)calloc(leny, sizeof(float));
+        float *Ycblas = (float*)calloc(leny, sizeof(float));
+	float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+	float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
         for(int i = 0;i < lenx;i++){
-            HostX[i] = rand() % 10;
-            X[i] = HostX[i];
+            X[i] = rand() % 10;
         }
         for(int i = 0;i < leny;i++){
-            HostY[i] =  rand() % 15;
+            Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
         }
-        hc::copy(begin(HostX), end(HostX), xView);
-        hc::copy(begin(HostY), end(HostY), yView);
-        status = hc.hcblas_scopy(accl_view, N, xView, incX, xOffset, yView, incY, yOffset);
-        hc::copy(yView, begin(HostY));
+	hc::am_copy(devX, X, lenx * sizeof(float));
+	hc::am_copy(devY, Y, leny * sizeof(float));
+        status = hc.hcblas_scopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
+	hc::am_copy(Y, devY, leny * sizeof(float));
         cblas_scopy( N, X, incX, Ycblas, incY );
         for(int i = 0; i < leny; i++){
-            if (HostY[i] != Ycblas[i]){
+            if (Y[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" HCSCOPY[" << i<< "] " << HostY[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" HCSCOPY[" << i<< "] " << Y[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
                 continue;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
+        if(status) cout << "TEST FAILED" << endl;
+        free(X);
+        free(Y);
+        free(Ycblas);
+        hc::am_free(devX);
+        hc::am_free(devY);	
      }
 
 /* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
 
-    else{ 
-        hc::array<float> xbatchView(lenx * batchSize, Xbatch);
-        hc::array<float> ybatchView(leny * batchSize, Ybatch);
-        std::vector<float> HostX_batch(lenx * batchSize);
-        std::vector<float> HostY_batch(leny * batchSize);
+    else{
+	float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
+        float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
+        float *Ycblasbatch = (float*)calloc(leny * batchSize, sizeof(float));	
+	float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+	float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
         for(int i = 0;i < lenx * batchSize;i++){
-            HostX_batch[i] = rand() % 10;
-            Xbatch[i] = HostX_batch[i];
+            Xbatch[i] = rand() % 10;
         }
         for(int i = 0;i < leny * batchSize;i++){
-            HostY_batch[i] =  rand() % 15;
-            Ycblasbatch[i] = HostY_batch[i];
+            Ybatch[i] =  rand() % 15;
+            Ycblasbatch[i] = Ybatch[i];
          }
-        hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-        hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
-        status= hc.hcblas_scopy(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-        hc::copy(ybatchView, begin(HostY_batch));
+	hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
+	hc::am_copy(devYbatch, Ybatch, leny * batchSize * sizeof(float));
+        status= hc.hcblas_scopy(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
+	hc::am_copy(Ybatch, devYbatch, leny * batchSize * sizeof(float));
         for(int i = 0; i < batchSize; i++)
         	cblas_scopy( N, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
-        for(int i =0; i < leny * batchSize; i ++){
-            if (HostY_batch[i] != Ycblasbatch[i]){
+        for(int i =0; i < leny * batchSize; i++){
+            if (Ybatch[i] != Ycblasbatch[i]){
                 ispassed = 0;
-                cout <<" HCSCOPY[" << i<< "] " <<HostY_batch[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;
+                cout <<" HCSCOPY[" << i<< "] " <<Ybatch[i] << " does not match with CBLASSCOPY[" << i <<"] "<< Ycblasbatch[i] << endl;
                 break;
             }
             else 
@@ -99,6 +100,11 @@ int main(int argc, char** argv)
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
         if(status) cout << "TEST FAILED" << endl; 
+	free(Xbatch);
+	free(Ybatch);
+	free(Ycblasbatch);
+	hc::am_free(devXbatch);
+	hc::am_free(devYbatch);
     }
     return 0;
 }
