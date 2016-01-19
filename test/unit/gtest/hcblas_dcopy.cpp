@@ -101,7 +101,7 @@ TEST(hcblas_dcopy, return_correct_dcopy_Implementation_type_2) {
     int incX = 1;
     int incY = 1;
     long yOffset = 0;
-    int batchSize = 128;
+    int batchSize = 32;
     long xOffset = 0;
     hcblasStatus status;
     long X_batchOffset = N; 
@@ -155,7 +155,7 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_2) {
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
-   int batchSize = 128;
+   int batchSize = 32;
    long xOffset = 0;
    hcblasStatus status;
    long X_batchOffset = N;
