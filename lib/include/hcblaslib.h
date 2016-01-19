@@ -155,14 +155,14 @@ class Hcblaslibrary
 /* SSCAL - X = alpha * X */
 /* SSCAL - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_sscal(hc::accelerator_view &accl_view,
-                             const int N, const float &alpha,
-                             hc::array<float> &X, const int incX,
+		             const int N, const float &alpha,
+                             float *X, const int incX,
                              const long xOffset);
 
 /* SSCAL - Overloaded function with arguments related to batch processing */
-   hcblasStatus hcblas_sscal(hc::accelerator_view &accl_view,
-                             const int N,const float &alpha,
-                             hc::array<float> &X, const int incX,
+   hcblasStatus hcblas_sscal(hc::accelerator_view &accl_view, 
+		             const int N,const float &alpha,
+                             float *X, const int incX,
                              const long xOffset, const long X_batchOffset, const int batchSize);
 
 /* DSCAL - X = alpha * X */

@@ -2,6 +2,7 @@
 #include "hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
+#include "hc_am.hpp"
 using namespace std;
 int main(int argc, char** argv)
 {   
@@ -20,32 +21,32 @@ int main(int argc, char** argv)
     int batchSize = 128;
     long X_batchOffset = N; 
     long lenx = 1 + (N-1) * abs(incX);
-    float *X = (float*)calloc(lenx, sizeof(float));
-    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
+    float *X = (float*)calloc(lenx, sizeof(float)); //host input
+    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));//host input
+    std::vector<hc::accelerator>accs = hc::accelerator::get_all();
+    accelerator_view accl_view = (accs[1].create_view());
+    float* devX = hc::am_alloc(sizeof(float) * lenx, accs[1], 0);
+    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, accs[1], 0);
     /* CBLAS implementation */
     bool ispassed = 1;
     float *Xcblas = (float*)calloc(lenx, sizeof(float));
     float *Xcblasbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
 
-/* Implementation type I - Inputs and Outputs are HCC float array containers */
+/* Implementation type I - Inputs and Outputs are HCC device pointers */
     
     if (Imple_type == 1) {
-        hc::array<float> xView(lenx, X);
-        std::vector<float> HostX(lenx);
         for(int i = 0;i < lenx;i++){
-            HostX[i] = rand() % 10;
-            Xcblas[i] = HostX[i];
+            X[i] = rand() % 10;
+            Xcblas[i] = X[i];
         }
-        hc::copy(begin(HostX), end(HostX), xView);
-        status = hc.hcblas_sscal(accl_view, N, alpha, xView, incX, xOffset);
-        hc::copy(xView, begin(HostX));  
+	hc::am_copy(devX, X, lenx * sizeof(float));
+        status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
+	hc::am_copy(X, devX, lenx * sizeof(float));
         cblas_sscal( N, alpha, Xcblas, incX );
         for(int i = 0; i < lenx ; i++){
-            if (HostX[i] != Xcblas[i]){
+            if (X[i] != Xcblas[i]){
                 ispassed = 0;
-                cout <<" HCSSCAL[" << i<< "] " << HostX[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblas[i] << endl;
+                cout <<" HCSSCAL[" << i<< "] " << X[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblas[i] << endl;
                 break;
             }
             else
@@ -55,24 +56,22 @@ int main(int argc, char** argv)
         if(status) cout << "TEST FAILED" << endl; 
    }
 
-/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
 
-    else{
-        hc::array<float> xbatchView(lenx * batchSize, Xbatch);
-        std::vector<float> HostX_batch(lenx * batchSize); 
+    else{ 
         for(int i = 0;i < lenx * batchSize;i++){
-            HostX_batch[i] = rand() % 10;
-            Xcblasbatch[i] =  HostX_batch[i];
+            Xbatch[i] = rand() % 10;
+            Xcblasbatch[i] =  Xbatch[i];
          }
-        hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-        status= hc.hcblas_sscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-        hc::copy(xbatchView, begin(HostX_batch));  
+	hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
+        status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+	hc::am_copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
         for(int i = 0; i < batchSize; i++)
         	cblas_sscal( N, alpha, Xcblasbatch + i * N, incX);
         for(int i =0; i < lenx * batchSize; i ++){
-            if (HostX_batch[i] != Xcblasbatch[i]){
+            if (Xbatch[i] != Xcblasbatch[i]){
                 ispassed = 0;
-                cout <<" HCSSCAL[" << i<< "] " << HostX_batch[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
+                cout <<" HCSSCAL[" << i<< "] " << Xbatch[i] << " does not match with CBLASSSCAL[" << i <<"] "<< Xcblasbatch[i] << endl;
                 break;
             }
             else 
