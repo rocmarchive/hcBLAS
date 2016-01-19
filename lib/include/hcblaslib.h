@@ -169,13 +169,13 @@ class Hcblaslibrary
 /* DSCAL - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_dscal(hc::accelerator_view &accl_view,
                              const int N, const double &alpha,
-                             hc::array<double> &X, const int incX,
+                             double *X, const int incX,
                              const long xOffset);
 
 /* DSCAL - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_dscal(hc::accelerator_view &accl_view,
                              const int N,const double &alpha,
-                             hc::array<double> &X, const int incX,
+                             double *X, const int incX,
                              const long xOffset, const long X_batchOffset, const int batchSize);
 
 /* SCOPY - Copies a vector X to a vector Y */

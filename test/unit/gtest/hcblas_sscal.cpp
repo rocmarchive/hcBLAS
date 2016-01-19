@@ -15,7 +15,7 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_1) {
    float *X = (float*)calloc(lenx, sizeof(float));//host input
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
    accelerator_view accl_view = (acc[1].create_view());
-/* Implementation type I - Inputs and Outputs are HCC float array containers */
+/* Implementation type I - Inputs and Outputs are HCC device pointers */
    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
    for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
@@ -26,10 +26,6 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_1) {
    status = hc.hcblas_sscal(accl_view, N, alpha, devX1, incX, xOffset);
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* alpha is some scalar */
-   status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
-   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-   /* alpha is 0 */
-   alpha = 0;
    status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
@@ -54,7 +50,7 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_1) {
    float *Xcblas = (float*)calloc(lenx, sizeof(float));
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
    accelerator_view accl_view = (acc[1].create_view());
- /* Implementation type I - Inputs and Outputs are HCC float array containers */
+ /* Implementation type I - Inputs and Outputs are HCC device pointers */
    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
    for(int i = 0; i < lenx; i++){
            X[i] = rand() % 10;
@@ -68,13 +64,23 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_1) {
    for(int i = 0; i < lenx ; i++){
 	   EXPECT_EQ(X[i], Xcblas[i]);
    }
+/* alpha is 0 */
+   alpha = 0;
+   hc::am_copy(devX, X, lenx * sizeof(float));
+   status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   hc::am_copy(X, devX, lenx * sizeof(float));
+   cblas_sscal( N, alpha, Xcblas, incX );
+   for(int i = 0; i < lenx ; i++){
+           EXPECT_EQ(X[i], Xcblas[i]);
+   }
 }
 
 TEST(hcblas_sscal, return_correct_sscal_Implementation_type_2) {
    Hcblaslibrary hc;
    int N = 19;
    int incX = 1;
-   int batchSize = 128;
+   int batchSize = 32;
    long xOffset = 0;
    float alpha = 1;
    hcblasStatus status;
@@ -85,7 +91,7 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_2) {
    accelerator_view accl_view = (acc[1].create_view());
    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
    float* devX1batch = NULL; 
-/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;
    }
@@ -94,10 +100,6 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_2) {
    status= hc.hcblas_sscal(accl_view, N, alpha, devX1batch, incX, xOffset, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* alpha is some scalar */
-   status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-   /* alpha is 0 */
-   alpha = 0;  
    status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
@@ -114,7 +116,7 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_2) {
    Hcblaslibrary hc;
    int N = 19;
    int incX = 1;
-   int batchSize = 128;
+   int batchSize = 32;
    long xOffset = 0;
    float alpha = 1;
    hcblasStatus status;
@@ -125,7 +127,7 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_2) {
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
    accelerator_view accl_view = (acc[1].create_view());
    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-   /* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
+   /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
                Xbatch[i] = rand() % 10;
 	       Xcblasbatch[i] =  Xbatch[i];
@@ -139,6 +141,15 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_2) {
    for(int i =0; i < lenx * batchSize; i ++){
 	EXPECT_EQ(Xbatch[i], Xcblasbatch[i]);
    }
+   /* alpha is 0 */
+   alpha = 0;
+   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
+   status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   hc::am_copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
+   for(int i = 0; i < batchSize; i++)
+        cblas_sscal( N, alpha, Xcblasbatch + i * N, incX);
+   for(int i =0; i < lenx * batchSize; i ++){
+        EXPECT_EQ(Xbatch[i], Xcblasbatch[i]);
+   }
 }
-
-

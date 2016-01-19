@@ -15,6 +15,9 @@ void sscal_HC(hc::accelerator_view &accl_view,
     if(tidx.global[0] < n) {
       long X_index = xOffset + tidx.global[0];
       X[X_index] = (isnan(X[X_index]) || isinf(X[X_index])) ? 0 : X[X_index];
+    if (alpha == 0)
+      X[X_index] = 0.0;
+    else
       X[X_index] = X[X_index] * alpha;
     }
   });
@@ -32,6 +35,9 @@ void sscal_HC(hc::accelerator_view &accl_view,
     if(tidx.global[1] < n) {
       long X_index = xOffset + X_batchOffset * elt + tidx.global[1];
       X[X_index] = (isnan(X[X_index]) || isinf(X[X_index])) ? 0 : X[X_index];
+    if (alpha == 0)
+      X[X_index] = 0.0;
+    else
       X[X_index] = X[X_index] * alpha;
     }
   });
@@ -46,15 +52,6 @@ hcblasStatus Hcblaslibrary :: hcblas_sscal(hc::accelerator_view &accl_view,
   if ( X == NULL || N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
-
-  int lenX = 1 + (N - 1) * abs(incX);
-  if ( alpha == 0 ) {
-   for (int i = 0; i < lenX; i++) {
-     X[xOffset + i] = 0.0;
-   }
-   return HCBLAS_SUCCEEDS;
-  }
-
   sscal_HC(accl_view, N, alpha, X, incX, xOffset);
   return HCBLAS_SUCCEEDS;
 }
@@ -68,17 +65,6 @@ hcblasStatus Hcblaslibrary :: hcblas_sscal(hc::accelerator_view &accl_view,
   if ( X == NULL || N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
-
-  int lenX = 1 + (N - 1) * abs(incX);
-  if ( alpha == 0 ) {
-   for (int j = 0; j < batchSize; ++j) {
-     for (int i = 0; i < lenX; i++) {
-       X[xOffset + X_batchOffset * j + i] = 0.0;
-     }
-   }
-   return HCBLAS_SUCCEEDS;
-  }
-
   sscal_HC(accl_view, N, alpha, X, incX, xOffset, X_batchOffset, batchSize);
   return HCBLAS_SUCCEEDS;
 }
