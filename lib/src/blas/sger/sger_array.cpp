@@ -6,13 +6,13 @@ using namespace hc;
 
 void ger_HC(hc::accelerator_view &accl_view,
             long m, long n, float alpha,
-            hc::array<float> &x, long xOffset, long incx,
-            hc::array<float> &y, long yOffset, long incy,
-            hc::array<float> &a, long aOffset, long lda) {
+            float *x, long xOffset, long incx,
+            float *y, long yOffset, long incy,
+            float *a, long aOffset, long lda) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
   hc::extent<2> compute_domain(M, N);
-  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ =, &x, &y, &a] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int i = tidx.global[0];
     int j = tidx.global[1];
 
@@ -21,21 +21,21 @@ void ger_HC(hc::accelerator_view &accl_view,
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
-  });
+  }).wait();
 }
 
 void ger_HC(hc::accelerator_view &accl_view,
             long m, long n, float alpha,
-            hc::array<float> &x,
+            float *x,
             long xOffset, long X_batchOffset, long incx,
-            hc::array<float> &y,
+            float *y,
             long yOffset, long Y_batchOffset, long incy,
-            hc::array<float> &a,
+            float *a,
             long aOffset, long A_batchOffset, long lda, int batchSize) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
   hc::extent<3> compute_domain(batchSize, M, N);
-  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ =, &x, &y, &a] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int i = tidx.global[1];
     int j = tidx.global[2];
@@ -45,18 +45,18 @@ void ger_HC(hc::accelerator_view &accl_view,
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
-  });
+  }).wait();
 }
 
 void ger_HC_rMajor(hc::accelerator_view &accl_view,
                    long m, long n, float alpha,
-                   hc::array<float> &x, long xOffset, long incx,
-                   hc::array<float> &y, long yOffset, long incy,
-                   hc::array<float> &a, long aOffset, long lda) {
+                   float *x, long xOffset, long incx,
+                   float *y, long yOffset, long incy,
+                   float *a, long aOffset, long lda) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
   hc::extent<2> compute_domain(N, M);
-  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ =, &x, &y, &a] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int i = tidx.global[1];
     int j = tidx.global[0];
 
@@ -65,21 +65,21 @@ void ger_HC_rMajor(hc::accelerator_view &accl_view,
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
-  });
+  }).wait();
 }
 
 void ger_HC_rMajor(hc::accelerator_view &accl_view,
                    long m, long n, float alpha,
-                   hc::array<float> &x,
+                   float *x,
                    long xOffset, long X_batchOffset, long incx,
-                   hc::array<float> &y,
+                   float *y,
                    long yOffset, long Y_batchOffset, long incy,
-                   hc::array<float> &a,
+                   float *a,
                    long aOffset, long A_batchOffset, long lda, int batchSize) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
   hc::extent<3> compute_domain(batchSize, N, M);
-  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ =, &x, &y, &a] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int i = tidx.global[2];
     int j = tidx.global[1];
@@ -89,17 +89,17 @@ void ger_HC_rMajor(hc::accelerator_view &accl_view,
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
-  });
+  }).wait();
 }
 
 /* SGER - Type I : Inputs and outputs are float array containers */
 hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
 				         const int M, const int N, const float &alpha,
-				         hc::array<float> &X, const long xOffset, const int incX,
-				         hc::array<float> &Y, const long yOffset, const int incY,
-				         hc::array<float> &A, const long aOffset, const int lda) {
+				         float *X, const long xOffset, const int incX,
+				         float *Y, const long yOffset, const int incY,
+				         float *A, const long aOffset, const int lda) {
   /*Check the conditions*/
-  if (N <= 0 || M <= 0 || incX == 0 || incY == 0) {
+  if ( X == NULL || Y == NULL || A == NULL || N <= 0 || M <= 0 || incX == 0 || incY == 0) {
     return HCBLAS_INVALID;
   }
 
@@ -119,16 +119,16 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblas
 /* SGER - Type II : Inputs and outputs are float array containers with batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
 				          const int M, const int N, const float &alpha,
-				          hc::array<float> &X,
+				          float *X,
 				          const long xOffset, const long X_batchOffset, const int incX,
-				          hc::array<float> &Y,
+				          float *Y,
 				          const long yOffset, const long Y_batchOffset, const int incY,
-				          hc::array<float> &A,
+				          float *A,
 				          const long aOffset, const long A_batchOffset, const int lda, int batchSize)
 
 {
   /*Check the conditions*/
-  if (N <= 0 || M <= 0 || incX == 0 || incY == 0) {
+  if (X == NULL || Y == NULL || A == NULL || N <= 0 || M <= 0 || incX == 0 || incY == 0) {
     return HCBLAS_INVALID;
   }
 

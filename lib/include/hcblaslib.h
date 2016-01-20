@@ -67,19 +67,19 @@ class Hcblaslibrary
 
     hcblasStatus hcblas_sger(hc::accelerator_view &accl_view,
 			     hcblasOrder order, const int M, const int N, const float &alpha,
-                             hc::array<float> &X, const long xOffset, const int incX,
-                             hc::array<float> &Y, const long yOffset, const int incY,
-                             hc::array<float> &A, const long aOffset, const int lda);
+                             float *X, const long xOffset, const int incX,
+                             float *Y, const long yOffset, const int incY,
+                             float *A, const long aOffset, const int lda);
 
 /* SGER - Overloaded function with arguments related to batch processing */
 
     hcblasStatus hcblas_sger(hc::accelerator_view &accl_view,
                              hcblasOrder order, const int M, const int N, const float &alpha,
-                             hc::array<float> &X, 
+                             float *X, 
                              const long xOffset, const long X_batchOffset, const int incX,
-                             hc::array<float> &Y, 
+                             float *Y, 
                              const long yOffset, const long Y_batchOffset, const int incY,
-                             hc::array<float> &A, 
+                             float *A, 
                              const long aOffset, const long A_batchOffset, const int lda, const int batchSize);
 
 /* SGEMV - Y = alpha * op(A) * X + beta * Y                     */
