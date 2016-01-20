@@ -5,8 +5,8 @@
 using namespace hc;
 using namespace hc::fast_math;
 float sdot_HC(hc::accelerator_view &accl_view, long n,
-              hc::array<float, 1> &xView, long incx, long xOffset,
-              hc::array<float, 1> &yView, long incy, long yOffset, float out) {
+              float *xView, long incx, long xOffset,
+              float *yView, long incy, long yOffset, float out) {
   out = 0.0;
   // runtime sizes
   unsigned int tile_count = (n + TILE_SIZE - 1) / TILE_SIZE;
@@ -19,7 +19,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   hc::extent<1> extent(thread_count);
   hc::parallel_for_each(
     extent.tile(TILE_SIZE),
-  [ =, &xView, &yView] (hc::tiled_index<1>& tid) __attribute__((hc, cpu)) {
+  [ = ] (hc::tiled_index<1>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
     tile_static float local_buffer[TILE_SIZE];
     // indexes
@@ -32,7 +32,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += xView[xOffset + hc::index<1>(idx)] * yView[yOffset + hc::index<1>(idx)] ;
+      smem += xView[xOffset + hc::index<1>(idx)[0]] * yView[yOffset + hc::index<1>(idx)[0]] ;
       // next chunk
       idx += thread_count;
     }
@@ -97,7 +97,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
       // write to global buffer in this tiles
       global_buffer_view[ tid.tile[0] ] = smem;
     }
-  });
+  }).wait();
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count; i++) {
@@ -109,8 +109,8 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
 }
 
 float sdot_HC(hc::accelerator_view &accl_view, long n,
-              hc::array<float, 1> &xView, long incx, long xOffset,
-              hc::array<float, 1> &yView, long incy, long yOffset, float out,
+              float *xView, long incx, long xOffset,
+              float *yView, long incy, long yOffset, float out,
               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 
 {
@@ -126,7 +126,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   hc::extent<2> extent(batchSize, thread_count);
   hc::parallel_for_each(
     extent.tile(1, TILE_SIZE),
-  [ =, &xView, &yView] (hc::tiled_index<2>& tid) __attribute__((hc, cpu)) {
+  [ = ] (hc::tiled_index<2>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
     tile_static float local_buffer[TILE_SIZE];
     // indexes
@@ -140,7 +140,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += xView[xOffset + X_batchOffset * elt + hc::index<1>(idx)] * yView[yOffset + Y_batchOffset * elt + hc::index<1>(idx)] ;
+      smem += xView[xOffset + X_batchOffset * elt + hc::index<1>(idx)[0]] * yView[yOffset + Y_batchOffset * elt + hc::index<1>(idx)[0]] ;
       // next chunk
       idx += thread_count;
     }
@@ -205,7 +205,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
       // write to global buffer in this tiles
       global_buffer_view[ elt * tile_count + tid.tile[1] ] = smem;
     }
-  });
+  }).wait();
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
@@ -218,12 +218,12 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
 
 // SDOT Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const int N,
-				          hc::array<float> &X, const int incX, const long xOffset,
-				          hc::array<float> &Y, const int incY, const long yOffset, float &dot)
+				          float *X, const int incX, const long xOffset,
+				          float *Y, const int incY, const long yOffset, float &dot)
 
 {
   /*Check the conditions*/
-  if (N <= 0 || incX <= 0 || incY <= 0 ) {
+  if (X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -233,11 +233,11 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const
 
 // SDOT Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const int N,
-				          hc::array<float> &X, const int incX, const long xOffset,
-				          hc::array<float> &Y, const int incY, const long yOffset, float &dot,
+				          float *X, const int incX, const long xOffset,
+				          float *Y, const int incY, const long yOffset, float &dot,
 				          const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
-  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
+  if (X == NULL || Y == NULL ||  N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 

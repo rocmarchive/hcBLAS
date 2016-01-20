@@ -205,25 +205,25 @@ class Hcblaslibrary
 /* SDOT - Single Precision Dot product */
 /* SDOT - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_sdot(hc::accelerator_view &accl_view, const int N,
-                            hc::array<float> &X, const int incX, const long xOffset,
-                            hc::array<float> &Y, const int incY, const long yOffset, float &dot);
+                            float *X, const int incX, const long xOffset,
+                            float *Y, const int incY, const long yOffset, float &dot);
 
 /* SDOT - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_sdot(hc::accelerator_view &accl_view, const int N,
-                            hc::array<float> &X, const int incX, const long xOffset,
-                            hc::array<float> &Y, const int incY, const long yOffset, float &dot,
+                            float *X, const int incX, const long xOffset,
+                            float *Y, const int incY, const long yOffset, float &dot,
                             const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
 /* DDOT - Double Precision Dot product */
 /* DDOT - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_ddot(hc::accelerator_view &accl_view, const int N,
-                            hc::array<double> &X, const int incX, const long xOffset,
-                            hc::array<double> &Y, const int incY, const long yOffset, double &dot);
+                            double *X, const int incX, const long xOffset,
+                            double *Y, const int incY, const long yOffset, double &dot);
 
 /* DDOT - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_ddot(hc::accelerator_view &accl_view, const int N,
-                            hc::array<double> &X, const int incX, const long xOffset,
-                            hc::array<double> &Y, const int incY, const long yOffset, double &dot,
+                            double *X, const int incX, const long xOffset,
+                            double *Y, const int incY, const long yOffset, double &dot,
                             const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
 /* SASUM - Absolute value of a Vector - Single Precision */
