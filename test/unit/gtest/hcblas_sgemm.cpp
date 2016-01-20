@@ -1,10 +1,11 @@
+#if 0
 #include "hcblaslib.h"
 #include <cstdlib>
 #include "gtest/gtest.h"
 
-TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_1) {
+TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_1) {
     Hcblaslibrary hc; 
-    int M = 19, N = 19, K = 19;
+    int M = 189, N = 9, K = 19;
     float alpha = 1, beta = 1;
     long lda, ldb, ldc;
     int incX = 1, incY = 1;
@@ -22,6 +23,13 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_1) {
     
 // Implementation type I - Inputs and Outputs are HCC float array containers */
 
+    float *C_cblas = (float*) calloc(M * N, sizeof(float));
+    float *A = (float*) calloc(M * K, sizeof(float));
+    float *B = (float*) calloc(K * N, sizeof(float));
+    float *C = (float*) calloc(M * N, sizeof(float));
+    float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
+    float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
+    float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
     hc::array<float, 1> A_mat(K * M, Asgemm);
     hc::array<float, 1> B_mat(N * K, Bsgemm);
     hc::array<float, 1> C_mat(M * N, Csgemm);
@@ -223,6 +231,6 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
     status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, 0, alpha, A_batch, lda, A_batchOffset, B_batch, ldb, B_batchOffset, beta, C_batch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID);            
 }   
-   
+#endif
   
 

@@ -4,11 +4,11 @@
 hcblasStatus gemm_HC(hc::accelerator_view &accl_view,
                      const int order, char TransA, char TransB,
                      const int M, const int N, const int K,
-                     const float alpha, hc::array<float> &A_mat,
+                     const float alpha, float *A_mat,
                      long aOffset, long lda,
-                     hc::array<float> &B_mat,
+                     float *B_mat,
                      long bOffset, long ldb, const float beta,
-                     hc::array<float> &C_mat,
+                     float *C_mat,
                      long cOffset, long ldc,
                      long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset = 0, int batchSize = 0) {
   hcblasStatus status = HCBLAS_SUCCEEDS;
@@ -71,48 +71,166 @@ hcblasStatus gemm_HC(hc::accelerator_view &accl_view,
   return status;
 }
 
-// Sgemm Call Type I: Inputs and outputs are C++ HC float array containers
+// Type 1 -  alpha = 0 Kernel
+
+hcblasStatus gemm_alpha0_col(hc::accelerator_view &accl_view,
+		             float *A, long aOffset,
+			     float *B, long bOffset,
+			     float *C, long cOffset,
+			     int M, int N, int K, int lda, int ldb, int ldc,
+			     float alpha, float beta) {
+#define GEMM_BLOCK 256
+  hc::extent<2> grdExt(N, M * GEMM_BLOCK);
+  hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    int threadIdx = tidx.local[1];
+    int Row = tidx.tile[0];
+    int Col = tidx.tile[1];
+    if (threadIdx == 0 && Col < M && Row < N) {
+        long C_index = cOffset + Row * ldc + Col;
+        C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+	if (alpha == 0 ) {
+	  if ( beta == 0 ) {
+            C[C_index] = 0.0;
+	  }
+	  else {
+            C[C_index] *= beta;
+	  }
+        }
+    }
+ }).wait();
+#undef GEMM_BLOCK
+    return HCBLAS_SUCCEEDS;
+}
+
+// Type 2 - alpha = 0 kernel
+
+hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view &accl_view,
+                                   float *A, long aOffset, long A_batchOffset,
+                                   float *B, long bOffset, long B_batchOffset,
+                                   float *C, long cOffset, long C_batchOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float alpha, float beta, int batchSize) {
+#define GEMM_BLOCK 256
+  hc::extent<3> grdExt(batchSize, N, M * GEMM_BLOCK);
+  hc::tiled_extent<3> t_ext = grdExt.tile(1, 1, GEMM_BLOCK);
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+    int elt = tidx.tile[0];
+    int threadIdx = tidx.local[2];
+    int Row = tidx.tile[1];
+    int Col = tidx.tile[2];
+    if (threadIdx == 0 && Col < M && Row < N) {
+    long C_index = cOffset + C_batchOffset * elt + Row * ldc + Col;
+    C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+    if (alpha == 0 ) {
+      if ( beta == 0 ) {
+        C[C_index] = 0.0;
+      }
+      else {
+        C[C_index] *= beta;
+      }
+    }
+}
+}).wait();
+#undef GEMM_BLOCK
+    return HCBLAS_SUCCEEDS;
+}
+
+// Type 1 -  alpha = 0 Kernel
+
+hcblasStatus gemm_alpha0_row(hc::accelerator_view &accl_view,
+                             float *A, long aOffset,
+			     float *B, long bOffset,
+			     float *C, long cOffset,
+			     int M, int N, int K, int lda, int ldb, int ldc,
+			     float alpha, float beta) {
+#define GEMM_BLOCK 256
+  hc::extent<2> grdExt(N, M * GEMM_BLOCK);
+  hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    int threadIdx = tidx.local[1];
+    int Row = tidx.tile[0];
+    int Col = tidx.tile[1];
+    if (threadIdx == 0 && Col < M && Row < N) {
+       long C_index = cOffset + Row + Col * ldc;
+       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+       if (alpha == 0 ) {
+	 if ( beta == 0 ) {
+           C[C_index] = 0.0;
+	 }
+	 else {
+           C[C_index] *= beta;
+         }
+       }
+    }
+}).wait();
+#undef GEMM_BLOCK
+    return HCBLAS_SUCCEEDS;
+}
+
+// Type 2 - alpha = 0 kernel
+
+hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view &accl_view,
+                                   float *A, long aOffset, long A_batchOffset,
+                                   float *B, long bOffset, long B_batchOffset,
+                                   float *C, long cOffset, long C_batchOffset,
+                                   int M, int N, int K, int lda, int ldb, int ldc,
+                                   float alpha, float beta, int batchSize) {
+#define GEMM_BLOCK 256
+  hc::extent<3> grdExt(batchSize, N, M * GEMM_BLOCK);
+  hc::tiled_extent<3> t_ext = grdExt.tile(1, 1, GEMM_BLOCK);
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+    int elt = tidx.tile[0];
+    int threadIdx = tidx.local[2];
+    int Row = tidx.tile[1];
+    int Col = tidx.tile[2];
+    if (threadIdx == 0 && Col < M && Row < N) {
+       long C_index = cOffset + C_batchOffset * elt + Row + Col * ldc;
+       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+       if (alpha == 0 ) {
+         if ( beta == 0 ) {
+           C[C_index] = 0.0;
+         }
+         else {
+           C[C_index] *= beta;
+         }
+       }
+    }
+}).wait();
+#undef GEMM_BLOCK
+      return HCBLAS_SUCCEEDS;
+}
+
+// Sgemm Call Type I: Inputs and outputs are HCC device pointers
 hcblasStatus  Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
 					    hcblasOrder order,
 					    hcblasTranspose typeA,
 					    hcblasTranspose typeB, const int M,
 					    const int N, const int K, const float &alpha,
-					    hc::array<float> &A, const long lda,
-					    hc::array<float> &B, const long ldb,
+					    float *A, const long lda,
+					    float *B, const long ldb,
 					    const float &beta,
-					    hc::array<float> &C, const long ldc,
+					    float *C, const long ldc,
 					    const long aOffset, const long bOffset, const long cOffset) {
   int i, j;
   float temp;
   hcblasStatus status = HCBLAS_SUCCEEDS;
 
   // Quick return if possible
-  if (!M || !N || !K) {
+  if (A == NULL || B == NULL || C == NULL || !M || !N || !K) {
     return HCBLAS_INVALID;
   }
 
   // For alpha = 0
   if (alpha == 0) {
-    std::vector<float> HostC(M * N);
-    hc::copy(C, begin(HostC));
-    if (beta == 0) {
-      for (j = 0; j < N; ++j) {
-        for (i = 0; i < M; ++i) {
-          HostC[cOffset + i + j * ldc] = 0;
-        }
-      }
-    } else {
-      for (j = 0; j < N; ++j) {
-        for (i = 0; i < M; ++i) {
-          temp = HostC[cOffset + i + j * ldc];
-          HostC[cOffset + i + j * ldc] = temp * (beta);
-        }
-      }
+    if (order) {
+       status = gemm_alpha0_col(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
     }
-    hc::copy(begin(HostC), end(HostC), C);
-    return status;
+    else {
+       status = gemm_alpha0_row(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    }
+   return status;
   }
-
   status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A,
                                 aOffset, lda, B, bOffset, ldb, beta, C,
                                 cOffset, ldc);
@@ -125,43 +243,29 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
 					   hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K, const float &alpha,
-					   hc::array<float> &A, const long lda, const long A_batchOffset,
-					   hc::array<float> &B, const long ldb, const long B_batchOffset,
+					   float *A, const long lda, const long A_batchOffset,
+					   float *B, const long ldb, const long B_batchOffset,
 					   const float &beta,
-					   hc::array<float> &C, const long ldc, const long C_batchOffset,
+					   float *C, const long ldc, const long C_batchOffset,
 					   const long aOffset, const long bOffset, const long cOffset, const int batchSize) {
   int i, j, k;
   float temp;
   hcblasStatus status = HCBLAS_SUCCEEDS;
 
   // Quick return if possible
-  if (!M || !N || !K) {
+  if (A == NULL || B == NULL || C == NULL || !M || !N || !K) {
     return HCBLAS_INVALID;
   }
 
+
   // For alpha = 0
   if (alpha == 0) {
-    std::vector<float> HostC(M * N * batchSize);
-    hc::copy(C, begin(HostC));
-    if (beta == 0) {
-     for ( k = 0; k < batchSize; ++k) {
-      for (j = 0; j < N; ++j) {
-        for (i = 0; i < M; ++i) {
-          HostC[cOffset + C_batchOffset * k + i + j * ldc] = 0;
-        }
-      }
-     }
-    } else {
-     for (k = 0; k < batchSize; ++k) {
-      for (j = 0; j < N; ++j) {
-        for (i = 0; i < M; ++i) {
-          temp = HostC[cOffset + C_batchOffset * k + i + j * ldc];
-          HostC[cOffset + C_batchOffset * k + i + j * ldc] = temp * (beta);
-        }
-      }
-     }
+    if (order) {
+        status = gemm_alpha0_col_batch(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
     }
-    hc::copy(begin(HostC), end(HostC), C);
+    else {
+        status = gemm_alpha0_row_batch(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+    }
     return status;
   }
 

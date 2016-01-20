@@ -108,10 +108,10 @@ class Hcblaslibrary
  			      hcblasOrder order, hcblasTranspose typeA,
                               hcblasTranspose typeB, const int M,
                               const int N, const int K, const float &alpha,
-                              hc::array<float> &A, const long lda, 
-		              hc::array<float> &B, const long ldb, 
+                              float *A, const long lda, 
+		              float *B, const long ldb, 
 			      const float &beta,  
-		       	      hc::array<float> &C, const long ldc, 
+		       	      float *C, const long ldc, 
 			      const long aOffset, const long bOffset, const long cOffset);
 
 
@@ -120,10 +120,10 @@ class Hcblaslibrary
                               hcblasOrder order, hcblasTranspose typeA,
                               hcblasTranspose typeB, const int M,
                               const int N, const int K, const float &alpha,
-                              hc::array<float> &A, const long lda, const long A_batchOffset,
-                              hc::array<float> &B, const long ldb, const long B_batchOffset,
+                              float *A, const long lda, const long A_batchOffset,
+                              float *B, const long ldb, const long B_batchOffset,
                               const float &beta,
-                              hc::array<float> &C, const long ldc, const long C_batchOffset,
+                              float *C, const long ldc, const long C_batchOffset,
                               const long aOffset, const long bOffset, const long cOffset, const int batchSize);
 
 /* CGEMM - C = alpha * op(A) * op(B) + beta * C                   */

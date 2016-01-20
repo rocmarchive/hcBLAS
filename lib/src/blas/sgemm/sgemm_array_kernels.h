@@ -87,30 +87,30 @@ using namespace hc;
 *  SGEMM kernels - column major Order
 */
 hcblasStatus gemm_NoTransAB(hc::accelerator_view &accl_view,
-                            hc::array<float, 1> &A, long aOffset,
-                            hc::array<float, 1> &B, long bOffset,
-                            hc::array<float, 1> &C, long cOffset,
+                            float *A, long aOffset,
+                            float *B, long bOffset,
+                            float *C, long cOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float alpha, float beta);
 
 hcblasStatus gemm_NoTransA(hc::accelerator_view &accl_view,
-	                   hc::array<float, 1> &A, long aOffset,
-                           hc::array<float, 1> &B, long bOffset,
-                           hc::array<float, 1> &C, long cOffset,
+	                   float *A, long aOffset,
+                           float *B, long bOffset,
+                           float *C, long cOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta);
 
 hcblasStatus gemm_NoTransB(hc::accelerator_view &accl_view,
-          		   hc::array<float, 1> &A, long aOffset,
-                           hc::array<float, 1> &B, long bOffset,
-                           hc::array<float, 1> &C, long cOffset,
+          		   float *A, long aOffset,
+                           float *B, long bOffset,
+                           float *C, long cOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta);
 
 hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
-                          hc::array<float, 1> &A, long aOffset,
-                          hc::array<float, 1> &B, long bOffset,
-                          hc::array<float, 1> &C, long cOffset,
+                          float *A, long aOffset,
+                          float *B, long bOffset,
+                          float *C, long cOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta);
 
@@ -120,30 +120,30 @@ hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
 */
 
 hcblasStatus gemm_NoTransAB(hc::accelerator_view &accl_view,
-                            hc::array<float, 1> &A, long aOffset, long A_batchOffset,
-                            hc::array<float, 1> &B, long bOffset, long B_batchOffset,
-                            hc::array<float, 1> &C, long cOffset, long C_batchOffset,
+                            float *A, long aOffset, long A_batchOffset,
+                            float *B, long bOffset, long B_batchOffset,
+                            float *C, long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float alpha, float beta, int batchSize);
 
 hcblasStatus gemm_NoTransA(hc::accelerator_view &accl_view,
-	                   hc::array<float, 1> &A, long aOffset, long A_batchOffset,
-                           hc::array<float, 1> &B, long bOffset, long B_batchOffset,
-                           hc::array<float, 1> &C, long cOffset, long C_batchOffset,
+	                   float *A, long aOffset, long A_batchOffset,
+                           float *B, long bOffset, long B_batchOffset,
+                           float *C, long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta, int batchSize);
 
 hcblasStatus gemm_NoTransB(hc::accelerator_view &accl_view,
-          		   hc::array<float, 1> &A, long aOffset, long A_batchOffset,
-                           hc::array<float, 1> &B, long bOffset, long B_batchOffset,
-                           hc::array<float, 1> &C, long cOffset, long C_batchOffset,
+          		   float *A, long aOffset, long A_batchOffset,
+                           float *B, long bOffset, long B_batchOffset,
+                           float *C, long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta, int batchSize);
 
 hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
-                          hc::array<float, 1> &A, long aOffset, long A_batchOffset,
-                          hc::array<float, 1> &B, long bOffset, long B_batchOffset,
-                          hc::array<float, 1> &C, long cOffset, long C_batchOffset,
+                          float *A, long aOffset, long A_batchOffset,
+                          float *B, long bOffset, long B_batchOffset,
+                          float *C, long cOffset, long C_batchOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta, int batchSize);
 
@@ -153,30 +153,30 @@ hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
 */
 
 hcblasStatus gemm_NoTransAB_rMajor(hc::accelerator_view &accl_view,
-                                   hc::array<float, 1> &A, long aOffset,
-                                   hc::array<float, 1> &B, long bOffset,
-                                   hc::array<float, 1> &C, long cOffset,
+                                   float *A, long aOffset,
+                                   float *B, long bOffset,
+                                   float *C, long cOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float alpha, float beta);
 
 hcblasStatus gemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
-                                  hc::array<float, 1> &A, long aOffset,
-                                  hc::array<float, 1> &B, long bOffset,
-                                  hc::array<float, 1> &C, long cOffset,
+                                  float *A, long aOffset,
+                                  float *B, long bOffset,
+                                  float *C, long cOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta);
 
 hcblasStatus gemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
-                                  hc::array<float, 1> &A, long aOffset,
-                                  hc::array<float, 1> &B, long bOffset,
-                                  hc::array<float, 1> &C, long cOffset,
+                                  float *A, long aOffset,
+                                  float *B, long bOffset,
+                                  float *C, long cOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta);
 
 hcblasStatus gemm_TransAB_rMajor(hc::accelerator_view &accl_view,
-                                 hc::array<float, 1> &A, long aOffset,
-                                 hc::array<float, 1> &B, long bOffset,
-                                 hc::array<float, 1> &C, long cOffset,
+                                 float *A, long aOffset,
+                                 float *B, long bOffset,
+                                 float *C, long cOffset,
                                  int M, int N, int K, int lda, int ldb, int ldc,
                                  float alpha, float beta);
 
@@ -187,30 +187,30 @@ hcblasStatus gemm_TransAB_rMajor(hc::accelerator_view &accl_view,
 */
 
 hcblasStatus gemm_NoTransAB_rMajor(hc::accelerator_view &accl_view,
-                                   hc::array<float, 1> &A, long aOffset, long A_batchOffset,
-                                   hc::array<float, 1> &B, long bOffset, long B_batchOffset,
-                                   hc::array<float, 1> &C, long cOffset, long C_batchOffset,
+                                   float *A, long aOffset, long A_batchOffset,
+                                   float *B, long bOffset, long B_batchOffset,
+                                   float *C, long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float alpha, float beta, int batchSize);
 
 hcblasStatus gemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
-                                  hc::array<float, 1> &A, long aOffset, long A_batchOffset,
-                                  hc::array<float, 1> &B, long bOffset, long B_batchOffset,
-                                  hc::array<float, 1> &C, long cOffset, long C_batchOffset,
+                                  float *A, long aOffset, long A_batchOffset,
+                                  float *B, long bOffset, long B_batchOffset,
+                                  float *C, long cOffset, long C_batchOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta, int batchSize);
 
 hcblasStatus gemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
-                                  hc::array<float, 1> &A, long aOffset, long A_batchOffset,
-                                  hc::array<float, 1> &B, long bOffset, long B_batchOffset,
-                                  hc::array<float, 1> &C, long cOffset, long C_batchOffset,
+                                  float *A, long aOffset, long A_batchOffset,
+                                  float *B, long bOffset, long B_batchOffset,
+                                  float *C, long cOffset, long C_batchOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta, int batchSize);
 
 hcblasStatus gemm_TransAB_rMajor(hc::accelerator_view &accl_view,
-                                 hc::array<float, 1> &A, long aOffset, long A_batchOffset,
-                                 hc::array<float, 1> &B, long bOffset, long B_batchOffset,
-                                 hc::array<float, 1> &C, long cOffset, long C_batchOffset,
+                                 float *A, long aOffset, long A_batchOffset,
+                                 float *B, long bOffset, long B_batchOffset,
+                                 float *C, long cOffset, long C_batchOffset,
                                  int M, int N, int K, int lda, int ldb, int ldc,
                                  float alpha, float beta, int batchSize);
 
