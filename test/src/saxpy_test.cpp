@@ -2,6 +2,8 @@
 #include "hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
+#include "hc_am.hpp"
+
 using namespace std;
 int main(int argc, char** argv)
 {   
@@ -24,40 +26,37 @@ int main(int argc, char** argv)
     hcblasStatus status;
     /* CBLAS implementation */
     bool ispassed = 1;
-    float *Ycblas = (float*)calloc(N, sizeof(float));
     long lenx = 1 + (N-1) * abs(incX);
     long leny = 1 + (N-1) * abs(incY);
-    float *X = (float*)calloc(lenx, sizeof(float));
-    float *Y = (float*)calloc(leny, sizeof(float));
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
  
 /* Implementation type I - Inputs and Outputs are HCC float array containers */
     if(Imple_type == 1) {
-        hc::array<float> xView(lenx, X);
-        hc::array<float> yView(leny, Y);
-        std::vector<float> HostX(lenx);
-        std::vector<float> HostY(leny);
+        float *X = (float*)calloc(lenx, sizeof(float));
+        float *Y = (float*)calloc(leny, sizeof(float));
+        float *Ycblas = (float*)calloc(N, sizeof(float));
+        float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+        float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
         for(int i = 0;i < lenx;i++){
-             HostX[i] = rand() % 10;
-             X[i] = HostX[i];
+             X[i] = rand() % 10;
         }
 #ifdef PROFILE
         for(int iter=0; iter<10; iter++) {
 #endif
         for(int i = 0; i < leny; i++) {
-             HostY[i] =  rand() % 15;
-             Ycblas[i] = HostY[i];
+             Y[i] =  rand() % 15;
+             Ycblas[i] = Y[i];
         }
-        hc::copy(begin(HostX), end(HostX), xView);
-        hc::copy(begin(HostY), end(HostY), yView);
-        status = hc.hcblas_saxpy(accl_view, N, alpha, xView, incX, yView, incY , xOffset, yOffset);
-        hc::copy(yView, begin(HostY));
+        hc::am_copy(devX, X, lenx * sizeof(float));
+        hc::am_copy(devY, Y, leny * sizeof(float));
+        status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
+        hc::am_copy(Y, devY, leny * sizeof(float));
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
         for(int i = 0; i < leny ; i++){
-            if (HostY[i] != Ycblas[i]){
+            if (Y[i] != Ycblas[i]){
                 ispassed = 0;
-                cout <<" HCSAXPY[" << i<< "] " << HostY[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
+                cout <<" HCSAXPY[" << i<< "] " << Y[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblas[i] << endl;
                 break;
             }
             else
@@ -68,6 +67,11 @@ int main(int argc, char** argv)
 #ifdef PROFILE
         }
 #endif
+       free(X);
+       free(Y);
+       free(Ycblas);
+       hc::am_free(devX);
+       hc::am_free(devY);
      }
 
 /* Implementation type II - Inputs and Outputs are HC++ float array containers with batch processing */
@@ -76,32 +80,28 @@ int main(int argc, char** argv)
         float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
         float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
         float *Ycblasbatch = (float*)calloc(N * batchSize, sizeof(float));
-        hc::array<float> xbatchView(lenx * batchSize, Xbatch);
-        hc::array<float> ybatchView(leny * batchSize, Ybatch);
-        std::vector<float> HostX_batch(lenx * batchSize);
-        std::vector<float> HostY_batch(leny * batchSize);
+        float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+        float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
         for(int i = 0;i < lenx * batchSize;i++){
-            HostX_batch[i] = rand() % 10;
-            Xbatch[i] = HostX_batch[i];
+            Xbatch[i] = rand() % 10;
          }
 #ifdef PROFILE
         for(int iter = 0; iter < 10; iter++) {
 #endif
         for(int i = 0;i < leny * batchSize;i++){
-            HostY_batch[i] =  rand() % 15;
-            Ybatch[i] = HostY_batch[i];
+            Ybatch[i] =  rand() % 15;
             Ycblasbatch[i] = Ybatch[i];
-         }
-        hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-        hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
-        status= hc.hcblas_saxpy(accl_view, N, alpha, xbatchView, incX, X_batchOffset, ybatchView, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-        hc::copy(ybatchView, begin(HostY_batch));
+        }
+        hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
+        hc::am_copy(devYbatch, Ybatch, leny * batchSize * sizeof(float));
+        status= hc.hcblas_saxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
+        hc::am_copy(Ybatch, devYbatch, leny * batchSize * sizeof(float));
         for(int i = 0; i < batchSize; i++)
         	cblas_saxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
         for(int i =0; i < leny * batchSize; i ++){
-            if (HostY_batch[i] != Ycblasbatch[i]){
+            if (Ybatch[i] != Ycblasbatch[i]){
                 ispassed = 0;
-                cout <<" HCSAXPY[" << i<< "] " << HostY_batch[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblasbatch[i] << endl;
+                cout <<" HCSAXPY[" << i<< "] " << Ybatch[i] << " does not match with CBLASSAXPY[" << i <<"] "<< Ycblasbatch[i] << endl;
                 break;
             }
             else 
@@ -112,6 +112,11 @@ int main(int argc, char** argv)
 #ifdef PROFILE
         }
 #endif
+       free(Xbatch);
+       free(Ybatch);
+       free(Ycblasbatch);
+       hc::am_free(devXbatch);
+       hc::am_free(devYbatch);
     }
     return 0;
 }

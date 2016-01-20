@@ -50,16 +50,16 @@ class Hcblaslibrary
 
     hcblasStatus hcblas_saxpy(hc::accelerator_view &accl_view,
 			      const int N, const float &alpha,
-			      hc::array<float> &X, const int incX,
-                              hc::array<float> &Y, const int incY, 
+			      float *X, const int incX,
+                              float *Y, const int incY, 
 			      const long xOffset, const long yOffset);
 
 /* SAXPY - Overloaded function with arguments related to batch processing */
 
     hcblasStatus hcblas_saxpy(hc::accelerator_view &accl_view,
                               const int N, const float &alpha,
-                              hc::array<float> &X, const int incX, const long X_batchOffset,
-                              hc::array<float> &Y, const int incY, const long Y_batchOffset,
+                              float *X, const int incX, const long X_batchOffset,
+                              float *Y, const int incY, const long Y_batchOffset,
                               const long xOffset, const long yOffset, const int batchSize);
 							  
 /* SGER - A = alpha * X * Y' + A                               */

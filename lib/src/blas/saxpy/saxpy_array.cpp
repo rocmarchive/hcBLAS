@@ -7,18 +7,18 @@ using namespace hc;
 
 void axpy_HC(hc::accelerator_view &accl_view,
              long n, float alpha,
-             hc::array<float> &X, long xOffset, long incx,
-             hc::array<float> &Y, long yOffset, long incy) {
+             float *X, long xOffset, long incx,
+             float *Y, long yOffset, long incy) {
   if(n <= 102400) {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     hc::extent<1> compute_domain(size);
-    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       if(tidx.global[0] < n) {
         long Y_index = yOffset + tidx.global[0];
         Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
         Y[Y_index] += X[xOffset + tidx.global[0]] * alpha;
       }
-    });
+    }).wait();
   } else {
     int step_sz;
 
@@ -35,7 +35,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
     long size = (n / step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size / BLOCK_SIZE;
     hc::extent<1> compute_domain(size);
-    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       if(tidx.tile[0] != nBlocks - 1) {
         for(int iter = 0; iter < step_sz; iter++) {
           long Y_index = yOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter * 256;
@@ -53,19 +53,19 @@ void axpy_HC(hc::accelerator_view &accl_view,
           }
         }
       }
-    });
+    }).wait();
   }
 }
 
 void axpy_HC(hc::accelerator_view &accl_view,
              long n, float alpha,
-             hc::array<float> &X, long xOffset, long incx,
-             hc::array<float> &Y, long yOffset, long incy,
+             float *X, long xOffset, long incx,
+             float *Y, long yOffset, long incy,
              long X_batchOffset, long Y_batchOffset, int batchSize) {
   if(n <= 102400) {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     hc::extent<2> compute_domain(batchSize, size);
-    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       int elt = tidx.tile[0];
 
       if(tidx.global[1] < n) {
@@ -73,7 +73,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
         Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
         Y[Y_index] += X[xOffset + X_batchOffset * elt + tidx.global[1]] * alpha;
       }
-    });
+    }).wait();
   } else {
     int step_sz;
 
@@ -90,7 +90,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
     long size = (n / step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size / BLOCK_SIZE;
     hc::extent<2> compute_domain(batchSize, size);
-    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ =, &X, &Y] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       int elt = tidx.tile[0];
 
       if(tidx.tile[1] != nBlocks - 1) {
@@ -110,20 +110,20 @@ void axpy_HC(hc::accelerator_view &accl_view,
           }
         }
       }
-    });
+    }).wait();
   }
 }
 
-/* SAXPY - Type I : Inputs and outputs are float array containers */
+/* SAXPY - Type I : Inputs and outputs are device pointers */
 hcblasStatus Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
 				           const int N, const float &alpha,
-				           hc::array<float> &X, const int incX,
-				           hc::array<float> &Y, const int incY,
+				           float *X, const int incX,
+				           float *Y, const int incY,
 				           const long xOffset, const long yOffset)
 
 {
   /*Check the conditions*/
-  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
+  if ( X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
@@ -135,16 +135,16 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-/* SAXPY - Type II : Inputs and outputs are float array containers with batch processing */
+/* SAXPY - Type II : Inputs and outputs are device pointers with batch processing */
 hcblasStatus  Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
 					    const int N, const float &alpha,
-					    hc::array<float> &X, const int incX, const long X_batchOffset,
-					    hc::array<float> &Y, const int incY, const long Y_batchOffset,
+					    float *X, const int incX, const long X_batchOffset,
+					    float *Y, const int incY, const long Y_batchOffset,
 					    const long xOffset, const long yOffset, const int batchSize)
 
 {
   /*Check the conditions*/
-  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
+  if ( X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
