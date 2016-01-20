@@ -229,23 +229,23 @@ class Hcblaslibrary
 /* SASUM - Absolute value of a Vector - Single Precision */
 /* SASUM - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_sasum(hc::accelerator_view &accl_view, const int N,
-                             hc::array<float> &X, const int incX,
+                             float *X, const int incX,
                              const long xOffset, float &Y);
 
 /* SASUM - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_sasum(hc::accelerator_view &accl_view, const int N,
-                             hc::array<float> &X, const int incX,
+                             float *X, const int incX,
                              const long xOffset, float &Y, const long X_batchOffset, const int batchSize);
 
 /* DASUM - Absolute value of a Vector - Double Precision */
 /* DASUM - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_dasum(hc::accelerator_view &accl_view, const int N,
-                             hc::array<double> &X, const int incX,
+                             double *X, const int incX,
                              const long xOffset, double &Y);
 
 /* DASUM - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_dasum(hc::accelerator_view &accl_view, const int N,
-                             hc::array<double> &X, const int incX,
+                             double *X, const int incX,
                              const long xOffset, double &Y, const long X_batchOffset, const int batchSize);
 
 };

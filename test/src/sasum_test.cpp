@@ -2,6 +2,8 @@
 #include "hcblaslib.h"
 #include <cstdlib> 
 #include "cblas.h"
+#include "hc_am.hpp"
+
 using namespace std;
 int main(int argc, char** argv)
 {   
@@ -27,42 +29,40 @@ int main(int argc, char** argv)
     float *asumcblastemp = (float*)calloc(batchSize, sizeof(float));
     /* CBLAS implementation */
     long lenx = 1 + (N-1) * abs(incX);
-    float *X = (float*)calloc(lenx, sizeof(float));
-    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
 /* Implementation type I - Inputs and Outputs are HCC float array containers */
       
     if (Imple_type == 1) {
-        hc::array<float> xView(lenx, X);
-        std::vector<float> HostX(lenx);
+        float *X = (float*)calloc(lenx, sizeof(float));
+        float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
         for(int i = 0;i < lenx;i++){
-            HostX[i] = rand() % 10;
-            X[i] = HostX[i];
+            X[i] = rand() % 10;
         }
-        hc::copy(begin(HostX), end(HostX), xView);
-        status = hc.hcblas_sasum(accl_view, N, xView, incX, xOffset, asumhcblas);
+        hc::am_copy(devX, X, lenx * sizeof(float));
+        status = hc.hcblas_sasum(accl_view, N, devX, incX, xOffset, asumhcblas);
         asumcblas = cblas_sasum( N, X, incX);
         if (asumhcblas != asumcblas) {
             ispassed = 0;
             cout <<" HCSASUM " << asumhcblas << " does not match with CBLASSASUM "<< asumcblas << endl;
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
-        if(status) cout << "TEST FAILED" << endl; 
+        if(status) cout << "TEST FAILED" << endl;
+        free(X);
+        hc::am_free(devX); 
      }
 
 /* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
 
     else{
-        hc::array<float> xbatchView(lenx * batchSize, Xbatch);
-        std::vector<float> HostX_batch(lenx * batchSize);
+        float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
+        float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
         for(int i = 0;i < lenx * batchSize;i++) {
-            HostX_batch[i] = rand() % 10;
-            Xbatch[i] = HostX_batch[i];
-         }
-        hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-        status= hc.hcblas_sasum(accl_view, N, xbatchView, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
+            Xbatch[i] = rand() % 10;
+        }
+        hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
+        status= hc.hcblas_sasum(accl_view, N, devXbatch, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
         for(int i = 0; i < batchSize; i++) {
         	asumcblastemp[i] = cblas_sasum( N, Xbatch + i * N, incX);
                 asumcblas += asumcblastemp[i];
@@ -73,6 +73,8 @@ int main(int argc, char** argv)
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
         if(status) cout << "TEST FAILED" << endl; 
+        free(Xbatch);
+        hc::am_free(devXbatch);
     }
     return 0;
 }
