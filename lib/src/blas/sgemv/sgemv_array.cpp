@@ -1,24 +1,26 @@
 #include "hcblaslib.h"
 #include <hc.hpp>
 #include <hc_math.hpp>
+#include "hc_am.hpp"
 #define BLOCK_SIZE 256
 using namespace hc::fast_math;
 using namespace hc;
 
 static void gemv_TransA(hc::accelerator_view &accl_view,
-                        hc::array<float> &A_mat, long aOffset,
-                        hc::array<float> &X_vec, long xOffset,
-                        hc::array<float> &Y_vec, long yOffset,
+                        float *A_mat, long aOffset,
+                        float *X_vec, long xOffset,
+                        float *Y_vec, long yOffset,
                         float alpha, float beta, int lenX, int lenY) {
   if((lenX - lenY) > 5000) {
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int len_Y = (lenY + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     float* temp = (float*)malloc(num_blocks * len_Y * sizeof(float));
-    hc::array<float> tempBuf( num_blocks * len_Y, temp);
+    hc::accelerator acc = accl_view.get_accelerator();
+    float* tempBuf = hc::am_alloc(sizeof(float) * num_blocks * len_Y, acc, 0); 
     hc::extent<1> grdExt(len_X);
     hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
-    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       tile_static float t[BLOCK_SIZE];
 
       for (int Col = 0; Col < lenY; Col++) {
@@ -68,11 +70,11 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    });
+    }).wait();
   } else {
     hc::extent<1> grdExt(lenY * BLOCK_SIZE);
     hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
-    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       int threadIdx = tidx.local[0];
       int blockIdx = tidx.tile[0];
       int Col = blockIdx;
@@ -101,24 +103,25 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
-    });
+    }).wait();
   }
 }
 
 static void gemv_TransA(hc::accelerator_view &accl_view,
-                        hc::array<float> &A_mat, long aOffset, long A_batchOffset,
-                        hc::array<float> &X_vec, long xOffset, long X_batchOffset,
-                        hc::array<float> &Y_vec, long yOffset, long Y_batchOffset,
+                        float *A_mat, long aOffset, long A_batchOffset,
+                        float *X_vec, long xOffset, long X_batchOffset,
+                        float *Y_vec, long yOffset, long Y_batchOffset,
                         float alpha, float beta, int lenX, int lenY, int batchSize) {
   if((lenX - lenY) > 5000 ) {
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int len_Y = (lenY + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     float* temp = (float*)malloc(num_blocks * len_Y * sizeof(float));
-    hc::array<float> tempBuf( num_blocks * len_Y, temp);
+    hc::accelerator acc = accl_view.get_accelerator();
+    float* tempBuf = hc::am_alloc(sizeof(float) * num_blocks * len_Y, acc, 0);
     hc::extent<2> grdExt(batchSize, len_X);
     hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
-    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       tile_static float t[BLOCK_SIZE];
       int elt = tidx.tile[0];
 
@@ -169,11 +172,11 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    });
+    }).wait();
   } else {
     hc::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
     hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
-    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       int elt = tidx.tile[0];
       int threadIdx = tidx.local[1];
       int blockIdx = tidx.tile[1];
@@ -203,24 +206,25 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
-    });
+    }).wait();
   }
 }
 
 static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
-                               hc::array<float> &A_mat, long aOffset,
-                               hc::array<float> &X_vec, long xOffset,
-                               hc::array<float> &Y_vec, long yOffset,
+                               float *A_mat, long aOffset,
+                               float *X_vec, long xOffset,
+                               float *Y_vec, long yOffset,
                                float alpha, float beta, int lenX, int lenY) {
   if((lenX - lenY) > 5000) {
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int len_Y = (lenY + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     float* temp = (float*)malloc(num_blocks * len_Y * sizeof(float));
-    hc::array<float> tempBuf( num_blocks * len_Y, temp);
+    hc::accelerator acc = accl_view.get_accelerator();
+    float* tempBuf = hc::am_alloc(sizeof(float) * num_blocks * len_Y, acc, 0);
     hc::extent<1> grdExt(len_X);
     hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
-    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       tile_static float t[BLOCK_SIZE];
 
       for (int Col = 0; Col < lenY; Col++) {
@@ -270,11 +274,11 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    });
+    }).wait();
   } else {
     hc::extent<1> grdExt(lenY * BLOCK_SIZE);
     hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
-    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
       int threadIdx = tidx.local[0];
       int blockIdx = tidx.tile[0];
       int Col = blockIdx;
@@ -303,24 +307,25 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
-    });
+    }).wait();
   }
 }
 
 static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
-                               hc::array<float> &A_mat, long aOffset, long A_batchOffset,
-                               hc::array<float> &X_vec, long xOffset, long X_batchOffset,
-                               hc::array<float> &Y_vec, long yOffset, long Y_batchOffset,
+                               float *A_mat, long aOffset, long A_batchOffset,
+                               float *X_vec, long xOffset, long X_batchOffset,
+                               float *Y_vec, long yOffset, long Y_batchOffset,
                                float alpha, float beta, int lenX, int lenY, int batchSize) {
   if((lenX - lenY) > 5000) {
     int len_X = (lenX + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int len_Y = (lenY + (BLOCK_SIZE - 1)) & ~(BLOCK_SIZE - 1);
     int num_blocks = len_X / BLOCK_SIZE;
     float* temp = (float*)malloc(num_blocks * len_Y * sizeof(float));
-    hc::array<float> tempBuf( num_blocks * len_Y, temp);
+    hc::accelerator acc = accl_view.get_accelerator();
+    float* tempBuf = hc::am_alloc(sizeof(float) * num_blocks * len_Y, acc, 0);
     hc::extent<2> grdExt(batchSize, len_X);
     hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
-    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec, &tempBuf] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       tile_static float t[BLOCK_SIZE];
       int elt = tidx.tile[0];
 
@@ -371,11 +376,11 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    });
+    }).wait();
   } else {
     hc::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
     hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
-    hc::parallel_for_each(accl_view, t_ext, [ =, &A_mat, &X_vec, &Y_vec] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
       int elt = tidx.tile[0];
       int threadIdx = tidx.local[1];
       int blockIdx = tidx.tile[1];
@@ -405,18 +410,18 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
-    });
+    }).wait();
   }
 }
 
 static void gemv_NoTransA(hc::accelerator_view &accl_view,
-                          hc::array<float> &A, long aOffset,
-                          hc::array<float> &X, long xOffset,
-                          hc::array<float> &Y, long yOffset,
+                          float *A, long aOffset,
+                          float *X, long xOffset,
+                          float *Y, long yOffset,
                           float alpha, float beta, int lenX, int lenY) {
   long size = (lenY + 255) & ~255;
   hc::extent<1> compute_domain(size);
-  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ =, &A, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
     int bx = tidx.tile[0];
     int tx = tidx.local[0];
     tile_static float Xds[BLOCK_SIZE];
@@ -448,17 +453,17 @@ static void gemv_NoTransA(hc::accelerator_view &accl_view,
     }
 
     tidx.barrier.wait();
-  });
+  }).wait();
 }
 
 static void gemv_NoTransA(hc::accelerator_view &accl_view,
-                          hc::array<float> &A, long aOffset, long A_batchOffset,
-                          hc::array<float> &X, long xOffset, long X_batchOffset,
-                          hc::array<float> &Y, long yOffset, long Y_batchOffset,
+                          float *A, long aOffset, long A_batchOffset,
+                          float *X, long xOffset, long X_batchOffset,
+                          float *Y, long yOffset, long Y_batchOffset,
                           float alpha, float beta, int lenX, int lenY, int batchSize) {
   long size = (lenY + 255) & ~255;
   hc::extent<2> compute_domain(batchSize, size);
-  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ =, &A, &X, &Y] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int bx = tidx.tile[1];
     int tx = tidx.local[1];
@@ -491,17 +496,17 @@ static void gemv_NoTransA(hc::accelerator_view &accl_view,
     }
 
     tidx.barrier.wait();
-  });
+  }).wait();
 }
 
 static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
-                                 hc::array<float> &A, long aOffset,
-                                 hc::array<float> &X, long xOffset,
-                                 hc::array<float> &Y, long yOffset,
+                                 float *A, long aOffset,
+                                 float *X, long xOffset,
+                                 float *Y, long yOffset,
                                  float alpha, float beta, int lenX, int lenY) {
   long size = (lenY + 255) & ~255;
   hc::extent<1> compute_domain(size);
-  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ =, &A, &X, &Y] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
     int bx = tidx.tile[0];
     int tx = tidx.local[0];
     tile_static float Xds[BLOCK_SIZE];
@@ -533,20 +538,17 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
     }
 
     tidx.barrier.wait();
-  });
+  }).wait();
 }
 
-
-
-
 static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
-                                 hc::array<float> &A, long aOffset, long A_batchOffset,
-                                 hc::array<float> &X, long xOffset, long X_batchOffset,
-                                 hc::array<float> &Y, long yOffset, long Y_batchOffset,
+                                 float *A, long aOffset, long A_batchOffset,
+                                 float *X, long xOffset, long X_batchOffset,
+                                 float *Y, long yOffset, long Y_batchOffset,
                                  float alpha, float beta, int lenX, int lenY, int batchSize) {
   long size = (lenY + 255) & ~255;
   hc::extent<2> compute_domain(batchSize, size);
-  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ =, &A, &X, &Y] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int bx = tidx.tile[1];
     int tx = tidx.local[1];
@@ -579,216 +581,199 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
     }
 
     tidx.barrier.wait();
-  });
+  }).wait();
 }
 
-void gemv_HC(hc::accelerator_view &accl_view,
-             char TransA, int M, int N, float alpha,
-             hc::array<float> &A, long aOffset,
-             hc::array<float> &X, long xOffset, long incX, float beta,
-             hc::array<float> &Y, long yOffset, long incY) {
-  int lenX, lenY;
-
-  if (TransA == 'n') {
-    lenX = N;
-    lenY = M;
-  } else {
-    lenX = M;
-    lenY = N;
-  }
-
-  if (alpha == 0) {
-     std::vector<float> HostY(lenY);
-     hc::copy(Y, begin(HostY));
-     if (beta == 0) {
-       for (int j = 0; j < lenY; ++j) {
-           HostY[yOffset + j] = 0;
-       }
-     } else {
-       for (int j = 0; j < lenY; ++j) {
-           HostY[yOffset + j] *= beta;
-       }
-     }
-    hc::copy(begin(HostY), end(HostY), Y);
-    return;
-  }
-
-  if (TransA == 't') {
-    gemv_TransA(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
-  } else if (TransA == 'n') {
-    gemv_NoTransA(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
-  }
-}
-
-void gemv_HC(hc::accelerator_view &accl_view,
-             char TransA, int M, int N, float alpha,
-             hc::array<float> &A, long aOffset, long A_batchOffset,
-             hc::array<float> &X, long xOffset, long X_batchOffset,
-             long incX, float beta,
-             hc::array<float> &Y, long yOffset, long Y_batchOffset,
-             long incY, int batchSize) {
-  int lenX, lenY;
-
-  if (TransA == 'n') {
-    lenX = N;
-    lenY = M;
-  } else {
-    lenX = M;
-    lenY = N;
-  }
- 
-  if (alpha == 0) {
-     std::vector<float> HostY(lenY * batchSize);
-     hc::copy(Y, begin(HostY));
-     if (beta == 0) {
-      for(int k = 0; k < batchSize; ++k) {
-       for (int j = 0; j < lenY; ++j) {
-           HostY[yOffset + Y_batchOffset * k + j] = 0;
-       }
+static void gemv_alpha0_col(hc::accelerator_view &accl_view,
+                            float *A, long aOffset,
+                            float *X, long xOffset,
+                            float *Y, long yOffset,
+                            float alpha, float beta, int lenX, int lenY) {
+  long size = (lenY + 255) & ~255;
+  hc::extent<1> compute_domain(size);
+  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+    int bx = tidx.tile[0];
+    int tx = tidx.local[0];
+    int Col = bx * BLOCK_SIZE + tx;
+    if (Col < lenY) {
+      long Y_index = yOffset + Col;
+      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      if (alpha == 0) {
+        if (beta == 0)
+          Y[Y_index] = 0.0;
+        else
+          Y[Y_index] *= beta;
       }
-     } else {
-      for(int k = 0; k < batchSize; ++k) {
-       for (int j = 0; j < lenY; ++j) {
-           HostY[yOffset + Y_batchOffset * k + j] *= beta;
-       }
-      }
-     }
-    hc::copy(begin(HostY), end(HostY), Y);
-    return;
-  }
-
-  if (TransA == 't') {
-    gemv_TransA(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
-  } else if (TransA == 'n') {
-    gemv_NoTransA(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
-  }
+    }
+  }).wait();
 }
 
-void gemv_HC_rMajor(hc::accelerator_view &accl_view,
-                    char TransA, int M, int N, float alpha,
-                    hc::array<float> &A, long aOffset,
-                    hc::array<float> &X, long xOffset, long incX, float beta,
-                    hc::array<float> &Y, long yOffset, long incY) {
-  int lenX, lenY;
-
-  if (TransA == 'n') {
-    lenX = N;
-    lenY = M;
-  } else {
-    lenX = M;
-    lenY = N;
-  }
-
-  if (alpha == 0) {
-     std::vector<float> HostY(lenY);
-     hc::copy(Y, begin(HostY));
-     if (beta == 0) {
-       for (int j = 0; j < lenY; ++j) {
-           HostY[yOffset + j] = 0;
-       }
-     } else {
-       for (int j = 0; j < lenY; ++j) {
-           HostY[yOffset + j] *= beta;
-       }
-     }
-    hc::copy(begin(HostY), end(HostY), Y);
-    return;
-  }
-
-  if (TransA == 't') {
-    gemv_TransA_rMajor(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
-  } else if (TransA == 'n') {
-    gemv_NoTransA_rMajor(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
-  }
+static void gemv_alpha0_colbatch(hc::accelerator_view &accl_view,
+                                 float *A, long aOffset, long A_batchOffset,
+                                 float *X, long xOffset, long X_batchOffset,
+                                 float *Y, long yOffset, long Y_batchOffset,
+                                 float alpha, float beta, int lenX, int lenY, int batchSize) {
+  long size = (lenY + 255) & ~255;
+  hc::extent<2> compute_domain(batchSize, size);
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    int elt = tidx.tile[0];
+    int bx = tidx.tile[1];
+    int tx = tidx.local[1];
+    int Col = bx * BLOCK_SIZE + tx;
+    if (Col < lenY) {
+      long Y_index = yOffset + Y_batchOffset * elt + Col;
+      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      if (alpha == 0) {
+        if (beta == 0)
+          Y[Y_index] = 0.0;
+        else
+          Y[Y_index] *= beta;
+      }
+    }
+  }).wait();
 }
 
-void gemv_HC_rMajor(hc::accelerator_view &accl_view,
-                    char TransA, int M, int N, float alpha,
-                    hc::array<float> &A, long aOffset, long A_batchOffset,
-                    hc::array<float> &X, long xOffset, long X_batchOffset,
-                    long incX, float beta,
-                    hc::array<float> &Y, long yOffset, long Y_batchOffset,
-                    long incY, int batchSize) {
-  int lenX, lenY;
-
-  if (TransA == 'n') {
-    lenX = N;
-    lenY = M;
-  } else {
-    lenX = M;
-    lenY = N;
-  }
-
-  if (alpha == 0) {
-     std::vector<float> HostY(lenY * batchSize);
-     hc::copy(Y, begin(HostY));
-     if (beta == 0) {
-      for(int k = 0; k < batchSize; ++k) {
-       for (int j = 0; j < lenY; ++j) {
-           HostY[yOffset + Y_batchOffset * k + j] = 0;
-       }
+static void gemv_alpha0_row(hc::accelerator_view &accl_view,
+                            float *A, long aOffset,
+                            float *X, long xOffset,
+                            float *Y, long yOffset,
+                            float alpha, float beta, int lenX, int lenY) {
+  long size = (lenY + 255) & ~255;
+  hc::extent<1> compute_domain(size);
+  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+    int bx = tidx.tile[0];
+    int tx = tidx.local[0];
+    int Col = bx * BLOCK_SIZE + tx;
+    if (Col < lenY) {
+      long Y_index = yOffset + Col;
+      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      if (alpha == 0) {
+        if (beta == 0)
+          Y[Y_index] = 0.0;
+        else
+          Y[Y_index] *= beta;
       }
-     } else {
-      for(int k = 0; k < batchSize; ++k) {
-       for (int j = 0; j < lenY; ++j) {
-           HostY[yOffset + Y_batchOffset * k + j] *= beta;
-       }
-      }
-     }
-    hc::copy(begin(HostY), end(HostY), Y);
-    return;
-  }
-
-  if (TransA == 't') {
-    gemv_TransA_rMajor(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
-  } else if (TransA == 'n') {
-    gemv_NoTransA_rMajor(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
-  }
+    }
+  }).wait();
 }
 
-/* SGEMV - Type I : inputs and outputs are float array containers */
+static void gemv_alpha0_rowbatch(hc::accelerator_view &accl_view,
+                                 float *A, long aOffset, long A_batchOffset,
+                                 float *X, long xOffset, long X_batchOffset,
+                                 float *Y, long yOffset, long Y_batchOffset,
+                                 float alpha, float beta, int lenX, int lenY, int batchSize) {
+  long size = (lenY + 255) & ~255;
+  hc::extent<2> compute_domain(batchSize, size);
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+    int elt = tidx.tile[0];
+    int bx = tidx.tile[1];
+    int tx = tidx.local[1];
+    int Col = bx * BLOCK_SIZE + tx;
+    if (Col < lenY) {
+      long Y_index = yOffset + Y_batchOffset * elt + Col;
+      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      if (alpha == 0) {
+        if (beta == 0)
+          Y[Y_index] = 0.0;
+        else
+          Y[Y_index] *= beta;
+      }
+    }
+  }).wait();
+}
+
+/* SGEMV - Type I : inputs and outputs are device pointers */
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
 				           hcblasOrder order, hcblasTranspose type, const int M,
 				           const int N, const float &alpha,
-				           hc::array<float> &A, const long aOffset, const int lda,
-				           hc::array<float> &X, const long xOffset, const int incX,
+				           float *A, const long aOffset, const int lda,
+				           float *X, const long xOffset, const int incX,
 				           const float &beta,
-				           hc::array<float> &Y, const long yOffset, const int incY) {
+				           float *Y, const long yOffset, const int incY) {
   /*Check the conditions*/
-  if( M <= 0 || N <= 0 || incX <= 0 || incY <= 0 ) {
+  if( X == NULL || Y == NULL || A == NULL || M <= 0 || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
-  if(order) {
-    gemv_HC(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY);
+  int lenX, lenY;
+
+  if (type == 'n') {
+    lenX = 1 + (N - 1) * abs(incX);
+    lenY = 1 + (M - 1) * abs(incY);
   } else {
-    gemv_HC_rMajor(accl_view, type, M, N, alpha, A, aOffset, X, xOffset, incX, beta, Y, yOffset, incY);
+    lenX = 1 + (M - 1) * abs(incX);
+    lenY = 1 + (N - 1) * abs(incY);
+  }
+
+  if(alpha == 0) { 
+    if(order) 
+       gemv_alpha0_col(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
+    else
+       gemv_alpha0_row(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
+    return HCBLAS_SUCCEEDS;
+  }
+
+  if(order) {
+    if (type == 't') {
+      gemv_TransA(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
+    } else if (type == 'n') {
+      gemv_NoTransA(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
+    }
+  } else {
+    if (type == 't') {
+      gemv_TransA_rMajor(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
+    } else if (type == 'n') {
+      gemv_NoTransA_rMajor(accl_view, A, aOffset, X, xOffset, Y, yOffset, alpha, beta, lenX, lenY);
+    }
   }
 
   return HCBLAS_SUCCEEDS;
 }
 
-/* SGEMV - Type II : Inputs and outputs are float array containers with batch processing */
+/* SGEMV - Type II : Inputs and outputs are device pointers with batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
 				           hcblasOrder order, hcblasTranspose type, const int M,
-				           const int N, const float &alpha, hc::array<float> &A,
+				           const int N, const float &alpha, float *A,
 				           const long aOffset, const long A_batchOffset, const int lda,
-				           hc::array<float> &X,
+				           float *X,
 				           const long xOffset, const long X_batchOffset, const int incX,
-				           const float &beta, hc::array<float> &Y,
+				           const float &beta, float *Y,
 				           const long yOffset, const long Y_batchOffset, const int incY, const int batchSize) {
   /*Check the conditions*/
-  if( M <= 0 || N <= 0 || incX <= 0 || incY <= 0 ) {
+  if( X == NULL || Y == NULL || A == NULL || M <= 0 || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
-  if(order) {
-    gemv_HC(accl_view, type, M, N, alpha, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, incX, beta, Y, yOffset, Y_batchOffset, incY, batchSize);
+  int lenX, lenY;
+
+  if (type == 'n') {
+    lenX = 1 + (N - 1) * abs(incX);
+    lenY = 1 + (M - 1) * abs(incY);
   } else {
-    gemv_HC_rMajor(accl_view, type, M, N, alpha, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, incX, beta, Y, yOffset, Y_batchOffset, incY, batchSize);
+    lenX = 1 + (M - 1) * abs(incX);
+    lenY = 1 + (N - 1) * abs(incY);
   }
 
+  if(alpha == 0) {
+    if(order)
+       gemv_alpha0_colbatch(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
+    else
+       gemv_alpha0_rowbatch(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
+    return HCBLAS_SUCCEEDS;
+  }
+
+  if(order) {
+    if (type == 't') {
+      gemv_TransA(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
+    } else if (type == 'n') {
+      gemv_NoTransA(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
+    }  
+  } else {
+    if (type == 't') {
+      gemv_TransA_rMajor(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
+    } else if (type == 'n') {
+      gemv_NoTransA_rMajor(accl_view, A, aOffset, A_batchOffset, X, xOffset, X_batchOffset, Y, yOffset, Y_batchOffset, alpha, beta, lenX, lenY, batchSize);
+  }
+  }
   return HCBLAS_SUCCEEDS;
 }
-
-

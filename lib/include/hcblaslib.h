@@ -87,19 +87,19 @@ class Hcblaslibrary
     hcblasStatus hcblas_sgemv(hc::accelerator_view &accl_view,
 			      hcblasOrder order, hcblasTranspose type, const int M,
                               const int N, const float &alpha, 
-                              hc::array<float> &A, const long aOffset, const int lda, 
-			      hc::array<float> &X, const long xOffset, const int incX,
+                              float *A, const long aOffset, const int lda, 
+			      float *X, const long xOffset, const int incX,
                               const float &beta,  
-			      hc::array<float> &Y, const long yOffset, const int incY);
+			      float *Y, const long yOffset, const int incY);
 
 /* SGEMV - Overloaded function with arguments related to batch processing */
     hcblasStatus hcblas_sgemv(hc::accelerator_view &accl_view,
                               hcblasOrder order, hcblasTranspose type, const int M,
-                              const int N, const float &alpha, hc::array<float> &A, 
+                              const int N, const float &alpha, float *A, 
                               const long aOffset, const long A_batchOffset, const int lda,
-                              hc::array<float> &X, 
+                              float *X, 
                               const long xOffset, const long X_batchOffset, const int incX,
-                              const float &beta, hc::array<float> &Y, 
+                              const float &beta, float *Y, 
                               const long yOffset, const long Y_batchOffset, const int incY, const int batchSize);
 
 /* SGEMM - C = alpha * op(A) * op(B) + beta * C                 */
