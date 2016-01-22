@@ -2,16 +2,16 @@
 #include "hc_math.hpp"
 using namespace hc::fast_math;
 hcblasStatus cgemm_NoTransAB_batch_loopunroll(hc::accelerator_view &accl_view,
-					      hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					      hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					      hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					      float_2 *A, long aOffset, long A_batchOffset,
+					      float_2 *B, long bOffset, long B_batchOffset,
+					      float_2 *C, long cOffset, long C_batchOffset,
 					      int M, int N, int K, int lda, int ldb, int ldc,
 					      float_2 alpha, float_2 beta, int batchSize) {
 #define THREADS   16
 #define TILE_DIM  16
   hc::extent<3> grdExt(batchSize, (N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, THREADS, THREADS);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     float CValue = 0, CValue1 = 0;
     int elt = tidx.tile[0];
     int Row = tidx.tile[1] * TILE_DIM + tidx.local[1];
@@ -89,7 +89,7 @@ hcblasStatus cgemm_NoTransAB_batch_loopunroll(hc::accelerator_view &accl_view,
       C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
       C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
-  });
+  }).wait();
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -97,16 +97,16 @@ hcblasStatus cgemm_NoTransAB_batch_loopunroll(hc::accelerator_view &accl_view,
 
 
 hcblasStatus cgemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
-					           hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					           hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					           hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					           float_2 *A, long aOffset, long A_batchOffset,
+					           float_2 *B, long bOffset, long B_batchOffset,
+					           float_2 *C, long cOffset, long C_batchOffset,
 					           int M, int N, int K, int lda, int ldb, int ldc,
 					           float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
@@ -188,16 +188,16 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_vi
         }
       }
     }
-  });
+  }).wait();
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus cgemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
-					        hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-				 	        hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					        hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					        float_2 *A, long aOffset, long A_batchOffset,
+				 	        float_2 *B, long bOffset, long B_batchOffset,
+					        float_2 *C, long cOffset, long C_batchOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float_2 alpha, float_2 beta, int batchSize)
 
@@ -206,7 +206,7 @@ hcblasStatus cgemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int shiftFactor = hc::fast_math::log2(STEPSIZE);
     float rCreal[1][1];
@@ -283,7 +283,7 @@ hcblasStatus cgemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
       C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  });
+  }).wait();
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -292,16 +292,16 @@ hcblasStatus cgemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
 
 
 hcblasStatus cgemm_NoTransAB_batch_MICRO_TS8XMTS2(hc::accelerator_view &accl_view,
-					          hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					          hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					          hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					          float_2 *A, long aOffset, long A_batchOffset,
+					          float_2 *B, long bOffset, long B_batchOffset,
+					          float_2 *C, long cOffset, long C_batchOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
 					          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
 #define MICROTILESIZE 2
   hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
@@ -383,23 +383,23 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS8XMTS2(hc::accelerator_view &accl_vie
         }
       }
     }
-  });
+  }).wait();
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus cgemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
-					          hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					          hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					          hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					          float_2 *A, long aOffset, long A_batchOffset,
+					          float_2 *B, long bOffset, long B_batchOffset,
+					          float_2 *C, long cOffset, long C_batchOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
 					          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
@@ -481,23 +481,23 @@ hcblasStatus cgemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_vie
         }
       }
     }
-  });
+  }).wait();
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus cgemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
-					       hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					       hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					       hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					       float_2 *A, long aOffset, long A_batchOffset,
+					       float_2 *B, long bOffset, long B_batchOffset,
+					       float_2 *C, long cOffset, long C_batchOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int shiftFactor = hc::fast_math::log2(TILESIZE);
     float rCreal[1][1];
@@ -571,23 +571,23 @@ hcblasStatus cgemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
       C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  });
+  }).wait();
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus cgemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
-					          hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					          hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					          hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					          float_2 *A, long aOffset, long A_batchOffset,
+					          float_2 *B, long bOffset, long B_batchOffset,
+					          float_2 *C, long cOffset, long C_batchOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
 					          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
@@ -670,23 +670,23 @@ hcblasStatus cgemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_vie
         }
       }
     }
-  });
+  }).wait();
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus cgemm_NoTransB_batch_loopunroll(hc::accelerator_view &accl_view,
-					     hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					     hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					     hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					     float_2 *A, long aOffset, long A_batchOffset,
+					     float_2 *B, long bOffset, long B_batchOffset,
+					     float_2 *C, long cOffset, long C_batchOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
 					     float_2 alpha, float_2 beta, int batchSize) {
 #define THREADS   16
 #define TILE_DIM  16
   hc::extent<3> grdExt(batchSize, (N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, THREADS, THREADS);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     float CValue = 0, CValue1 = 0;
     int Row = tidx.global[1];
@@ -764,23 +764,23 @@ hcblasStatus cgemm_NoTransB_batch_loopunroll(hc::accelerator_view &accl_view,
       C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
       C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
-  });
+  }).wait();
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus cgemm_TransAB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
-					      hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					      hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					      hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					      float_2 *A, long aOffset, long A_batchOffset,
+					      float_2 *B, long bOffset, long B_batchOffset,
+					      float_2 *C, long cOffset, long C_batchOffset,
 					      int M, int N, int K, int lda, int ldb, int ldc,
 					      float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int shiftFactor = hc::fast_math::log2(TILESIZE);
     float rCreal[1][1];
@@ -851,23 +851,23 @@ hcblasStatus cgemm_TransAB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
       C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  });
+  }).wait();
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus cgemm_TransAB_batch_STEP_TS16XSS16(hc::accelerator_view &accl_view,
-					        hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					        hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					        hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					        float_2 *A, long aOffset, long A_batchOffset,
+					        float_2 *B, long bOffset, long B_batchOffset,
+					        float_2 *C, long cOffset, long C_batchOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int shiftFactor = hc::fast_math::log2(TILESIZE);
     float rCreal[1][1];
@@ -938,23 +938,23 @@ hcblasStatus cgemm_TransAB_batch_STEP_TS16XSS16(hc::accelerator_view &accl_view,
       C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  });
+  }).wait();
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus cgemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
-					         hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-					         hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-					         hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+					         float_2 *A, long aOffset, long A_batchOffset,
+					         float_2 *B, long bOffset, long B_batchOffset,
+					         float_2 *C, long cOffset, long C_batchOffset,
 					         int M, int N, int K, int lda, int ldb, int ldc,
 					         float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ =, &A, &B, &C] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
@@ -1036,16 +1036,16 @@ hcblasStatus cgemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view
         }
       }
     }
-  });
+  }).wait();
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
 hcblasStatus cgemm_NoTransAB(hc::accelerator_view &accl_view,
-                             hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-                             hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-                             hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                             float_2 *A, long aOffset, long A_batchOffset,
+                             float_2 *B, long bOffset, long B_batchOffset,
+                             float_2 *C, long cOffset, long C_batchOffset,
                              int M, int N, int K, int lda, int ldb, int ldc,
                              float_2 alpha, float_2 beta, int batchSize) {
   if (M < 600 && N < 600 && K >= 600 && K < 1800) {
@@ -1062,9 +1062,9 @@ hcblasStatus cgemm_NoTransAB(hc::accelerator_view &accl_view,
 }
 
 hcblasStatus cgemm_NoTransA(hc::accelerator_view &accl_view,
-                            hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-                            hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-                            hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                            float_2 *A, long aOffset, long A_batchOffset,
+                            float_2 *B, long bOffset, long B_batchOffset,
+                            float_2 *C, long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float_2 alpha, float_2 beta, int batchSize) {
   /*if ((M < 600 && N >= 600 && N < 1800 && K < 600)||(M >= 600 && M < 6000 && N <6000 && K < 600))
@@ -1074,9 +1074,9 @@ hcblasStatus cgemm_NoTransA(hc::accelerator_view &accl_view,
 }
 
 hcblasStatus cgemm_NoTransB(hc::accelerator_view &accl_view,
-                            hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-                            hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-                            hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                            float_2 *A, long aOffset, long A_batchOffset,
+                            float_2 *B, long bOffset, long B_batchOffset,
+                            float_2 *C, long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float_2 alpha, float_2 beta, int batchSize) {
   if ((M >= 10 && M < 6000 && N < 600 && K < 10) || (  M >= 600 && M < 1800 && N < 10 && K >= 1800 && K < 6000) || ( M < 600 && N < 600 && K > 1800 && K < 6000)) {
@@ -1091,9 +1091,9 @@ hcblasStatus cgemm_NoTransB(hc::accelerator_view &accl_view,
 }
 
 hcblasStatus cgemm_TransAB(hc::accelerator_view &accl_view,
-                           hc::array<float_2, 1> &A, long aOffset, long A_batchOffset,
-                           hc::array<float_2, 1> &B, long bOffset, long B_batchOffset,
-                           hc::array<float_2, 1> &C, long cOffset, long C_batchOffset,
+                           float_2 *A, long aOffset, long A_batchOffset,
+                           float_2 *B, long bOffset, long B_batchOffset,
+                           float_2 *C, long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float_2 alpha, float_2 beta, int batchSize) {
   if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600)) {

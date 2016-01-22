@@ -5,11 +5,11 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
 				           hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,
-					   const Concurrency::graphics::float_2 &Calpha,
-					   hc::array<float_2> &Acmplx, long aOffset, long lda,
-					   hc::array<float_2> &Bcmplx, long bOffset, long ldb,
-					   const Concurrency::graphics::float_2 &Cbeta,
-					   hc::array<float_2> &Ccmplx, long cOffset, long ldc) {
+					   const float_2 &Calpha,
+					   float_2 *Acmplx, long aOffset, long lda,
+					   float_2 *Bcmplx, long bOffset, long ldb,
+					   const float_2 &Cbeta,
+					   float_2 *Ccmplx, long cOffset, long ldc) {
   int i, j;
   hcblasStatus status = HCBLAS_SUCCEEDS;
   float tempReal = 0.0, tempImg = 0.0;
@@ -17,7 +17,7 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
   if (!M || !N || !K) {
     return HCBLAS_INVALID;
   }
-
+#if 0 
   // For alpha = 0
   if (!Calpha.x  && !Calpha.y) {
     if (!Cbeta.x && !Cbeta.y) {
@@ -40,7 +40,7 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
 
     return status;
   }  
-
+#endif
   if(order) {
     if (typeB == NoTrans) {
       if (typeA == NoTrans) {
@@ -75,13 +75,13 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
 					   hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,
-					   const Concurrency::graphics::float_2 &Calpha,
-					   hc::array<float_2> &Acmplx,
+					   const float_2 &Calpha,
+					   float_2 *Acmplx,
 					   const long aOffset, const long A_batchOffset, const long lda,
-					   hc::array<float_2> &Bcmplx,
+					   float_2 *Bcmplx,
 					   const long bOffset, const long B_batchOffset, const long ldb,
-					   const Concurrency::graphics::float_2 &Cbeta,
-					   hc::array<float_2> &Ccmplx,
+					   const float_2 &Cbeta,
+					   float_2 *Ccmplx,
 					   const long cOffset, const long C_batchOffset, const long ldc, const int batchSize) {
   int i, j, k;
   hcblasStatus status = HCBLAS_SUCCEEDS;
@@ -90,7 +90,7 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
   if (!M || !N || !K) {
     return HCBLAS_INVALID;
   }
-
+#if 0
   // For alpha = 0
   if (!Calpha.x  && !Calpha.y) {
     if (!Cbeta.x && !Cbeta.y) {
@@ -117,7 +117,7 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
  
     return status;
   }  
-
+#endif
   if(order) {
     if (typeB == NoTrans) {
       if (typeA == NoTrans) {

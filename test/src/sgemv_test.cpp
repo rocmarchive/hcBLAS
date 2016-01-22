@@ -1,7 +1,7 @@
 #include <iostream>
 #include "hcblaslib.h"
 #include <cstdlib> 
-#include <amp_short_vectors.h>
+#include "hc_short_vector.hpp"
 #include <cblas.h>
 #include <unistd.h>
 #include "hc_am.hpp"

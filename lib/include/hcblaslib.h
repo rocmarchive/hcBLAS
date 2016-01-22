@@ -11,10 +11,10 @@
 
 #include <iostream>
 #include "hc.hpp"
-#include <amp_short_vectors.h>
+#include "hc_short_vector.hpp"
 
 using namespace hc;
-using namespace Concurrency::graphics;
+using namespace hc::short_vector;
 using namespace std;
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {
@@ -132,24 +132,24 @@ class Hcblaslibrary
 			     hcblasOrder order, hcblasTranspose typeA,
                              hcblasTranspose typeB, const int M,
                              const int N, const int K,
-                             const Concurrency::graphics::float_2 &alpha,
-                             hc::array<float_2> &A, const long aOffset, const long lda,
-                             hc::array<float_2> &B, const long bOffset, const long ldb,
-                             const Concurrency::graphics::float_2 &beta, 
-                             hc::array<float_2> &C, const long cOffset, const long ldc);
+                             const  float_2 &alpha,
+                             float_2 *A, const long aOffset, const long lda,
+                             float_2 *B, const long bOffset, const long ldb,
+                             const  float_2 &beta, 
+                             float_2 *C, const long cOffset, const long ldc);
 
 /* CGEMM - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_cgemm(hc::accelerator_view &accl_view,
                              hcblasOrder order, hcblasTranspose typeA,
                              hcblasTranspose typeB, const int M,
                              const int N, const int K,
-                             const Concurrency::graphics::float_2 &alpha,
-                             hc::array<float_2> &A, 
+                             const  float_2 &alpha,
+                             float_2 *A, 
                              const long aOffset, const long A_batchOffset, const long lda,
-                             hc::array<float_2> &B, 
+                             float_2 *B, 
 			     const long bOffset, const long B_batchOffset, const long ldb,
-                             const Concurrency::graphics::float_2 &beta,
-                             hc::array<float_2> &C, 
+                             const  float_2 &beta,
+                             float_2 *C, 
 			     const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 				 
 /* SSCAL - X = alpha * X */

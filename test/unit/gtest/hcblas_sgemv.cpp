@@ -1,6 +1,6 @@
 #include "hcblaslib.h"
 #include <cstdlib> 
-#include <amp_short_vectors.h>
+#include "hc_short_vector.hpp"
 #include <unistd.h>
 #include "gtest/gtest.h"
 #include "hc_am.hpp"
@@ -183,6 +183,23 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     hc::am_copy(y, devY, leny * sizeof(float));
     lda = (hcOrder)? M: N;
     cblas_sgemv( CblasColMajor, transa, M, N, alpha, A, lda , x, incX, beta, ycblas, incY );
+    for(int i =0; i < leny; i++)
+        EXPECT_EQ(y[i], ycblas[i]);
+
+    /* alpha and beta is 0 */
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, 0, devA, aOffset, lda, devX, xOffset, incX, 0, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(y, devY, leny * sizeof(float));
+    lda = (hcOrder)? M: N;
+    cblas_sgemv( CblasColMajor, transa, M, N, 0, A, lda , x, incX, 0, ycblas, incY );
+    for(int i =0; i < leny; i++)
+        EXPECT_EQ(y[i], ycblas[i]);
+    /* alpha is 0 and beta is 1*/
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, 0, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(y, devY, leny * sizeof(float));
+    lda = (hcOrder)? M: N;
+    cblas_sgemv( CblasColMajor, transa, M, N, 0, A, lda , x, incX, beta, ycblas, incY );
     for(int i =0; i < leny; i++)
         EXPECT_EQ(y[i], ycblas[i]);
 
@@ -446,6 +463,26 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     lda = (hcOrder)? M : N;
     for(int i =0 ; i < batchSize; i++)
          cblas_sgemv( CblasColMajor, transa, M, N, alpha, Abatch + i * M * N, lda , xbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
+    for(int i =0; i < leny * batchSize; i++)
+         EXPECT_EQ(ybatch[i], ycblasbatch[i]);
+
+    /* alpha and beta is 0 */
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, 0, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, 0, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+    lda = (hcOrder)? M : N;
+    for(int i =0 ; i < batchSize; i++)
+         cblas_sgemv( CblasColMajor, transa, M, N, 0, Abatch + i * M * N, lda , xbatch + i * row, incX, 0, ycblasbatch + i * col, incY );
+    for(int i =0; i < leny * batchSize; i++)
+         EXPECT_EQ(ybatch[i], ycblasbatch[i]);
+
+    /* alpha is 0 and beta is 1*/
+    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, 0, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+    lda = (hcOrder)? M : N;
+    for(int i =0 ; i < batchSize; i++)
+         cblas_sgemv( CblasColMajor, transa, M, N, 0, Abatch + i * M * N, lda , xbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
     for(int i =0; i < leny * batchSize; i++)
          EXPECT_EQ(ybatch[i], ycblasbatch[i]);
 

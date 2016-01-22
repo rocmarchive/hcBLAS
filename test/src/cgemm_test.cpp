@@ -1,10 +1,11 @@
 #include<hc.hpp>
 #include<iostream>
-#include<amp_short_vectors.h>
-#include "hcblaslib.h"
+#include"hc_short_vector.hpp"
+#include"hcblaslib.h"
 #include<cblas.h>
 #include<unistd.h>
-using namespace Concurrency::graphics;
+#include"hc_am.hpp"
+using namespace hc::short_vector;
 using namespace hc;
 using namespace std;
 int main(int argc, char* argv[])
@@ -55,12 +56,11 @@ int main(int argc, char* argv[])
         return -1;
     }
     ldc = (hcOrder)? M : N;
-    struct hc_Complex calpha,cbeta;
-    Concurrency::graphics::float_2 cAlpha, cBeta;
-    cAlpha.x = calpha.real = 1;
-    cAlpha.y = calpha.img  = 1;
-    cBeta.x = cbeta.real = 1;
-    cBeta.y = cbeta.img  = 1;
+    float_2 cAlpha, cBeta;
+    cAlpha.x = 1;
+    cAlpha.y = 1;
+    cBeta.x = 1;
+    cBeta.y = 1;
     /* CBLAS implementation */
     bool ispassed = 1;
     float alpha[2], beta[2];
@@ -68,15 +68,12 @@ int main(int argc, char* argv[])
     enum CBLAS_TRANSPOSE Transa, Transb;
     Transa = (typeA == NoTrans)? CblasNoTrans: CblasTrans;
     Transb = (typeB == NoTrans)? CblasNoTrans: CblasTrans;
-    alpha[0] = calpha.real;
-    alpha[1] = calpha.img;
-    beta[0] = cbeta.real;
-    beta[1] = cbeta.img;
+    alpha[0] = cAlpha.x; 
+    alpha[1] = cAlpha.y;
+    beta[0] = cBeta.x;
+    beta[1] = cBeta.y;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     hc::accelerator_view accl_view = (acc[1].create_view());
-    float* a = (float *)malloc(sizeof(float )* M * K * 2);
-    float* b = (float *)malloc(sizeof(float )* K * N * 2);
-    float* c = (float *)malloc(sizeof(float )* M * N * 2);
     if(M > 3000 && N > 3000) {
         batchSize = 25;
     }
@@ -87,47 +84,50 @@ int main(int argc, char* argv[])
 /* Implementation type I - Inputs and Outputs are HCC float array containers */
 
     if(Imple_type == 1) {
-        hc::array<float_2> A(M * K * 2);
-        hc::array<float_2> B(N * K * 2);
-        hc::array<float_2> C(M * N * 2);
-        std::vector<float_2> HostA(M * K * 2);
-        std::vector<float_2> HostB(K * N * 2);
-        std::vector<float_2> HostC(M * N * 2);
+        float_2* a = (float_2 *)malloc(sizeof(float_2 )* M * K);
+        float_2* b = (float_2 *)malloc(sizeof(float_2 )* K * N);
+        float_2* c = (float_2 *)malloc(sizeof(float_2 )* M * N);
+        float_2* devA = hc::am_alloc(sizeof(float_2) * M * K, acc[1], 0);
+        float_2* devB = hc::am_alloc(sizeof(float_2) * K * N, acc[1], 0);
+        float_2* devC = hc::am_alloc(sizeof(float_2) * M * N, acc[1], 0);
+        float* ablas = (float *)malloc(sizeof(float )* M * K * 2);
+        float* bblas = (float *)malloc(sizeof(float )* K * N * 2);
+        float* cblas = (float *)malloc(sizeof(float )* M * N * 2); 
         int k = 0;
         for (int i = 0;i < M * K; i++) {
-            HostA[i].x = rand() % 10;
-            HostA[i].y = rand() % 20;
-            a[k++] = HostA[i].x;
-            a[k++] = HostA[i].y;
+            a[i].x = rand() % 10;
+            a[i].y = rand() % 20;
+            ablas[k++] = a[i].x;
+            ablas[k++] = a[i].y;
         }
         k = 0;
         for (int i = 0;i < K * N; i++) {
-            HostB[i].x = rand() % 15;
-            HostB[i].y = rand() % 25;
-            b[k++] = HostB[i].x;
-            b[k++] = HostB[i].y;
+            b[i].x = rand() % 15;
+            b[i].y = rand() % 25;
+            bblas[k++] = b[i].x;
+            bblas[k++] = b[i].y;
         }
 #ifdef PROFILE
         for (int iter=0; iter<10; iter++) {
 #endif
         k = 0;
         for (int i = 0;i < M * N; i++) {
-            HostC[i].x = rand() % 18;
-            HostC[i].y = rand() % 28;
-            c[k++] = HostC[i].x ;
-            c[k++] = HostC[i].y;
+            c[i].x = rand() % 18;
+            c[i].y = rand() % 28;
+            cblas[k++] = c[i].x;
+            cblas[k++] = c[i].y;
         }
-        hc::copy(begin(HostA), end(HostA), A);
-        hc::copy(begin(HostB), end(HostB), B);
-        hc::copy(begin(HostC), end(HostC), C);
-    	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, A, aOffset, lda, B, bOffset, ldb, cBeta, C, cOffset, ldc);
-        hc::copy(C, begin(HostC));
-        cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, a, lda, b, ldb, &beta, c, ldc );
+        hc::am_copy(devA, a, M * K * sizeof(float_2));
+        hc::am_copy(devB, b, K * N * sizeof(float_2));
+        hc::am_copy(devC, c, M * N * sizeof(float_2));
+    	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
+        hc::am_copy(c, devC, M * N * sizeof(float_2));
+        cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
-            if ((HostC[i].x != c[k]) || (HostC[i].y != c[k+1])){
+            if ((c[i].x != cblas[k]) || (c[i].y != cblas[k+1])){
                 ispassed = 0;
-                cout <<" HCCGEMM_REAL[" << i<< "] " << HostC[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< c[k] << endl;
-                cout <<" HCCGEMM_IMG[" << i<< "] " << HostC[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< c[k + 1] << endl;
+                cout <<" HCCGEMM_REAL[" << i<< "] " << c[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cblas[k] << endl;
+                cout <<" HCCGEMM_IMG[" << i<< "] " << c[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cblas[k + 1] << endl;
             }
             else
                continue;
@@ -143,52 +143,52 @@ int main(int argc, char* argv[])
 /* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
 
     else{
-        hc::array<float_2> Abatch(M * K * 2);
-        hc::array<float_2> Bbatch(N * K * 2);
-        hc::array<float_2> Cbatch(M * N * 2 * batchSize);
+        float_2 *Abatch = (float_2*) calloc(M * K, sizeof(float_2));
+        float_2 *Bbatch = (float_2*) calloc(K * N, sizeof(float_2));
+        float_2 *Cbatch = (float_2*) calloc(M * N * batchSize, sizeof(float_2));
+        float_2* devAbatch = hc::am_alloc(sizeof(float_2) * M * K, acc[1], 0);
+        float_2* devBbatch = hc::am_alloc(sizeof(float_2) * K * N, acc[1], 0);
+        float_2* devCbatch = hc::am_alloc(sizeof(float_2) * M * N * batchSize, acc[1], 0);
         float* abatch = (float *)malloc(sizeof(float )* M * K * 2);
         float* bbatch = (float *)malloc(sizeof(float )* K * N * 2);
         float* cbatch = (float *)malloc(sizeof(float )* M * N * 2 * batchSize);
-        std::vector<float_2> HostA(M * K * 2);
-        std::vector<float_2> HostB(K * N * 2);
-        std::vector<float_2> HostC_batch(M * N * 2 * batchSize);
         int k = 0;
         for (int i = 0;i < M * K; i++) {
-           HostA[i].x = rand() % 10;
-           HostA[i].y = rand() % 20;
-           abatch[k++] = HostA[i].x;
-           abatch[k++] = HostA[i].y;
+           Abatch[i].x = rand() % 10;
+           Abatch[i].y = rand() % 20;
+           abatch[k++] = Abatch[i].x;
+           abatch[k++] = Abatch[i].y;
         }
 
         k = 0;
         for (int i = 0;i < K * N; i++) {
-           HostB[i].x = rand() % 15;
-           HostB[i].y = rand() % 25;
-           bbatch[k++] = HostB[i].x;
-           bbatch[k++] = HostB[i].y;
+           Bbatch[i].x = rand() % 15;
+           Bbatch[i].y = rand() % 25;
+           bbatch[k++] = Bbatch[i].x;
+           bbatch[k++] = Bbatch[i].y;
         }
 #ifdef PROFILE
         for(int iter=0; iter<10; iter++) {   
 #endif
         k = 0;
         for (int i = 0;i < M * N * batchSize; i++) {
-           HostC_batch[i].x = rand() % 18;
-           HostC_batch[i].y = rand() % 28;
-           cbatch[k++] = HostC_batch[i].x ;
-           cbatch[k++] = HostC_batch[i].y;
-        }  
-        hc::copy(begin(HostA), end(HostA), Abatch);
-        hc::copy(begin(HostB), end(HostB), Bbatch);
-        hc::copy(begin(HostC_batch), end(HostC_batch), Cbatch);
-    	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, Abatch, aOffset, A_batchOffset, lda, Bbatch, bOffset, B_batchOffset, ldb, cBeta, Cbatch, cOffset, C_batchOffset, ldc, batchSize);
-        hc::copy(Cbatch, begin(HostC_batch));  
+           Cbatch[i].x = rand() % 18;
+           Cbatch[i].y = rand() % 28;
+           cbatch[k++] = Cbatch[i].x ;
+           cbatch[k++] = Cbatch[i].y;
+        } 
+        hc::am_copy(devAbatch, Abatch, M * K * sizeof(float_2));
+        hc::am_copy(devBbatch, Bbatch, K * N * sizeof(float_2));
+        hc::am_copy(devCbatch, Cbatch, M * N * batchSize * sizeof(float_2));
+    	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
+        hc::am_copy(Cbatch, devCbatch,  M * N * batchSize * sizeof(float)); 
         for(int i = 0; i < batchSize;i++)
 	     cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-            if ((HostC_batch[i].x != cbatch[k]) || (HostC_batch[i].y != cbatch[k+1])){
+            if ((Cbatch[i].x != cbatch[k]) || (Cbatch[i].y != cbatch[k+1])){
                 ispassed = 0;
-                cout <<" HCCGEMM_REAL[" << i<< "] " << HostC_batch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
-                cout <<" HCCGEMM_IMG[" << i<< "] " << HostC_batch[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[k + 1] << endl;
+                cout <<" HCCGEMM_REAL[" << i<< "] " << Cbatch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
+                cout <<" HCCGEMM_IMG[" << i<< "] " << Cbatch[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[k + 1] << endl;
             }
             else
                continue;
