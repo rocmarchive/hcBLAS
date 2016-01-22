@@ -128,6 +128,7 @@ int main(int argc, char* argv[])
                 ispassed = 0;
                 cout <<" HCCGEMM_REAL[" << i<< "] " << c[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cblas[k] << endl;
                 cout <<" HCCGEMM_IMG[" << i<< "] " << c[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cblas[k + 1] << endl;
+                break;
             }
             else
                continue;
@@ -138,6 +139,15 @@ int main(int argc, char* argv[])
 #ifdef PROFILE
         }
 #endif
+        free(a);
+        free(b);
+        free(c);
+        free(ablas);
+        free(bblas);
+        free(cblas);
+        hc::am_free(devA);
+        hc::am_free(devB);
+        hc::am_free(devC);
     }
 
 /* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
@@ -189,6 +199,7 @@ int main(int argc, char* argv[])
                 ispassed = 0;
                 cout <<" HCCGEMM_REAL[" << i<< "] " << Cbatch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
                 cout <<" HCCGEMM_IMG[" << i<< "] " << Cbatch[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[k + 1] << endl;
+                break;
             }
             else
                continue;
@@ -198,6 +209,15 @@ int main(int argc, char* argv[])
 #ifdef PROFILE
         }
 #endif
+        free(abatch);
+        free(bbatch);
+        free(cbatch);
+        free(abatch);
+        free(bbatch);
+        free(cbatch);
+        hc::am_free(devAbatch);
+        hc::am_free(devBbatch);
+        hc::am_free(devCbatch);
     }
     return 0;
 }
