@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
         hc::am_copy(devBbatch, Bbatch, K * N * sizeof(float_2));
         hc::am_copy(devCbatch, Cbatch, M * N * batchSize * sizeof(float_2));
     	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-        hc::am_copy(Cbatch, devCbatch,  M * N * batchSize * sizeof(float)); 
+        hc::am_copy(Cbatch, devCbatch,  M * N * batchSize * sizeof(float_2)); 
         for(int i = 0; i < batchSize;i++)
 	     cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
