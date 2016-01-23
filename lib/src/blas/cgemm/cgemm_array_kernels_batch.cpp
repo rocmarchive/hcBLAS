@@ -104,7 +104,9 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_vi
 					           float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 1
-  hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  int M_ = hc::fast_math::fmax(1, ((M + 1) / MICROTILESIZE));
+  int N_ = hc::fast_math::fmax(1, ((N + 1) / MICROTILESIZE));
+  hc::extent<3> grdExt(batchSize, (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
@@ -299,7 +301,9 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS8XMTS2(hc::accelerator_view &accl_vie
 					          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
 #define MICROTILESIZE 1
-  hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  int M_ = hc::fast_math::fmax(1, ((M + 1) / MICROTILESIZE));
+  int N_ = hc::fast_math::fmax(1, ((N + 1)/ MICROTILESIZE));
+  hc::extent<3> grdExt(batchSize, (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
@@ -397,7 +401,9 @@ hcblasStatus cgemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_vie
 					          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 1
-  hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  int M_ = hc::fast_math::fmax(1, ((M + 1) / MICROTILESIZE));
+  int N_ = hc::fast_math::fmax(1, ((N + 1) / MICROTILESIZE));
+  hc::extent<3> grdExt(batchSize, (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
@@ -585,7 +591,9 @@ hcblasStatus cgemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_vie
 					          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 1
-  hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  int M_ = hc::fast_math::fmax(1, ((M + 1) / MICROTILESIZE));
+  int N_ = hc::fast_math::fmax(1, ((N + 1) / MICROTILESIZE));
+  hc::extent<3> grdExt(batchSize, (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
@@ -952,7 +960,9 @@ hcblasStatus cgemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view
 					         float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 1
-  hc::extent<3> grdExt(batchSize, (((N + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1), (((M + 1) / 2) + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  int M_ = hc::fast_math::fmax(1, ((M + 1) / MICROTILESIZE));
+  int N_ = hc::fast_math::fmax(1, ((N + 1) / MICROTILESIZE));
+  hc::extent<3> grdExt(batchSize, (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];

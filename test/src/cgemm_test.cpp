@@ -212,9 +212,9 @@ int main(int argc, char* argv[])
         free(abatch);
         free(bbatch);
         free(cbatch);
-        free(abatch);
-        free(bbatch);
-        free(cbatch);
+        free(Abatch);
+        free(Bbatch);
+        free(Cbatch);
         hc::am_free(devAbatch);
         hc::am_free(devBbatch);
         hc::am_free(devCbatch);
