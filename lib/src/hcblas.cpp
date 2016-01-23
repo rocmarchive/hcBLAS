@@ -1,5 +1,6 @@
 #include "hcblas.h"
-
+#include "hc_am.hpp"
+#include "hcblaslib.h"
 // hcblas Helper functions 
 
 // 1. hcblasCreate()
@@ -14,7 +15,9 @@
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
-
+ 
+  if(!handle->deviceId)
+      handle->deviceId = 1;    
   return HCBLAS_STATUS_SUCCESS;
 }
 
@@ -48,7 +51,24 @@ hcblasStatus_t hcblasDestroy(hcblasHandle_t handle){
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
 hcblasStatus_t hcblasSetVector(int n, int elemSize, const void *x, int incx, void *y, int incy) {
-  
+  std::vector<accelerator> accs = accelerator::get_all();
+  if(accs.size() == 0) {
+    std::wcout << "There is no acclerator!\n";
+    // Since this case is to test on GPU device, skip if there is CPU only
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
+  assert(accs.size() && "Number of Accelerators == 0!");
+  if(accs.size() == 1) {
+    // if only CPU is the accelerator
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
+   
+  if( incx <= 0 || incy <=0 || elemSize <=0 ) {
+    return HCBLAS_STATUS_INVALID_VALUE;
+  }
+ 
+  elemSize = sizeof(x); 
+  hc::am_copy(y, x, elemSize * n);   
   return HCBLAS_STATUS_SUCCESS;
 }
 
@@ -66,8 +86,25 @@ hcblasStatus_t hcblasSetVector(int n, int elemSize, const void *x, int incx, voi
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
 hcblasStatus_t hcblasGetVector(int n, int elemSize, const void *x, int incx, void *y, int incy) {
+ std::vector<accelerator> accs = accelerator::get_all();
+  if(accs.size() == 0) {
+    std::wcout << "There is no acclerator!\n";
+    // Since this case is to test on GPU device, skip if there is CPU only
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
+  assert(accs.size() && "Number of Accelerators == 0!");
+  if(accs.size() == 1) {
+    // if only CPU is the accelerator
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
 
- return HCBLAS_STATUS_SUCCESS;
+  if( incx <= 0 || incy <=0 || elemSize <=0 ) {
+    return HCBLAS_STATUS_INVALID_VALUE;
+  }
+
+  elemSize = sizeof(y);
+  hc::am_copy(y, x, elemSize * n);
+  return HCBLAS_STATUS_SUCCESS;
 }
 
 // 5. hcblasSetMatrix()
@@ -85,6 +122,21 @@ hcblasStatus_t hcblasGetVector(int n, int elemSize, const void *x, int incx, voi
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
 hcblasStatus_t hcblasSetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb) {
+ std::vector<accelerator> accs = accelerator::get_all();
+  if(accs.size() == 0) {
+    std::wcout << "There is no acclerator!\n";
+    // Since this case is to test on GPU device, skip if there is CPU only
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
+  assert(accs.size() && "Number of Accelerators == 0!");
+  if(accs.size() == 1) {
+    // if only CPU is the accelerator
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
+
+  if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
+    return HCBLAS_STATUS_INVALID_VALUE;
+  }
  
  return HCBLAS_STATUS_SUCCESS;
 }
@@ -104,10 +156,47 @@ hcblasStatus_t hcblasSetMatrix(int rows, int cols, int elemSize, const void *A, 
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
 hcblasStatus_t hcblasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb) {
+ std::vector<accelerator> accs = accelerator::get_all();
+  if(accs.size() == 0) {
+    std::wcout << "There is no acclerator!\n";
+    // Since this case is to test on GPU device, skip if there is CPU only
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
+  assert(accs.size() && "Number of Accelerators == 0!");
+  if(accs.size() == 1) {
+    // if only CPU is the accelerator
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
 
- return HCBLAS_STATUS_SUCCESS;
+  if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
+    return HCBLAS_STATUS_INVALID_VALUE;
+  }
+
+  return HCBLAS_STATUS_SUCCESS;
 }
 
+// 7. hcblasDeviceSelect()
+
+// This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS            user call was sucessful
+// HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
+// HCBLAS_STATUS_INVALID_VALUE      Access to at least one of the device could not be done or a hcBLAS context could not be created on at least one of the device
+
+hcblasStatus_t hcblasDeviceSelect(hcblasHandle_t handle, int deviceId) {
+  std::vector<accelerator> accs = accelerator::get_all();
+  if(accs.size() == 0) {
+    std::wcout << "There is no acclerator!\n";
+    // Since this case is to test on GPU device, skip if there is CPU only
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
+  assert(accs.size() && "Number of Accelerators == 0!");
+  if(accs.size() && deviceId < accs.size() )
+     handle.deviceId = deviceId;
+  return HCBLAS_STATUS_SUCCESS;
+}
 // HCBLAS Level-1 function reference
 
 // Level-1 Basic Linear Algebra Subprograms (BLAS1) functions perform scalar and vector based operations. 
@@ -146,13 +235,25 @@ hcblasStatus_t hcblasGetMatrix(int rows, int cols, int elemSize, const void *A, 
 hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, int n,
                             const float           *x, int incx, float  *result) {
 
-return HCBLAS_STATUS_SUCCESS;
+/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long xOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_sasum(accl_view, n, x, incx, xOffset, result);
+  if(status == HCBLAS_SUCCEEDS) */
+        return HCBLAS_STATUS_SUCCESS;
 }
 
 hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, int n,
                             const double          *x, int incx, double *result) {
 
-return HCBLAS_STATUS_SUCCESS;
+/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());  
+  long xOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_dasum(accl_view, n, x, incx, xOffset, result);
+  if(status == HCBLAS_SUCCEEDS)*/
+        return HCBLAS_STATUS_SUCCESS;
 }
 
 
@@ -182,6 +283,409 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            float                 *y, int incy) {
- return HCBLAS_STATUS_SUCCESS;
+/*std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long xOffset = 0;
+  long yOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_saxpy(accl_view, n, alpha, x, incx, y, incy , xOffset, yOffset);
+  if(status == HCBLAS_SUCCEEDS)*/
+        return HCBLAS_STATUS_SUCCESS;
 }
 
+// 3. hcblas<t>copy()
+
+// This function copies the vector x into the vector y.
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// n            host             input          number of elements in the vector x and y.
+// x            device           input          <type> vector with n elements.
+// incx         host             input          stride between consecutive elements of x.
+// y            device           in/out         <type> vector with n elements.
+// incy         host             input          stride between consecutive elements of y.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
+                           const float           *x, int incx,
+                           float                 *y, int incy) {
+/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long xOffset = 0;
+  long yOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_scopy(accl_view, n, x, incx, xOffset, y, incy, yOffset);
+  if(status == HCBLAS_SUCCEEDS) */
+        return HCBLAS_STATUS_SUCCESS;
+}
+
+hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
+                           const double          *x, int incx,
+                           double                *y, int incy) {
+/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long xOffset = 0;
+  long yOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_dcopy(accl_view, n, x, incx, xOffset, y, incy, yOffset);
+  if(status == HCBLAS_SUCCESS)*/
+        return HCBLAS_STATUS_SUCCESS;
+}
+
+// 4. hcblas<t>dot()
+
+// This function computes the dot product of vectors x and y.
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// n            host             input          number of elements in the vector x and y.
+// x            device           input          <type> vector with n elements.
+// incx         host             input          stride between consecutive elements of x.
+// y            device           in/out         <type> vector with n elements.
+// incy         host             input          stride between consecutive elements of y.
+// result       host or device   output         the resulting dot product, which is 0.0 if n<=0.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_ALLOC_FAILED      the reduction buffer could not be allocated
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasSdot (hcblasHandle_t handle, int n,
+                           const float           *x, int incx,
+                           const float           *y, int incy,
+                           float           *result) {
+/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long xOffset = 0;
+  long yOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_sdot(accl_view, n, x, incx, xOffset, y, incy, yOffset, result);
+  if(status == HCBLAS_SUCCEEDS)*/
+        return HCBLAS_STATUS_SUCCESS;
+}
+hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
+                           const double          *x, int incx,
+                           const double          *y, int incy,
+                           double          *result) {
+/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long xOffset = 0;
+  long yOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_ddot(accl_view, n, x, incx, xOffset, y, incy, yOffset, result);
+  if(status == HCBLAS_SUCCEEDS)*/
+        return HCBLAS_STATUS_SUCCESS;
+}
+
+// 5. hcblas<t>scal()
+
+// This function scales the vector x by the scalar α and overwrites it with the result.
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// alpha        host or device   input          <type> scalar used for multiplication.
+// n            host             input          number of elements in the vector x and y.
+// x            device           input          <type> vector with n elements.
+// incx         host             input          stride between consecutive elements of x.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
+                            const float           *alpha,
+                            float           *x, int incx) {
+/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long xOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_sscal(accl_view, n, alpha, x, incx, xOffset);
+  if(status == HCBLAS_SUCCEEDS)*/
+        return HCBLAS_STATUS_SUCCESS;
+}
+hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
+                            const double          *alpha,
+                            double          *x, int incx) {
+/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long xOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_dscal(n, alpha, x, incx, xOffset);
+  if(status == HCBLAS_SUCCEEDS)*/
+        return HCBLAS_STATUS_SUCCESS;
+}
+
+// HCBLAS Level-2 Function Reference
+
+// The Level-2 Basic Linear Algebra Subprograms (BLAS2) functions perform matrix-vector operations.
+// Unless otherwise specified <type> and <t> have the following meanings:
+
+// <type>       <t>          Meaning
+// ---------------------------------------------------
+// float     ‘s’ or ‘S’      real single-precision
+// double    ‘d’ or ‘D’      real double-precision
+// hcComplex ‘c’ or ‘C’      complex single-precision
+
+// 1. hcblas<t>gemv()
+
+// This function performs the matrix-vector multiplication
+// y = α op ( A ) x + β y
+// where A is a m × n matrix stored in column-major format, x and y are vectors, and α and β are scalars. Also, for matrix A
+// op ( A ) = A             if transa == HCBLAS_OP_N 
+//            A^T           if transa == HCBLAS_OP_T   
+//            A^H           if transa == HCBLAS_OP_C
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// trans        host             input          operation op(A) that is non- or (conj.) transpose.
+// m            host             input          number of rows of matrix A.
+// n            host             input          number of columns of matrix A.
+// alpha        host or device   input          <type> scalar used for multiplication.
+// A            device           input          <type> array of dimension lda x n with lda >= max(1,m)
+//                                              if transa==HCBLAS_OP_N and lda x m with lda >= max(1,n) otherwise.
+// lda          host             input          leading dimension of two-dimensional array used to store matrix A.
+// x            device           input          <type> vector with n elements if transa==HCBLAS_OP_N and m elements otherwise.
+// incx         host             input          stride between consecutive elements of x.
+// beta         host or device   input          <type> scalar used for multiplication, if beta==0 
+//                                              then y does not have to be a valid input.
+// y            device           in/out         <type> vector with m elements if transa==HCBLAS_OP_N and n elements otherwise.
+// incy         host             input          stride between consecutive elements of y.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n<0 or incx,incy=0
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
+                           int m, int n,
+                           const float           *alpha,
+                           const float           *A, int lda,
+                           const float           *x, int incx,
+                           const float           *beta,
+                           float           *y, int incy) {
+/*
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long aOffset = 0;
+  long xOffset = 0;
+  long yOffset = 0;
+  hcblasStatus status;
+  hcblasTranspose transA;
+  transA =  (trans == HCBLAS_OP_N)? NoTrans : Trans;
+  status =  handle.hcblas_sgemv(accl_view, hcOrder, transA, m, n, alpha, A, aOffset, lda, x, xOffset, incx, beta, y, yOffset, incy);
+  if(status == HCBLAS_SUCCEEDS)*/
+        return HCBLAS_STATUS_SUCCESS;
+}
+
+// 2. hcblas<t>ger()
+
+// This function performs the rank-1 update
+// A = α x y T + A if ger(),geru() is called 
+//     α x y H + A if gerc() is called
+// where A is a m × n matrix stored in column-major format, x and y are vectors, and α is a scalar.
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// m            host             input          number of rows of matrix A.
+// n            host             input          number of columns of matrix A.
+// alpha        host or device   input          <type> scalar used for multiplication.
+// x            device           input          <type> vector with m elements.
+// incx         host             input          stride between consecutive elements of x.
+// y            device           in/out         <type> vector with n elements.
+// incy         host             input          stride between consecutive elements of y.
+// A            device           in/out         <type> array of dimension lda x n with lda >= max(1,m).
+// lda          host             input          leading dimension of two-dimensional array used to store matrix A.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n<0 or incx,incy=0
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
+                           const float           *alpha,
+                           const float           *x, int incx,
+                           const float           *y, int incy,
+                           float           *A, int lda) {
+/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long xOffset = 0;
+  long yOffset = 0;
+  long aOffset = 0;
+  hcblasStatus status;
+  status = handle.hcblas_sger(accl_view, hcOrder, m, n, alpha, x, xOffset, incx, y, yOffset, incy, A, aOffset, lda );
+  if(status == HCBLAS_SUCCEEDS)*/
+        return HCBLAS_STATUS_SUCCESS;
+}
+
+// HCBLAS Level-3 Function Reference
+
+// The Level-3 Basic Linear Algebra Subprograms (BLAS3) functions perform matrix-matrix operations.
+// Unless otherwise specified <type> and <t> have the following meanings:
+
+// <type>       <t>          Meaning
+// ---------------------------------------------------
+// float     ‘s’ or ‘S’      real single-precision
+// double    ‘d’ or ‘D’      real double-precision
+// hcComplex ‘c’ or ‘C’      complex single-precision
+
+// 1. hcblas<t>gemm()
+
+// This function performs the matrix-matrix multiplication
+// C = α op ( A ) op ( B ) + β C
+// where α and β are scalars, and A , B and C are matrices stored in column-major format with dimensions 
+// op ( A ) m × k , op ( B ) k × n and C m × n , respectively. Also, for matrix A
+// op ( A ) = A   if  transa == HCBLAS_OP_N 
+//            A^T if  transa == HCBLAS_OP_T 
+//            A^H if  transa == HCBLAS_OP_C
+// and op ( B ) is defined similarly for matrix B .
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// transa       host             input          operation op(A) that is non- or (conj.) transpose.
+// transb       host             input          operation op(B) that is non- or (conj.) transpose.
+// m            host             input          number of rows of matrix op(A) and C.
+// n            host             input          number of rows of matrix op(B) and C.
+// k            host             input          number of columns of op(A) and rows of op(B).
+// alpha        host or device   input          <type> scalar used for multiplication.
+// A            device           input          <type> array of dimensions lda x k with lda>=max(1,m) 
+//                                              if transa == HCBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.
+// lda          host             input          leading dimension of two-dimensional array used to store the matrix A.
+// B            device           input          <type> array of dimension ldb x n with ldb>=max(1,k) 
+//                                              if transa == HCBLAS_OP_N and ldb x k with ldb>=max(1,n) otherwise.
+// ldb          host             input          leading dimension of two-dimensional array used to store matrix B.
+// beta         host or device   input          <type> scalar used for multiplication. If beta==0, C does not have to be a valid input.
+// C            device           in/out         <type> array of dimensions ldc x n with ldc>=max(1,m).
+// ldc          host             input          leading dimension of a two-dimensional array used to store the matrix C.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k<0 
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const float           *alpha,
+                           const float           *A, int lda,
+                           const float           *B, int ldb,
+                           const float           *beta,
+                           float           *C, int ldc) {
+/*
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long aOffset = 0;
+  long bOffset = 0;
+  long cOffset = 0;
+  hcblasStatus status;
+  hcblasTranspose transA, transB;
+  hcblasOrder hcOrder = ColMajor;
+  transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
+  transB = (transb == HCBLAS_OP_N) ? NoTrans ; Trans;
+  status = handle.hcblas_sgemm(accl_view, hcOrder, transA, transB, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc, aOffset, bOffset, cOffset);
+  if(status == HCBLAS_SUCCEEDS) */
+        return HCBLAS_STATUS_SUCCESS;
+}
+
+hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const hcComplex       *alpha,
+                           const hcComplex       *A, int lda,
+                           const hcComplex       *B, int ldb,
+                           const hcComplex       *beta,
+                           hcComplex       *C, int ldc) {
+
+return HCBLAS_STATUS_SUCCESS;
+}
+
+// 2. hcblas<t>gemmBatched()
+
+// This function performs the matrix-matrix multiplications of an array of matrices.
+// C [ i ] = α op ( A [ i ] ) op ( B [ i ] ) + β C [ i ] ,  for i  ∈ [ 0 , batchCount − 1 ]
+// where α and β are scalars, and A , B and C are arrays of pointers to matrices stored in 
+// column-major format with dimensions op ( A [ i ] ) m × k , op ( B [ i ] ) k × n and C [ i ] m × n , 
+// respectively. Also, for matrix A
+// op ( A ) = A   if  transa == HCBLAS_OP_N 
+//            A^T if  transa == HCBLAS_OP_T 
+//            A^H if  transa == HCBLAS_OP_C
+// and op ( B [ i ] ) is defined similarly for matrix B [ i ] .
+
+// This function is intended to be used for matrices of small sizes where the launch overhead is a significant factor.
+
+// Param.       Memory           In/out         Meaning
+// -------------------------------------------------------------------------------------
+// handle       host             input          handle to the HCBLAS library context.
+// transa       host             input          operation op(A) that is non- or (conj.) transpose.
+// transb       host             input          operation op(B) that is non- or (conj.) transpose.
+// m            host             input          number of rows of matrix op(A) and C.
+// n            host             input          number of rows of matrix op(B) and C.
+// k            host             input          number of columns of op(A) and rows of op(B).
+// alpha        host or device   input          <type> scalar used for multiplication.
+// Aarray       device           input          array of pointers to <type> array, with each array of dim. lda x k with lda>=max(1,m)
+//                                              if transa == HCBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.
+// lda          host             input          leading dimension of two-dimensional array used to store the matrix A[i].
+// Barray       device           input          array of pointers to <type> array, with each array of dim.ldb x n with ldb>=max(1,k)
+//                                              if transa == HCBLAS_OP_N and ldb x k with ldb>=max(1,n) otherwise.
+// ldb          host             input          leading dimension of two-dimensional array used to store matrix B[i].
+// beta         host or device   input          <type> scalar used for multiplication. If beta==0, C does not have to be a valid input.
+// Carray       device           in/out         array of pointers to <type> array, with each array of dim.ldc x n with ldc>=max(1,m).
+// ldc          host             input          leading dimension of a two-dimensional array used to store the matrix C[i].
+// batchCount   host             input          number of pointers contained in Aarray, Barray and Carray.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS           the operation completed successfully
+// HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k,batchCount<0
+// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
+// HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
+
+hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
+                                  hcblasOperation_t transa, hcblasOperation_t transb,
+                                  int m, int n, int k,
+                                  const float           *alpha,
+                                  const float           *Aarray[], int lda,
+                                  const float           *Barray[], int ldb,
+                                  const float           *beta,
+                                  float           *Carray[], int ldc, int batchCount) {
+
+return HCBLAS_STATUS_SUCCESS;
+}
+
+hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
+                                  hcblasOperation_t transa, hcblasOperation_t transb,
+                                  int m, int n, int k,
+                                  const hcComplex       *alpha,
+                                  const hcComplex       *Aarray[], int lda,
+                                  const hcComplex       *Barray[], int ldb,
+                                  const hcComplex       *beta,
+                                  hcComplex       *Carray[], int ldc, int batchCount) {
+return HCBLAS_STATUS_SUCCESS;
+}

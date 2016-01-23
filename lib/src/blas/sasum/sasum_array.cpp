@@ -5,9 +5,9 @@
 using namespace hc::fast_math;
 using namespace hc;
 
-float sasum_HC(hc::accelerator_view &accl_view,
-               long n, float *xView, long incx, long xOffset, float Y) {
-  Y = 0.0;
+void sasum_HC(hc::accelerator_view &accl_view,
+               long n, float *xView, long incx, long xOffset, float *Y) {
+  *Y = 0.0;
   // runtime sizes
   unsigned int tile_count = (n + TILE_SIZE - 1) / TILE_SIZE;
   // simultaneous live threads
@@ -101,17 +101,16 @@ float sasum_HC(hc::accelerator_view &accl_view,
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count; i++) {
-    Y = (isnan(Y) || isinf(Y)) ? 0 : Y;
-    Y += global_buffer_view[ i ] ;
+    *Y = (isnan(*Y) || isinf(*Y)) ? 0 : *Y;
+    *Y += global_buffer_view[ i ] ;
   }
 
-  return Y;
 }
 
-float sasum_HC(hc::accelerator_view &accl_view,
-               long n, float *xView, long incx, long xOffset, float Y,
+void sasum_HC(hc::accelerator_view &accl_view,
+               long n, float *xView, long incx, long xOffset, float *Y,
                long X_batchOffset, int batchSize) {
-  Y = 0.0;
+  *Y = 0.0;
   // runtime sizes
   unsigned int tile_count = (n + TILE_SIZE - 1) / TILE_SIZE;
   // simultaneous live threads
@@ -206,36 +205,35 @@ float sasum_HC(hc::accelerator_view &accl_view,
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
-    Y = (isnan(Y) || isinf(Y)) ? 0 : Y;
-    Y += global_buffer_view[ i ] ;
+    *Y = (isnan(*Y) || isinf(*Y)) ? 0 : *Y;
+    *Y += global_buffer_view[ i ] ;
   }
 
-  return Y;
 }
 
 // SASUM Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view &accl_view, const int N,
 				           float *X, const int incX,
-				           const long xOffset, float &Y) {
+				           const long xOffset, float *Y) {
   /*Check the conditions*/
   if (  X == NULL || N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 
-  Y = sasum_HC(accl_view, N, X, incX, xOffset, Y);
+  sasum_HC(accl_view, N, X, incX, xOffset, Y);
   return HCBLAS_SUCCEEDS;
 }
 
 // SASUM Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view &accl_view, const int N,
 				           float *X, const int incX,
-				           const long xOffset, float &Y, const long X_batchOffset, const int batchSize) {
+				           const long xOffset, float *Y, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (  X == NULL || N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
 
-  Y = sasum_HC(accl_view, N, X, incX, xOffset, Y, X_batchOffset, batchSize);
+  sasum_HC(accl_view, N, X, incX, xOffset, Y, X_batchOffset, batchSize);
   return HCBLAS_SUCCEEDS;
 }
 

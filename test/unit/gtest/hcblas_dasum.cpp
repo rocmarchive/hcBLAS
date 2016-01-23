@@ -22,19 +22,19 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_1) {
    }
    hc::am_copy(devX, X, lenx * sizeof(double));
    /* Proper call */
-   status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, asumhcblas);
+   status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* X not properly allocated */
    double *devX1 = NULL;
-   status = hc.hcblas_dasum(accl_view, N, devX1, incX, xOffset, asumhcblas);
+   status = hc.hcblas_dasum(accl_view, N, devX1, incX, xOffset, &asumhcblas);
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* N is 0 */
    N = 0;
-   status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, asumhcblas);
+   status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
-   status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, asumhcblas);
+   status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
    EXPECT_EQ(status, HCBLAS_INVALID);  
    free(X);
    hc::am_free(devX);
@@ -59,7 +59,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_1) {
    }
    hc::am_copy(devX, X, lenx * sizeof(double));
    /* Proper call */
-   status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, asumhcblas);
+   status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    asumcblas = cblas_dasum( N, X, incX);
    EXPECT_EQ(asumhcblas, asumcblas);
@@ -87,19 +87,19 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_2) {
    }
    hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
    /* Proper call */
-   status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
+   status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* X is not properly allocated */
    double *devX1 = NULL;
-   status= hc.hcblas_dasum(accl_view, N, devX1, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
+   status= hc.hcblas_dasum(accl_view, N, devX1, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* N is 0 */
    N = 0;
-   status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
+   status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
-   status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
+   status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_INVALID);
    free(Xbatch);
    hc::am_free(devXbatch);
@@ -127,7 +127,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_2) {
    }
    hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
    /* Proper call */
-   status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
+   status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    for(int i = 0; i < batchSize; i++) {
                 asumcblastemp[i] = cblas_dasum( N, Xbatch + i * N, incX);

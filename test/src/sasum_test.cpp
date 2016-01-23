@@ -41,7 +41,7 @@ int main(int argc, char** argv)
             X[i] = rand() % 10;
         }
         hc::am_copy(devX, X, lenx * sizeof(float));
-        status = hc.hcblas_sasum(accl_view, N, devX, incX, xOffset, asumhcblas);
+        status = hc.hcblas_sasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
         asumcblas = cblas_sasum( N, X, incX);
         if (asumhcblas != asumcblas) {
             ispassed = 0;
@@ -62,7 +62,7 @@ int main(int argc, char** argv)
             Xbatch[i] = rand() % 10;
         }
         hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
-        status= hc.hcblas_sasum(accl_view, N, devXbatch, incX, xOffset, asumhcblas, X_batchOffset, batchSize);
+        status= hc.hcblas_sasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
         for(int i = 0; i < batchSize; i++) {
         	asumcblastemp[i] = cblas_sasum( N, Xbatch + i * N, incX);
                 asumcblas += asumcblastemp[i];

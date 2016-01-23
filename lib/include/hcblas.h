@@ -5,8 +5,8 @@
 
 //2.2.1. hcblasHandle_t
 
-// The hcblasHandle_t type is a pointer type to an opaque structure holding the cuBLAS library context. 
-// The cuBLAS library context must be initialized using hcblasCreate() and the returned handle must be 
+// The hcblasHandle_t type is a pointer type to an opaque structure holding the hcBLAS library context. 
+// The hcBLAS library context must be initialized using hcblasCreate() and the returned handle must be 
 // passed to all subsequent library function calls. The context should be destroyed at the end using 
 // hcblasDestroy().
 
@@ -137,6 +137,17 @@ hcblasStatus_t hcblasSetMatrix(int rows, int cols, int elemSize, const void *A, 
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
  
 hcblasStatus_t hcblasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
+
+// 7. hcblasDeviceSelect()
+
+// This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls.
+
+// Return Values
+// --------------------------------------------------------------------
+// HCBLAS_STATUS_SUCCESS            user call was sucessful
+// HCBLAS_STATUS_INVALID_VALUE      Access to at least one of the device could not be done or a hcBLAS context could not be created on at least one of the device
+
+hcblasStatus_t hcblasDeviceSelect(hcblasHandle_t handle, int deviceId);
 
 // HCBLAS Level-1 function reference
 
