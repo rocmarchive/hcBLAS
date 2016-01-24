@@ -51,7 +51,7 @@ class Hcblaslibrary
 
     hcblasStatus hcblas_saxpy(hc::accelerator_view &accl_view,
 			      const int N, const float &alpha,
-			      float *X, const int incX,
+			      const float *X, const int incX,
                               float *Y, const int incY, 
 			      const long xOffset, const long yOffset);
 
@@ -59,7 +59,7 @@ class Hcblaslibrary
 
     hcblasStatus hcblas_saxpy(hc::accelerator_view &accl_view,
                               const int N, const float &alpha,
-                              float *X, const int incX, const long X_batchOffset,
+                              const float *X, const int incX, const long X_batchOffset,
                               float *Y, const int incY, const long Y_batchOffset,
                               const long xOffset, const long yOffset, const int batchSize);
 							  
@@ -68,17 +68,17 @@ class Hcblaslibrary
 
     hcblasStatus hcblas_sger(hc::accelerator_view &accl_view,
 			     hcblasOrder order, const int M, const int N, const float &alpha,
-                             float *X, const long xOffset, const int incX,
-                             float *Y, const long yOffset, const int incY,
+                             const float *X, const long xOffset, const int incX,
+                             const float *Y, const long yOffset, const int incY,
                              float *A, const long aOffset, const int lda);
 
 /* SGER - Overloaded function with arguments related to batch processing */
 
     hcblasStatus hcblas_sger(hc::accelerator_view &accl_view,
                              hcblasOrder order, const int M, const int N, const float &alpha,
-                             float *X, 
+                             const float *X, 
                              const long xOffset, const long X_batchOffset, const int incX,
-                             float *Y, 
+                             const float *Y, 
                              const long yOffset, const long Y_batchOffset, const int incY,
                              float *A, 
                              const long aOffset, const long A_batchOffset, const int lda, const int batchSize);
@@ -182,49 +182,49 @@ class Hcblaslibrary
 /* SCOPY - Copies a vector X to a vector Y */
 /* SCOPY - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_scopy(hc::accelerator_view &accl_view, const int N,
-                             float *X, const int incX, const long xOffset,
+                             const float *X, const int incX, const long xOffset,
                              float *Y, const int incY, const long yOffset);
 
 /* SCOPY - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_scopy(hc::accelerator_view &accl_view, const int N,
-                             float *X, const int incX, const long xOffset,
+                             const float *X, const int incX, const long xOffset,
                              float *Y, const int incY, const long yOffset,
                              const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
 /* DCOPY - Copies a vector X to a vector Y */
 /* DCOPY - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_dcopy(hc::accelerator_view &accl_view, const int N,
-                             double *X, const int incX, const long xOffset,
+                             const double *X, const int incX, const long xOffset,
                              double *Y, const int incY, const long yOffset);
 
 /* DCOPY - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_dcopy(hc::accelerator_view &accl_view, const int N,
-                             double *X, const int incX, const long xOffset,
+                             const double *X, const int incX, const long xOffset,
                              double *Y, const int incY, const long yOffset,
                              const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
 /* SDOT - Single Precision Dot product */
 /* SDOT - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_sdot(hc::accelerator_view &accl_view, const int N,
-                            float *X, const int incX, const long xOffset,
-                            float *Y, const int incY, const long yOffset, float &dot);
+                            const float *X, const int incX, const long xOffset,
+                            const float *Y, const int incY, const long yOffset, float &dot);
 
 /* SDOT - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_sdot(hc::accelerator_view &accl_view, const int N,
-                            float *X, const int incX, const long xOffset,
-                            float *Y, const int incY, const long yOffset, float &dot,
+                            const float *X, const int incX, const long xOffset,
+                            const float *Y, const int incY, const long yOffset, float &dot,
                             const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
 /* DDOT - Double Precision Dot product */
 /* DDOT - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_ddot(hc::accelerator_view &accl_view, const int N,
-                            double *X, const int incX, const long xOffset,
-                            double *Y, const int incY, const long yOffset, double &dot);
+                            const double *X, const int incX, const long xOffset,
+                            const double *Y, const int incY, const long yOffset, double &dot);
 
 /* DDOT - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_ddot(hc::accelerator_view &accl_view, const int N,
-                            double *X, const int incX, const long xOffset,
-                            double *Y, const int incY, const long yOffset, double &dot,
+                            const double *X, const int incX, const long xOffset,
+                            const double *Y, const int incY, const long yOffset, double &dot,
                             const long X_batchOffset, const long Y_batchOffset, const int batchSize);
 
 /* SASUM - Absolute value of a Vector - Single Precision */

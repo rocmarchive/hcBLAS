@@ -232,28 +232,32 @@ hcblasStatus_t hcblasDeviceSelect(hcblasHandle_t handle, int deviceId) {
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, int n,
-                            const float           *x, int incx, float  *result) {
+hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, const int n,
+                            float           *x, const int incx, float  *result) {
 
-/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long xOffset = 0;
   hcblasStatus status;
   status = handle.hcblas_sasum(accl_view, n, x, incx, xOffset, result);
-  if(status == HCBLAS_SUCCEEDS) */
+  if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
-hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, int n,
-                            const double          *x, int incx, double *result) {
+hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, const int n,
+                            double          *x, const int incx, double *result) {
 
-/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());  
   long xOffset = 0;
   hcblasStatus status;
   status = handle.hcblas_dasum(accl_view, n, x, incx, xOffset, result);
-  if(status == HCBLAS_SUCCEEDS)*/
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 
@@ -283,14 +287,16 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            float                 *y, int incy) {
-/*std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
-  status = handle.hcblas_saxpy(accl_view, n, alpha, x, incx, y, incy , xOffset, yOffset);
-  if(status == HCBLAS_SUCCEEDS)*/
+  status = handle.hcblas_saxpy(accl_view, n, *alpha, x, incx, y, incy , xOffset, yOffset);
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 // 3. hcblas<t>copy()
@@ -316,27 +322,31 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
 hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
                            const float           *x, int incx,
                            float                 *y, int incy) {
-/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
   status = handle.hcblas_scopy(accl_view, n, x, incx, xOffset, y, incy, yOffset);
-  if(status == HCBLAS_SUCCEEDS) */
+  if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            double                *y, int incy) {
-/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
   status = handle.hcblas_dcopy(accl_view, n, x, incx, xOffset, y, incy, yOffset);
-  if(status == HCBLAS_SUCCESS)*/
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 // 4. hcblas<t>dot()
@@ -365,27 +375,31 @@ hcblasStatus_t hcblasSdot (hcblasHandle_t handle, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *result) {
-/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
-  status = handle.hcblas_sdot(accl_view, n, x, incx, xOffset, y, incy, yOffset, result);
-  if(status == HCBLAS_SUCCEEDS)*/
+  status = handle.hcblas_sdot(accl_view, n, x, incx, xOffset, y, incy, yOffset, *result);
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            const double          *y, int incy,
                            double          *result) {
-/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
-  status = handle.hcblas_ddot(accl_view, n, x, incx, xOffset, y, incy, yOffset, result);
-  if(status == HCBLAS_SUCCEEDS)*/
+  status = handle.hcblas_ddot(accl_view, n, x, incx, xOffset, y, incy, yOffset, *result);
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 // 5. hcblas<t>scal()
@@ -410,24 +424,28 @@ hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
 hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
                             const float           *alpha,
                             float           *x, int incx) {
-/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long xOffset = 0;
   hcblasStatus status;
-  status = handle.hcblas_sscal(accl_view, n, alpha, x, incx, xOffset);
-  if(status == HCBLAS_SUCCEEDS)*/
+  status = handle.hcblas_sscal(accl_view, n, *alpha, x, incx, xOffset);
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
                             const double          *alpha,
                             double          *x, int incx) {
-/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long xOffset = 0;
   hcblasStatus status;
-  status = handle.hcblas_dscal(n, alpha, x, incx, xOffset);
-  if(status == HCBLAS_SUCCEEDS)*/
+  status = handle.hcblas_dscal(accl_view, n, *alpha, x, incx, xOffset);
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 // HCBLAS Level-2 Function Reference
@@ -478,22 +496,24 @@ hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
 hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
                            int m, int n,
                            const float           *alpha,
-                           const float           *A, int lda,
-                           const float           *x, int incx,
+                           float           *A, int lda,
+                           float           *x, int incx,
                            const float           *beta,
                            float           *y, int incy) {
-/*
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long aOffset = 0;
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
+  hcblasOrder hcOrder = ColMajor;
   hcblasTranspose transA;
   transA =  (trans == HCBLAS_OP_N)? NoTrans : Trans;
-  status =  handle.hcblas_sgemv(accl_view, hcOrder, transA, m, n, alpha, A, aOffset, lda, x, xOffset, incx, beta, y, yOffset, incy);
-  if(status == HCBLAS_SUCCEEDS)*/
+  status =  handle.hcblas_sgemv(accl_view, hcOrder, transA, m, n, *alpha, A, aOffset, lda, x, xOffset, incx, *beta, y, yOffset, incy);
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 // 2. hcblas<t>ger()
@@ -529,15 +549,18 @@ hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *A, int lda) {
-/*  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long xOffset = 0;
   long yOffset = 0;
   long aOffset = 0;
   hcblasStatus status;
-  status = handle.hcblas_sger(accl_view, hcOrder, m, n, alpha, x, xOffset, incx, y, yOffset, incy, A, aOffset, lda );
-  if(status == HCBLAS_SUCCEEDS)*/
+  hcblasOrder hcOrder = ColMajor;
+  status = handle.hcblas_sger(accl_view, hcOrder, m, n, *alpha, x, xOffset, incx, y, yOffset, incy, A, aOffset, lda );
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 // HCBLAS Level-3 Function Reference
@@ -593,11 +616,10 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const float           *alpha,
-                           const float           *A, int lda,
-                           const float           *B, int ldb,
+                           float           *A, int lda,
+                           float           *B, int ldb,
                            const float           *beta,
                            float           *C, int ldc) {
-/*
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[handle.deviceId].create_view());
   long aOffset = 0;
@@ -607,10 +629,12 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
   hcblasTranspose transA, transB;
   hcblasOrder hcOrder = ColMajor;
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
-  transB = (transb == HCBLAS_OP_N) ? NoTrans ; Trans;
-  status = handle.hcblas_sgemm(accl_view, hcOrder, transA, transB, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc, aOffset, bOffset, cOffset);
-  if(status == HCBLAS_SUCCEEDS) */
+  transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+  status = handle.hcblas_sgemm(accl_view, hcOrder, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
+  if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,

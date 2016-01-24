@@ -5,8 +5,8 @@
 using namespace hc;
 using namespace hc::fast_math;
 double ddot_HC(hc::accelerator_view &accl_view, long n,
-              double *xView, long incx, long xOffset,
-              double *yView, long incy, long yOffset, double out) {
+              const double *xView, long incx, long xOffset,
+              const double *yView, long incy, long yOffset, double out) {
   out = 0.0;
   // runtime sizes
   unsigned int tile_count = (n + TILE_SIZE - 1) / TILE_SIZE;
@@ -109,8 +109,8 @@ double ddot_HC(hc::accelerator_view &accl_view, long n,
 }
 
 double ddot_HC(hc::accelerator_view &accl_view, long n,
-              double *xView, long incx, long xOffset,
-              double *yView, long incy, long yOffset, double out,
+              const double *xView, long incx, long xOffset,
+              const double *yView, long incy, long yOffset, double out,
               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 
 {
@@ -218,8 +218,8 @@ double ddot_HC(hc::accelerator_view &accl_view, long n,
 
 // DDOT Call Type I: Inputs and outputs are HCC double array containers
 hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const int N,
-				          double *X, const int incX, const long xOffset,
-				          double *Y, const int incY, const long yOffset, double &dot)
+				          const double *X, const int incX, const long xOffset,
+				          const double *Y, const int incY, const long yOffset, double &dot)
 
 {
   /*Check the conditions*/
@@ -233,8 +233,8 @@ hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const
 
 // DDOT Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const int N,
-				          double *X, const int incX, const long xOffset,
-				          double *Y, const int incY, const long yOffset, double &dot,
+				          const double *X, const int incX, const long xOffset,
+				          const double *Y, const int incY, const long yOffset, double &dot,
 				          const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if ( X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {

@@ -6,8 +6,8 @@ using namespace hc;
 
 void ger_HC(hc::accelerator_view &accl_view,
             long m, long n, float alpha,
-            float *x, long xOffset, long incx,
-            float *y, long yOffset, long incy,
+            const float *x, long xOffset, long incx,
+            const float *y, long yOffset, long incy,
             float *a, long aOffset, long lda) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
@@ -26,9 +26,9 @@ void ger_HC(hc::accelerator_view &accl_view,
 
 void ger_HC(hc::accelerator_view &accl_view,
             long m, long n, float alpha,
-            float *x,
+            const float *x,
             long xOffset, long X_batchOffset, long incx,
-            float *y,
+            const float *y,
             long yOffset, long Y_batchOffset, long incy,
             float *a,
             long aOffset, long A_batchOffset, long lda, int batchSize) {
@@ -50,8 +50,8 @@ void ger_HC(hc::accelerator_view &accl_view,
 
 void ger_HC_rMajor(hc::accelerator_view &accl_view,
                    long m, long n, float alpha,
-                   float *x, long xOffset, long incx,
-                   float *y, long yOffset, long incy,
+                   const float *x, long xOffset, long incx,
+                   const float *y, long yOffset, long incy,
                    float *a, long aOffset, long lda) {
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
@@ -70,9 +70,9 @@ void ger_HC_rMajor(hc::accelerator_view &accl_view,
 
 void ger_HC_rMajor(hc::accelerator_view &accl_view,
                    long m, long n, float alpha,
-                   float *x,
+                   const float *x,
                    long xOffset, long X_batchOffset, long incx,
-                   float *y,
+                   const float *y,
                    long yOffset, long Y_batchOffset, long incy,
                    float *a,
                    long aOffset, long A_batchOffset, long lda, int batchSize) {
@@ -95,8 +95,8 @@ void ger_HC_rMajor(hc::accelerator_view &accl_view,
 /* SGER - Type I : Inputs and outputs are float array containers */
 hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
 				         const int M, const int N, const float &alpha,
-				         float *X, const long xOffset, const int incX,
-				         float *Y, const long yOffset, const int incY,
+				         const float *X, const long xOffset, const int incX,
+				         const float *Y, const long yOffset, const int incY,
 				         float *A, const long aOffset, const int lda) {
   /*Check the conditions*/
   if ( X == NULL || Y == NULL || A == NULL || N <= 0 || M <= 0 || incX == 0 || incY == 0) {
@@ -119,9 +119,9 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblas
 /* SGER - Type II : Inputs and outputs are float array containers with batch processing */
 hcblasStatus Hcblaslibrary :: hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
 				          const int M, const int N, const float &alpha,
-				          float *X,
+				          const float *X,
 				          const long xOffset, const long X_batchOffset, const int incX,
-				          float *Y,
+				          const float *Y,
 				          const long yOffset, const long Y_batchOffset, const int incY,
 				          float *A,
 				          const long aOffset, const long A_batchOffset, const int lda, int batchSize)

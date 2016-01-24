@@ -7,7 +7,7 @@ using namespace hc;
 
 void axpy_HC(hc::accelerator_view &accl_view,
              long n, float alpha,
-             float *X, long xOffset, long incx,
+             const float *X, long xOffset, long incx,
              float *Y, long yOffset, long incy) {
   if(n <= 102400) {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
@@ -59,7 +59,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
 
 void axpy_HC(hc::accelerator_view &accl_view,
              long n, float alpha,
-             float *X, long xOffset, long incx,
+             const float *X, long xOffset, long incx,
              float *Y, long yOffset, long incy,
              long X_batchOffset, long Y_batchOffset, int batchSize) {
   if(n <= 102400) {
@@ -117,7 +117,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
 /* SAXPY - Type I : Inputs and outputs are device pointers */
 hcblasStatus Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
 				           const int N, const float &alpha,
-				           float *X, const int incX,
+				           const float *X, const int incX,
 				           float *Y, const int incY,
 				           const long xOffset, const long yOffset)
 
@@ -138,7 +138,7 @@ hcblasStatus Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
 /* SAXPY - Type II : Inputs and outputs are device pointers with batch processing */
 hcblasStatus  Hcblaslibrary :: hcblas_saxpy(hc::accelerator_view &accl_view,
 					    const int N, const float &alpha,
-					    float *X, const int incX, const long X_batchOffset,
+					    const float *X, const int incX, const long X_batchOffset,
 					    float *Y, const int incY, const long Y_batchOffset,
 					    const long xOffset, const long yOffset, const int batchSize)
 

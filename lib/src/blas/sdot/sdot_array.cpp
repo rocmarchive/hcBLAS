@@ -5,8 +5,8 @@
 using namespace hc;
 using namespace hc::fast_math;
 float sdot_HC(hc::accelerator_view &accl_view, long n,
-              float *xView, long incx, long xOffset,
-              float *yView, long incy, long yOffset, float out) {
+              const float *xView, long incx, long xOffset,
+              const float *yView, long incy, long yOffset, float out) {
   out = 0.0;
   // runtime sizes
   unsigned int tile_count = (n + TILE_SIZE - 1) / TILE_SIZE;
@@ -109,8 +109,8 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
 }
 
 float sdot_HC(hc::accelerator_view &accl_view, long n,
-              float *xView, long incx, long xOffset,
-              float *yView, long incy, long yOffset, float out,
+              const float *xView, long incx, long xOffset,
+              const float *yView, long incy, long yOffset, float out,
               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 
 {
@@ -218,8 +218,8 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
 
 // SDOT Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const int N,
-				          float *X, const int incX, const long xOffset,
-				          float *Y, const int incY, const long yOffset, float &dot)
+				          const float *X, const int incX, const long xOffset,
+				          const float *Y, const int incY, const long yOffset, float &dot)
 
 {
   /*Check the conditions*/
@@ -233,8 +233,8 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const
 
 // SDOT Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const int N,
-				          float *X, const int incX, const long xOffset,
-				          float *Y, const int incY, const long yOffset, float &dot,
+				          const float *X, const int incX, const long xOffset,
+				          const float *Y, const int incY, const long yOffset, float &dot,
 				          const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
   if (X == NULL || Y == NULL ||  N <= 0 || incX <= 0 || incY <= 0 ) {

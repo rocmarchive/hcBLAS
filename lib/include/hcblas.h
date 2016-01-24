@@ -27,7 +27,7 @@ enum hcblasStatus_t {
   HCBLAS_STATUS_MAPPING_ERROR,    // access to GPU memory space failed
   HCBLAS_STATUS_EXECUTION_FAILED, // GPU program failed to execute
   HCBLAS_STATUS_INTERNAL_ERROR    // an internal HCBLAS operation failed
-} hcblasStatus;
+};
 
 // 2.2.3. hcblasOperation_t
 
@@ -348,8 +348,8 @@ hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
 hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
                            int m, int n,
                            const float           *alpha,
-                           const float           *A, int lda,
-                           const float           *x, int incx,
+                           float           *A, int lda,
+                           float           *x, int incx,
                            const float           *beta,
                            float           *y, int incy);
 
@@ -440,8 +440,8 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const float           *alpha,
-                           const float           *A, int lda,
-                           const float           *B, int ldb,
+                           float           *A, int lda,
+                           float           *B, int ldb,
                            const float           *beta,
                            float           *C, int ldc);
 hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,

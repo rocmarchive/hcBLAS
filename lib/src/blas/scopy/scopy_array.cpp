@@ -7,7 +7,7 @@ using namespace hc;
 #define BLOCK_SIZE 8
 
 void scopy_HC(hc::accelerator_view &accl_view, long n,
-              float *X, long incx, long xOffset,
+              const float *X, long incx, long xOffset,
               float *Y, long incy, long yOffset) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
   hc::extent<1> compute_domain(size);
@@ -21,7 +21,7 @@ void scopy_HC(hc::accelerator_view &accl_view, long n,
 }
 
 void scopy_HC(hc::accelerator_view &accl_view, long n,
-              float *X, long incx, long xOffset,
+              const float *X, long incx, long xOffset,
               float *Y, long incy, long yOffset,
               long X_batchOffset, long Y_batchOffset, int batchSize) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
@@ -39,7 +39,7 @@ void scopy_HC(hc::accelerator_view &accl_view, long n,
 
 // SCOPY Call Type I: Inputs and outputs are HCC float array containers
 hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, const int N,
-				           float *X, const int incX, const long xOffset,
+				           const float *X, const int incX, const long xOffset,
 				           float *Y, const int incY, const long yOffset) {
   /*Check the conditions*/
   if ( X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
@@ -52,7 +52,7 @@ hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, cons
 
 // SCOPY Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_scopy(hc::accelerator_view &accl_view, const int N,
-				           float *X, const int incX, const long xOffset,
+				           const float *X, const int incX, const long xOffset,
 				           float *Y, const int incY, const long yOffset,
 				           const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
