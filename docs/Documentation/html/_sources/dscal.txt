@@ -14,23 +14,16 @@ Functions
 Implementation type I
 ---------------------
 
- .. note:: **Inputs and Outputs are host double pointers.**
+ .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dscal** (const int N, const double* alpha, double* x, const int incx, const long xOffset)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDscal** (hcblasHandle_t handle, int n, const double* alpha, double* x, int incx)
 
 Implementation type II
-----------------------
-
- .. note:: **Inputs and Outputs are HC++ double array containers.**
-
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dscal** (hc::accelerator_view &accl_view, const int N, const double &alpha, hc::array<double> &x, const int incx, const long xOffset) 
-
-Implementation type III
 -----------------------
 
- .. note:: **Inputs and Outputs are HC++ double array containers with batch processing.**
+ .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_dscal** (hc::accelerator_view &accl_view, const int N, const double &alpha, hc::array<double> &x, const int incx, const long xOffset, const long x_batchOffset, const int BatchSize) 
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDscalBatched** (hcblasHandle_t handle, int n, const double* alpha, double* x, int incx, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -40,48 +33,39 @@ Function Documentation
 
 ::
 
-              hcblasStatus hcblas_dscal (hc::accelerator_view &accl_view,
-                                         const int N, 
-                                         const double &alpha,
-                                         hc::array<double> &x, 
-                                         const int incx,
-                                         const long xOffset) 
-
+              hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
+                                          const double          *alpha,
+                                          double          *x, int incx)
 
 +------------+-----------------+--------------------------------------------------------------+
 |  In/out    |  Parameters     | Description                                                  |
 +============+=================+==============================================================+
-|    [in]    |  accl_view      | `Using accelerator and accelerator_view Objects              |  
-|            |                 | <https://msdn.microsoft.com/en-us/library/hh873132.aspx>`_   |
+|    [in]    |  handle         | handle to the HCBLAS library context.                        |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	N              | Number of elements in vector x.                              |
+|    [in]    |	n              | Number of elements in vector x.                              |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	alpha          | The constant factor for vector x.                            |
 +------------+-----------------+--------------------------------------------------------------+
 |    [out]   |	x              | Buffer object storing vector x.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	xOffset        | Offset of first element of vector x in buffer object.        |
-|            |                 | Counted in elements.                                         |
-+------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	incx           | Increment for the elements of x. Must not be zero.           |
 +------------+-----------------+--------------------------------------------------------------+
 
-| Implementation type III has 2 other parameters as follows,
+| Implementation type II has other parameters as follows,
 +------------+-----------------+--------------------------------------------------------------+
 |  In/out    |  Parameters     | Description                                                  |
 +============+=================+==============================================================+
-|    [in]    |  x_batchOffset  | Batch Offset of vector x in buffer object. Offset should be  |
-|            |                 | a multiple of n.                                             |
-+------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  BatchSize      | The size of batch for vector x.                              |
+|    [in]    |  batchCount     | The size of batch for vector x.                              |
 +------------+-----------------+--------------------------------------------------------------+
 
 |
 | Returns, 
 
-==============   ======================
-STATUS           DESCRIPTION
-==============   ======================
-HCBLAS_SUCCESS    Success
-HCBLAS_INVALID    N or incx is zero
-==============   ====================== 
+==============================    =============================================
+STATUS                            DESCRIPTION
+==============================    =============================================
+HCBLAS_STATUS_SUCCESS             the operation completed successfully
+HCBLAS_STATUS_NOT_INITIALIZED     the library was not initialized
+HCBLAS_STATUS_ARCH_MISMATCH       the device does not support double-precision
+HCBLAS_STATUS_EXECUTION_FAILED    the function failed to launch on the GPU
+==============================    ============================================= 

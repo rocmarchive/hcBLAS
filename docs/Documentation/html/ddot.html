@@ -65,30 +65,20 @@
 <blockquote>
 <div><div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><strong>Inputs and Outputs are host double pointers.</strong></p>
+<p class="last"><strong>Inputs and Outputs are HCC device pointers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_ddot</strong> (const int N, double* x, const int incx, const long xOffset, double* y, const int incy, const long yOffset, double* dot)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDdot</strong> (hcblasHandle_t handle, int n, const double* x, int incx, const double* y, int incy, double* result)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><strong>Inputs and Outputs are HC++ double array containers.</strong></p>
+<p class="last"><strong>Inputs and Outputs are HCC device pointers with batch processing.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_ddot</strong> (hc::accelerator_view &amp;accl_view, const int N, hc::array&lt;double&gt; &amp;x, const int incx, const long xOffset, hc::array&lt;double&gt; &amp;y, const int incy, const long yOffset, double &amp;dot)</p>
-</div>
-<div class="section" id="implementation-type-iii">
-<h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><strong>Inputs and Outputs are HC++ double array containers with batch processing.</strong></p>
-</div>
-</div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_ddot</strong> (hc::accelerator_view &amp;accl_view, const int N, hc::array&lt;double&gt; &amp;x, const int incx, const long xOffset, hc::array&lt;double&gt; &amp;y, const int incy, const long yOffset, double &amp;dot, const long x_batchOffset, const long y_batchOffset, const int BatchSize)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDdotBatched</strong> (hcblasHandle_t handle, int n, const double* x, int incx, const double* y, int incy, double* result, int batchCount)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -96,15 +86,10 @@
 </div>
 <div class="section" id="function-documentation">
 <h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_ddot (hc::accelerator_view &amp;accl_view,
-                          const int N,
-                          hc::array&lt;double&gt; &amp;x,
-                          const int incx,
-                          const long xOffset,
-                          hc::array&lt;double&gt; &amp;y,
-                          const int incy,
-                          const long yOffset,
-                          double &amp;dot)
+<div class="highlight-python"><div class="highlight"><pre>hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
+                           const double          *x, int incx,
+                           const double          *y, int incy,
+                           double                *result)
 </pre></div>
 </div>
 <table border="1" class="docutils">
@@ -121,11 +106,11 @@
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>[in]</td>
-<td>accl_view</td>
-<td><a class="reference external" href="https://msdn.microsoft.com/en-us/library/hh873132.aspx">Using accelerator and accelerator_view Objects</a></td>
+<td>handle</td>
+<td>handle to the HCBLAS library context.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
-<td>N</td>
+<td>n</td>
 <td>Number of elements in vector x.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
@@ -137,31 +122,21 @@
 <td>Increment for the elements of x. Must not be zero.</td>
 </tr>
 <tr class="row-even"><td>[in]</td>
-<td>xOffset</td>
-<td>Offset of first element of vector x in buffer object.
-Counted in elements.</td>
-</tr>
-<tr class="row-odd"><td>[in]</td>
 <td>y</td>
 <td>Buffer object storing the vector y.</td>
 </tr>
-<tr class="row-even"><td>[in]</td>
+<tr class="row-odd"><td>[in]</td>
 <td>incy</td>
 <td>Increment for the elements of y. Must not be zero.</td>
 </tr>
-<tr class="row-odd"><td>[in]</td>
-<td>yOffset</td>
-<td>Offset of first element of vector y in buffer object.
-Counted in elements.</td>
-</tr>
 <tr class="row-even"><td>[out]</td>
-<td>dot</td>
+<td>result</td>
 <td>Buffer object that will contain the dot-product value.</td>
 </tr>
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">Implementation type III has 3 other parameters as follows,</div>
+<div class="line">Implementation type II has other parameters as follows,</div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
@@ -177,17 +152,7 @@ Counted in elements.</td>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>[in]</td>
-<td>x_batchOffset</td>
-<td>Batch Offset of vector x in buffer object. Offset should be
-a multiple of n.</td>
-</tr>
-<tr class="row-odd"><td>[in]</td>
-<td>y_batchOffset</td>
-<td>Batch Offset of vector y in buffer object. Offset should be
-a multiple of n.</td>
-</tr>
-<tr class="row-even"><td>[in]</td>
-<td>BatchSize</td>
+<td>batchCount</td>
 <td>The size of batch for vector x and vector y.</td>
 </tr>
 </tbody>
@@ -198,8 +163,8 @@ a multiple of n.</td>
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="34%" />
-<col width="66%" />
+<col width="40%" />
+<col width="60%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">STATUS</th>
@@ -207,11 +172,20 @@ a multiple of n.</td>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>HCBLAS_SUCCESS</td>
-<td>Success</td>
+<tr class="row-even"><td>HCBLAS_STATUS_SUCCESS</td>
+<td>the operation completed successfully</td>
 </tr>
-<tr class="row-odd"><td>HCBLAS_INVALID</td>
-<td>N, incx or incy is zero</td>
+<tr class="row-odd"><td>HCBLAS_STATUS_NOT_INITIALIZED</td>
+<td>the library was not initialized</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_STATUS_ALLOC_FAILED</td>
+<td>the reduction buffer could not be allocated</td>
+</tr>
+<tr class="row-odd"><td>HCBLAS_STATUS_ARCH_MISMATCH</td>
+<td>the device does not support double-precision</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_STATUS_EXECUTION_FAILED</td>
+<td>the function failed to launch on the GPU</td>
 </tr>
 </tbody>
 </table>
@@ -230,7 +204,6 @@ a multiple of n.</td>
 <li><a class="reference internal" href="#functions">Functions</a><ul>
 <li><a class="reference internal" href="#implementation-type-i">Implementation type I</a></li>
 <li><a class="reference internal" href="#implementation-type-ii">Implementation type II</a></li>
-<li><a class="reference internal" href="#implementation-type-iii">Implementation type III</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#detailed-description">Detailed Description</a></li>
@@ -287,7 +260,7 @@ a multiple of n.</td>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, MulticoreWare.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
   </body>
 </html>

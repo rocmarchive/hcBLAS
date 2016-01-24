@@ -5,29 +5,49 @@ HCBLAS TYPES
 Enumerations
 ^^^^^^^^^^^^
 
-| enum hcblasStatus { HCBLAS_SUCCESS = 0, HCBLAS_INVALID = -1}
+| enum hcblasStatus_t {
+|  HCBLAS_STATUS_SUCCESS,
+|  HCBLAS_STATUS_NOT_INITIALIZED,  
+|  HCBLAS_STATUS_ALLOC_FAILED,     
+|  HCBLAS_STATUS_INVALID_VALUE,    
+|  HCBLAS_STATUS_MAPPING_ERROR,    
+|  HCBLAS_STATUS_EXECUTION_FAILED,
+|  HCBLAS_STATUS_INTERNAL_ERROR    
+| }
 | enum hcblasOrder { RowMajor, ColMajor}
-| enum hcblasTranspose { NoTrans = 'n', Trans = 't'}
+| enum hcblasOperation_t {
+|  HCBLAS_OP_N, 
+|  HCBLAS_OP_T,  
+|  HCBLAS_OP_C   
+| }
 
-Structures
-^^^^^^^^^^
-
-| struct hcComplex { float real; float img;}
+| typedef float2 hcFloatComplex;
+| typedef hcFloatComplex hcComplex;
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
 
-HCBLAS STATUS (hcblasStatus)
-----------------------------
+HCBLAS STATUS (hcblasStatus_t)
+------------------------------
 
 | This enumeration is the set of HCBLAS error codes.
-+----------------+--------------------------------------------------------------------------------+
-| Enumerator                                                                                      |
-+================+================================================================================+
-| HCBLAS_SUCCESS | Kernel completed its work successfully.                                        |
-+----------------+--------------------------------------------------------------------------------+    
-| HCBLAS_INVALID | Inputs are either not properly allocated or zero.                              |
-+----------------+--------------------------------------------------------------------------------+
++-------------------------------------+--------------------------------------------------------------------------------+
+| Enumerator                                                                                                           |
++=====================================+================================================================================+
+| HCBLAS_STATUS_SUCCESS               | the operation completed successfully.                                          |
++-------------------------------------+--------------------------------------------------------------------------------+    
+| HCBLAS_STATUS_NOT_INITIALIZED       | HCBLAS library not initialized.                                                |
++-------------------------------------+--------------------------------------------------------------------------------+
+| HCBLAS_STATUS_ALLOC_FAILED          | resource allocation failed.                                                    |
++-------------------------------------+--------------------------------------------------------------------------------+
+| HCBLAS_STATUS_INVALID_VALUE         | unsupported numerical value was passed to function.                            |
++-------------------------------------+--------------------------------------------------------------------------------+
+| HCBLAS_STATUS_MAPPING_ERROR         | access to GPU memory space failed.                                             |
++-------------------------------------+--------------------------------------------------------------------------------+
+| HCBLAS_STATUS_EXECUTION_FAILED      | GPU program failed to execute.                                                 |
++-------------------------------------+--------------------------------------------------------------------------------+
+| HCBLAS_STATUS_INTERNAL_ERROR        | an internal HCBLAS operation failed.                                           |
++-------------------------------------+--------------------------------------------------------------------------------+
 
 |
 HCBLAS ORDER (hcblasOrder)
@@ -44,14 +64,16 @@ HCBLAS ORDER (hcblasOrder)
 
 |
 
-HCBLAS TRANSPOSE (hcblasTranspose)
-----------------------------------
+HCBLAS TRANSPOSE (hcblasOperation_t)
+------------------------------------
 
 | Used to specify whether the matrix is to be transposed or not. 
-+------------+--------------------------------------------------------------------------------+
-| Enumerator                                                                                  |
-+============+================================================================================+
-| NoTrans    | Operate with the matrix.                                                       |
-+------------+--------------------------------------------------------------------------------+    
-| Trans      | Operate with the transpose of the matrix.                                      |
-+------------+--------------------------------------------------------------------------------+
++----------------+--------------------------------------------------------------------------------+
+| Enumerator                                                                                      |
++================+================================================================================+
+| HCBLAS_OP_N    |  The Non transpose operation is selected.                                      |
++----------------+--------------------------------------------------------------------------------+    
+| HCBLAS_OP_T    |  Transpose operation is selected.                                              |
++----------------+--------------------------------------------------------------------------------+
+| HCBLAS_OP_C    |  Conjugate transpose operation is selected.                                    |
++----------------+--------------------------------------------------------------------------------+
