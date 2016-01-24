@@ -140,14 +140,15 @@ hcblasStatus_t hcblasGetMatrix(int rows, int cols, int elemSize, const void *A, 
 
 // 7. hcblasDeviceSelect()
 
-// This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls.
+// This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls. User can select the order of operation in this function.
 
 // Return Values
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS            user call was sucessful
 // HCBLAS_STATUS_INVALID_VALUE      Access to at least one of the device could not be done or a hcBLAS context could not be created on at least one of the device
+// HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasDeviceSelect(hcblasHandle_t handle, int deviceId);
+hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t handle, int deviceId, hcblasOrder order);
 
 // HCBLAS Level-1 function reference
 
@@ -164,7 +165,7 @@ hcblasStatus_t hcblasDeviceSelect(hcblasHandle_t handle, int deviceId);
 
 // The abbreviation Re(.) and Im(.) will stand for the real and imaginary part of a number, respectively.
 
-// 1. hcblas<t>asum()
+// 1. hcblas<t>asum() and  hcblas<t>asumBatched()
 
 // This function computes the sum of the absolute values of the elements of vector x.
 
@@ -175,6 +176,7 @@ hcblasStatus_t hcblasDeviceSelect(hcblasHandle_t handle, int deviceId);
 // x            device           input          <type> vector with elements.
 // incx         host             input          stride between consecutive elements of x.
 // result       host or device   output         the resulting index, which is 0.0 if n,incx<=0.
+// batchCount   host             input          number of pointers contained in input and output arrays.
 
 // Return Values
 // --------------------------------------------------------------------
@@ -185,11 +187,15 @@ hcblasStatus_t hcblasDeviceSelect(hcblasHandle_t handle, int deviceId);
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, int n,
-                            const float           *x, int incx, float  *result);
+                            float           *x, int incx, float  *result);
 hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, int n,
-                            const double          *x, int incx, double *result);
+                            double          *x, int incx, double *result);
+hcblasStatus_t  hcblasSasumBatched(hcblasHandle_t handle, int n,
+                            float           *x, int incx, float  *result, int batchCount);
+hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t handle, int n,
+                            double          *x, int incx, double *result, int batchCount);
 
-// 2. hcblas<t>axpy()
+// 2. hcblas<t>axpy() and hcblas<t>axpyBatched()
 
 // This function multiplies the vector x by the scalar α and adds it to the vector y overwriting 
 // the latest vector with the result.
@@ -203,6 +209,7 @@ hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, int n,
 // incx         host             input          stride between consecutive elements of x.
 // y            device           in/out         <type> vector with n elements.
 // incy         host             input          stride between consecutive elements of y.
+// batchCount   host             input          number of pointers contained in input and output arrays.
 
 // Return Values
 // --------------------------------------------------------------------
@@ -215,8 +222,13 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            float                 *y, int incy);
+hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t handle, int n,
+                           const float           *alpha,
+                           const float           *x, int incx,
+                           float                 *y, int incy, int batchCount);
 
-// 3. hcblas<t>copy()
+
+// 3. hcblas<t>copy() and and hcblas<t>copyBatched()
 
 // This function copies the vector x into the vector y.
 
@@ -228,6 +240,7 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
 // incx         host             input          stride between consecutive elements of x.
 // y            device           in/out         <type> vector with n elements.
 // incy         host             input          stride between consecutive elements of y.
+// batchCount   host             input          number of pointers contained in input and output arrays.
 
 // Return Values
 // --------------------------------------------------------------------
@@ -242,8 +255,15 @@ hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
 hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            double                *y, int incy);
+hcblasStatus_t hcblasScopyBatched(hcblasHandle_t handle, int n,
+                           const float           *x, int incx,
+                           float                 *y, int incy, int batchCount);
+hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t handle, int n,
+                           const double          *x, int incx,
+                           double                *y, int incy, int batchCount);
 
-// 4. hcblas<t>dot()
+
+// 4. hcblas<t>dot() and hcblas<t>dotBatched()
 
 // This function computes the dot product of vectors x and y.
 
@@ -256,6 +276,7 @@ hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
 // y            device           in/out         <type> vector with n elements.
 // incy         host             input          stride between consecutive elements of y.
 // result       host or device   output         the resulting dot product, which is 0.0 if n<=0.
+// batchCount   host             input          number of pointers contained in input and output arrays.
 
 // Return Values
 // --------------------------------------------------------------------
@@ -273,8 +294,17 @@ hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            const double          *y, int incy,
                            double          *result);
+hcblasStatus_t hcblasSdotBatched (hcblasHandle_t handle, int n,
+                           const float           *x, int incx,
+                           const float           *y, int incy,
+                           float           *result, int batchCount);
+hcblasStatus_t hcblasDdotBatched (hcblasHandle_t handle, int n,
+                           const double          *x, int incx,
+                           const double          *y, int incy,
+                           double          *result, int batchCount);
 
-// 5. hcblas<t>scal()
+
+// 5. hcblas<t>scal() and hcblas<t>scalBatched()
 
 // This function scales the vector x by the scalar α and overwrites it with the result.
 
@@ -285,6 +315,7 @@ hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
 // n            host             input          number of elements in the vector x and y.
 // x            device           input          <type> vector with n elements.
 // incx         host             input          stride between consecutive elements of x.
+// batchCount   host             input          number of pointers contained in input and output arrays.
 
 // Return Values
 // --------------------------------------------------------------------
@@ -299,6 +330,13 @@ hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
 hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
                             const double          *alpha,
                             double          *x, int incx);
+hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t handle, int n,
+                            const float           *alpha,
+                            float           *x, int incx, int batchCount);
+hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
+                            const double          *alpha,
+                            double          *x, int incx, int batchCount);
+
  
 // HCBLAS Level-2 Function Reference
 
@@ -311,7 +349,7 @@ hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
 // double    ‘d’ or ‘D’      real double-precision
 // hcComplex ‘c’ or ‘C’      complex single-precision
 
-// 1. hcblas<t>gemv()
+// 1. hcblas<t>gemv() and and hcblas<t>gemvBatched()
 
 // This function performs the matrix-vector multiplication
 // y = α op ( A ) x + β y
@@ -336,6 +374,7 @@ hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
 //                                              then y does not have to be a valid input.
 // y            device           in/out         <type> vector with m elements if transa==HCBLAS_OP_N and n elements otherwise.
 // incy         host             input          stride between consecutive elements of y.
+// batchCount   host             input          number of pointers contained in input and output arrays.
 
 // Return Values
 // --------------------------------------------------------------------
@@ -352,8 +391,16 @@ hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
                            float           *x, int incx,
                            const float           *beta,
                            float           *y, int incy);
+hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans,
+                           int m, int n,
+                           const float           *alpha,
+                           float           *A, int lda,
+                           float           *x, int incx,
+                           const float           *beta,
+                           float           *y, int incy, int batchCount);
 
-// 2. hcblas<t>ger()
+
+// 2. hcblas<t>ger() and hcblas<t>gerBatched()
 
 // This function performs the rank-1 update
 // A = α x y T + A if ger(),geru() is called 
@@ -372,6 +419,7 @@ hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
 // incy         host             input          stride between consecutive elements of y.
 // A            device           in/out         <type> array of dimension lda x n with lda >= max(1,m).
 // lda          host             input          leading dimension of two-dimensional array used to store matrix A.
+// batchCount   host             input          number of pointers contained in input and output arrays.
 
 // Return Values
 // --------------------------------------------------------------------
@@ -386,6 +434,11 @@ hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *A, int lda);
+hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
+                           const float           *alpha,
+                           const float           *x, int incx,
+                           const float           *y, int incy,
+                           float           *A, int lda, int batchCount);
 
 // HCBLAS Level-3 Function Reference
 

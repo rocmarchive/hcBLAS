@@ -46,6 +46,7 @@ class Hcblaslibrary
 {
     public:
     int deviceId;
+    hcblasOrder Order;
 /* SAXPY - Y = alpha * X + Y                                    */
 /* SAXPY - Overloaded function with arguments of type hc::array */
 
