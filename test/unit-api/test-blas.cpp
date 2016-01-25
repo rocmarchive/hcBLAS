@@ -27,12 +27,12 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   float asumcblas = 0.0;
   asumcblas = cblas_sasum( n, X, incx);
   EXPECT_EQ(result, asumcblas);
-/*
+
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSasum(handle, n, devX, incx, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
-*/
+
   free(X);
   hc::am_free(devX);
 }
@@ -66,12 +66,12 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
                 asumcblas += asumcblastemp[i];
   }
   EXPECT_EQ(result, asumcblas);
-/*
+
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
-  status = hcblasSasum(handle, n, devX, incx, &result);
+  hcblasDestroy(&handle);
+  status = hcblasSasumBatched(handle, n, devX, incx, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
-*/
+
   free(X);
   hc::am_free(devX);
 }
@@ -100,12 +100,12 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
   double asumcblas = 0.0;
   asumcblas = cblas_dasum( n, X, incx);
   EXPECT_EQ(result, asumcblas);
-/*
+
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasDasum(handle, n, devX, incx, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
-*/
+
   free(X);
   hc::am_free(devX);
 }
@@ -140,12 +140,12 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
   }
   EXPECT_EQ(result, asumcblas);
 
-/*
+
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
-  status = hcblasDasum(handle, n, devX, incx, &result);
+  hcblasDestroy(&handle);
+  status = hcblasDasumBatched(handle, n, devX, incx, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
-*/
+
   free(X);
   hc::am_free(devX);
 }
@@ -177,12 +177,11 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
         EXPECT_EQ(X[i], Xcblas[i]);
   }
 
-/*
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
-  status = hcblasSasum(handle, n, devX, incx, &result);
+  hcblasDestroy(&handle);
+  status = hcblasSscal(handle, n, &alpha, devX, incx);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
-*/
+
   free(X);
   free(Xcblas);
   hc::am_free(devX);
@@ -217,12 +216,12 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
   for(int i =0; i < lenx * batchSize; i ++){
           EXPECT_EQ(X[i], Xcblas[i]);
   }
-/*
+
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
-  status = hcblasSasum(handle, n, devX, incx, &result);
+  hcblasDestroy(&handle);
+  status = hcblasSscalBatched(handle, n, &alpha, devX, incx, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
-*/
+
   free(X);
   free(Xcblas);
   hc::am_free(devX);
@@ -255,12 +254,11 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
         EXPECT_EQ(X[i], Xcblas[i]);
   }
 
-/*
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
-  status = hcblasSasum(handle, n, devX, incx, &result);
+  hcblasDestroy(&handle);
+  status = hcblasDscal(handle, n, &alpha, devX, incx);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
-*/
+
   free(X);
   free(Xcblas);
   hc::am_free(devX);
@@ -295,12 +293,12 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
   for(int i =0; i < lenx * batchSize; i ++){
           EXPECT_EQ(X[i], Xcblas[i]);
   }
-/*
+
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
-  status = hcblasSasum(handle, n, devX, incx, &result);
+  hcblasDestroy(&handle);
+  status = hcblasDscalBatched(handle, n, &alpha, devX, incx, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
-*/
+
   free(X);
   free(Xcblas);
   hc::am_free(devX);

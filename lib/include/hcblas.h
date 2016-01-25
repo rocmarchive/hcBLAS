@@ -74,7 +74,7 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle);
 // HCBLAS_STATUS_SUCCESS            the shut down succeeded
 // HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
 
-hcblasStatus_t hcblasDestroy(hcblasHandle_t handle);
+hcblasStatus_t hcblasDestroy(hcblasHandle_t *handle);
 
 // 3. hcblasSetVector()
 
