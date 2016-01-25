@@ -865,7 +865,6 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   float beta = 1;
   long lda;
   enum CBLAS_ORDER order;
-  hcblasOperation_t typeA;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   int row, col;
   row = n; col = m; lda = m; 
@@ -932,12 +931,11 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   free(Y);
   hc::am_free(devY);
 }
-#if 0
+
+
 TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle =  hcblasCreate();
   int m = 123;
   int n = 67;
   int incx = 1;
@@ -950,7 +948,14 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   long lda;
   enum CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
+  int row, col;
+  row = n; col = m; lda = m;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  hcblasOperation_t trans = HCBLAS_OP_N;
+  enum CBLAS_TRANSPOSE transa;
+  transa = (trans == HCBLAS_OP_N)? CblasNoTrans : CblasTrans;
+  lenx = 1 + (row - 1) * abs(incx);
+  leny = 1 + (col - 1) * abs(incy);
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
@@ -993,6 +998,6 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   free(Ycblas);
   hc::am_free(devY);
 }
-#endif
+
 
 
