@@ -31,7 +31,7 @@ STATUS                            DESCRIPTION
 3. hcblasSetVector()
 --------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSetVector** (int n, int elemSize, const void* x, int incx, void* y, int incy)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSetVector** (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)
 
 | This function copies n elements from a vector x in host memory space to a vector y in GPU memory space. 
 | Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between 
@@ -51,7 +51,7 @@ STATUS                            DESCRIPTION
 4. hcblasGetVector()
 --------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasGetVector** (int n, int elemSize, const void* x, int incx, void* y, int incy)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasGetVector** (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)
 
 | This function copies n elements from a vector x in GPU memory space to a vector y in host memory space. 
 | Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between 
@@ -71,7 +71,7 @@ STATUS                            DESCRIPTION
 5. hcblasSetMatrix()
 --------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSetMatrix** (int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSetMatrix** (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
 
 | This function copies a tile of rows x cols elements from a matrix A in host memory space to a 
 | matrix B in GPU memory space. It is assumed that each element requires storage of elemSize bytes 
@@ -92,7 +92,7 @@ STATUS                            DESCRIPTION
 6. hcblasGetMatrix()
 --------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasGetMatrix** (int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasGetMatrix** (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
 
 | This function copies a tile of rows x cols elements from a matrix A in GPU memory space to 
 | a matrix B in host memory space. It is assumed that each element requires storage of elemSize 

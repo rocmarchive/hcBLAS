@@ -87,7 +87,7 @@
 </div>
 <div class="section" id="hcblassetvector">
 <h2>3. hcblasSetVector()<a class="headerlink" href="#hcblassetvector" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasSetVector</strong> (int n, int elemSize, const void* x, int incx, void* y, int incy)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasSetVector</strong> (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)</p>
 <div class="line-block">
 <div class="line">This function copies n elements from a vector x in host memory space to a vector y in GPU memory space.</div>
 <div class="line">Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between</div>
@@ -123,7 +123,7 @@
 </div>
 <div class="section" id="hcblasgetvector">
 <h2>4. hcblasGetVector()<a class="headerlink" href="#hcblasgetvector" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasGetVector</strong> (int n, int elemSize, const void* x, int incx, void* y, int incy)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasGetVector</strong> (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)</p>
 <div class="line-block">
 <div class="line">This function copies n elements from a vector x in GPU memory space to a vector y in host memory space.</div>
 <div class="line">Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between</div>
@@ -159,7 +159,7 @@
 </div>
 <div class="section" id="hcblassetmatrix">
 <h2>5. hcblasSetMatrix()<a class="headerlink" href="#hcblassetmatrix" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasSetMatrix</strong> (int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasSetMatrix</strong> (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)</p>
 <div class="line-block">
 <div class="line">This function copies a tile of rows x cols elements from a matrix A in host memory space to a</div>
 <div class="line">matrix B in GPU memory space. It is assumed that each element requires storage of elemSize bytes</div>
@@ -196,7 +196,7 @@
 </div>
 <div class="section" id="hcblasgetmatrix">
 <h2>6. hcblasGetMatrix()<a class="headerlink" href="#hcblasgetmatrix" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasGetMatrix</strong> (int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasGetMatrix</strong> (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)</p>
 <div class="line-block">
 <div class="line">This function copies a tile of rows x cols elements from a matrix A in GPU memory space to</div>
 <div class="line">a matrix B in host memory space. It is assumed that each element requires storage of elemSize</div>
