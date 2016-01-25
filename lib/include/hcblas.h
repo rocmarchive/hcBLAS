@@ -87,7 +87,7 @@ hcblasStatus_t hcblasDestroy(hcblasHandle_t* &handle);
 // HCBLAS_STATUS_INVALID_VALUE      the parameters incx, incy, elemSize<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasSetVector(int n, int elemSize, const void *x, int incx, void *y, int incy);
+hcblasStatus_t hcblasSetVector(hcblasHandle_t* handle, int n, int elemSize, const void *x, int incx, void *y, int incy);
 
 // 4. hcblasGetVector()
 
@@ -102,7 +102,7 @@ hcblasStatus_t hcblasSetVector(int n, int elemSize, const void *x, int incx, voi
 // HCBLAS_STATUS_INVALID_VALUE      the parameters incx, incy, elemSize<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasGetVector(int n, int elemSize, const void *x, int incx, void *y, int incy);
+hcblasStatus_t hcblasGetVector(hcblasHandle_t* handle, int n, int elemSize, const void *x, int incx, void *y, int incy);
 
 // 5. hcblasSetMatrix()
 
