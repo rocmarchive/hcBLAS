@@ -57,12 +57,10 @@ This repository hosts the HCC implementation of BLAS subroutines. The following 
 
 (a) Only Supported on Linux:  
 
-       * ./install.sh test=ON/OFF profile=ON/OFF
+       * ./install.sh test=ON/OFF 
          Where
            test=OFF    - Build library and tests
            test=ON     - Build library, tests and run test.sh
-           profile=OFF - HCBLAS profiling not enabled
-           profile=ON  - Enable HCBLAS profiling 
 
        
 ### C. Unit testing
@@ -147,4 +145,3 @@ Note:
   (13) DDOT - Double Precision Dot product
 
      * ./ddot N Itype(Itype takes 1, 2, 3, 4 or 5)
-
