@@ -15,7 +15,6 @@
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
-  handle = new hcblasHandle_t();
   std::vector<accelerator> accs = accelerator::get_all();
   assert(accs.size() && "Number of Accelerators == 0!");
   if(accs.size() == 2) {
@@ -41,7 +40,6 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
 hcblasStatus_t hcblasDestroy(hcblasHandle_t *handle){
   if(!handle->deviceId && !handle->Order)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  delete handle;  
   return HCBLAS_STATUS_SUCCESS;
 }
 
