@@ -49,39 +49,16 @@
 <h1>HCBLAS Helper functions<a class="headerlink" href="#hcblas-helper-functions" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="hcblascreate">
 <h2>1. hcblasCreate()<a class="headerlink" href="#hcblascreate" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasCreate</strong> (hcblasHandle_t* handle)</p>
+<p>hcblasHandle_t* <strong>hcblasCreate</strong> ()</p>
 <div class="line-block">
 <div class="line">This function initializes the HCBLAS library and creates a handle to an opaque structure</div>
 <div class="line">holding the HCBLAS library context.</div>
 <div class="line"><br /></div>
-<div class="line">Return Values,</div>
 </div>
-<table border="1" class="docutils">
-<colgroup>
-<col width="40%" />
-<col width="60%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">STATUS</th>
-<th class="head">DESCRIPTION</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>HCBLAS_STATUS_SUCCESS</td>
-<td>initialization succeeded</td>
-</tr>
-<tr class="row-odd"><td>HCBLAS_STATUS_NOT_INITIALIZED</td>
-<td>Runtime initialization failed</td>
-</tr>
-<tr class="row-even"><td>HCBLAS_STATUS_ALLOC_FAILED</td>
-<td>the resources could not be allocated</td>
-</tr>
-</tbody>
-</table>
 </div>
 <div class="section" id="hcblasdestory">
 <h2>2. hcblasDestory()<a class="headerlink" href="#hcblasdestory" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDestroy</strong> (hcblasHandle_t handle)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDestroy</strong> (hcblasHandle_t* &amp;handle)</p>
 <div class="line-block">
 <div class="line">This function releases hardware resources used by the HCBLAS library.</div>
 <div class="line">This function is usually the last call with a particular handle to the HCBLAS library.</div>
@@ -256,7 +233,7 @@
 </div>
 <div class="section" id="hcblasdeviceorderselect">
 <h2>7. hcblasDeviceOrderSelect()<a class="headerlink" href="#hcblasdeviceorderselect" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDeviceOrderSelect</strong> (hcblasHandle_t handle, int deviceId, hcblasOrder order)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDeviceOrderSelect</strong> (hcblasHandle_t* handle, int deviceId, hcblasOrder order)</p>
 <div class="line-block">
 <div class="line">This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls. User can select their order of operation in this function (RowMajor/ColMajor).</div>
 <div class="line"><br /></div>

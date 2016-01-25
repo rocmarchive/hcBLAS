@@ -5,25 +5,16 @@ HCBLAS Helper functions
 1. hcblasCreate()
 -----------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasCreate** (hcblasHandle_t* handle)
+hcblasHandle_t* **hcblasCreate** ()
 
 | This function initializes the HCBLAS library and creates a handle to an opaque structure
 | holding the HCBLAS library context.
 |
-| Return Values,
-
-==============================    =============================================
-STATUS                            DESCRIPTION
-==============================    =============================================
- HCBLAS_STATUS_SUCCESS            initialization succeeded
- HCBLAS_STATUS_NOT_INITIALIZED    Runtime initialization failed
- HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
-==============================    ============================================= 
 
 2. hcblasDestory()
 ------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDestroy** (hcblasHandle_t handle)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDestroy** (hcblasHandle_t* &handle)
 
 | This function releases hardware resources used by the HCBLAS library. 
 | This function is usually the last call with a particular handle to the HCBLAS library.
@@ -122,7 +113,7 @@ STATUS                            DESCRIPTION
 7. hcblasDeviceOrderSelect()
 -----------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDeviceOrderSelect** (hcblasHandle_t handle, int deviceId, hcblasOrder order)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDeviceOrderSelect** (hcblasHandle_t* handle, int deviceId, hcblasOrder order)
 
 | This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls. User can select their order of operation in this function (RowMajor/ColMajor).
 |

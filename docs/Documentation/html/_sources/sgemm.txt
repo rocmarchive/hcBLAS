@@ -25,14 +25,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemm** (hcblasHandle_t handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const float* alpha, const float* A, int lda, const float* B, int ldb, const float* beta, float* C, int ldc)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemm** (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const float* alpha, float* A, int lda, float* B, int ldb, const float* beta, float* C, int ldc)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
                                                                                                
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemmBatched** (hcblasHandle_t handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const float* alpha, const float* A, int lda, const float* B, int ldb, const float* beta, float* C, int ldc, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemmBatched** (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const float* alpha, float* A, int lda, float* B, int ldb, const float* beta, float* C, int ldc, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -42,12 +42,12 @@ Function Documentation
 
 ::
 
-             hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
+             hcblasStatus_t hcblasSgemm(hcblasHandle_t* handle,
                                         hcblasOperation_t transa, hcblasOperation_t transb,
                                         int m, int n, int k,
                                         const float           *alpha,
-                                        const float           *A, int lda,
-                                        const float           *B, int ldb,
+                                        float                 *A, int lda,
+                                        float                 *B, int ldb,
                                         const float           *beta,
                                         float                 *C, int ldc)
 

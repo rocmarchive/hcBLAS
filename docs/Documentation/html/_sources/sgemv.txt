@@ -21,14 +21,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemv** (hcblasHandle_t handle, hcblasOperation_t trans, int m, int n, const float* alpha, const float* A, int lda, const float* x, int incx, const float* beta, float* y, int incy)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemv** (hcblasHandle_t* handle, hcblasOperation_t trans, int m, int n, const float* alpha, float* A, int lda, float* x, int incx, const float* beta, float* y, int incy)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 	
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemvBatched** (hcblasHandle_t handle, hcblasOperation_t trans, int m, int n, const float* alpha, const float* A, int lda, const float* x, int incx, const float* beta, float* y, int incy, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemvBatched** (hcblasHandle_t* handle, hcblasOperation_t trans, int m, int n, const float* alpha, float* A, int lda, float* x, int incx, const float* beta, float* y, int incy, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -38,11 +38,11 @@ Function Documentation
 
  ::
               
-              hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
+              hcblasStatus_t hcblasSgemv(hcblasHandle_t* handle, hcblasOperation_t trans,
                                          int m, int n,
                                          const float           *alpha,
-                                         const float           *A, int lda,
-                                         const float           *x, int incx,
+                                         float                 *A, int lda,
+                                         float                 *x, int incx,
                                          const float           *beta,
                                          float                 *y, int incy)
 

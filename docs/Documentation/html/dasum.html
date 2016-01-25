@@ -68,7 +68,7 @@
 <p class="last"><strong>Inputs and Outputs are HCC device pointers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDasum</strong> (hcblasHandle_t handle, int n, const double* x, int incx, double* result)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDasum</strong> (hcblasHandle_t* handle, int n, double* x, int incx, double* result)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
@@ -78,7 +78,7 @@
 <p class="last"><strong>Inputs and Outputs are HCC device pointers with batch processing.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDasumBatched</strong> (hcblasHandle_t handle, int n, const double* x, int incx, double* result, int batchCount)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDasumBatched</strong> (hcblasHandle_t* handle, int n, double* x, int incx, double* result, int batchCount)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -86,8 +86,8 @@
 </div>
 <div class="section" id="function-documentation">
 <h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre>hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, int n,
-                            const double          *x,
+<div class="highlight-python"><div class="highlight"><pre>hcblasStatus_t  hcblasDasum(hcblasHandle_t* handle, int n,
+                            double                *x,
                             int incx, double      *result)
 </pre></div>
 </div>

@@ -16,14 +16,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDcopy** (hcblasHandle_t handle, int n, const double* x, int incx, double* y, int incy)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDcopy** (hcblasHandle_t* handle, int n, const double* x, int incx, double* y, int incy)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDcopyBatched** (hcblasHandle_t handle, int n, const double* x, int incx, double* y, int incy, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDcopyBatched** (hcblasHandle_t* handle, int n, const double* x, int incx, double* y, int incy, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -33,7 +33,7 @@ Function Documentation
 
 ::
 
-              hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
+              hcblasStatus_t hcblasDcopy(hcblasHandle_t* handle, int n,
                                          const double          *x, int incx,
                                          double                *y, int incy)
 

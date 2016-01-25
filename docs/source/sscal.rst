@@ -17,14 +17,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_  **hcblasSscal** (hcblasHandle_t handle, int n, const float* alpha, float* x, int incx)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_  **hcblasSscal** (hcblasHandle_t* handle, int n, const float* alpha, float* x, int incx)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_  **hcblasSscalBatched** (hcblasHandle_t handle, int n, const float* alpha, float* x, int incx, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_  **hcblasSscalBatched** (hcblasHandle_t* handle, int n, const float* alpha, float* x, int incx, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -34,7 +34,7 @@ Function Documentation
 
 ::
 
-             hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
+             hcblasStatus_t  hcblasSscal(hcblasHandle_t* handle, int n,
                                          const float           *alpha,
                                          float           *x, int incx)
 

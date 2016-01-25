@@ -25,14 +25,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasCgemm** (hcblasHandle_t handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const `hcComplex* <HCBLAS_TYPES.html>`_ alpha, const `hcComplex* <HCBLAS_TYPES.html>`_ A, int lda, const `hcComplex* <HCBLAS_TYPES.html>`_ B, int ldb, const `hcComplex* <HCBLAS_TYPES.html>`_ beta, `hcComplex* <HCBLAS_TYPES.html>`_ C, int ldc)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasCgemm** (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const `hcComplex* <HCBLAS_TYPES.html>`_ alpha, `hcComplex* <HCBLAS_TYPES.html>`_ A, int lda, `hcComplex* <HCBLAS_TYPES.html>`_ B, int ldb, const `hcComplex* <HCBLAS_TYPES.html>`_ beta, `hcComplex* <HCBLAS_TYPES.html>`_ C, int ldc)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasCgemmBatched** (hcblasHandle_t handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const `hcComplex* <HCBLAS_TYPES.html>`_ alpha, const `hcComplex* <HCBLAS_TYPES.html>`_ A, int lda, const `hcComplex* <HCBLAS_TYPES.html>`_ B, int ldb, const `hcComplex* <HCBLAS_TYPES.html>`_ beta, `hcComplex* <HCBLAS_TYPES.html>`_ C, int ldc, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasCgemmBatched** (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const `hcComplex* <HCBLAS_TYPES.html>`_ alpha, `hcComplex* <HCBLAS_TYPES.html>`_ A, int lda, `hcComplex* <HCBLAS_TYPES.html>`_ B, int ldb, const `hcComplex* <HCBLAS_TYPES.html>`_ beta, `hcComplex* <HCBLAS_TYPES.html>`_ C, int ldc, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -42,12 +42,12 @@ Function Documentation
 
  ::
 
-             hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
+             hcblasStatus_t hcblasCgemm(hcblasHandle_t* handle,
                                         hcblasOperation_t transa, hcblasOperation_t transb,
                                         int m, int n, int k,
                                         const hcComplex       *alpha,
-                                        const hcComplex       *A, int lda,
-                                        const hcComplex       *B, int ldb,
+                                        hcComplex             *A, int lda,
+                                        hcComplex             *B, int ldb,
                                         const hcComplex       *beta,
                                         hcComplex             *C, int ldc)
 

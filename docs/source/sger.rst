@@ -20,14 +20,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSger** (hcblasHandle_t handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSger** (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgerBatched** (hcblasHandle_t handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgerBatched** (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -37,7 +37,7 @@ Function Documentation
 
  ::
 
-              hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
+              hcblasStatus_t  hcblasSger(hcblasHandle_t* handle, int m, int n,
                                          const float           *alpha,
                                          const float           *x, int incx,
                                          const float           *y, int incy,

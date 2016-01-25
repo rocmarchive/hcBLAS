@@ -14,14 +14,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDdot** (hcblasHandle_t handle, int n, const double* x, int incx, const double* y, int incy, double* result)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDdot** (hcblasHandle_t* handle, int n, const double* x, int incx, const double* y, int incy, double* result)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDdotBatched** (hcblasHandle_t handle, int n, const double* x, int incx, const double* y, int incy, double* result, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDdotBatched** (hcblasHandle_t* handle, int n, const double* x, int incx, const double* y, int incy, double* result, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -31,7 +31,7 @@ Function Documentation
 
 ::
 
-             hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
+             hcblasStatus_t hcblasDdot (hcblasHandle_t* handle, int n,
                                         const double          *x, int incx,
                                         const double          *y, int incy,
                                         double                *result)

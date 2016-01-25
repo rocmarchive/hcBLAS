@@ -14,14 +14,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSasum** (hcblasHandle_t handle, int n, const float* x, int incx, float* result)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSasum** (hcblasHandle_t* handle, int n, float* x, int incx, float* result)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
  
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSasumBatched** (hcblasHandle_t handle, int n, const float* x, int incx, float* result, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSasumBatched** (hcblasHandle_t* handle, int n, float* x, int incx, float* result, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -31,9 +31,9 @@ Function Documentation
 
 ::
 
-             hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, int n,
-                                        const float           *x, 
-                                        int incx, float       *result)
+             hcblasStatus_t  hcblasSasum(hcblasHandle_t* handle, int n,
+                                         float                 *x, 
+                                         int incx, float       *result)
 
 +------------+-----------------+--------------------------------------------------------------+
 |  In/out    |  Parameters     | Description                                                  |

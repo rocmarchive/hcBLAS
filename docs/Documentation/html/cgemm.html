@@ -81,7 +81,7 @@
 <p class="last"><strong>Inputs and Outputs are HCC device pointers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasCgemm</strong> (hcblasHandle_t handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> alpha, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> A, int lda, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> B, int ldb, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> beta, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> C, int ldc)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasCgemm</strong> (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> alpha, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> A, int lda, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> B, int ldb, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> beta, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> C, int ldc)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
@@ -91,7 +91,7 @@
 <p class="last"><strong>Inputs and Outputs are HCC device pointers with batch processing.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasCgemmBatched</strong> (hcblasHandle_t handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> alpha, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> A, int lda, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> B, int ldb, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> beta, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> C, int ldc, int batchCount)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasCgemmBatched</strong> (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> alpha, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> A, int lda, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> B, int ldb, const <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> beta, <a class="reference external" href="HCBLAS_TYPES.html">hcComplex*</a> C, int ldc, int batchCount)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -100,12 +100,12 @@
 <div class="section" id="function-documentation">
 <h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre>hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
+<div><div class="highlight-python"><div class="highlight"><pre>hcblasStatus_t hcblasCgemm(hcblasHandle_t* handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const hcComplex       *alpha,
-                           const hcComplex       *A, int lda,
-                           const hcComplex       *B, int ldb,
+                           hcComplex             *A, int lda,
+                           hcComplex             *B, int ldb,
                            const hcComplex       *beta,
                            hcComplex             *C, int ldc)
 </pre></div>

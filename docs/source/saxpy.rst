@@ -13,14 +13,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSaxpy** (hcblasHandle_t handle, int n, const float* alpha, const float* x, int incx, float* y, int incy)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSaxpy** (hcblasHandle_t* handle, int n, const float* alpha, const float* x, int incx, float* y, int incy)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSaxpyBatched** (hcblasHandle_t handle, int n, const float* alpha, const float* x, int incx, float* y, int incy, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSaxpyBatched** (hcblasHandle_t* handle, int n, const float* alpha, const float* x, int incx, float* y, int incy, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -30,7 +30,7 @@ Function Documentation
 
  ::
 
-              hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
+              hcblasStatus_t hcblasSaxpy(hcblasHandle_t* handle, int n,
                                          const float           *alpha,
                                          const float           *x, int incx,
                                          float                 *y, int incy)
