@@ -59,7 +59,7 @@ typedef hcFloatComplex hcComplex;
 // Return Values
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
-// HCBLAS_STATUS_NOT_INITIALIZED    the CUDA™ Runtime initialization failed
+// HCBLAS_STATUS_NOT_INITIALIZED    Runtime initialization failed
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle);
@@ -501,8 +501,8 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const hcComplex       *alpha,
-                           const hcComplex       *A, int lda,
-                           const hcComplex       *B, int ldb,
+                           hcComplex       *A, int lda,
+                           hcComplex       *B, int ldb,
                            const hcComplex       *beta,
                            hcComplex       *C, int ldc);
 
@@ -552,18 +552,18 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const float           *alpha,
-                                  const float           *Aarray[], int lda,
-                                  const float           *Barray[], int ldb,
+                                  float           *Aarray, int lda,
+                                  float           *Barray, int ldb,
                                   const float           *beta,
-                                  float           *Carray[], int ldc, int batchCount);
+                                  float           *Carray, int ldc, int batchCount);
 hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcComplex       *alpha,
-                                  const hcComplex       *Aarray[], int lda,
-                                  const hcComplex       *Barray[], int ldb,
+                                  hcComplex       *Aarray, int lda,
+                                  hcComplex       *Barray, int ldb,
                                   const hcComplex       *beta,
-                                  hcComplex       *Carray[], int ldc, int batchCount);
+                                  hcComplex       *Carray, int ldc, int batchCount);
 
 
 #endif

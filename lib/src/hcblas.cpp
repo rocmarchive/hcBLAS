@@ -11,10 +11,11 @@
 // Return Values
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
-// HCBLAS_STATUS_NOT_INITIALIZED    the CUDA™ Runtime initialization failed
+// HCBLAS_STATUS_NOT_INITIALIZED    Runtime initialization failed
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
+ // handle = new hcblasHandle_t();
   std::vector<accelerator> accs = accelerator::get_all();
   assert(accs.size() && "Number of Accelerators == 0!");
   if(accs.size() == 2) {
@@ -40,6 +41,7 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
 hcblasStatus_t hcblasDestroy(hcblasHandle_t *handle){
   if(!handle->deviceId && !handle->Order)
     return HCBLAS_STATUS_NOT_INITIALIZED;
+//  delete handle;  
   return HCBLAS_STATUS_SUCCESS;
 }
 
@@ -930,7 +932,6 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
   long cOffset = 0;
   hcblasStatus status;
   hcblasTranspose transA, transB;
-  hcblasOrder hcOrder = ColMajor;
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
   status = handle.hcblas_sgemm(accl_view, handle.Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
@@ -944,8 +945,8 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const hcComplex       *alpha,
-                           const hcComplex       *A, int lda,
-                           const hcComplex       *B, int ldb,
+                           hcComplex       *A, int lda,
+                           hcComplex       *B, int ldb,
                            const hcComplex       *beta,
                            hcComplex       *C, int ldc) {
   if(!handle.deviceId && !handle.Order)
@@ -954,7 +955,20 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
   if(m < 0 || n < 0 || k < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-return HCBLAS_STATUS_SUCCESS;
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long aOffset = 0;
+  long bOffset = 0;
+  long cOffset = 0;
+  hcblasStatus status;
+  hcblasTranspose transA, transB;
+  transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
+  transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+  status = handle.hcblas_cgemm(accl_view, handle.Order, transA, transB, m, n, k, *alpha, A, aOffset, lda, B, bOffset, ldb, *beta, C, cOffset, ldc);
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 // 2. hcblas<t>gemmBatched()
@@ -1003,31 +1017,64 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const float           *alpha,
-                                  const float           *Aarray[], int lda,
-                                  const float           *Barray[], int ldb,
+                                  float           *Aarray, int lda,
+                                  float           *Barray, int ldb,
                                   const float           *beta,
-                                  float           *Carray[], int ldc, int batchCount) {
+                                  float           *Carray, int ldc, int batchCount) {
   if(!handle.deviceId && !handle.Order)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-return HCBLAS_STATUS_SUCCESS;
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long aOffset = 0;
+  long bOffset = 0;
+  long cOffset = 0;
+  long A_batchOffset = 0;
+  long B_batchOffset = 0;
+  long C_batchOffset = m * n;
+  hcblasStatus status;
+  hcblasTranspose transA, transB;
+  transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
+  transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+  status = handle.hcblas_sgemm(accl_view, handle.Order, transA, transB, m, n, k, *alpha, Aarray, lda, A_batchOffset, Barray, ldb, B_batchOffset, *beta, Carray, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchCount);
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
 hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcComplex       *alpha,
-                                  const hcComplex       *Aarray[], int lda,
-                                  const hcComplex       *Barray[], int ldb,
+                                  hcComplex       *Aarray, int lda,
+                                  hcComplex       *Barray, int ldb,
                                   const hcComplex       *beta,
-                                  hcComplex       *Carray[], int ldc, int batchCount) {
+                                  hcComplex       *Carray, int ldc, int batchCount) {
   if(!handle.deviceId && !handle.Order)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
-return HCBLAS_STATUS_SUCCESS;
+ 
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle.deviceId].create_view());
+  long aOffset = 0;
+  long bOffset = 0;
+  long cOffset = 0;
+  long A_batchOffset = 0;
+  long B_batchOffset = 0;
+  long C_batchOffset = m * n;
+  hcblasStatus status;
+  hcblasTranspose transA, transB;
+  transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
+  transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+  status = handle.hcblas_cgemm(accl_view, handle.Order, transA, transB, m, n, k, *alpha, Aarray, aOffset, A_batchOffset, lda, Barray, bOffset, B_batchOffset, ldb, *beta, Carray, cOffset, C_batchOffset, ldc, batchCount);
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
 }
