@@ -119,12 +119,12 @@ STATUS                            DESCRIPTION
  HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 ==============================    ===================================================== 
 
-7. hcblasDeviceSelect()
+7. hcblasDeviceOrderSelect()
 -----------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDeviceSelect** (hcblasHandle_t handle, int deviceId)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDeviceOrderSelect** (hcblasHandle_t handle, int deviceId, hcblasOrder order)
 
-| This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls.
+| This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls. User can select their order of operation in this function (RowMajor/ColMajor).
 |
 | Return Values,
 
@@ -133,4 +133,5 @@ STATUS                            DESCRIPTION
 ==============================    =======================================================
  HCBLAS_STATUS_SUCCESS            user call was sucessful
  HCBLAS_STATUS_INVALID_VALUE      Access to at least one of the device could not be done
+ HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 ==============================    =======================================================

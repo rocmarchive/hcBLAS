@@ -254,11 +254,11 @@
 </tbody>
 </table>
 </div>
-<div class="section" id="hcblasdeviceselect">
-<h2>7. hcblasDeviceSelect()<a class="headerlink" href="#hcblasdeviceselect" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDeviceSelect</strong> (hcblasHandle_t handle, int deviceId)</p>
+<div class="section" id="hcblasdeviceorderselect">
+<h2>7. hcblasDeviceOrderSelect()<a class="headerlink" href="#hcblasdeviceorderselect" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasDeviceOrderSelect</strong> (hcblasHandle_t handle, int deviceId, hcblasOrder order)</p>
 <div class="line-block">
-<div class="line">This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls.</div>
+<div class="line">This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls. User can select their order of operation in this function (RowMajor/ColMajor).</div>
 <div class="line"><br /></div>
 <div class="line">Return Values,</div>
 </div>
@@ -278,6 +278,9 @@
 </tr>
 <tr class="row-odd"><td>HCBLAS_STATUS_INVALID_VALUE</td>
 <td>Access to at least one of the device could not be done</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_STATUS_MAPPING_ERROR</td>
+<td>there was an error accessing GPU memory</td>
 </tr>
 </tbody>
 </table>
@@ -299,7 +302,7 @@
 <li><a class="reference internal" href="#hcblasgetvector">4. hcblasGetVector()</a></li>
 <li><a class="reference internal" href="#hcblassetmatrix">5. hcblasSetMatrix()</a></li>
 <li><a class="reference internal" href="#hcblasgetmatrix">6. hcblasGetMatrix()</a></li>
-<li><a class="reference internal" href="#hcblasdeviceselect">7. hcblasDeviceSelect()</a></li>
+<li><a class="reference internal" href="#hcblasdeviceorderselect">7. hcblasDeviceOrderSelect()</a></li>
 </ul>
 </li>
 </ul>
