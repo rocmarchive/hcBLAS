@@ -19,7 +19,7 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
   std::vector<accelerator> accs = accelerator::get_all();
   assert(accs.size() && "Number of Accelerators == 0!");
   if(accs.size() == 2) {
-   if(!handle->deviceId) {
+   if(!handle->deviceId || handle->deviceId >= accs.size()) {
       handle->deviceId = 1;
    }
   }
