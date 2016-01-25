@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 #include "hc_am.hpp"
 #include "cblas.h"
+#include "hcblaslib.h"
 
 TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   hcblasStatus_t status;
@@ -846,36 +847,44 @@ TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
   free(Y);
   free(Acblas);
   hc::am_free(devY);
+  free(A);
+  hc::am_free(devA);
 }
 
-#if 0
+
 TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle =  hcblasCreate();
   int m = 123;
   int n = 78;
   int incx = 1;
   int incy = 1;
-  long lenx = 1 + (m-1) * abs(incx);
-  long leny = 1 + (n-1) * abs(incy);
+  long lenx;
+  long leny;
   float alpha = 1;
   float beta = 1;
   long lda;
-  lda = (handle.Order)? m : n;
   enum CBLAS_ORDER order;
-  order = (handle.Order)? CblasColMajor: CblasRowMajor;
+  hcblasOperation_t typeA;
+  order = (handle->Order)? CblasColMajor: CblasRowMajor;
+  int row, col;
+  row = n; col = m; lda = m; 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  hcblasOperation_t trans = HCBLAS_OP_N;
+  enum CBLAS_TRANSPOSE transa;
+  transa = (trans == HCBLAS_OP_N)? CblasNoTrans : CblasTrans;
+  lenx = 1 + (row - 1) * abs(incx);
+  leny = 1 + (col - 1) * abs(incy);
 
+  // NoTransA
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *Ycblas = (float *)calloc( leny , sizeof(float));
   float *X = (float*)calloc(lenx, sizeof(float));//host input
   float *Y = (float*)calloc(leny, sizeof(float));
   float *A = (float *)calloc( lenx * leny , sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[handle.deviceId], 0);
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle.deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle.deviceId], 0);
+  float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -889,17 +898,32 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   hc::am_copy(devA, A, lenx * leny * sizeof(float));
   hc::am_copy(devX, X, lenx * sizeof(float));
   hc::am_copy(devY, Y, leny * sizeof(float));
-  status = hcblasSger(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda);
+  status = hcblasSgemv(handle, trans, m, n, &alpha, devA, lda, devX, incx, &beta, devY, incy); 
   hc::am_copy(Y, devY, leny * sizeof(float));
-  lda = (handle.Order)? m: n;
+  lda = (handle->Order)? m: n;
+  cblas_sgemv( order, transa, m, n, alpha, A, lda , X, incx, beta, Ycblas, incy );
+  for(int i =0; i < leny ; i++){
+      EXPECT_EQ(Y[i], Ycblas[i]);
+  }
+/*
+  hcblasOrder Order = RowMajor;
+  for(int i = 0;i < leny;i++){
+            Y[i] =  rand() % 15;
+            Ycblas[i] = Y[i];
+  }
+  hc::am_copy(devY, Y, leny * sizeof(float));
+  status = hcblasDeviceOrderSelect(handle, 1, Order); 
+  status = hcblasSgemv(handle, trans, m, n, &alpha, devA, lda, devX, incx, &beta, devY, incy); 
+  hc::am_copy(Y, devY, leny * sizeof(float));
+  lda = (handle->Order)? m: n;
   cblas_sgemv( order, transa, m, n, alpha, A, lda , X, incx, beta, Ycblas, incy );
   for(int i =0; i < lenx * leny ; i++){
-      EXPECT_EQ(A[i], Acblas[i]);
+      EXPECT_EQ(Y[i], Ycblas[i]);
   }
-  
+ */
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
-  status = hcblasSger(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda);
+  hcblasDestroy(handle);
+  status = hcblasSgemv(handle, trans, m, n, &alpha, devA, lda, devX, incx, &beta, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
   free(X);
@@ -908,7 +932,7 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   free(Y);
   hc::am_free(devY);
 }
-
+#if 0
 TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle;
@@ -924,9 +948,8 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   float beta = 1;
   int batchSize = 32;
   long lda;
-  lda = (handle.Order)? m : n;
   enum CBLAS_ORDER order;
-  order = (handle.Order)? CblasColMajor: CblasRowMajor;
+  order = (handle->Order)? CblasColMajor: CblasRowMajor;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
@@ -934,9 +957,9 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   float *Y = (float*)calloc(leny * batchSize, sizeof(float));
   float *Ycblas = (float*)calloc(leny * batchSize, sizeof(float));
   float *A = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[handle.deviceId], 0);
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle.deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, acc[handle.deviceId], 0);
+  float* devA = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -950,9 +973,9 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   hc::am_copy(devA, A, lenx * leny * batchSize * sizeof(float));
   hc::am_copy(devX, X, lenx * batchSize * sizeof(float));
   hc::am_copy(devY, Y, leny * batchSize * sizeof(float));
-  status = hcblasSgerBatched(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda, batchSize);
+  status = hcblasSgemvBatched(handle, trans, m, n, &alpha, devA, lda, devX, incx, &beta, devY, incy, batchSize);
   hc::am_copy(Y, devY, leny * batchSize* sizeof(float));
-  lda = (handle.Order)? m: n;
+  lda = (handle->Order)? m: n;
   for(int i =0 ; i < batchSize; i++)
       cblas_sgemv( order, transa, m, n, alpha, A + i * m * n, lda , X + i * row, incx, beta, Ycblas + i * col, incy );
   for(int i =0; i < leny * batchSize; i++){
@@ -960,8 +983,8 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
-  status = hcblasSgerBatched(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda, batchSize);
+  hcblasDestroy(handle);
+  status = hcblasSgemvBatched(handle, trans, m, n, &alpha, devA, lda, devX, incx, &beta, devY, incy, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
   free(X);
