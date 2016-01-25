@@ -5,9 +5,7 @@
 
 TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle =  hcblasCreate();
   int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -16,7 +14,7 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx, sizeof(float));//host input
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle.deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -29,7 +27,7 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   EXPECT_EQ(result, asumcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasSasum(handle, n, devX, incx, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -39,9 +37,7 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
 
 TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -51,7 +47,7 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle.deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -68,7 +64,7 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
   EXPECT_EQ(result, asumcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasSasumBatched(handle, n, devX, incx, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -78,9 +74,7 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
 
 TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -89,7 +83,7 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx, sizeof(double));//host input
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle.deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
@@ -102,7 +96,7 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
   EXPECT_EQ(result, asumcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasDasum(handle, n, devX, incx, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -112,9 +106,7 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
 
 TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -124,7 +116,7 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx * batchSize, sizeof(double));//host input
-  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[handle.deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
    }
@@ -142,7 +134,7 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
 
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasDasumBatched(handle, n, devX, incx, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -152,9 +144,7 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
 
 TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -164,7 +154,7 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *Xcblas = (float*)calloc(lenx, sizeof(float));
   float *X = (float*)calloc(lenx, sizeof(float));//host input
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle.deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
             Xcblas[i] = X[i];
@@ -178,7 +168,7 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasSscal(handle, n, &alpha, devX, incx);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -189,9 +179,7 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
 
 TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -202,7 +190,7 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *Xcblas = (float*)calloc(lenx * batchSize , sizeof(float));
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle.deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
             Xcblas[i] =  X[i];
@@ -218,7 +206,7 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasSscalBatched(handle, n, &alpha, devX, incx, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -229,9 +217,7 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
 
 TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -241,7 +227,7 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *Xcblas = (double*)calloc(lenx, sizeof(double));
   double *X = (double*)calloc(lenx, sizeof(double));//host input
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle.deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
             Xcblas[i] = X[i];
@@ -255,7 +241,7 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasDscal(handle, n, &alpha, devX, incx);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -266,9 +252,7 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
 
 TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -279,7 +263,7 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *Xcblas = (double*)calloc(lenx * batchSize , sizeof(double));
   double *X = (double*)calloc(lenx * batchSize, sizeof(double));//host input
-  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[handle.deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
             Xcblas[i] =  X[i];
@@ -295,7 +279,7 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasDscalBatched(handle, n, &alpha, devX, incx, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -306,9 +290,7 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
 
 TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -321,8 +303,8 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
   float *X = (float*)calloc(lenx, sizeof(float));//host input
   float *Y = (float*)calloc(leny, sizeof(float));
   float *Ycblas = (float*)calloc(leny, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle.deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle.deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -340,7 +322,7 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasScopy(handle, n, devX, incx, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -353,9 +335,7 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
 
 TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -369,8 +349,8 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
   float *Y = (float*)calloc(leny * batchSize, sizeof(float));
   float *Ycblas = (float*)calloc(leny *  batchSize, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx *  batchSize, acc[handle.deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny *  batchSize, acc[handle.deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx *  batchSize, acc[handle->deviceId], 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny *  batchSize, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx *  batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -389,7 +369,7 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasScopyBatched(handle, n, devX, incx, devY, incy, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -402,9 +382,7 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
 
 TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -417,8 +395,8 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
   double *X = (double*)calloc(lenx, sizeof(double));//host input
   double *Y = (double*)calloc(leny, sizeof(double));
   double *Ycblas = (double*)calloc(leny, sizeof(double));
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle.deviceId], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny, acc[handle.deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle->deviceId], 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -436,7 +414,7 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-   hcblasDestroy(&handle);
+   hcblasDestroy(handle);
   status = hcblasDcopy(handle, n, devX, incx, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -449,9 +427,7 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
 
 TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -465,8 +441,8 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
   double *X = (double*)calloc(lenx * batchSize, sizeof(double));//host input
   double *Y = (double*)calloc(leny * batchSize, sizeof(double));
   double *Ycblas = (double*)calloc(leny *  batchSize, sizeof(double));
-  double* devX = hc::am_alloc(sizeof(double) * lenx *  batchSize, acc[handle.deviceId], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny *  batchSize, acc[handle.deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx *  batchSize, acc[handle->deviceId], 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny *  batchSize, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx *  batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -485,7 +461,7 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasDcopyBatched(handle, n, devX, incx, devY, incy, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -498,9 +474,7 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
 
 TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -512,8 +486,8 @@ TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx, sizeof(float));//host input
   float *Y = (float*)calloc(leny, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle.deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle.deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -528,7 +502,7 @@ TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
   EXPECT_EQ(result, dotcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasSdot(handle, n, devX, incx, devY, incy, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -540,9 +514,7 @@ TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
 
 TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -555,8 +527,8 @@ TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
   float *Y = (float*)calloc(leny * batchSize, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle.deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, acc[handle.deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, acc[handle->deviceId], 0);
   float *dotcblastemp =(float*)calloc(batchSize, sizeof(float));
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
@@ -575,7 +547,7 @@ TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
   EXPECT_EQ(result, dotcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasSdotBatched(handle, n, devX, incx, devY, incy, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -587,9 +559,7 @@ TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
 
 TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -601,8 +571,8 @@ TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx, sizeof(double));//host input
   double *Y = (double*)calloc(leny, sizeof(double));
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle.deviceId], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny, acc[handle.deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle->deviceId], 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny, acc[handle->deviceId], 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -617,7 +587,7 @@ TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
   EXPECT_EQ(result, dotcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasDdot(handle, n, devX, incx, devY, incy, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -629,9 +599,7 @@ TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
 
 TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
   hcblasStatus_t status;
-  hcblasHandle_t handle;
-  status = hcblasCreate(&handle);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hcblasHandle_t *handle = hcblasCreate();
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -644,8 +612,8 @@ TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx * batchSize, sizeof(double));//host input
   double *Y = (double*)calloc(leny * batchSize, sizeof(double));
-  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[handle.deviceId], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny * batchSize, acc[handle.deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[handle->deviceId], 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny * batchSize, acc[handle->deviceId], 0);
   double *dotcblastemp =(double*)calloc(batchSize, sizeof(double));
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
@@ -664,7 +632,7 @@ TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
   EXPECT_EQ(result, dotcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(&handle);
+  hcblasDestroy(handle);
   status = hcblasDdotBatched(handle, n, devX, incx, devY, incy, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 

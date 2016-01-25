@@ -58,11 +58,9 @@ typedef hcFloatComplex hcComplex;
 
 // Return Values
 // --------------------------------------------------------------------
-// HCBLAS_STATUS_SUCCESS            initialization succeeded
-// HCBLAS_STATUS_NOT_INITIALIZED    Runtime initialization failed
-// HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
+// hcblasHandle_t*
 
-hcblasStatus_t hcblasCreate(hcblasHandle_t *handle);
+hcblasHandle_t* hcblasCreate();
 
 // 2. hcblasDestory()
 
@@ -74,7 +72,7 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle);
 // HCBLAS_STATUS_SUCCESS            the shut down succeeded
 // HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
 
-hcblasStatus_t hcblasDestroy(hcblasHandle_t *handle);
+hcblasStatus_t hcblasDestroy(hcblasHandle_t* &handle);
 
 // 3. hcblasSetVector()
 
@@ -148,7 +146,7 @@ hcblasStatus_t hcblasGetMatrix(int rows, int cols, int elemSize, const void *A, 
 // HCBLAS_STATUS_INVALID_VALUE      Access to at least one of the device could not be done or a hcBLAS context could not be created on at least one of the device
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t handle, int deviceId, hcblasOrder order);
+hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t *handle, int deviceId, hcblasOrder order);
 
 // HCBLAS Level-1 function reference
 
@@ -186,13 +184,13 @@ hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t handle, int deviceId, hcbl
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, int n,
+hcblasStatus_t  hcblasSasum(hcblasHandle_t *handle, int n,
                             float           *x, int incx, float  *result);
-hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, int n,
+hcblasStatus_t  hcblasDasum(hcblasHandle_t *handle, int n,
                             double          *x, int incx, double *result);
-hcblasStatus_t  hcblasSasumBatched(hcblasHandle_t handle, int n,
+hcblasStatus_t  hcblasSasumBatched(hcblasHandle_t *handle, int n,
                             float           *x, int incx, float  *result, int batchCount);
-hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t handle, int n,
+hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t *handle, int n,
                             double          *x, int incx, double *result, int batchCount);
 
 // 2. hcblas<t>axpy() and hcblas<t>axpyBatched()
@@ -218,11 +216,11 @@ hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t handle, int n,
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasSaxpy(hcblasHandle_t *handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            float                 *y, int incy);
-hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t *handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            float                 *y, int incy, int batchCount);
@@ -249,16 +247,16 @@ hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t handle, int n,
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasScopy(hcblasHandle_t *handle, int n,
                            const float           *x, int incx,
                            float                 *y, int incy);
-hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasDcopy(hcblasHandle_t *handle, int n,
                            const double          *x, int incx,
                            double                *y, int incy);
-hcblasStatus_t hcblasScopyBatched(hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasScopyBatched(hcblasHandle_t *handle, int n,
                            const float           *x, int incx,
                            float                 *y, int incy, int batchCount);
-hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t *handle, int n,
                            const double          *x, int incx,
                            double                *y, int incy, int batchCount);
 
@@ -286,19 +284,19 @@ hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t handle, int n,
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSdot (hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasSdot (hcblasHandle_t *handle, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *result);
-hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasDdot (hcblasHandle_t *handle, int n,
                            const double          *x, int incx,
                            const double          *y, int incy,
                            double          *result);
-hcblasStatus_t hcblasSdotBatched (hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasSdotBatched (hcblasHandle_t *handle, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *result, int batchCount);
-hcblasStatus_t hcblasDdotBatched (hcblasHandle_t handle, int n,
+hcblasStatus_t hcblasDdotBatched (hcblasHandle_t *handle, int n,
                            const double          *x, int incx,
                            const double          *y, int incy,
                            double          *result, int batchCount);
@@ -324,16 +322,16 @@ hcblasStatus_t hcblasDdotBatched (hcblasHandle_t handle, int n,
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
+hcblasStatus_t  hcblasSscal(hcblasHandle_t *handle, int n,
                             const float           *alpha,
                             float           *x, int incx);
-hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
+hcblasStatus_t  hcblasDscal(hcblasHandle_t *handle, int n,
                             const double          *alpha,
                             double          *x, int incx);
-hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t handle, int n,
+hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t *handle, int n,
                             const float           *alpha,
                             float           *x, int incx, int batchCount);
-hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
+hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t *handle, int n,
                             const double          *alpha,
                             double          *x, int incx, int batchCount);
 
@@ -384,14 +382,14 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
+hcblasStatus_t hcblasSgemv(hcblasHandle_t *handle, hcblasOperation_t trans,
                            int m, int n,
                            const float           *alpha,
                            float           *A, int lda,
                            float           *x, int incx,
                            const float           *beta,
                            float           *y, int incy);
-hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans,
+hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t *handle, hcblasOperation_t trans,
                            int m, int n,
                            const float           *alpha,
                            float           *A, int lda,
@@ -429,12 +427,12 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
+hcblasStatus_t  hcblasSger(hcblasHandle_t *handle, int m, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *A, int lda);
-hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
+hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t *handle, int m, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            const float           *y, int incy,
@@ -489,7 +487,7 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
+hcblasStatus_t hcblasSgemm(hcblasHandle_t *handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const float           *alpha,
@@ -497,7 +495,7 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
                            float           *B, int ldb,
                            const float           *beta,
                            float           *C, int ldc);
-hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
+hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const hcComplex       *alpha,
@@ -548,7 +546,7 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
 // HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
+hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t *handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const float           *alpha,
@@ -556,7 +554,7 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
                                   float           *Barray, int ldb,
                                   const float           *beta,
                                   float           *Carray, int ldc, int batchCount);
-hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
+hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t *handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcComplex       *alpha,

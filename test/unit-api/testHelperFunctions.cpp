@@ -2,14 +2,14 @@
 #include "gtest/gtest.h"
 #include <hc_am.hpp>
 
-TEST(hcblasCreateTest, return_Check_hcblasCreate) {
+/*TEST(hcblasCreateTest, return_Check_hcblasCreate) {
  // Proper call
  hcblasHandle_t handle;
  // Call hcblasCreate
  hcblasStatus_t status = hcblasCreate(&handle); 
  // Check the status
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-}
+}*/
 
 TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  int n = 10;
@@ -17,9 +17,7 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  float *x1 = (float*) calloc(n, sizeof(float));
  double *x2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
- hcblasHandle_t handle;
- // Call hcblasCreate
- status = hcblasCreate(&handle);
+ hcblasHandle_t *handle = hcblasCreate();
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *y1 = (float*)am_alloc(n, accs[1], 0);
  double *y2 = (double*)am_alloc(n, accs[1], 0);
@@ -61,9 +59,7 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  float *y1 = (float*) calloc(n, sizeof(float));
  double *y2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
- hcblasHandle_t handle;
- // Call hcblasCreate
- status = hcblasCreate(&handle);
+ hcblasHandle_t *handle = hcblasCreate();
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *x1 = (float*)am_alloc(n, accs[1], 0);
  double *x2 = (double*)am_alloc(n, accs[1], 0);
