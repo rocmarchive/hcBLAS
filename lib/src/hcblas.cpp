@@ -737,6 +737,12 @@ hcblasStatus_t hcblasSgemv(hcblasHandle_t *handle, hcblasOperation_t trans,
   long yOffset = 0;
   hcblasStatus status;
   hcblasTranspose transA;
+  if(transA == NoTrans){
+        lda = m;
+  }
+  else{
+        lda = n;
+  }
   transA =  (trans == HCBLAS_OP_N)? NoTrans : Trans;
   status =  handle->hcblas_sgemv(accl_view, handle->Order, transA, m, n, *alpha, A, aOffset, lda, x, xOffset, incx, *beta, y, yOffset, incy);
   if(status == HCBLAS_SUCCEEDS)
@@ -770,10 +776,12 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t *handle, hcblasOperation_t tran
   if(transA == NoTrans){
         row = n;
         col = m;
+        lda = m;
   }
   else{
         row = m;
         col = n;
+        lda = n;
   }
   long X_batchOffset = row;
   long Y_batchOffset = col;
