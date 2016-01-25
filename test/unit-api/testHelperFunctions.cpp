@@ -93,3 +93,37 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 */
 }
+
+TEST(hcblasDeviceOrderselect, func_return_Check_hcblasDeviceOrderselect) {
+ hcblasHandle_t *handle = hcblasCreate();
+ hcblasStatus_t status;
+ hcblasOrder order = ColMajor;
+
+ //device CPU
+ status = hcblasDeviceOrderSelect(handle, 0, order);
+ EXPECT_EQ(handle->deviceId, 0);
+ EXPECT_EQ(handle->Order, 1);
+ EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+ 
+ //device GPU 1
+ status = hcblasDeviceOrderSelect(handle, 1, order);
+ EXPECT_EQ(handle->deviceId, 1);
+ EXPECT_EQ(handle->Order, 1);
+ EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+
+ //Row major and device CPU
+ order = RowMajor;
+ status = hcblasDeviceOrderSelect(handle, 0, order);
+ EXPECT_EQ(handle->deviceId, 0);
+ EXPECT_EQ(handle->Order, 0);
+ EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+
+ //Row major and device GPU 1
+ status = hcblasDeviceOrderSelect(handle, 1, order);
+ EXPECT_EQ(handle->deviceId, 1);
+ EXPECT_EQ(handle->Order, 0);
+ EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+ status = hcblasDeviceOrderSelect(handle, 2, order);
+ EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
+}
+

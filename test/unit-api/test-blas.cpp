@@ -930,6 +930,8 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   hc::am_free(devX);
   free(Y);
   hc::am_free(devY);
+  free(A);
+  hc::am_free(devA);
 }
 
 
@@ -940,8 +942,8 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   int n = 67;
   int incx = 1;
   int incy = 1;
-  long lenx = 1 + (m-1) * abs(incx);
-  long leny = 1 + (n-1) * abs(incy);
+  long lenx;
+  long leny;
   float alpha = 1;
   float beta = 1;
   int batchSize = 32;
@@ -997,7 +999,62 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   free(Y);
   free(Ycblas);
   hc::am_free(devY);
+  free(A);
+  hc::am_free(devA);
 }
 
+TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
+  hcblasStatus_t status;
+  hcblasHandle_t *handle =  hcblasCreate();
+  int M = 123;
+  int N = 78;
+  int K = 23;
+  int incx = 1, incy = 1;
+  float alpha = 1;
+  float beta = 1;
+  long lda;
+  long ldb;
+  long ldc;
+  enum CBLAS_ORDER order;
+  order = (handle->Order)? CblasColMajor: CblasRowMajor;
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  hcblasOperation_t typeA, typeB;
+  enum CBLAS_TRANSPOSE Transa, Transb;
+  float *A = (float*) calloc(M * K, sizeof(float));
+  float *B = (float*) calloc(K * N, sizeof(float));
+  float *C = (float*) calloc(M * N, sizeof(float));
+  float *C_hcblas = (float*) calloc(M * N, sizeof(float));
+  float *C_cblas = (float*) calloc(M * N, sizeof(float));
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[handle->deviceId], 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[handle->deviceId], 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[handle->deviceId], 0);
+  for(int i = 0; i < M * K; i++) {
+              A[i] = rand()%100;
+  }
+  for(int i = 0; i < K * N;i++) {
+              B[i] = rand() % 15;
+  }
+  for(int i = 0; i < M * N;i++) {
+              C[i] = rand() % 25;
+              C_cblas[i] = C[i];
+  }
+  hc::am_copy(devA, A, M * K * sizeof(float));
+  hc::am_copy(devB, B, K * N * sizeof(float));
+  hc::am_copy(devC, C, M * N * sizeof(float));
 
+  // NoTransA and NoTransB */           
+  typeA = HCBLAS_OP_N;
+  typeB = HCBLAS_OP_N;
+  Transa = CblasNoTrans;
+  Transb = CblasNoTrans;
 
+    // Column major */
+  lda = M; ldb = K ; ldc = M;
+  status = hcblasSgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
+  for(int i = 0 ; i < M * N ; i++)
+    EXPECT_EQ(C_hcblas[i], C_cblas[i]);
+
+}
