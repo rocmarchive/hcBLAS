@@ -143,22 +143,22 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t *handle, int n, int elemSize, cons
 // HCBLAS_STATUS_INVALID_VALUE      the parameters rows, cols<0 or elemSize, lda, ldb<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasSetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb) {
- std::vector<accelerator> accs = accelerator::get_all();
+hcblasStatus_t hcblasSetMatrix(hcblasHandle_t *handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb) {
+  std::vector<accelerator> accs = accelerator::get_all();
   if(accs.size() == 0) {
     std::wcout << "There is no acclerator!\n";
     // Since this case is to test on GPU device, skip if there is CPU only
     return HCBLAS_STATUS_MAPPING_ERROR;
   }
   assert(accs.size() && "Number of Accelerators == 0!");
-  if(accs.size() == 1) {
+
+  if(handle == nullptr)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+
+  if(accs.size() == 1 || handle->deviceId == 0) {
     // if only CPU is the accelerator
     return HCBLAS_STATUS_MAPPING_ERROR;
   }
-
-  hcblasHandle_t *handle;
-  if(handle == nullptr)
-    return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
@@ -181,22 +181,22 @@ hcblasStatus_t hcblasSetMatrix(int rows, int cols, int elemSize, const void *A, 
 // HCBLAS_STATUS_INVALID_VALUE      the parameters rows, cols<0 or elemSize, lda, ldb<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb) {
- std::vector<accelerator> accs = accelerator::get_all();
+hcblasStatus_t hcblasGetMatrix(hcblasHandle_t *handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb) {
+  std::vector<accelerator> accs = accelerator::get_all();
   if(accs.size() == 0) {
     std::wcout << "There is no acclerator!\n";
     // Since this case is to test on GPU device, skip if there is CPU only
     return HCBLAS_STATUS_MAPPING_ERROR;
   }
   assert(accs.size() && "Number of Accelerators == 0!");
-  if(accs.size() == 1) {
+
+  if(handle == nullptr)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+
+  if(accs.size() == 1 || handle->deviceId == 0) {
     // if only CPU is the accelerator
     return HCBLAS_STATUS_MAPPING_ERROR;
   }
-
-  hcblasHandle_t *handle;
-  if(handle == nullptr)
-    return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;

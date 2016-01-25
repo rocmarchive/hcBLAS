@@ -118,7 +118,7 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t* handle, int n, int elemSize, cons
 // HCBLAS_STATUS_INVALID_VALUE      the parameters rows, cols<0 or elemSize, lda, ldb<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasSetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
+hcblasStatus_t hcblasSetMatrix(hcblasHandle_t *handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
 
 // 6. hcblasGetMatrix()
 
@@ -134,7 +134,7 @@ hcblasStatus_t hcblasSetMatrix(int rows, int cols, int elemSize, const void *A, 
 // HCBLAS_STATUS_INVALID_VALUE      the parameters rows, cols<0 or elemSize, lda, ldb<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
  
-hcblasStatus_t hcblasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
+hcblasStatus_t hcblasGetMatrix(hcblasHandle_t *handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
 
 // 7. hcblasDeviceSelect()
 
