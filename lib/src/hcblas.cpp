@@ -85,7 +85,6 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t *handle, int n, int elemSize, cons
     return HCBLAS_STATUS_INVALID_VALUE;
   }
  
-  elemSize = sizeof(x); 
   hc::am_copy(y, x, elemSize * n);   
   return HCBLAS_STATUS_SUCCESS;
 }
@@ -124,7 +123,6 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t *handle, int n, int elemSize, cons
     return HCBLAS_STATUS_INVALID_VALUE;
   }
 
-  elemSize = sizeof(y);
   hc::am_copy(y, x, elemSize * n);
   return HCBLAS_STATUS_SUCCESS;
 }
@@ -163,8 +161,10 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t *handle, int rows, int cols, int e
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
   }
+
+  hc::am_copy(B, A, elemSize * rows * cols);
  
- return HCBLAS_STATUS_SUCCESS;
+  return HCBLAS_STATUS_SUCCESS;
 }
 
 // 6. hcblasGetMatrix()
@@ -201,6 +201,8 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t *handle, int rows, int cols, int e
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
   }
+
+  hc::am_copy(B, A, elemSize * rows * cols);
 
   return HCBLAS_STATUS_SUCCESS;
 }

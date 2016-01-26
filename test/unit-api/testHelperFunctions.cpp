@@ -102,6 +102,84 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  hc::am_free(x2);
 }
 
+TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
+ int rows = 10;
+ int cols = 10;
+ int lda = 1, ldb = 1;
+ float *x1 = (float*) calloc(rows * cols, sizeof(float));
+ double *x2 = (double*) calloc(rows * cols, sizeof(double));
+ hcblasStatus_t status;
+ hcblasHandle_t *handle = hcblasCreate();
+ std::vector<hc::accelerator>accs = hc::accelerator::get_all();
+ float *y1 = (float*)am_alloc(rows * cols, accs[handle->deviceId], 0);
+ double *y2 = (double*)am_alloc(rows * cols, accs[handle->deviceId], 0);
+
+ // HCBLAS_STATUS_INVALID_VALUE 
+ // lda is 0
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , 0, y1, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
+ // ldb is 0
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , lda, y1, 0);
+ EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
+ // elemSize is 0
+ status = hcblasSetMatrix(handle, rows, cols, 0, x1 , lda, y1, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
+ 
+// HCBLAS_STATUS_MAPPING_ERROR
+ handle->deviceId = 0;
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , lda, y2, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
+
+ // HCBLAS_STATUS_NOT_INITIALIZED  
+ hcblasDestroy(handle);
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , lda, y1, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+ free(x1);
+ free(x2);
+ hc::am_free(y1);
+ hc::am_free(y2);
+}
+
+TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
+ int rows = 10;
+ int cols = 10;
+ int lda = 1, ldb = 1;
+ float *y1 = (float*) calloc(cols * rows, sizeof(float));
+ double *y2 = (double*) calloc(cols * rows, sizeof(double));
+ hcblasStatus_t status;
+ hcblasHandle_t *handle = hcblasCreate();
+ std::vector<hc::accelerator>accs = hc::accelerator::get_all();
+ float *x1 = (float*)am_alloc(rows * cols, accs[handle->deviceId], 0);
+ double *x2 = (double*)am_alloc(rows * cols, accs[handle->deviceId], 0);
+
+ // HCBLAS_STATUS_INVALID_VALUE
+ // lda is 0
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x1 , 0, y1, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
+ // ldb is 0
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x1 , lda, y1, 0);
+ EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
+ // elemSize is 0
+ status = hcblasSetMatrix(handle, rows, cols, 0, x1 , lda, y1, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
+
+ // HCBLAS_STATUS_MAPPING_ERROR
+ handle->deviceId = 0;
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x2 , lda, y1, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
+
+ // HCBLAS_STATUS_NOT_INITIALIZED
+ hcblasDestroy(handle);
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x1 , lda, y1, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+ free(y1);
+ free(y2);
+ hc::am_free(x1);
+ hc::am_free(x2);
+}
+
 TEST(hcblasDeviceOrderselect, func_return_Check_hcblasDeviceOrderselect) {
  hcblasHandle_t *handle = hcblasCreate();
  hcblasStatus_t status;
