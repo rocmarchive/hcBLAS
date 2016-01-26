@@ -54,7 +54,9 @@ To know more, go through the [Documentation](http://hcblas-documentation.readthe
 
 ## Example Code
 
-* Sgemm code example
+Sgemm (NoTranspose) example: 
+
+file: sgemmNN_example.cpp
 
 ```
 #!c++
@@ -170,3 +172,8 @@ int main() {
 
 
 ```
+* Compiling the example code:
+   
+   Assuming the library and compiler installation is followed as in [here](http://hcblas-documentation.readthedocs.org/en/latest/#installation-steps)
+
+          /opt/hcc/bin/clang++ `/opt/hcc/bin/hcc-config --cxxflags --ldflags` -lhc_am -lhcblas sgemmNN_example.cpp
