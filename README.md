@@ -21,7 +21,7 @@ The following list enumerates the current set of BLAS sub-routines that are supp
 
 To know more, go through the [Documentation](http://hcblas-documentation.readthedocs.org/en/latest/)
 
-## Key Features: ##
+## Key Features ##
 
 * Support for 13 commonly used BLAS routines
 * Batched GEMM API
@@ -29,16 +29,16 @@ To know more, go through the [Documentation](http://hcblas-documentation.readthe
 * Single and Double precision
 
 
-##Prerequisites: ##
+##Prerequisites ##
 
 * Refer Prerequisites section [here](http://hcblas-documentation.readthedocs.org/en/latest/#prerequisites)
 
-## Tested Environment so far: 
+## Tested Environment so far 
 
 * Refer Tested environments enumerated [here](http://hcblas-documentation.readthedocs.org/en/latest/#tested-environments)
 
 
-## Installation Steps:  
+## Installation  
 
 * Follow installation steps as described [here](http://hcblas-documentation.readthedocs.org/en/latest/#installation-steps)
 
@@ -46,3 +46,7 @@ To know more, go through the [Documentation](http://hcblas-documentation.readthe
 ## Unit testing
 
 * Follow testing procedures as explained [here](http://hcblas-documentation.readthedocs.org/en/latest/#unit-testing)
+
+## API reference
+
+* The Specification of API's supported by hcblas along with their description  can be found [here](http://hcblas-documentation.readthedocs.org/en/latest/#hcblas-api-reference)
