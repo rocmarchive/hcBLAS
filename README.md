@@ -5,41 +5,26 @@ This repository hosts the HCC based BLAS Library (hcBLAS), that targets GPU acce
 
 The following list enumerates the current set of BLAS sub-routines that are supported so far. 
 
-  (a). Sgemm  : Single Precision real valued general matrix-matrix multiplication
-
-  (b). Cgemm  : Complex valued general matrix matrix multiplication
-
-  (c). Sgemv  : Single Precision real valued general matrix-vector multiplication
-
-  (d). Sger   : Single Precision General matrix rank 1 operation
-
-  (e). Saxpy  : Scale vector X and add to vector Y
-
-  (f). Sscal  : Single Precision scaling of Vector X 
-
-  (g). Dscal  : Double Precision scaling of Vector X
-
-  (h). Scopy  : Single Precision Copy 
-
-  (i). Dcopy  : Double Precision Copy
-
-  (j). Sasum : Single Precision Absolute sum of values of a vector
-
-  (k). Dasum : Double Precision Absolute sum of values of a vector
-
-  (l). Sdot  : Single Precision Dot product
-
-  (m). Ddot  : Double Precision Dot product
+* Sgemm  : Single Precision real valued general matrix-matrix multiplication
+* Cgemm  : Complex valued general matrix matrix multiplication
+* Sgemv  : Single Precision real valued general matrix-vector multiplication
+* Sger   : Single Precision General matrix rank 1 operation
+* Saxpy  : Scale vector X and add to vector Y
+* Sscal  : Single Precision scaling of Vector X 
+* Dscal  : Double Precision scaling of Vector X
+* Scopy  : Single Precision Copy 
+* Dcopy  : Double Precision Copy
+* Sasum : Single Precision Absolute sum of values of a vector
+* Dasum : Double Precision Absolute sum of values of a vector
+* Sdot  : Single Precision Dot product
+* Ddot  : Double Precision Dot product
 
 ## Key Features: ##
 
-  (a). Support for 13 commonly used BLAS routines
-
-  (b). Batched GEMM API
-
-  (c). Ability to Choose desired target accelerator
-
-  (d). Single and Double precision
+* Support for 13 commonly used BLAS routines
+* Batched GEMM API
+* Ability to Choose desired target accelerator
+* Single and Double precision
 
 
 ##Prerequisites: ##
@@ -144,74 +129,4 @@ b) Install the compiler
 
 ### 2. Testing:
     
-(a) For Linux:
-
-     * cd ~/hcblas/test/unit/
-     
-     * ./test.sh
-     
-     To test manually, 
-
-     * cd ~/hcblas/test/build/linux/bin/
-     
-Note:
-     
-     * TransA (TA) and TransB(TB) takes 0 or 1
-       where,            0 - NoTrans (Operate with the actual matrix)
-                         1 - Trans   (Operate with the transpose of the matrix)
-                         
-     * Implementation type (Itype) takes 1 or 2
-       where,            1 - Inputs and Outputs are device pointers.
-                         2 - Inputs and Outputs are device pointers with batch processing.
-     
-  (1) SGEMM - Single Precision real valued general matrix-matrix multiplication 
-     
-     * ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type (Itype) takes 1 or 2)
-  
-  (2) CGEMM - Complex valued general matrix matrix multiplication
-
-     * ./cgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Itype takes 1 or 2)
-
-  (3) SGEMV - Single Precision real valued general matrix-vector multiplication
-       
-     * ./sgemv M N Trans Itype(Here Trans take binary values 0 or 1 while Itype takes 1 or 2)
-
-  (4) SGER - Single Precision General matrix rank 1 operation
- 
-     * ./sger M N Itype(Itype takes 1 or 2)
-
-  (5) SAXPY - Scale vector X and add to vector Y
-    
-     * ./saxpy N Itype(Itype takes 1 or 2)
-
-  (6) SSCAL - Single Precision scaling of Vector X 
-  
-     * ./sscal N Itype(Itype takes 1 or 2)
-
-  (7) DSCAL - Double Precision scaling of Vector X
-   
-     * ./dscal N Itype(Itype takes 1 or 2)
- 
-  (8) SCOPY - Single Precision Copy 
-
-     * ./scopy N Itype(Itype takes 1 or 2)
-
-  (9) DCOPY - Double Precision Copy
-   
-     * ./dcopy N Itype(Itype takes 1 or 2)
-
-  (10) SASUM - Single Precision sum of Absolute values
-
-     * ./sasum N Itype(Itype takes 1 or 2)
-
-  (11) DASUM - Double Precision sum of Absolute values
-
-     * ./dasum N Itype(Itype takes 1 or 2)
-
-  (12) SDOT - Single Precision Dot product
-
-     * ./sdot N Itype(Itype takes 1 or 2)
-
-  (13) DDOT - Double Precision Dot product
-
-     * ./ddot N Itype(Itype takes 1 or 2)
+----------------TO BE ADDED--------------------------
