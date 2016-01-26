@@ -18,23 +18,16 @@ Functions
 Implementation type I
 ---------------------
 
- .. note:: **Inputs and Outputs are host float pointers.**
+ .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sger** (`hcblasOrder <HCBLAS_TYPES.html>`_ order, const int M, const int N, const float* alpha, float* x, const long xOffset, const int incx, float* y, const long yOffset, const int incy, float* A, const long AOffset, const int lda) 
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSger** (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda)
 
 Implementation type II
-----------------------
-
- .. note:: **Inputs and Outputs are HC++ float array containers.**
-
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sger** (hc::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, const int M, const int N, const float &alpha, hc::array<float> &x, const long xOffset, const int incx, hc::array<float> &y, const long yOffset, const int incy, hc::array<float> &A, const long AOffset, const int lda)
-
-Implementation type III
 -----------------------
 
- .. note:: **Inputs and Outputs are HC++ float array containers with batch processing.**
+ .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus <HCBLAS_TYPES.html>`_ **hcblas_sger** (hc::accelerator_view &accl_view, `hcblasOrder <HCBLAS_TYPES.html>`_ order, const int M, const int N, const float &alpha, hc::array<float> &x, const long xOffset, const long x_batchOffset, const int incx, hc::array<float> &y, const long yOffset, const long y_batchOffset, const int incy, hc::array<float> &A, const long AOffset, const long A_batchOffset, const int lda, int BatchSize)  
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgerBatched** (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -44,87 +37,56 @@ Function Documentation
 
  ::
 
-              hcblasStatus hcblas_sger (hc::accelerator_view &accl_view, 
-                                        hcblasOrder order,
-                                        const int M, 
-                                        const int N, 
-                                        const float &alpha,
-                                        hc::array<float> &x, 
-                                        const long xOffset, 
-                                        const int incx,
-                                        hc::array<float> &y, 
-                                        const long yOffset, 
-                                        const int incy,
-                                        hc::array<float> &A, 
-                                        const long AOffset, 
-                                        const int lda)
-
+              hcblasStatus_t  hcblasSger(hcblasHandle_t* handle, int m, int n,
+                                         const float           *alpha,
+                                         const float           *x, int incx,
+                                         const float           *y, int incy,
+                                         float                 *A, int lda)
 
 +------------+-----------------+--------------------------------------------------------------+
 |  In/out    |  Parameters     | Description                                                  |
 +============+=================+==============================================================+
-|    [in]    |  accl_view      | `Using accelerator and accelerator_view Objects              |  
-|            |                 | <https://msdn.microsoft.com/en-us/library/hh873132.aspx>`_   |
+|    [in]    |  handle         | handle to the HCBLAS library context.                        |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	order	       | Row/Column order (RowMajor/ColMajor).                        |
+|    [in]    |	m              | Number of rows in matrix A.                                  |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	M              | Number of rows in matrix A.                                  |
-+------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	N	       | Number of columns in matrix A.                               |
+|    [in]    |	n	       | Number of columns in matrix A.                               |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	alpha	       | specifies the scalar alpha.                                  |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	x              | Buffer object storing vector x.                              |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    | 	xOffset        | Offset in number of elements for the first element           |
-|            |                 | in vector x.                                                 |
-+------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	incx	       | Increment for the elements of x. Must not be zero.           |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	y	       | Buffer object storing vector y.                              |
-+------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	yOffset	       | Offset in number of elements for the first element           |
-|            |                 | in vector y.                                                 |
 +------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	incy	       | Increment for the elements of y. Must not be zero.           |
 +------------+-----------------+--------------------------------------------------------------+
 |    [out]   | 	A              | Buffer object storing matrix A. On exit, A is overwritten    |
 |            |                 | by the updated matrix.                                       |
 +------------+-----------------+--------------------------------------------------------------+
-|    [in]    |	AOffset        | Offset in number of elements for the first element           |
-|            |                 | in matrix A.                                                 |
-+------------+-----------------+--------------------------------------------------------------+
 |    [in]    |	lda	       | Leading dimension of matrix A. It cannot be less than N when |
 |            |                 | the order parameter is set to RowMajor, or less than M       |
 |            |                 | when the parameter is set to ColMajor.                       |
 +------------+-----------------+--------------------------------------------------------------+
 
-| Implementation type III has 4 other parameters as follows,
+| Implementation type II has other parameters as follows,
 +------------+-----------------+--------------------------------------------------------------+
 |  In/out    |  Parameters     | Description                                                  |
 +============+=================+==============================================================+
-|    [in]    |  A_batchOffset  | Batch Offset adding to the Offset of the first element of    |
-|            |                 | the matrix A in the buffer object. Counted in elements.      |
-|            |                 | Offset should be a multiple of m by n.                       |
-+------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  x_batchOffset  | Batch Offset adding to the Offset of the first element of    |
-|            |                 | the vector x in the buffer object. Counted in elements.      |
-|            |                 | Offset should be a multiple of m.                            |
-+------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  y_batchOffset  | Batch Offset adding to the Offset of the first element of    |
-|            |                 | the vector y in the buffer object. Counted in elements.      |
-|            |                 | Offset should be a multiple of n.                            |
-+------------+-----------------+--------------------------------------------------------------+
-|    [in]    |  BatchSize      | The size of batch of threads to be processed in parallel for |
+|    [in]    |  batchCount     | The size of batch of threads to be processed in parallel for |
 |            |                 | vectors x, y and Output matrix A.                            |
 +------------+-----------------+--------------------------------------------------------------+
 
 |
 | Returns, 
 
-==============   ===========================
-STATUS           DESCRIPTION
-==============   ===========================
-HCBLAS_SUCCESS    Success
-HCBLAS_INVALID    M, N, incx or incy is zero
-==============   ===========================  
+==============================    =============================================
+STATUS                            DESCRIPTION
+==============================    =============================================
+HCBLAS_STATUS_SUCCESS             the operation completed successfully
+HCBLAS_STATUS_NOT_INITIALIZED     the library was not initialized
+HCBLAS_STATUS_INVALID_VALUE       the parameters m,n<0 or incx,incy=0
+HCBLAS_STATUS_ARCH_MISMATCH       the device does not support double-precision
+HCBLAS_STATUS_EXECUTION_FAILED    the function failed to launch on the GPU
+==============================    ============================================= 

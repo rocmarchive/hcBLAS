@@ -1,7 +1,9 @@
 #include <iostream>
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include <cstdlib>
 #include "cblas.h"
+#include "hc_am.hpp"
+
 using namespace std;
 int main(int argc, char** argv)
 {
@@ -35,35 +37,42 @@ int main(int argc, char** argv)
     bool ispassed = 1;
     enum CBLAS_ORDER order;
     order = CblasColMajor;
-    float *Acblas = (float *)calloc( lenx * leny , sizeof(float));
-    float *xSger = (float*)calloc( lenx , sizeof(float));
-    float *ySger = (float*)calloc( leny , sizeof(float));
-    float *ASger = (float *)calloc( lenx * leny , sizeof(float));
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
-/* Implementation type I - Inputs and Outputs are host float pointers */
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
 
         if(Imple_type == 1) {
+            float *Acblas = (float *)calloc( lenx * leny , sizeof(float));
+            float *x = (float*)calloc( lenx , sizeof(float));
+            float *y = (float*)calloc( leny , sizeof(float));
+            float *A = (float *)calloc( lenx * leny , sizeof(float));
+            float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
+            float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+            float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
             for(int i = 0;i < lenx;i++) {
-                xSger[i] = rand() % 10;
+                x[i] = rand() % 10;
             }
             for(int i = 0;i < leny;i++) {
-                ySger[i] = rand() % 15;
+                y[i] = rand() % 15;
             }
 #ifdef PROFILE
             for(int iter=0; iter<10; iter++) {
 #endif
             for(int i = 0;i< lenx * leny ;i++) {
-                ASger[i] = rand() % 25;
-                Acblas[i] = ASger[i];
+                A[i] = rand() % 25;
+                Acblas[i] = A[i];
             }
-            status = hc.hcblas_sger(hcOrder, M , N , &alpha, xSger, xOffset, incX, ySger, yOffset, incY, ASger, aOffset, lda );
-            cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
+            hc::am_copy(devA, A, lenx * leny * sizeof(float));
+            hc::am_copy(devX, x, lenx * sizeof(float));
+            hc::am_copy(devY, y, leny * sizeof(float));
+            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
+            hc::am_copy(A, devA, lenx * leny * sizeof(float));
+            cblas_sger( order, M, N, alpha, x, incX, y, incY, Acblas, lda);
             for(int i =0; i < lenx * leny ; i++){
-                if (ASger[i] != Acblas[i]){
+                if (A[i] != Acblas[i]){
                     ispassed = 0;
-                    cout <<" HCSGER[" << i<< "] " << ASger[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
+                    cout <<" HCSGER[" << i<< "] " << A[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
                     break;
                 }
                 else
@@ -74,178 +83,49 @@ int main(int argc, char** argv)
 #ifdef PROFILE
             }
 #endif
+            free(x);
+            free(y);
+            free(A);
+            free(Acblas);
+            hc::am_free(devA);
+            hc::am_free(devX);
+            hc::am_free(devY);
         }
 
-/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
-
-        else if(Imple_type == 2){
-            array_view<float> xView(lenx, xSger);
-            array_view<float> yView(leny, ySger);
-            array_view<float> aMat( M * N, ASger);
-            for(int i = 0;i < lenx;i++) {
-                xView[i] = rand() % 10;
-                xSger[i] = xView[i];
-            }
-            for(int i = 0;i < leny;i++) {
-                yView[i] = rand() % 15;
-                ySger[i] = yView[i];
-            }
-#ifdef PROFILE
-            for(int iter = 0; iter < 10; iter++) {
-#endif
-            for(int i = 0;i< lenx * leny ;i++) {
-                aMat[i] = rand() % 25;
-                Acblas[i] = aMat[i];
-            }
-            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda);
-            cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
-            for(int i =0; i < lenx * leny ; i++){
-                if (aMat[i] != Acblas[i]){
-                    ispassed = 0;
-                    cout <<" HCSGER[" << i<< "] " << aMat[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
-                    break;
-                }
-                else
-                    continue;
-            }
-            if(!ispassed) cout << "TEST FAILED" << endl; 
-            if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-            }
-#endif
-        }
-
-/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
-
-        else if(Imple_type == 3){
-            float *xSgerbatch = (float*)calloc( lenx * batchSize, sizeof(float));
-            float *ySgerbatch = (float*)calloc( leny * batchSize, sizeof(float));
-            float *ASgerbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-            float *Acblasbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-            array_view<float> xbatchView(lenx * batchSize, xSgerbatch);
-            array_view<float> ybatchView(leny * batchSize, ySgerbatch);
-            array_view<float> abatchMat( lenx * leny * batchSize, ASgerbatch);
-            for(int i = 0;i < lenx * batchSize;i++) {
-                xbatchView[i] = rand() % 10;
-                xSgerbatch[i] = xbatchView[i];
-            }
-            for(int i = 0;i < leny * batchSize;i++) {
-                ybatchView[i] = rand() % 15;
-                ySgerbatch[i] = ybatchView[i];
-            }
-#ifdef PROFILE
-            for(int iter = 0; iter < 10; iter++) {
-#endif
-            for(int i = 0;i< lenx * leny * batchSize;i++) {
-                abatchMat[i] = rand() % 25;
-                Acblasbatch[i] = abatchMat[i];
-                ASgerbatch[i] = abatchMat[i];
-            }
-            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-            for(int i = 0; i < batchSize; i++)
-               cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda);
-            for(int i =0; i < lenx * leny * batchSize; i++){
-               if (abatchMat[i] != Acblasbatch[i]){
-                   ispassed = 0;
-                   cout <<" HCSGER[" << i<< "] " << abatchMat[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblasbatch[i] << endl;
-                   break;
-               }
-            else
-                  continue;
-            }
-            if(!ispassed) cout << "TEST FAILED" << endl; 
-            if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-         }
-#endif
-      }
-
-/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
-
-        else if(Imple_type == 4) {
-            std::vector<float> HostX(lenx);
-            std::vector<float> HostY(leny);
-            std::vector<float> HostA(lenx * leny);
-            hc::array<float> xView(lenx, xSger);
-            hc::array<float> yView(leny, ySger);
-            hc::array<float> aMat( lenx * leny, ASger);
-            for(int i = 0;i < lenx;i++) {
-                HostX[i] = rand() % 10;
-                xSger[i] = HostX[i];
-            }
-            for(int i = 0;i < leny;i++) {
-                HostY[i] = rand() % 15;
-                ySger[i] = HostY[i];
-            }
-#ifdef PROFILE
-            for(int iter=0; iter<10; iter++) {
-#endif
-            for(int i = 0;i< lenx * leny ;i++) {
-                HostA[i] = rand() % 25;
-                Acblas[i] = HostA[i];
-            }
-            hc::copy(begin(HostX), end(HostX), xView);
-            hc::copy(begin(HostY), end(HostY), yView);
-            hc::copy(begin(HostA), end(HostA), aMat);
-            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xView, xOffset, incX, yView, yOffset, incY, aMat, aOffset, lda );
-            hc::copy(aMat, begin(HostA));
-            cblas_sger( order, M, N, alpha, xSger, incX, ySger, incY, Acblas, lda);
-            for(int i =0; i < lenx * leny ; i++){
-                if (HostA[i] != Acblas[i]){
-                    ispassed = 0;
-                    cout <<" HCSGER[" << i<< "] " << HostA[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblas[i] << endl;
-                    break;
-                }
-                else
-                    continue;
-            }
-            if(!ispassed) cout << "TEST FAILED" << endl; 
-            if(status) cout << "TEST FAILED" << endl; 
-#ifdef PROFILE
-            }
-#endif
-        }
-
-/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
 
         else{
-            float *xSgerbatch = (float*)calloc( lenx * batchSize, sizeof(float));
-            float *ySgerbatch = (float*)calloc( leny * batchSize, sizeof(float));
-            float *ASgerbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
+            float *xbatch = (float*)calloc( lenx * batchSize, sizeof(float));
+            float *ybatch = (float*)calloc( leny * batchSize, sizeof(float));
+            float *Abatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
             float *Acblasbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-            std::vector<float> HostX_batch(lenx * batchSize);
-            std::vector<float> HostY_batch(leny * batchSize);
-            std::vector<float> HostA_batch(lenx * leny * batchSize);
-            hc::array<float> xbatchView(lenx * batchSize, xSgerbatch);
-            hc::array<float> ybatchView(leny * batchSize, ySgerbatch);
-            hc::array<float> abatchMat( lenx * leny * batchSize, ASgerbatch);
+            float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+            float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
+            float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
             for(int i = 0;i < lenx * batchSize;i++){
-                HostX_batch[i] = rand() % 10;
-                xSgerbatch[i] = HostX_batch[i];
+                xbatch[i] = rand() % 10;
             }
             for(int i = 0;i < leny * batchSize;i++){
-                HostY_batch[i] = rand() % 15;
-                ySgerbatch[i] =  HostY_batch[i];
+                ybatch[i] = rand() % 15;
             }
 #ifdef PROFILE
             for(int iter = 0; iter < 10; iter++) {
 #endif
             for(int i = 0;i< lenx * leny * batchSize;i++){
-                HostA_batch[i] = rand() % 25;
-                Acblasbatch[i] = HostA_batch[i];
-                ASgerbatch[i] = HostA_batch[i];
+                Abatch[i] = rand() % 25;
+                Acblasbatch[i] = Abatch[i];
             }
-            hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-            hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
-            hc::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
-            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, xbatchView, xOffset, X_batchOffset, incX, ybatchView, yOffset, Y_batchOffset, incY, abatchMat, aOffset, A_batchOffset, lda, batchSize );
-            hc::copy(abatchMat, begin(HostA_batch));
+            hc::am_copy(devXbatch, xbatch, lenx * batchSize * sizeof(float));
+            hc::am_copy(devYbatch, ybatch, leny * batchSize * sizeof(float));
+            hc::am_copy(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
+            status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
+            hc::am_copy(Abatch, devAbatch, lenx * leny * batchSize * sizeof(float));
             for(int i = 0; i < batchSize; i++)
-               cblas_sger( order, M, N, alpha, xSgerbatch + i * M, incX, ySgerbatch + i * N, incY, Acblasbatch + i * M * N, lda); 
+               cblas_sger( order, M, N, alpha, xbatch + i * M, incX, ybatch + i * N, incY, Acblasbatch + i * M * N, lda); 
             for(int i =0; i < lenx * leny * batchSize; i++){
-               if (HostA_batch[i] != Acblasbatch[i]){
+               if (Abatch[i] != Acblasbatch[i]){
                    ispassed = 0;
-                   cout <<" HCSGER[" << i<< "] " << HostA_batch[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblasbatch[i] << endl;
+                   cout <<" HCSGER[" << i<< "] " << Abatch[i] << " does not match with CBLASSGER[" << i <<"] "<< Acblasbatch[i] << endl;
                    break;
                }
             else 
@@ -256,6 +136,13 @@ int main(int argc, char** argv)
 #ifdef PROFILE
             }
 #endif
+        free(xbatch);
+        free(ybatch);
+        free(Abatch);
+        free(Acblasbatch);
+        hc::am_free(devAbatch);
+        hc::am_free(devXbatch);
+        hc::am_free(devYbatch);
       }
     return 0;
 }

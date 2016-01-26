@@ -1,313 +1,14 @@
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include <cstdlib> 
-#include <amp_short_vectors.h>
+#include "hc_short_vector.hpp"
 #include <unistd.h>
 #include "gtest/gtest.h"
+#include "hc_am.hpp"
+#include "cblas.h"
 
-TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
+TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_1) {
     Hcblaslibrary hc;
-    int M = 19;
-    int N = 19;
-    int row, col;
-    float alpha = 1;
-    float beta = 1;
-    long lda;
-    int incX = 1;
-    int incY = 1;
-    long xOffset = 0;
-    long yOffset = 0;
-    long aOffset = 0;
-    long lenx,  leny;
-    hcblasStatus status;
-    hcblasTranspose typeA;
-    
-/* Implementation type I - Inputs and Outputs are host float pointers */
-/* TransA */
-    hcblasOrder hcOrder = ColMajor;
-    row = M; col = N; lda = N; typeA = Trans;
-    lenx = 1 + (row - 1) * abs(incX);
-    leny = 1 + (col - 1) * abs(incY);
-    float *xSgemv = (float*)calloc( lenx , sizeof(float));
-    float *ySgemv = (float*)calloc( leny , sizeof(float));
-    float *ASgemv = (float *)calloc( lenx * leny , sizeof(float));
-    float *x1 = NULL;
-    float *y1 = NULL;
-    float *A1 = NULL;
-    for(int i = 0;i < lenx;i++) {
-            xSgemv[i] = rand() % 10;
-    }
-    for(int i = 0;i< lenx * leny;i++) {
-            ASgemv[i] = rand() % 25;
-    }
-    for(int i = 0;i < leny;i++) {
-            ySgemv[i] = rand() % 15;
-    }
-    /* Proper call with column major */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /*Proper call with row major */
-    status =  hc.hcblas_sgemv(RowMajor, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* x is NULL */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, x1, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* Y is NULL */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, y1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* A is NULL */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, A1, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* alpha is NULL */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, NULL, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* beta is NULL */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, NULL, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* M is 0 */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, 0, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* N is 0 */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, 0, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incx is 0 */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, 0, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incy is 0 */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, 0);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* alpha and beta is 0 */
-    alpha = 0; beta = 0;
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* alpha is 0 and beta is 1*/
-    beta = 1;
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv, aOffset, lda, xSgemv, xOffset, incX, &beta, ySgemv, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    
-/* NoTransA */
-    hcOrder = ColMajor;
-    row = N; col = M; lda = M; typeA = NoTrans;
-    lenx = 1 + (row - 1) * abs(incX);
-    leny = 1 + (col - 1) * abs(incY);
-    float *xSgemv1 = (float*)calloc( lenx , sizeof(float));
-    float *ySgemv1 = (float*)calloc( leny , sizeof(float));
-    float *ASgemv1 = (float *)calloc( lenx * leny , sizeof(float));
-    for(int i = 0;i < lenx;i++) {
-            xSgemv1[i] = rand() % 10;
-    }
-    for(int i = 0;i< lenx * leny;i++) {
-            ASgemv1[i] = rand() % 25;
-    }
-    for(int i = 0;i < leny;i++) {
-            ySgemv1[i] = rand() % 15;
-    }
-    /* Proper call with column major */
-    status =  hc.hcblas_sgemv(hcOrder, typeA, M, N, &alpha, ASgemv1, aOffset, lda, xSgemv1, xOffset, incX, &beta, ySgemv1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /*Proper call with row major */
-    status =  hc.hcblas_sgemv(RowMajor, typeA, M, N, &alpha, ASgemv1, aOffset, lda, xSgemv1, xOffset, incX, &beta, ySgemv1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-}
-
-TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
-    Hcblaslibrary hc;
-    int M = 19;
-    int N = 19;
-    int row, col;
-    float alpha = 1;
-    float beta = 1;
-    long lda;
-    int incX = 1;
-    int incY = 1;
-    long xOffset = 0;
-    long yOffset = 0;
-    long aOffset = 0;
-    long lenx,  leny;
-    hcblasStatus status;
-    hcblasTranspose typeA;
-    hcblasOrder hcOrder = ColMajor;
-    row = M; col = N; lda = N; typeA = Trans;
-    lenx = 1 + (row - 1) * abs(incX);
-    leny = 1 + (col - 1) * abs(incY);
-    float *xSgemv = (float*)calloc( lenx , sizeof(float));
-    float *ySgemv = (float*)calloc( leny , sizeof(float));
-    float *ASgemv = (float *)calloc( lenx * leny , sizeof(float));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
-
-/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
-
-    hc::array_view<float> xView(lenx, xSgemv);
-    hc::array_view<float> yView(leny, ySgemv);
-    hc::array_view<float> aMat(M * N, ASgemv);
-    for(int i = 0; i < lenx; i++) {
-           xView[i] = rand() % 10;
-    }
-    for(int i = 0;i< lenx * leny;i++) {
-           aMat[i] = rand() % 25;
-    }
-    for(int i = 0;i < leny;i++) {
-           yView[i] = rand() % 15;
-    }
-    /* Proper call with column major */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /*Proper call with row major */
-    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* M is 0 */
-    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* N is 0 */
-    status =hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, 0, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incx is 0 */
-    status =hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, 0, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incy is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, 0);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* alpha and beta is 0 */
-    alpha = 0; beta = 0;
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* alpha is 0 and beta is 1*/
-    beta = 1;
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    
-/* NoTransA */
-    hcOrder = ColMajor;
-    row = N; col = M; lda = M; typeA = NoTrans;
-    lenx = 1 + (row - 1) * abs(incX);
-    leny = 1 + (col - 1) * abs(incY);
-    float *xSgemv1 = (float*)calloc( lenx , sizeof(float));
-    float *ySgemv1 = (float*)calloc( leny , sizeof(float));
-    float *ASgemv1 = (float *)calloc( lenx * leny , sizeof(float));
-    hc::array_view<float> xView1(lenx, xSgemv1);
-    hc::array_view<float> yView1(leny, ySgemv1);
-    hc::array_view<float> aMat1(M * N, ASgemv1);
-    for(int i = 0; i < lenx; i++) {
-           xView1[i] = rand() % 10;
-    }
-    for(int i = 0;i< lenx * leny;i++) {
-           aMat1[i] = rand() % 25;
-    }
-    for(int i = 0;i < leny;i++) {
-           yView1[i] = rand() % 15;
-    }
-    /* Proper call with column major */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat1, aOffset, lda, xView1, xOffset, incX, beta, yView1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /*Proper call with row major */
-    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, aMat1, aOffset, lda, xView1, xOffset, incX, beta, yView1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-
-    }
-
-TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_3) {
-    Hcblaslibrary hc;
-    int M = 19;
-    int N = 19;
-    int isTransA = 1;
-    int row, col;
-    float alpha = 1;
-    float beta = 1;
-    long lda;
-    int incX = 1;
-    int incY = 1;
-    long xOffset = 0;
-    long yOffset = 0;
-    long aOffset = 0;
-    int batchSize = 64;
-    long lenx,  leny;
-    hcblasStatus status;
-    hcblasTranspose typeA;
-    hcblasOrder hcOrder = ColMajor;
-    row = M; col = N; lda = N; typeA = Trans;
-    lenx = 1 + (row - 1) * abs(incX);
-    leny = 1 + (col - 1) * abs(incY);
-    long X_batchOffset = row;
-    long Y_batchOffset = col;
-    long A_batchOffset = row * col;
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
-
-/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
-
-   float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));
-   float *ySgemvbatch = (float*)calloc( leny * batchSize, sizeof(float));
-   float *ASgemvbatch = (float *)calloc( row * col * batchSize, sizeof(float));
-   hc::array_view<float> xbatchView(lenx * batchSize, xSgemvbatch);
-   hc::array_view<float> ybatchView(leny * batchSize, ySgemvbatch);
-   hc::array_view<float> abatchMat(M * N * batchSize, ASgemvbatch);
-   for(int i = 0; i < lenx * batchSize; i++) {
-            xbatchView[i] = rand() % 10;
-   }
-   for(int i = 0; i< lenx * leny * batchSize; i++){
-            abatchMat[i] = rand() % 25;
-   }
-   for(int i = 0; i < leny * batchSize; i++) {
-            ybatchView[i] = rand() % 15;
-   }
- /* Proper call with column major */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /*Proper call with row major */
-    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* M is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* N is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, 0, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incx is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, 0, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incy is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, 0, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* alpha and beta is 0 */
-    alpha = 0; beta = 0;
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* alpha is 0 and beta is 1*/
-    beta = 1;
-    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
-    
-/* NoTransA */
-   hcOrder = ColMajor;
-   row = N; col = M; lda = M; typeA = NoTrans;
-   lenx = 1 + (row - 1) * abs(incX);
-   leny = 1 + (col - 1) * abs(incY);
-   float *xSgemvbatch1 = (float*)calloc( lenx * batchSize, sizeof(float));
-   float *ySgemvbatch1 = (float*)calloc( leny * batchSize, sizeof(float));
-   float *ASgemvbatch1 = (float *)calloc( row * col * batchSize, sizeof(float));
-   hc::array_view<float> xbatchView1(lenx * batchSize, xSgemvbatch1);
-   hc::array_view<float> ybatchView1(leny * batchSize, ySgemvbatch1);
-   hc::array_view<float> abatchMat1(M * N * batchSize, ASgemvbatch1);
-   for(int i = 0; i < lenx * batchSize; i++) {
-            xbatchView1[i] = rand() % 10;
-   }
-   for(int i = 0; i< lenx * leny * batchSize; i++){
-            abatchMat1[i] = rand() % 25;
-   }
-   for(int i = 0; i < leny * batchSize; i++) {
-            ybatchView1[i] = rand() % 15;
-   }
-   /* Proper call with column major */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat1, aOffset, A_batchOffset, lda, xbatchView1, xOffset, X_batchOffset, incX, beta, ybatchView1, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /*Proper call with row major */
-    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, abatchMat1, aOffset, A_batchOffset, lda, xbatchView1, xOffset, X_batchOffset, incX, beta, ybatchView1, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-}
-
-TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_4) {
-    Hcblaslibrary hc;
-    int M = 19;
+    int M = 179;
     int N = 19;
     int isTransA = 1;
     int row, col;
@@ -327,97 +28,255 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_4) {
     row = M; col = N; lda = N; typeA = Trans;
     lenx = 1 + (row - 1) * abs(incX);
     leny = 1 + (col - 1) * abs(incY);
-    float *xSgemv = (float*)calloc( lenx , sizeof(float));
-    float *ySgemv = (float*)calloc( leny , sizeof(float));
-    float *ASgemv = (float *)calloc( lenx * leny , sizeof(float));
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
-/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
-
-    hc::array<float> xView(lenx, xSgemv);
-    hc::array<float> yView(leny, ySgemv);
-    hc::array<float> aMat(lenx * leny, ASgemv);
-    std::vector<float> HostX(lenx);
-    std::vector<float> HostY(leny);
-    std::vector<float> HostA(lenx * leny);
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+    float *x = (float*)calloc( lenx , sizeof(float));
+    float *y = (float*)calloc( leny , sizeof(float));
+    float *A = (float *)calloc( lenx * leny , sizeof(float));
+    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
+    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+    float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
     for(int i = 0; i < lenx; i++) {
-           HostX[i] = rand() % 10;
+           x[i] = rand() % 10;
     }
     for(int i = 0; i< lenx * leny; i++) {
-           HostA[i] = rand() % 25;
+           A[i] = rand() % 25;
     }
     for(int i = 0; i < leny; i++) {
-           HostY[i] = rand() % 15;
+           y[i] = rand() % 15;
     }
-    hc::copy(begin(HostX), end(HostX), xView);
-    hc::copy(begin(HostY), end(HostY), yView);
-    hc::copy(begin(HostA), end(HostA), aMat);
+    hc::am_copy(devA, A, lenx * leny * sizeof(float));
+    hc::am_copy(devX, x, lenx * sizeof(float));
+    hc::am_copy(devY, y, leny * sizeof(float));
     /* Proper call with column major */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
-    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    /* x, y, A are not properly allocated */
+    float *devAn = NULL;
+    float *devXn = NULL;
+    float *devYn = NULL;
+    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAn, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_INVALID);
+    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devXn, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_INVALID);
+    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devYn, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_INVALID);
     /* M is 0 */
-    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
+    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* N is 0 */
-    status =hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, 0, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
+    status =hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, 0, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* incx is 0 */
-    status =hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, 0, beta, yView, yOffset, incY);
+    status =hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, 0, beta, devY, yOffset, incY);
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* incy is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, 0);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, 0);
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* alpha and beta is 0 */
     alpha = 0; beta = 0;
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 and beta is 1*/
     beta = 1;
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat, aOffset, lda, xView, xOffset, incX, beta, yView, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 /* NoTransA */
     hcOrder = ColMajor;
     row = N; col = M; lda = M; typeA = NoTrans;
     lenx = 1 + (row - 1) * abs(incX);
     leny = 1 + (col - 1) * abs(incY);
-    float *xSgemv1 = (float*)calloc( lenx , sizeof(float));
-    float *ySgemv1 = (float*)calloc( leny , sizeof(float));
-    float *ASgemv1 = (float *)calloc( lenx * leny , sizeof(float));
-    hc::array<float> xView1(lenx, xSgemv1);
-    hc::array<float> yView1(leny, ySgemv1);
-    hc::array<float> aMat1(lenx * leny, ASgemv1);
-    std::vector<float> HostX1(lenx);
-    std::vector<float> HostY1(leny);
-    std::vector<float> HostA1(lenx * leny);
+    float *x1 = (float*)calloc( lenx , sizeof(float));
+    float *y1 = (float*)calloc( leny , sizeof(float));
+    float *A1 = (float *)calloc( lenx * leny , sizeof(float));
+    float* devA1 = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
+    float* devX1 = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+    float* devY1 = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
     for(int i = 0; i < lenx; i++) {
-           HostX1[i] = rand() % 10;
+           x1[i] = rand() % 10;
     }
     for(int i = 0; i< lenx * leny; i++) {
-           HostA1[i] = rand() % 25;
+           A1[i] = rand() % 25;
     }
     for(int i = 0; i < leny; i++) {
-           HostY1[i] = rand() % 15;
+           y1[i] = rand() % 15;
     }
-    hc::copy(begin(HostX1), end(HostX1), xView1);
-    hc::copy(begin(HostY1), end(HostY1), yView1);
-    hc::copy(begin(HostA1), end(HostA1), aMat1);
+    hc::am_copy(devA1, A1, lenx * leny * sizeof(float));
+    hc::am_copy(devX1, x1, lenx * sizeof(float));
+    hc::am_copy(devY1, y1, leny * sizeof(float));
     /* Proper call with column major */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, aMat1, aOffset, lda, xView1, xOffset, incX, beta, yView1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA1, aOffset, lda, devX1, xOffset, incX, beta, devY1, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
-    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, aMat1, aOffset, lda, xView1, xOffset, incX, beta, yView1, yOffset, incY);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    hc::copy(yView, begin(HostY));
+    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, devA1, aOffset, lda, devX1, xOffset, incX, beta, devY1, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    free(x);
+    free(y);
+    free(A);
+    hc::am_free(devA);
+    hc::am_free(devX);
+    hc::am_free(devY);
+    free(x1);
+    free(y1);
+    free(A1);
+    hc::am_free(devA1);
+    hc::am_free(devX1);
+    hc::am_free(devY1);
 }
 
-TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_5) {
+TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     Hcblaslibrary hc;
-    int M = 19;
+    int M = 179;
+    int N = 19;
+    int isTransA = 1;
+    int row, col;
+    float alpha = 1;
+    float beta = 1;
+    long lda;
+    int incX = 1;
+    int incY = 1;
+    long xOffset = 0;
+    long yOffset = 0;
+    long aOffset = 0;
+    int batchSize = 128;
+    long lenx,  leny;
+    hcblasStatus status;
+    hcblasTranspose typeA;
+    hcblasOrder hcOrder = ColMajor;
+    row = M; col = N; lda = N; typeA = Trans;
+    lenx = 1 + (row - 1) * abs(incX);
+    leny = 1 + (col - 1) * abs(incY);
+    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+    accelerator_view accl_view = (acc[1].create_view());
+    enum CBLAS_TRANSPOSE transa;
+    transa = CblasTrans; 
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+    float *x = (float*)calloc( lenx , sizeof(float));
+    float *y = (float*)calloc( leny , sizeof(float));
+    float *A = (float *)calloc( lenx * leny , sizeof(float));
+    float *ycblas = (float *)calloc( leny , sizeof(float));
+    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
+    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+    float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+    for(int i = 0; i < lenx; i++) {
+           x[i] = rand() % 10;
+    }
+    for(int i = 0; i< lenx * leny; i++) {
+           A[i] = rand() % 25;
+    }
+    for(int i = 0; i < leny; i++) {
+           y[i] = rand() % 15;
+           ycblas[i] = y[i];
+    }
+    hc::am_copy(devA, A, lenx * leny * sizeof(float));
+    hc::am_copy(devX, x, lenx * sizeof(float));
+    hc::am_copy(devY, y, leny * sizeof(float));
+    /* Proper call with column major */
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(y, devY, leny * sizeof(float));
+    lda = (hcOrder)? M: N;
+    cblas_sgemv( CblasColMajor, transa, M, N, alpha, A, lda , x, incX, beta, ycblas, incY );
+    for(int i =0; i < leny; i++)
+        EXPECT_EQ(y[i], ycblas[i]);
+
+    /* alpha and beta is 0 */
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, 0, devA, aOffset, lda, devX, xOffset, incX, 0, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(y, devY, leny * sizeof(float));
+    lda = (hcOrder)? M: N;
+    cblas_sgemv( CblasColMajor, transa, M, N, 0, A, lda , x, incX, 0, ycblas, incY );
+    for(int i =0; i < leny; i++)
+        EXPECT_EQ(y[i], ycblas[i]);
+    /* alpha is 0 and beta is 1*/
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, 0, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(y, devY, leny * sizeof(float));
+    lda = (hcOrder)? M: N;
+    cblas_sgemv( CblasColMajor, transa, M, N, 0, A, lda , x, incX, beta, ycblas, incY );
+    for(int i =0; i < leny; i++)
+        EXPECT_EQ(y[i], ycblas[i]);
+
+    /*Proper call with row major */
+    hcOrder = RowMajor;
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(y, devY, leny * sizeof(float));
+    lda = (hcOrder)? M: N;
+    cblas_sgemv( CblasRowMajor, transa, M, N, alpha, A, lda , x, incX, beta, ycblas, incY );
+    for(int i =0; i < leny; i++)
+        EXPECT_EQ(y[i], ycblas[i]);
+
+/* NoTransA */
+    transa = CblasNoTrans;
+    hcOrder = ColMajor;
+    row = N; col = M; lda = M; typeA = NoTrans;
+    lenx = 1 + (row - 1) * abs(incX);
+    leny = 1 + (col - 1) * abs(incY);
+    float *x1 = (float*)calloc( lenx , sizeof(float));
+    float *y1 = (float*)calloc( leny , sizeof(float));
+    float *A1 = (float *)calloc( lenx * leny , sizeof(float));
+    float *ycblas1 = (float *)calloc( leny , sizeof(float));
+    float* devA1 = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
+    float* devX1 = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+    float* devY1 = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+    for(int i = 0; i < lenx; i++) {
+           x1[i] = rand() % 10;
+    }
+    for(int i = 0; i< lenx * leny; i++) {
+           A1[i] = rand() % 25;
+    }
+    for(int i = 0; i < leny; i++) {
+           y1[i] = rand() % 15;
+           ycblas1[i] = y1[i];
+    }
+    hc::am_copy(devA1, A1, lenx * leny * sizeof(float));
+    hc::am_copy(devX1, x1, lenx * sizeof(float));
+    hc::am_copy(devY1, y1, leny * sizeof(float));
+    /* Proper call with column major */
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA1, aOffset, lda, devX1, xOffset, incX, beta, devY1, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(y1, devY1, leny * sizeof(float));
+    lda = (hcOrder)? M: N;
+    cblas_sgemv( CblasColMajor, transa, M, N, alpha, A1, lda , x1, incX, beta, ycblas1, incY );
+    for(int i =0; i < leny; i++)
+        EXPECT_EQ(y1[i], ycblas1[i]);
+
+    /*Proper call with row major */
+    hcOrder = RowMajor;
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA1, aOffset, lda, devX1, xOffset, incX, beta, devY1, yOffset, incY);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(y1, devY1, leny * sizeof(float));
+    lda = (hcOrder)? M: N;
+    cblas_sgemv( CblasRowMajor, transa, M, N, alpha, A1, lda , x1, incX, beta, ycblas1, incY );
+    for(int i =0; i < leny; i++)
+        EXPECT_EQ(y1[i], ycblas1[i]);
+    free(x);
+    free(y);
+    free(A);
+    free(ycblas);
+    free(ycblas1);
+    hc::am_free(devA);
+    hc::am_free(devX);
+    hc::am_free(devY);
+    free(x1);
+    free(y1);
+    free(A1);
+    hc::am_free(devA1);
+    hc::am_free(devX1);
+    hc::am_free(devY1);
+}
+
+ 
+TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_2) {
+    Hcblaslibrary hc;
+    int M = 179;
     int N = 19;
     int isTransA = 1;
     int row, col;
@@ -443,87 +302,264 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_5) {
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].create_view());
 
-/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
+/* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
 
-    float *xSgemvbatch = (float*)calloc( lenx * batchSize, sizeof(float));
-    float *ySgemvbatch = (float*)calloc( leny * batchSize, sizeof(float));
-    float *ASgemvbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-    float *ycblasbatch = (float *)calloc( leny * batchSize, sizeof(float));
-    hc::array<float> xbatchView(lenx * batchSize, xSgemvbatch);
-    hc::array<float> ybatchView(leny * batchSize, ySgemvbatch);
-    hc::array<float> abatchMat(lenx * leny * batchSize, ASgemvbatch);
-    std::vector<float> HostX_batch(lenx * batchSize);
-    std::vector<float> HostY_batch(leny * batchSize);
-    std::vector<float> HostA_batch(lenx * leny * batchSize);
+    float *xbatch = (float*)calloc( lenx * batchSize, sizeof(float));
+    float *ybatch = (float*)calloc( leny * batchSize, sizeof(float));
+    float *Abatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
+    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
+    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
     for(int i = 0; i < lenx * batchSize; i++) {
-            HostX_batch[i] = rand() % 10;
+            xbatch[i] = rand() % 10;
     }
     for(int i = 0; i< lenx * leny * batchSize; i++) {
-            HostA_batch[i] = rand() % 25;
+            Abatch[i] = rand() % 25;
     }
     for(int i = 0; i < leny * batchSize; i++) {
-            HostY_batch[i] = rand() % 15;
+            ybatch[i] = rand() % 15;
     }
-    hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-    hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
-    hc::copy(begin(HostA_batch), end(HostA_batch), abatchMat);
+    hc::am_copy(devXbatch, xbatch, lenx * batchSize * sizeof(float));
+    hc::am_copy(devYbatch, ybatch, leny * batchSize * sizeof(float));
+    hc::am_copy(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
     /* Proper call with column major */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
-    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    /* x, y, A are not properly allocated */
+    float *devAn = NULL;
+    float *devXn = NULL;
+    float *devYn = NULL;
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAn, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_INVALID);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXn, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_INVALID);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYn, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_INVALID);
     /* M is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, 0, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* N is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, 0, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, 0, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* incx is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, 0, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, 0, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* incy is 0 */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, 0, batchSize);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, 0, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* alpha and beta is 0 */
     alpha = 0; beta = 0;
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 and beta is 1*/
     beta = 1;
-    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat, aOffset, A_batchOffset, lda, xbatchView, xOffset, X_batchOffset, incX, beta, ybatchView, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
+    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
 /* NoTransA */
     hcOrder = ColMajor;
     row = N; col = M; lda = M; typeA = NoTrans;
     lenx = 1 + (row - 1) * abs(incX);
     leny = 1 + (col - 1) * abs(incY);
-    float *xSgemvbatch1 = (float*)calloc( lenx * batchSize, sizeof(float));
-    float *ySgemvbatch1 = (float*)calloc( leny * batchSize, sizeof(float));
-    float *ASgemvbatch1 = (float *)calloc( row * col * batchSize, sizeof(float));
-    hc::array_view<float> xbatchView1(lenx * batchSize, xSgemvbatch1);
-    hc::array_view<float> ybatchView1(leny * batchSize, ySgemvbatch1);
-    hc::array_view<float> abatchMat1(M * N * batchSize, ASgemvbatch1);
-    std::vector<float> HostX_batch1(lenx * batchSize);
-    std::vector<float> HostY_batch1(leny * batchSize);
-    std::vector<float> HostA_batch1(lenx * leny * batchSize);
+    float *xbatch1 = (float*)calloc( lenx * batchSize, sizeof(float));
+    float *ybatch1 = (float*)calloc( leny * batchSize, sizeof(float));
+    float *Abatch1 = (float *)calloc( lenx * leny * batchSize, sizeof(float));
+    float* devXbatch1 = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+    float* devYbatch1 = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
+    float* devAbatch1 = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
+    X_batchOffset = row;
+    Y_batchOffset = col;
+    A_batchOffset = row * col;
     for(int i = 0; i < lenx * batchSize; i++) {
-            HostX_batch1[i] = rand() % 10;
+            xbatch1[i] = rand() % 10;
     }
     for(int i = 0; i< lenx * leny * batchSize; i++) {
-            HostA_batch1[i] = rand() % 25;
+            Abatch1[i] = rand() % 25;
     }
     for(int i = 0; i < leny * batchSize; i++) {
-            HostY_batch1[i] = rand() % 15;
+            ybatch1[i] = rand() % 15;
     }
-    hc::copy(begin(HostX_batch1), end(HostX_batch1), xbatchView1);
-    hc::copy(begin(HostY_batch1), end(HostY_batch1), ybatchView1);
-    hc::copy(begin(HostA_batch1), end(HostA_batch1), abatchMat1);
+    hc::am_copy(devXbatch1, xbatch1, lenx * batchSize * sizeof(float));
+    hc::am_copy(devYbatch1, ybatch1, leny * batchSize * sizeof(float));
+    hc::am_copy(devAbatch1, Abatch1, lenx * leny * batchSize * sizeof(float));
+
    /* Proper call with column major */
-    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, abatchMat1, aOffset, A_batchOffset, lda, xbatchView1, xOffset, X_batchOffset, incX, beta, ybatchView1, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch1, aOffset, A_batchOffset, lda, devXbatch1, xOffset, X_batchOffset, incX, beta, devYbatch1, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /*Proper call with row major */
-    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, abatchMat1, aOffset, A_batchOffset, lda, xbatchView1, xOffset, X_batchOffset, incX, beta, ybatchView1, yOffset, Y_batchOffset, incY, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
+    status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, devAbatch1, aOffset, A_batchOffset, lda, devXbatch1, xOffset, X_batchOffset, incX, beta, devYbatch1, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    free(xbatch);
+    free(ybatch);
+    free(Abatch);
+    hc::am_free(devAbatch);
+    hc::am_free(devXbatch);
+    hc::am_free(devYbatch);
+    free(xbatch1);
+    free(ybatch1);
+    free(Abatch1);
+    hc::am_free(devAbatch1);
+    hc::am_free(devXbatch1);
+    hc::am_free(devYbatch1);
 }
+
+TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
+    Hcblaslibrary hc;
+    int M = 179;
+    int N = 19;
+    int isTransA = 1;
+    int row, col;
+    float alpha = 1;
+    float beta = 1;
+    long lda;
+    int incX = 1;
+    int incY = 1;
+    long xOffset = 0;
+    long yOffset = 0;
+    long aOffset = 0;
+    int batchSize = 32;
+    long lenx,  leny;
+    hcblasStatus status;
+    hcblasTranspose typeA;
+    hcblasOrder hcOrder = ColMajor;
+    row = M; col = N; lda = N; typeA = Trans;
+    lenx = 1 + (row - 1) * abs(incX);
+    leny = 1 + (col - 1) * abs(incY);
+    long X_batchOffset = row;
+    long Y_batchOffset = col;
+    long A_batchOffset = row * col;
+    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+    accelerator_view accl_view = (acc[1].create_view());
+    enum CBLAS_TRANSPOSE transa;
+    transa = CblasTrans;
+/* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
+    float *ycblasbatch = (float *)calloc( leny * batchSize, sizeof(float));
+    float *xbatch = (float*)calloc( lenx * batchSize, sizeof(float));
+    float *ybatch = (float*)calloc( leny * batchSize, sizeof(float));
+    float *Abatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
+    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
+    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
+    for(int i = 0; i < lenx * batchSize; i++) {
+            xbatch[i] = rand() % 10;
+    }
+    for(int i = 0; i< lenx * leny * batchSize; i++) {
+            Abatch[i] = rand() % 25;
+    }
+    for(int i = 0; i < leny * batchSize; i++) {
+            ybatch[i] = rand() % 15;
+            ycblasbatch[i] = ybatch[i];
+    }
+    hc::am_copy(devXbatch, xbatch, lenx * batchSize * sizeof(float));
+    hc::am_copy(devYbatch, ybatch, leny * batchSize * sizeof(float));
+    hc::am_copy(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
+    /* Proper call with column major */
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+    lda = (hcOrder)? M : N;
+    for(int i =0 ; i < batchSize; i++)
+         cblas_sgemv( CblasColMajor, transa, M, N, alpha, Abatch + i * M * N, lda , xbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
+    for(int i =0; i < leny * batchSize; i++)
+         EXPECT_EQ(ybatch[i], ycblasbatch[i]);
+
+    /* alpha and beta is 0 */
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, 0, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, 0, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+    lda = (hcOrder)? M : N;
+    for(int i =0 ; i < batchSize; i++)
+         cblas_sgemv( CblasColMajor, transa, M, N, 0, Abatch + i * M * N, lda , xbatch + i * row, incX, 0, ycblasbatch + i * col, incY );
+    for(int i =0; i < leny * batchSize; i++)
+         EXPECT_EQ(ybatch[i], ycblasbatch[i]);
+
+    /* alpha is 0 and beta is 1*/
+    status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, 0, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+    lda = (hcOrder)? M : N;
+    for(int i =0 ; i < batchSize; i++)
+         cblas_sgemv( CblasColMajor, transa, M, N, 0, Abatch + i * M * N, lda , xbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
+    for(int i =0; i < leny * batchSize; i++)
+         EXPECT_EQ(ybatch[i], ycblasbatch[i]);
+
+    /*Proper call with row major */
+    hcOrder = RowMajor;
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+    lda = (hcOrder)? M : N;
+    for(int i =0 ; i < batchSize; i++)
+         cblas_sgemv( CblasRowMajor, transa, M, N, alpha, Abatch + i * M * N, lda , xbatch + i * row, incX, beta, ycblasbatch + i * col, incY );
+    for(int i =0; i < leny * batchSize; i++)
+         EXPECT_EQ(ybatch[i], ycblasbatch[i]);
+
+/* NoTransA */
+    transa = CblasNoTrans;
+    hcOrder = ColMajor;
+    row = N; col = M; lda = M; typeA = NoTrans;
+    lenx = 1 + (row - 1) * abs(incX);
+    leny = 1 + (col - 1) * abs(incY);
+    float *ycblasbatch1 = (float *)calloc( leny * batchSize, sizeof(float));
+    float *xbatch1 = (float*)calloc( lenx * batchSize, sizeof(float));
+    float *ybatch1 = (float*)calloc( leny * batchSize, sizeof(float));
+    float *Abatch1 = (float *)calloc( lenx * leny * batchSize, sizeof(float));
+    float* devXbatch1 = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+    float* devYbatch1 = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
+    float* devAbatch1 = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
+    X_batchOffset = row;
+    Y_batchOffset = col;
+    A_batchOffset = row * col;
+    for(int i = 0; i < lenx * batchSize; i++) {
+            xbatch1[i] = rand() % 10;
+    }
+    for(int i = 0; i< lenx * leny * batchSize; i++) {
+            Abatch1[i] = rand() % 25;
+    }
+    for(int i = 0; i < leny * batchSize; i++) {
+            ybatch1[i] = rand() % 15;
+            ycblasbatch1[i] = ybatch1[i];
+    }
+    hc::am_copy(devXbatch1, xbatch1, lenx * batchSize * sizeof(float));
+    hc::am_copy(devYbatch1, ybatch1, leny * batchSize * sizeof(float));
+    hc::am_copy(devAbatch1, Abatch1, lenx * leny * batchSize * sizeof(float));
+
+   /* Proper call with column major */
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch1, aOffset, A_batchOffset, lda, devXbatch1, xOffset, X_batchOffset, incX, beta, devYbatch1, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(ybatch1, devYbatch1, leny * batchSize * sizeof(float));
+    lda = (hcOrder)? M : N;
+    for(int i =0 ; i < batchSize; i++)
+         cblas_sgemv( CblasColMajor, transa, M, N, alpha, Abatch1 + i * M * N, lda , xbatch1 + i * row, incX, beta, ycblasbatch1 + i * col, incY );
+    for(int i =0; i < leny * batchSize; i++)
+         EXPECT_EQ(ybatch1[i], ycblasbatch1[i]);
+
+    /*Proper call with row major */
+    hcOrder = RowMajor;
+    status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch1, aOffset, A_batchOffset, lda, devXbatch1, xOffset, X_batchOffset, incX, beta, devYbatch1, yOffset, Y_batchOffset, incY, batchSize);
+    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    hc::am_copy(ybatch1, devYbatch1, leny * batchSize * sizeof(float));
+    lda = (hcOrder)? M : N;
+    for(int i =0 ; i < batchSize; i++)
+         cblas_sgemv( CblasRowMajor, transa, M, N, alpha, Abatch1 + i * M * N, lda , xbatch1 + i * row, incX, beta, ycblasbatch1 + i * col, incY );
+    for(int i =0; i < leny * batchSize; i++)
+         EXPECT_EQ(ybatch1[i], ycblasbatch1[i]);
+    free(xbatch);
+    free(ybatch);
+    free(Abatch);
+    free(ycblasbatch);
+    free(ycblasbatch1);
+    hc::am_free(devAbatch);
+    hc::am_free(devXbatch);
+    hc::am_free(devYbatch);
+    free(xbatch1);
+    free(ybatch1);
+    free(Abatch1);
+    hc::am_free(devAbatch1);
+    hc::am_free(devXbatch1);
+    hc::am_free(devYbatch1);
+}
+

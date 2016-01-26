@@ -1,12 +1,12 @@
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include <hc.hpp>
 #include <hc_math.hpp>
 #define TILE_SIZE 256
 using namespace hc;
 using namespace hc::fast_math;
-float ddot_HC(hc::accelerator_view &accl_view, long n,
-              hc::array<double, 1> &xView, long incx, long xOffset,
-              hc::array<double, 1> &yView, long incy, long yOffset, double out) {
+double ddot_HC(hc::accelerator_view &accl_view, long n,
+              const double *xView, long incx, long xOffset,
+              const double *yView, long incy, long yOffset, double out) {
   out = 0.0;
   // runtime sizes
   unsigned int tile_count = (n + TILE_SIZE - 1) / TILE_SIZE;
@@ -19,7 +19,7 @@ float ddot_HC(hc::accelerator_view &accl_view, long n,
   hc::extent<1> extent(thread_count);
   hc::parallel_for_each(
     extent.tile(TILE_SIZE),
-  [ =, &xView, &yView] (hc::tiled_index<1>& tid) __attribute__((hc, cpu)) {
+  [ = ] (hc::tiled_index<1>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
     // indexes
@@ -32,7 +32,7 @@ float ddot_HC(hc::accelerator_view &accl_view, long n,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += xView[xOffset + hc::index<1>(idx)] * yView[yOffset + hc::index<1>(idx)];
+      smem += xView[xOffset + hc::index<1>(idx)[0]] * yView[yOffset + hc::index<1>(idx)[0]];
       // next chunk
       idx += thread_count;
     }
@@ -97,7 +97,7 @@ float ddot_HC(hc::accelerator_view &accl_view, long n,
       // write to global buffer in this tiles
       global_buffer_view[ tid.tile[0] ] = smem;
     }
-  });
+  }).wait();
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count; i++) {
@@ -108,9 +108,9 @@ float ddot_HC(hc::accelerator_view &accl_view, long n,
   return out;
 }
 
-float ddot_HC(hc::accelerator_view &accl_view, long n,
-              hc::array<double, 1> &xView, long incx, long xOffset,
-              hc::array<double, 1> &yView, long incy, long yOffset, double out,
+double ddot_HC(hc::accelerator_view &accl_view, long n,
+              const double *xView, long incx, long xOffset,
+              const double *yView, long incy, long yOffset, double out,
               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
 
 {
@@ -126,7 +126,7 @@ float ddot_HC(hc::accelerator_view &accl_view, long n,
   hc::extent<2> extent(batchSize, thread_count);
   hc::parallel_for_each(
     extent.tile(1, TILE_SIZE),
-  [ =, &xView, &yView] (hc::tiled_index<2>& tid) __attribute__((hc, cpu)) {
+  [ = ] (hc::tiled_index<2>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
     // indexes
@@ -140,7 +140,7 @@ float ddot_HC(hc::accelerator_view &accl_view, long n,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += xView[xOffset + X_batchOffset * elt + hc::index<1>(idx)] * yView[yOffset + Y_batchOffset * elt + hc::index<1>(idx)];
+      smem += xView[xOffset + X_batchOffset * elt + hc::index<1>(idx)[0]] * yView[yOffset + Y_batchOffset * elt + hc::index<1>(idx)[0]];
       // next chunk
       idx += thread_count;
     }
@@ -205,7 +205,7 @@ float ddot_HC(hc::accelerator_view &accl_view, long n,
       // write to global buffer in this tiles
       global_buffer_view[ elt * tile_count + tid.tile[1] ] = smem;
     }
-  });
+  }).wait();
 
 // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
@@ -216,63 +216,32 @@ float ddot_HC(hc::accelerator_view &accl_view, long n,
   return out;
 }
 
-
-// DDOT Call Type II: Inputs and outputs are C++ HC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_ddot(const int N, double* X, const int incX, const long xOffset,
-    					  double* Y, const int incY, const long yOffset, double* dot) {
-  if (Y == NULL || X == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
-    return HCBLAS_INVALID;
-  }
-
-  int lenX = 1 + (N - 1) * abs(incX);
-  int lenY = 1 + (N - 1) * abs(incY);
-  hc::array<double, 1> xView(lenX, X);
-  hc::array<double, 1> yView(lenY, Y);
-  std::vector<double> HostX(lenX);
-  std::vector<double> HostY(lenY);
-
-  for( int i = 0; i < lenX; i++) {
-    HostX[i] = X[i];
-  }
-
-  for( int i = 0; i < lenY; i++) {
-    HostY[i] = Y[i];
-  }
-
-  hc::copy(begin(HostX), end(HostX), xView);
-  hc::copy(begin(HostY), end(HostY), yView);
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
-  *dot = ddot_HC(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, *dot);
-  return HCBLAS_SUCCESS;
-}
-
-// DDOT Call Type II: Inputs and outputs are C++ HC float array containers
+// DDOT Call Type I: Inputs and outputs are HCC double array containers
 hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const int N,
-				          hc::array<double> &X, const int incX, const long xOffset,
-				          hc::array<double> &Y, const int incY, const long yOffset, double &dot)
+				          const double *X, const int incX, const long xOffset,
+				          const double *Y, const int incY, const long yOffset, double &dot)
 
 {
   /*Check the conditions*/
-  if (N <= 0 || incX <= 0 || incY <= 0 ) {
+  if (X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
   dot = ddot_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 
-// DDOT TYpe III - Overloaded function with arguments related to batch processing
+// DDOT Type II - Overloaded function with arguments related to batch processing
 hcblasStatus Hcblaslibrary :: hcblas_ddot(hc::accelerator_view &accl_view, const int N,
-				          hc::array<double> &X, const int incX, const long xOffset,
-				          hc::array<double> &Y, const int incY, const long yOffset, double &dot,
+				          const double *X, const int incX, const long xOffset,
+				          const double *Y, const int incY, const long yOffset, double &dot,
 				          const long X_batchOffset, const long Y_batchOffset, const int batchSize) {
   /*Check the conditions*/
-  if (  N <= 0 || incX <= 0 || incY <= 0 ) {
+  if ( X == NULL || Y == NULL || N <= 0 || incX <= 0 || incY <= 0 ) {
     return HCBLAS_INVALID;
   }
 
   dot = ddot_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot, X_batchOffset, Y_batchOffset, batchSize);
-  return HCBLAS_SUCCESS;
+  return HCBLAS_SUCCEEDS;
 }
 

@@ -1,225 +1,201 @@
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include <cstdlib> 
 #include "gtest/gtest.h"
+#include "hc_am.hpp"
+#include "cblas.h"
+
+TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
+   Hcblaslibrary hc;
+   int N = 189;
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   long xOffset = 0;
+   float dothcblas;
+   hcblasStatus status; 
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *X = (float*)calloc(lenx, sizeof(float));
+   float *Y = (float*)calloc(leny, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   for(int i = 0; i < lenx; i++){
+            X[i] = rand() % 10;
+   }
+   for(int i = 0; i < leny; i++){
+            Y[i] =  rand() % 15;
+   }
+   hc::am_copy(devX, X, lenx * sizeof(float));
+   hc::am_copy(devY, Y, leny * sizeof(float));
+   /* Proper call */
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   /* X and Y are not properly allocated */
+   float *devX1 = NULL;
+   float *devY1 = NULL;
+   status = hc.hcblas_sdot(accl_view, N, devX1, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_INVALID);
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY1, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_INVALID);
+   /* N is 0 */
+   N = 0;
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_INVALID);
+   /* incX is 0 */
+   incX = 0;
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_INVALID); 
+   /* incY is 0 */
+   incX = 1; incY = 0;
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_INVALID);
+   free(X);
+   free(Y);
+   hc::am_free(devX);
+   hc::am_free(devY); 
+}
 
 TEST(hcblas_sdot, func_correct_sdot_Implementation_type_1) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    long xOffset = 0;
-    int incY = 1;
-    long yOffset = 0;
-    float dothcblas;
-    hcblasStatus status;
-    long lenx = 1 + (N-1) * abs(incX);
-    long leny = 1 + (N-1) * abs(incY);
-    float *X = (float*)calloc(lenx, sizeof(float));
-    float *Y = (float*)calloc(leny, sizeof(float));
-    float *X1 = NULL;
-    float *Y1 = NULL;
-/* Implementation type I - Inputs and Outputs are host float pointers */
-    for(int i = 0; i < lenx; i++){
+   Hcblaslibrary hc;
+   int N = 189;
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   long xOffset = 0;
+   float dothcblas;
+   hcblasStatus status;
+   float  dotcblas = 0.0; 
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *X = (float*)calloc(lenx, sizeof(float));
+   float *Y = (float*)calloc(leny, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
-    }
-     /* X1 is NULL */
-    status = hc.hcblas_sdot(N, X1, incX, xOffset, Y, incY, yOffset, &dothcblas);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-     /* Y1 is NULL */
-    status = hc.hcblas_sdot(N, X, incX, xOffset, Y1, incY, yOffset, &dothcblas);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* Proper call */
-    status = hc.hcblas_sdot(N, X, incX, xOffset, Y, incY, yOffset, &dothcblas);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
-    /* N is 0 */
-    N = 0;
-    status = hc.hcblas_sdot(N, X, incX, xOffset, Y, incY, yOffset, &dothcblas);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incX is 0 */
-    incX = 0;
-    status = hc.hcblas_sdot(N, X, incX, xOffset, Y, incY, yOffset, &dothcblas);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incY is 0 */
-    incX = 1;incY = 0;
-    status = hc.hcblas_sdot(N, X, incX, xOffset, Y, incY, yOffset, &dothcblas);
-    EXPECT_EQ(status, HCBLAS_INVALID);
+   }
+   for(int i = 0; i < leny; i++){
+            Y[i] =  rand() % 15;
+   }
+   hc::am_copy(devX, X, lenx * sizeof(float));
+   hc::am_copy(devY, Y, leny * sizeof(float));
+   /* Proper call */
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   dotcblas = cblas_sdot( N, X, incX, Y, incY);
+   EXPECT_EQ(dothcblas, dotcblas);
+   free(X);
+   free(Y);
+   hc::am_free(devX);
+   hc::am_free(devY);
+}
+
+TEST(hcblas_sdot, return_correct_sdot_Implementation_type_2) {
+   Hcblaslibrary hc;
+   int N = 189;
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   int batchSize = 128;
+   long xOffset = 0;
+   float dothcblas;
+   hcblasStatus status;
+   long X_batchOffset = N; 
+   long Y_batchOffset = N;
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
+   float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+   float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
+ 
+/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
+   for(int i = 0;i < lenx * batchSize;i++){
+            Xbatch[i] = rand() % 10;
+   }
+   for(int i = 0;i < leny * batchSize;i++){
+            Ybatch[i] =  rand() % 15;
+   }
+   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
+   hc::am_copy(devYbatch, Ybatch, leny * batchSize * sizeof(float));
+   /* Proper call */
+   status= hc.hcblas_sdot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   /* X and Y are not properly allocated */
+   float *devX1 = NULL;
+   float *devY1 = NULL;
+   status= hc.hcblas_sdot(accl_view, N, devX1, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_INVALID);
+   status= hc.hcblas_sdot(accl_view, N, devXbatch, incX, xOffset, devY1, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_INVALID);
+   /* N is 0 */
+   N = 0;
+   status= hc.hcblas_sdot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_INVALID);
+   /* incX is 0 */
+   incX = 0;
+   status= hc.hcblas_sdot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_INVALID);
+   /* incY is 0 */
+   incX = 1; incY = 0;
+   status= hc.hcblas_sdot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_INVALID);
+   free(Xbatch);
+   free(Ybatch);
+   hc::am_free(devXbatch);
+   hc::am_free(devYbatch);
 }
 
 TEST(hcblas_sdot, func_correct_sdot_Implementation_type_2) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    long xOffset = 0;
-    int incY = 1;
-    long yOffset = 0;
-    float dothcblas;
-    hcblasStatus status;
-    long lenx = 1 + (N-1) * abs(incX);
-    long leny = 1 + (N-1) * abs(incY);
-    float *X = (float*)calloc(lenx, sizeof(float));
-    float *Y = (float*)calloc(leny, sizeof(float));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+   Hcblaslibrary hc;
+   int N = 189;
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   int batchSize = 128;
+   long xOffset = 0;
+   float dothcblas;
+   float  dotcblas = 0.0;
+   float *dotcblastemp =(float*)calloc(batchSize, sizeof(float));
+   hcblasStatus status;
+   long X_batchOffset = N;
+   long Y_batchOffset = N;
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
+   float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+   float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
 
-/* Implementation type II - Inputs and Outputs are HC++ float array_view containers */
-    hc::array_view<float> xView(lenx, X);
-    hc::array_view<float> yView(leny, Y);
-    for(int i = 0; i < lenx; i++) {
-            xView[i] = rand() % 10;
-    }
-    for(int i = 0; i < leny; i++) {
-            yView[i] =  rand() % 15;
-    }
-    /* Proper call */
-    status = hc.hcblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* N is 0 */
-    N = 0;
-    status = hc.hcblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incX is 0 */
-    incX = 0;
-    status = hc.hcblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incY is 0 */
-    incX = 1; incY = 0;
-    status = hc.hcblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-}
-
-TEST(hcblas_sdot, func_correct_sdot_Implementation_type_3) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    int incY = 1;
-    long yOffset = 0;
-    int batchSize = 128;
-    long xOffset = 0;
-    float dothcblas;
-    hcblasStatus status;
-    long X_batchOffset = N;
-    long Y_batchOffset = N; 
-    long lenx = 1 + (N-1) * abs(incX);
-    long leny = 1 + (N-1) * abs(incY);
-    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-    float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
-/* Implementation type III - Inputs and Outputs are HC++ float array_view containers with batch processing */
-    hc::array_view<float> xbatchView(lenx * batchSize, Xbatch);
-    hc::array_view<float> ybatchView(leny * batchSize, Ybatch);
-    for(int i = 0; i < lenx * batchSize; i++){
-            xbatchView[i] = rand() % 10;
-    }
-    for(int i = 0; i < leny * batchSize; i++) {
-            ybatchView[i] =  rand() % 15;
-    }
-    /* Proper call */
-    status= hc.hcblas_sdot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* N is 0 */
-    N = 0;
-    status= hc.hcblas_sdot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incX is 0 */
-    incX = 0;
-    status= hc.hcblas_sdot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incY is 0 */
-    incX =1; incY =0;
-    status= hc.hcblas_sdot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-}
-
-TEST(hcblas_sdot, func_correct_sdot_Implementation_type_4) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    int incY = 1;
-    long yOffset = 0;
-    long xOffset = 0;
-    float dothcblas;
-    hcblasStatus status; 
-    long lenx = 1 + (N-1) * abs(incX);
-    long leny = 1 + (N-1) * abs(incY);
-    float *X = (float*)calloc(lenx, sizeof(float));
-    float *Y = (float*)calloc(leny, sizeof(float));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
-/* Implementation type IV - Inputs and Outputs are HC++ float array containers */
-   hc::array<float> xView(lenx, X);
-   std::vector<float> HostX(lenx);
-   hc::array<float> yView(leny, Y);
-   std::vector<float> HostY(leny);
-   for(int i = 0; i < lenx; i++){
-            HostX[i] = rand() % 10;
-   }
-   for(int i = 0; i < leny; i++){
-            HostY[i] =  rand() % 15;
-   }
-   hc::copy(begin(HostX), end(HostX), xView);
-   hc::copy(begin(HostY), end(HostY), yView);
-   /* Proper call */
-   status = hc.hcblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
-   /* N is 0 */
-   N = 0;
-   status = hc.hcblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-   EXPECT_EQ(status, HCBLAS_INVALID);
-   /* incX is 0 */
-   incX = 0;
-   status = hc.hcblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-   EXPECT_EQ(status, HCBLAS_INVALID); 
-   /* incY is 0 */
-   incX = 1; incY = 0;
-   status = hc.hcblas_sdot(accl_view, N, xView, incX, xOffset, yView, incY, yOffset, dothcblas);
-   EXPECT_EQ(status, HCBLAS_INVALID); 
-}
-
-TEST(hcblas_sdot, func_correct_sdot_Implementation_type_5) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    int incY = 1;
-    long yOffset = 0;
-    int batchSize = 128;
-    long xOffset = 0;
-    float dothcblas;
-    hcblasStatus status;
-    long X_batchOffset = N; 
-    long Y_batchOffset = N;
-    long lenx = 1 + (N-1) * abs(incX);
-    long leny = 1 + (N-1) * abs(incY);
-    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-    float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
-    
-/* Implementation type V - Inputs and Outputs are HC++ float array containers with batch processing */
-   hc::array<float> xbatchView(lenx * batchSize, Xbatch);
-   std::vector<float> HostX_batch(lenx * batchSize); 
-   hc::array<float> ybatchView(leny * batchSize, Ybatch);
-   std::vector<float> HostY_batch(leny * batchSize);
+/* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
-            HostX_batch[i] = rand() % 10;
+            Xbatch[i] = rand() % 10;
    }
    for(int i = 0;i < leny * batchSize;i++){
-            HostY_batch[i] =  rand() % 15;
+            Ybatch[i] =  rand() % 15;
    }
-   hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
-   hc::copy(begin(HostY_batch), end(HostY_batch), ybatchView);
+   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
+   hc::am_copy(devYbatch, Ybatch, leny * batchSize * sizeof(float));
    /* Proper call */
-   status= hc.hcblas_sdot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
-   /* N is 0 */
-   N = 0;
-   status= hc.hcblas_sdot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_INVALID);
-   /* incX is 0 */
-   incX = 0;
-   status= hc.hcblas_sdot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_INVALID);
-   /* incY is 0 */
-   incX = 1; incY = 0;
-   status= hc.hcblas_sdot(accl_view, N, xbatchView, incX, xOffset, ybatchView, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_INVALID);
+   status= hc.hcblas_sdot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   for(int i = 0; i < batchSize; i++){
+                dotcblastemp[i] = cblas_sdot( N, Xbatch + i * N, incX, Ybatch + i * N, incY);
+                dotcblas += dotcblastemp[i];
+   }
+   EXPECT_EQ(dothcblas, dotcblas);
+   free(Xbatch);
+   free(Ybatch);
+   hc::am_free(devXbatch);
+   hc::am_free(devYbatch);
 }

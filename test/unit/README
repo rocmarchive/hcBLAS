@@ -15,8 +15,6 @@ Prerequisites
 
 To test:
 ==================================================================================
-Each kernel test script needs kernel_input.txt file that stores inputs.
-The inputs to the kernels can be changed here if needed.
 
 $ cd ~/hcblas/test/unit/
 

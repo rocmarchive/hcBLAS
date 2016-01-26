@@ -1,182 +1,144 @@
-#include "hcblas.h"
+#include "hcblaslib.h"
 #include <cstdlib> 
 #include "gtest/gtest.h"
+#include "hc_am.hpp"
+#include "cblas.h"
 
-TEST(hcblas_dscal, func_correct_dscal_Implementation_type_1) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    long xOffset = 0;
-    double alpha = 1;
-    hcblasStatus status;
-    long lenx = 1 + (N-1) * abs(incX);
-    double *X = (double*)calloc(lenx, sizeof(double));
-    double *X1 = NULL;
-/* Implementation type I - Inputs and Outputs are host double pointers */
-    for(int i = 0; i < lenx; i++){
-            X[i] = rand() % 10;
-    }
-     /* X1 is NULL */
-    status = hc.hcblas_dscal(N, &alpha, X1, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* alpha is some scalar */
-    status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* alpha is 0*/
-    alpha = 0;
-    status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);  
-    /* N is 0 */
-    N = 0;
-    status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incX is 0 */
-    incX = 0;
-    status = hc.hcblas_dscal(N, &alpha, X, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    free(X);
-}
-
-TEST(hcblas_dscal, func_correct_dscal_Implementation_type_2) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    long xOffset = 0;
-    double alpha = 1;
-    hcblasStatus status;
-    long lenx = 1 + (N-1) * abs(incX);
-    double *X = (double*)calloc(lenx, sizeof(double));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
-
-/* Implementation type II - Inputs and Outputs are HC++ double array_view containers */
-    hc::array_view<double> xView(lenx, X);
-    for(int i = 0; i < lenx; i++) {
-            xView[i] = rand() % 10;
-    }
-    /* alpha is some scalar */
-    status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* alpha is 0 */
-    alpha = 0; 
-    status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* N is 0 */
-    N = 0;
-    status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incX is 0 */
-    incX = 0;
-    status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-}
-
-TEST(hcblas_dscal, func_correct_dscal_Implementation_type_3) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    int batchSize = 128;
-    long xOffset = 0;
-    double alpha = 1;
-    hcblasStatus status;
-    long X_batchOffset = N; 
-    long lenx = 1 + (N-1) * abs(incX);
-    double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
-/* Implementation type III - Inputs and Outputs are HC++ double array_view containers with batch processing */
-    hc::array_view<double> xbatchView(lenx * batchSize, Xbatch);
-    for(int i = 0; i < lenx * batchSize; i++){
-            xbatchView[i] = rand() % 10;
-    }
-    /* alpha is some scalar */
-    status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* alpha is 0 */
-    alpha = 0;
-    status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_SUCCESS);
-    /* N is 0 */
-    N = 0;
-    status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-    /* incX is 0 */
-    incX = 0;
-    status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);
-}
-
-TEST(hcblas_dscal, func_correct_dscal_Implementation_type_4) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    long xOffset = 0;
-    double alpha = 1;
-    hcblasStatus status; 
-    long lenx = 1 + (N-1) * abs(incX);
-    double *X = (double*)calloc(lenx, sizeof(double));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
-/* Implementation type IV - Inputs and Outputs are HC++ double array containers */
-   hc::array<double> xView(lenx, X);
-   std::vector<double> HostX(lenx);
+TEST(hcblas_dscal, return_correct_dscal_Implementation_type_1) {
+   Hcblaslibrary hc;
+   int N = 23;
+   int incX = 1;
+   long xOffset = 0;
+   double alpha = 1;
+   hcblasStatus status; 
+   long lenx = 1 + (N-1) * abs(incX);
+   double *X = (double*)calloc(lenx, sizeof(double));//host input
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+/* Implementation type I - Inputs and Outputs are HCC double array containers */
+   double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
    for(int i = 0; i < lenx; i++){
-            HostX[i] = rand() % 10;
+            X[i] = rand() % 10;
    }
-   hc::copy(begin(HostX), end(HostX), xView);
+   double* devX1 = NULL;
+   hc::am_copy(devX, X, lenx * sizeof(double));
+   /* devX1 is NULL */
+   status = hc.hcblas_dscal(accl_view, N, alpha, devX1, incX, xOffset);
+   EXPECT_EQ(status, HCBLAS_INVALID);
    /* alpha is some scalar */
-   status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   status = hc.hcblas_dscal(accl_view, N, alpha, devX, incX, xOffset);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* alpha is 0 */
    alpha = 0;
-   status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   status = hc.hcblas_dscal(accl_view, N, alpha, devX, incX, xOffset);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
-   status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
+   status = hc.hcblas_dscal(accl_view, N, alpha, devX, incX, xOffset);
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
-   status = hc.hcblas_dscal(accl_view, N, alpha, xView, incX, xOffset);
-   EXPECT_EQ(status, HCBLAS_INVALID);
-   hc::copy(xView, begin(HostX));  
+   status = hc.hcblas_dscal(accl_view, N, alpha, devX, incX, xOffset);
+   EXPECT_EQ(status, HCBLAS_INVALID); 
 }
 
-TEST(hcblas_dscal, func_correct_dscal_Implementation_type_5) {
-    Hcblaslibrary hc;
-    int N = 19;
-    int incX = 1;
-    int batchSize = 128;
-    long xOffset = 0;
-    double alpha = 1;
-    hcblasStatus status;
-    long X_batchOffset = N; 
-    long lenx = 1 + (N-1) * abs(incX);
-    double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
-    
-/* Implementation type V - Inputs and Outputs are HC++ double array containers with batch processing */
-   hc::array<double> xbatchView(lenx * batchSize, Xbatch);
-   std::vector<double> HostX_batch(lenx * batchSize); 
-   for(int i = 0;i < lenx * batchSize;i++){
-            HostX_batch[i] = rand() % 10;
+TEST(hcblas_dscal, function_correct_dscal_Implementation_type_1) {
+   Hcblaslibrary hc;
+   int N = 23;
+   int incX = 1;
+   long xOffset = 0;
+   double alpha = 1;
+   hcblasStatus status;
+   long lenx = 1 + (N-1) * abs(incX);
+   double *X = (double*)calloc(lenx, sizeof(double));//host input
+   double *Xcblas = (double*)calloc(lenx, sizeof(double));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+ /* Implementation type I - Inputs and Outputs are HCC double array containers */
+   double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
+   for(int i = 0; i < lenx; i++){
+           X[i] = rand() % 10;
+	   Xcblas[i] = X[i];
    }
-   hc::copy(begin(HostX_batch), end(HostX_batch), xbatchView);
+   hc::am_copy(devX, X, lenx * sizeof(double));
+   status = hc.hcblas_dscal(accl_view, N, alpha, devX, incX, xOffset);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   hc::am_copy(X, devX, lenx * sizeof(double));
+   cblas_dscal( N, alpha, Xcblas, incX );
+   for(int i = 0; i < lenx ; i++){
+	   EXPECT_EQ(X[i], Xcblas[i]);
+   }
+}
+
+TEST(hcblas_dscal, return_correct_dscal_Implementation_type_2) {
+   Hcblaslibrary hc;
+   int N = 19;
+   int incX = 1;
+   int batchSize = 32;
+   long xOffset = 0;
+   double alpha = 1;
+   hcblasStatus status;
+   long X_batchOffset = N; 
+   long lenx = 1 + (N-1) * abs(incX);
+   double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));//host input
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
+   double* devX1batch = NULL; 
+/* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
+   for(int i = 0;i < lenx * batchSize;i++){
+            Xbatch[i] = rand() % 10;
+   }
+   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
+   /* x1 is NULL */
+   status= hc.hcblas_dscal(accl_view, N, alpha, devX1batch, incX, xOffset, X_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_INVALID);
    /* alpha is some scalar */
-   status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   status= hc.hcblas_dscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* alpha is 0 */
    alpha = 0;  
-   status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
-   EXPECT_EQ(status, HCBLAS_SUCCESS);
+   status= hc.hcblas_dscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
-   status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
+   status= hc.hcblas_dscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
-   status= hc.hcblas_dscal(accl_view, N, alpha, xbatchView, incX, xOffset, X_batchOffset, batchSize);
+   status= hc.hcblas_dscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_INVALID);
-   hc::copy(xbatchView, begin(HostX_batch));  
 }
+
+TEST(hcblas_dscal, function_correct_dscal_Implementation_type_2) {
+   Hcblaslibrary hc;
+   int N = 19;
+   int incX = 1;
+   int batchSize = 32;
+   long xOffset = 0;
+   double alpha = 1;
+   hcblasStatus status;
+   long X_batchOffset = N;
+   long lenx = 1 + (N-1) * abs(incX);
+   double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));//host input
+   double *Xcblasbatch = (double*)calloc(lenx * batchSize, sizeof(double));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
+   /* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
+   for(int i = 0;i < lenx * batchSize;i++){
+               Xbatch[i] = rand() % 10;
+	       Xcblasbatch[i] =  Xbatch[i];
+   }
+   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
+   status= hc.hcblas_dscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   hc::am_copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
+   for(int i = 0; i < batchSize; i++)
+        cblas_dscal( N, alpha, Xcblasbatch + i * N, incX);
+   for(int i =0; i < lenx * batchSize; i ++){
+	EXPECT_EQ(Xbatch[i], Xcblasbatch[i]);
+   }
+}
+
+

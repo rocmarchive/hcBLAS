@@ -24,6 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="HCBLAS  documentation" href="index.html" />
+    <link rel="next" title="HCBLAS Helper functions" href="Helper_functions.html" />
     <link rel="prev" title="DDOT" href="ddot.html" /> 
   </head>
   <body role="document">
@@ -33,6 +34,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="Helper_functions.html" title="HCBLAS Helper functions"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="ddot.html" title="DDOT"
              accesskey="P">previous</a> |</li>
@@ -50,39 +54,68 @@
 <div class="section" id="enumerations">
 <h2>Enumerations<a class="headerlink" href="#enumerations" title="Permalink to this headline">¶</a></h2>
 <div class="line-block">
-<div class="line">enum hcblasStatus { HCBLAS_SUCCESS = 0, HCBLAS_INVALID = -1}</div>
-<div class="line">enum hcblasOrder { RowMajor, ColMajor}</div>
-<div class="line">enum hcblasTranspose { NoTrans = &#8216;n&#8217;, Trans = &#8216;t&#8217;}</div>
-</div>
-</div>
-<div class="section" id="structures">
-<h2>Structures<a class="headerlink" href="#structures" title="Permalink to this headline">¶</a></h2>
+<div class="line">enum hcblasStatus_t {</div>
 <div class="line-block">
-<div class="line">struct hcComplex { float real; float img;}</div>
+<div class="line">HCBLAS_STATUS_SUCCESS,</div>
+<div class="line">HCBLAS_STATUS_NOT_INITIALIZED,</div>
+<div class="line">HCBLAS_STATUS_ALLOC_FAILED,</div>
+<div class="line">HCBLAS_STATUS_INVALID_VALUE,</div>
+<div class="line">HCBLAS_STATUS_MAPPING_ERROR,</div>
+<div class="line">HCBLAS_STATUS_EXECUTION_FAILED,</div>
+<div class="line">HCBLAS_STATUS_INTERNAL_ERROR</div>
+</div>
+<div class="line">}</div>
+<div class="line">enum hcblasOrder { RowMajor, ColMajor}</div>
+<div class="line">enum hcblasOperation_t {</div>
+<div class="line-block">
+<div class="line">HCBLAS_OP_N,</div>
+<div class="line">HCBLAS_OP_T,</div>
+<div class="line">HCBLAS_OP_C</div>
+</div>
+<div class="line">}</div>
+</div>
+<div class="line-block">
+<div class="line">typedef float2 hcFloatComplex;</div>
+<div class="line">typedef hcFloatComplex hcComplex;</div>
 </div>
 </div>
 <div class="section" id="detailed-description">
 <h2>Detailed Description<a class="headerlink" href="#detailed-description" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="hcblas-status-hcblasstatus">
-<h3>HCBLAS STATUS (hcblasStatus)<a class="headerlink" href="#hcblas-status-hcblasstatus" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="hcblas-status-hcblasstatus-t">
+<h3>HCBLAS STATUS (hcblasStatus_t)<a class="headerlink" href="#hcblas-status-hcblasstatus-t" title="Permalink to this headline">¶</a></h3>
 <div class="line-block">
 <div class="line">This enumeration is the set of HCBLAS error codes.</div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="17%" />
-<col width="83%" />
+<col width="32%" />
+<col width="68%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head" colspan="2">Enumerator</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>HCBLAS_SUCCESS</td>
-<td>Kernel completed its work successfully.</td>
+<tr class="row-even"><td>HCBLAS_STATUS_SUCCESS</td>
+<td>the operation completed successfully.</td>
 </tr>
-<tr class="row-odd"><td>HCBLAS_INVALID</td>
-<td>Inputs are either not properly allocated or zero.</td>
+<tr class="row-odd"><td>HCBLAS_STATUS_NOT_INITIALIZED</td>
+<td>HCBLAS library not initialized.</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_STATUS_ALLOC_FAILED</td>
+<td>resource allocation failed.</td>
+</tr>
+<tr class="row-odd"><td>HCBLAS_STATUS_INVALID_VALUE</td>
+<td>unsupported numerical value was passed to function.</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_STATUS_MAPPING_ERROR</td>
+<td>access to GPU memory space failed.</td>
+</tr>
+<tr class="row-odd"><td>HCBLAS_STATUS_EXECUTION_FAILED</td>
+<td>GPU program failed to execute.</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_STATUS_INTERNAL_ERROR</td>
+<td>an internal HCBLAS operation failed.</td>
 </tr>
 </tbody>
 </table>
@@ -117,26 +150,29 @@
 <div class="line"><br /></div>
 </div>
 </div>
-<div class="section" id="hcblas-transpose-hcblastranspose">
-<h3>HCBLAS TRANSPOSE (hcblasTranspose)<a class="headerlink" href="#hcblas-transpose-hcblastranspose" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="hcblas-transpose-hcblasoperation-t">
+<h3>HCBLAS TRANSPOSE (hcblasOperation_t)<a class="headerlink" href="#hcblas-transpose-hcblasoperation-t" title="Permalink to this headline">¶</a></h3>
 <div class="line-block">
 <div class="line">Used to specify whether the matrix is to be transposed or not.</div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="13%" />
-<col width="87%" />
+<col width="17%" />
+<col width="83%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head" colspan="2">Enumerator</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>NoTrans</td>
-<td>Operate with the matrix.</td>
+<tr class="row-even"><td>HCBLAS_OP_N</td>
+<td>The Non transpose operation is selected.</td>
 </tr>
-<tr class="row-odd"><td>Trans</td>
-<td>Operate with the transpose of the matrix.</td>
+<tr class="row-odd"><td>HCBLAS_OP_T</td>
+<td>Transpose operation is selected.</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_OP_C</td>
+<td>Conjugate transpose operation is selected.</td>
 </tr>
 </tbody>
 </table>
@@ -154,11 +190,10 @@
   <ul>
 <li><a class="reference internal" href="#">HCBLAS TYPES</a><ul>
 <li><a class="reference internal" href="#enumerations">Enumerations</a></li>
-<li><a class="reference internal" href="#structures">Structures</a></li>
 <li><a class="reference internal" href="#detailed-description">Detailed Description</a><ul>
-<li><a class="reference internal" href="#hcblas-status-hcblasstatus">HCBLAS STATUS (hcblasStatus)</a></li>
+<li><a class="reference internal" href="#hcblas-status-hcblasstatus-t">HCBLAS STATUS (hcblasStatus_t)</a></li>
 <li><a class="reference internal" href="#hcblas-order-hcblasorder">HCBLAS ORDER (hcblasOrder)</a></li>
-<li><a class="reference internal" href="#hcblas-transpose-hcblastranspose">HCBLAS TRANSPOSE (hcblasTranspose)</a></li>
+<li><a class="reference internal" href="#hcblas-transpose-hcblasoperation-t">HCBLAS TRANSPOSE (hcblasOperation_t)</a></li>
 </ul>
 </li>
 </ul>
@@ -168,6 +203,9 @@
   <h4>Previous topic</h4>
   <p class="topless"><a href="ddot.html"
                         title="previous chapter">DDOT</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Helper_functions.html"
+                        title="next chapter">HCBLAS Helper functions</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -199,6 +237,9 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="Helper_functions.html" title="HCBLAS Helper functions"
+             >next</a> |</li>
+        <li class="right" >
           <a href="ddot.html" title="DDOT"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">HCBLAS  documentation</a> &raquo;</li> 
@@ -206,7 +247,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, MulticoreWare.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
   </body>
 </html>

@@ -72,30 +72,20 @@
 <blockquote>
 <div><div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><strong>Inputs and Outputs are host float pointers.</strong></p>
+<p class="last"><strong>Inputs and Outputs are HCC device pointers.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sger</strong> (<a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, const int M, const int N, const float* alpha, float* x, const long xOffset, const int incx, float* y, const long yOffset, const int incy, float* A, const long AOffset, const int lda)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasSger</strong> (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda)</p>
 </div>
 <div class="section" id="implementation-type-ii">
 <h3>Implementation type II<a class="headerlink" href="#implementation-type-ii" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><strong>Inputs and Outputs are HC++ float array containers.</strong></p>
+<p class="last"><strong>Inputs and Outputs are HCC device pointers with batch processing.</strong></p>
 </div>
 </div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sger</strong> (hc::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, const int M, const int N, const float &amp;alpha, hc::array&lt;float&gt; &amp;x, const long xOffset, const int incx, hc::array&lt;float&gt; &amp;y, const long yOffset, const int incy, hc::array&lt;float&gt; &amp;A, const long AOffset, const int lda)</p>
-</div>
-<div class="section" id="implementation-type-iii">
-<h3>Implementation type III<a class="headerlink" href="#implementation-type-iii" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><strong>Inputs and Outputs are HC++ float array containers with batch processing.</strong></p>
-</div>
-</div></blockquote>
-<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus</a> <strong>hcblas_sger</strong> (hc::accelerator_view &amp;accl_view, <a class="reference external" href="HCBLAS_TYPES.html">hcblasOrder</a> order, const int M, const int N, const float &amp;alpha, hc::array&lt;float&gt; &amp;x, const long xOffset, const long x_batchOffset, const int incx, hc::array&lt;float&gt; &amp;y, const long yOffset, const long y_batchOffset, const int incy, hc::array&lt;float&gt; &amp;A, const long AOffset, const long A_batchOffset, const int lda, int BatchSize)</p>
+<p><a class="reference external" href="HCBLAS_TYPES.html">hcblasStatus_t</a> <strong>hcblasSgerBatched</strong> (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda, int batchCount)</p>
 </div>
 </div>
 <div class="section" id="detailed-description">
@@ -104,20 +94,11 @@
 <div class="section" id="function-documentation">
 <h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre>hcblasStatus hcblas_sger (hc::accelerator_view &amp;accl_view,
-                          hcblasOrder order,
-                          const int M,
-                          const int N,
-                          const float &amp;alpha,
-                          hc::array&lt;float&gt; &amp;x,
-                          const long xOffset,
-                          const int incx,
-                          hc::array&lt;float&gt; &amp;y,
-                          const long yOffset,
-                          const int incy,
-                          hc::array&lt;float&gt; &amp;A,
-                          const long AOffset,
-                          const int lda)
+<div><div class="highlight-python"><div class="highlight"><pre>hcblasStatus_t  hcblasSger(hcblasHandle_t* handle, int m, int n,
+                           const float           *alpha,
+                           const float           *x, int incx,
+                           const float           *y, int incy,
+                           float                 *A, int lda)
 </pre></div>
 </div>
 </div></blockquote>
@@ -135,33 +116,24 @@
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>[in]</td>
-<td>accl_view</td>
-<td><a class="reference external" href="https://msdn.microsoft.com/en-us/library/hh873132.aspx">Using accelerator and accelerator_view Objects</a></td>
+<td>handle</td>
+<td>handle to the HCBLAS library context.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
-<td>order</td>
-<td>Row/Column order (RowMajor/ColMajor).</td>
-</tr>
-<tr class="row-even"><td>[in]</td>
-<td>M</td>
+<td>m</td>
 <td>Number of rows in matrix A.</td>
 </tr>
-<tr class="row-odd"><td>[in]</td>
-<td>N</td>
+<tr class="row-even"><td>[in]</td>
+<td>n</td>
 <td>Number of columns in matrix A.</td>
 </tr>
-<tr class="row-even"><td>[in]</td>
+<tr class="row-odd"><td>[in]</td>
 <td>alpha</td>
 <td>specifies the scalar alpha.</td>
 </tr>
-<tr class="row-odd"><td>[in]</td>
+<tr class="row-even"><td>[in]</td>
 <td>x</td>
 <td>Buffer object storing vector x.</td>
-</tr>
-<tr class="row-even"><td>[in]</td>
-<td>xOffset</td>
-<td>Offset in number of elements for the first element
-in vector x.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>incx</td>
@@ -172,23 +144,13 @@ in vector x.</td>
 <td>Buffer object storing vector y.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
-<td>yOffset</td>
-<td>Offset in number of elements for the first element
-in vector y.</td>
-</tr>
-<tr class="row-even"><td>[in]</td>
 <td>incy</td>
 <td>Increment for the elements of y. Must not be zero.</td>
 </tr>
-<tr class="row-odd"><td>[out]</td>
+<tr class="row-even"><td>[out]</td>
 <td>A</td>
 <td>Buffer object storing matrix A. On exit, A is overwritten
 by the updated matrix.</td>
-</tr>
-<tr class="row-even"><td>[in]</td>
-<td>AOffset</td>
-<td>Offset in number of elements for the first element
-in matrix A.</td>
 </tr>
 <tr class="row-odd"><td>[in]</td>
 <td>lda</td>
@@ -199,7 +161,7 @@ when the parameter is set to ColMajor.</td>
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">Implementation type III has 4 other parameters as follows,</div>
+<div class="line">Implementation type II has other parameters as follows,</div>
 </div>
 <table border="1" class="docutils">
 <colgroup>
@@ -215,25 +177,7 @@ when the parameter is set to ColMajor.</td>
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>[in]</td>
-<td>A_batchOffset</td>
-<td>Batch Offset adding to the Offset of the first element of
-the matrix A in the buffer object. Counted in elements.
-Offset should be a multiple of m by n.</td>
-</tr>
-<tr class="row-odd"><td>[in]</td>
-<td>x_batchOffset</td>
-<td>Batch Offset adding to the Offset of the first element of
-the vector x in the buffer object. Counted in elements.
-Offset should be a multiple of m.</td>
-</tr>
-<tr class="row-even"><td>[in]</td>
-<td>y_batchOffset</td>
-<td>Batch Offset adding to the Offset of the first element of
-the vector y in the buffer object. Counted in elements.
-Offset should be a multiple of n.</td>
-</tr>
-<tr class="row-odd"><td>[in]</td>
-<td>BatchSize</td>
+<td>batchCount</td>
 <td>The size of batch of threads to be processed in parallel for
 vectors x, y and Output matrix A.</td>
 </tr>
@@ -245,8 +189,8 @@ vectors x, y and Output matrix A.</td>
 </div>
 <table border="1" class="docutils">
 <colgroup>
-<col width="34%" />
-<col width="66%" />
+<col width="40%" />
+<col width="60%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">STATUS</th>
@@ -254,11 +198,20 @@ vectors x, y and Output matrix A.</td>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>HCBLAS_SUCCESS</td>
-<td>Success</td>
+<tr class="row-even"><td>HCBLAS_STATUS_SUCCESS</td>
+<td>the operation completed successfully</td>
 </tr>
-<tr class="row-odd"><td>HCBLAS_INVALID</td>
-<td>M, N, incx or incy is zero</td>
+<tr class="row-odd"><td>HCBLAS_STATUS_NOT_INITIALIZED</td>
+<td>the library was not initialized</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_STATUS_INVALID_VALUE</td>
+<td>the parameters m,n&lt;0 or incx,incy=0</td>
+</tr>
+<tr class="row-odd"><td>HCBLAS_STATUS_ARCH_MISMATCH</td>
+<td>the device does not support double-precision</td>
+</tr>
+<tr class="row-even"><td>HCBLAS_STATUS_EXECUTION_FAILED</td>
+<td>the function failed to launch on the GPU</td>
 </tr>
 </tbody>
 </table>
@@ -277,7 +230,6 @@ vectors x, y and Output matrix A.</td>
 <li><a class="reference internal" href="#functions">Functions</a><ul>
 <li><a class="reference internal" href="#implementation-type-i">Implementation type I</a></li>
 <li><a class="reference internal" href="#implementation-type-ii">Implementation type II</a></li>
-<li><a class="reference internal" href="#implementation-type-iii">Implementation type III</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#detailed-description">Detailed Description</a></li>
@@ -334,7 +286,7 @@ vectors x, y and Output matrix A.</td>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2015, MulticoreWare.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
     </div>
   </body>
 </html>
