@@ -91,17 +91,19 @@ The following list enumerates the current set of BLAS sub-routines that are supp
 * Supermicro SYS-7048GR-TR Tower 4 R9 NANO
 
 
-## Installation Steps: ##    
+## Installation Steps:   
 
 ### A. HCC Compiler Installation: 
 
 a) Download the compiler debian.
 
-           Click [here](https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb)
+* Click [here](https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb)
 
-                            (or)
+   (or)
 
-           wget https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb via terminal
+* via terminal: 
+
+               wget https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb 
 
 
 b) Install the compiler
