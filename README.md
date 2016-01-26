@@ -1,8 +1,9 @@
-# ** HCBLAS ** #
-
 ##Introduction: ##
 
-This repository hosts the HCC implementation of BLAS subroutines. The following are the sub-routines that are implemented
+This repository hosts the HCC based BLAS Library (hcBLAS), that targets GPU acceleration of the traditional set of BLAS routines on AMD devices. . To know what HCC compiler features, refer [here](https://bitbucket.org/multicoreware/hcc/wiki/Home). 
+
+
+The following list enumerates the current set of BLAS sub-routines that are supported so far. 
 
 1. Sgemm  : Single Precision real valued general matrix-matrix multiplication
 2. Cgemm  : Complex valued general matrix matrix multiplication
@@ -18,44 +19,103 @@ This repository hosts the HCC implementation of BLAS subroutines. The following 
 12. Sdot  : Single Precision Dot product
 13. Ddot  : Double Precision Dot product
 
-##Repository Structure: ##
+## Key Features: ##
 
-## Installation Steps:    
+1. Support for 13 commonly used BLAS routines
+2. Batched GEMM API
+3. Ability to Choose desired target accelerator
+4. Single and Double precision
+
+
+##Prerequisites: ##
+
+**Hardware Requirements:**
+
+* CPU: mainstream brand, Better if with >=4 Cores Intel Haswell based CPU 
+* System Memory >= 4GB (Better if >10GB for NN application over multiple GPUs)
+* Hard Drive > 200GB (Better if SSD or NVMe driver  for NN application over multiple GPUs)
+* Minimum GPU Memory (Global) > 2GB
+
+**GPU SDK and driver Requirements:**
+
+* AMD R9 Fury X, R9 Fur, R9 Nano
+* AMD APU Kaveri or Carrizo
+
+**System software requirements:**
+
+* Ubuntu 14.04 trusty
+* GCC 4.6 and later
+* CPP 4.6 and later (come with GCC package)
+* python 2.7 and later
+
+
+**Tools and Misc Requirements:**
+
+* git 1.9 and later
+* cmake 2.6 and later (2.6 and 2.8 are tested)
+* firewall off
+* root privilege or user account in sudo group
+
+
+**Ubuntu Packages requirements:**
+
+* libc6-dev-i386
+* liblapack-dev
+* graphicsmagick
+
+
+## Tested Environment so far: 
+
+Torch7 has been tested via SPIR 1.2 interface with the OpenCL™ 1.2 Runtime against the FirePro Catalyst Linux driver on Ubuntu 14.04
+
+**Driver versions tested**  
+
+* Boltzmann Early Release Driver 
+* HSA driver
+
+**GPU Cards tested:**
+
+* Radeon R9 Nano
+* Radeon R9 FuryX 
+* Radeon R9 Fury 
+* Kaveri and Carizo APU
+
+**Desktop System Tested**
+
+* Supermicro SYS-7048GR-TR  Tower 4 W9100 GPU
+* ASUS X99-E WS motherboard with 4 AMD FirePro W9100
+* Gigabyte GA-X79S 2 AMD FirePro W9100 GPU’s
+
+**Server System Tested**
+
+* Supermicro SYS 2028GR-THT  6 R9 NANO
+* Supermicro SYS-1028GQ-TRT 4 R9 NANO
+* Supermicro SYS-7048GR-TR Tower 4 R9 NANO
+
+
+## Installation Steps: ##    
 
 ### A. HCC Compiler Installation: 
 
+a) Download the compiler debian.
 
-**Install HCC compiler debian package:**
+           Click [here](https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb)
 
-  Download the debian package from the link given below,
-  
-  [Compiler-Debians](https://multicorewareinc.egnyte.com/dl/TD5IwsNEx3)
-  
-  Install the package hcc-0.8.1544-a9f4d2f-ddba18d-Linux.deb 
-  
-  using the command,
-  
-    sudo dpkg -i <package_name>
-      e.g. sudo dpkg -i  hcc-0.8.1544-a9f4d2f-ddba18d-Linux.deb 
+                            (or)
+
+           wget https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb via terminal
+
+
+b) Install the compiler
+ 
+      sudo dpkg -i hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb
       
-  Note: 
-      Ignore clamp-bolt, Bolt is not required for hcblas.
     
-
-
 ### B. HCBLAS Installation 
-
-(i) Clone MCW HCBLAS source codes
-
-       * cd ~/
    
        * git clone https://bitbucket.org/multicoreware/hcblas.git 
 
        * cd ~/hcblas
-   
-(ii) Platform-specific build
-
-(a) Only Supported on Linux:  
 
        * ./install.sh test=ON/OFF 
          Where
