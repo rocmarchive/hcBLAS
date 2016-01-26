@@ -6,24 +6,39 @@ This repository hosts the HCC based BLAS Library (hcBLAS), that targets GPU acce
 The following list enumerates the current set of BLAS sub-routines that are supported so far. 
 
   (a). Sgemm  : Single Precision real valued general matrix-matrix multiplication
+
   (b). Cgemm  : Complex valued general matrix matrix multiplication
+
   (c). Sgemv  : Single Precision real valued general matrix-vector multiplication
+
   (d). Sger   : Single Precision General matrix rank 1 operation
+
   (e). Saxpy  : Scale vector X and add to vector Y
+
   (f). Sscal  : Single Precision scaling of Vector X 
+
   (g). Dscal  : Double Precision scaling of Vector X
+
   (h). Scopy  : Single Precision Copy 
+
   (i). Dcopy  : Double Precision Copy
+
   (j). Sasum : Single Precision Absolute sum of values of a vector
+
   (k). Dasum : Double Precision Absolute sum of values of a vector
+
   (l). Sdot  : Single Precision Dot product
+
   (m). Ddot  : Double Precision Dot product
 
 ## Key Features: ##
 
   (a). Support for 13 commonly used BLAS routines
+
   (b). Batched GEMM API
+
   (c). Ability to Choose desired target accelerator
+
   (d). Single and Double precision
 
 
