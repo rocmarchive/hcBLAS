@@ -157,64 +157,61 @@ b) Install the compiler
 Note:
      
      * TransA (TA) and TransB(TB) takes 0 or 1
-       where,            0 - noTrans (Operate with the actual matrix)
+       where,            0 - NoTrans (Operate with the actual matrix)
                          1 - Trans   (Operate with the transpose of the matrix)
                          
-     * Implementation type (Itype) takes 1, 2, 3, 4 or 5
-       where,            1 - Inputs and Outputs are host float/double pointers.
-                         2 - Inputs and Outputs are HCC float/double array_View containers.
-                         3 - Inputs and Outputs are HCC float/double array_View containers with batch processing.
-                         4 - Inputs and Outputs are HCC float/double array containers.
-                         5 - Inputs and Outputs are HCC float/double array containers with batch processing.
+     * Implementation type (Itype) takes 1 or 2
+       where,            1 - Inputs and Outputs are device pointers.
+                         2 - Inputs and Outputs are device pointers with batch processing.
      
   (1) SGEMM - Single Precision real valued general matrix-matrix multiplication 
      
-     * ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type (Itype) takes 1, 2, 3, 4 or 5)
+     * ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type (Itype) takes 1 or 2)
   
   (2) CGEMM - Complex valued general matrix matrix multiplication
 
-     * ./cgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Itype takes 1, 2, 3, 4 or 5)
+     * ./cgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Itype takes 1 or 2)
 
   (3) SGEMV - Single Precision real valued general matrix-vector multiplication
        
-     * ./sgemv M N Trans Itype(Here Trans take binary values 0 or 1 while Itype takes 1, 2, 3, 4 or 5)
+     * ./sgemv M N Trans Itype(Here Trans take binary values 0 or 1 while Itype takes 1 or 2)
 
   (4) SGER - Single Precision General matrix rank 1 operation
  
-     * ./sger M N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./sger M N Itype(Itype takes 1 or 2)
 
   (5) SAXPY - Scale vector X and add to vector Y
     
-     * ./saxpy N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./saxpy N Itype(Itype takes 1 or 2)
 
   (6) SSCAL - Single Precision scaling of Vector X 
   
-     * ./sscal N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./sscal N Itype(Itype takes 1 or 2)
 
   (7) DSCAL - Double Precision scaling of Vector X
    
-     * ./dscal N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./dscal N Itype(Itype takes 1 or 2)
  
   (8) SCOPY - Single Precision Copy 
 
-     * ./scopy N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./scopy N Itype(Itype takes 1 or 2)
 
   (9) DCOPY - Double Precision Copy
    
-     * ./dcopy N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./dcopy N Itype(Itype takes 1 or 2)
 
   (10) SASUM - Single Precision sum of Absolute values
 
-     * ./sasum N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./sasum N Itype(Itype takes 1 or 2)
 
   (11) DASUM - Double Precision sum of Absolute values
 
-     * ./dasum N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./dasum N Itype(Itype takes 1 or 2)
 
   (12) SDOT - Single Precision Dot product
 
-     * ./sdot N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./sdot N Itype(Itype takes 1 or 2)
 
   (13) DDOT - Double Precision Dot product
 
-     * ./ddot N Itype(Itype takes 1, 2, 3, 4 or 5)
+     * ./ddot N Itype(Itype takes 1 or 2)
