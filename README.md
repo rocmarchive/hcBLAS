@@ -131,4 +131,76 @@ b) Install the compiler
 
 ### 2. Testing:
     
-----------------TO BE ADDED--------------------------
+a) Automated testing:
+
+     * cd ~/hcblas/test/unit/
+     
+     * ./test.sh
+     
+b) Manual testing:
+
+     * cd ~/hcblas/test/build/linux/bin/
+     
+     * choose the appropriate named binary 
+     
+c) Notes for Manual testing:
+     
+     * TransA (TA) and TransB(TB) takes 0 or 1
+       where,            0 - NoTrans (Operate with the given matrix)
+                         1 - Trans   (Operate with the transpose of the given matrix)
+                         
+     * Implementation type (Itype) takes 1 or 2
+       where,            1 - Inputs and Outputs are device pointers.
+                         2 - Inputs and Outputs are device pointers with batch processing.
+     
+  (1) SGEMM - Single Precision real valued general matrix-matrix multiplication 
+     
+     * ./sgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Implementation type (Itype) takes 1 or 2)
+  
+  (2) CGEMM - Complex valued general matrix matrix multiplication
+
+     * ./cgemm M N K TA TB Itype (Here TA, TB take binary values 0 or 1 while Itype takes 1 or 2)
+
+  (3) SGEMV - Single Precision real valued general matrix-vector multiplication
+       
+     * ./sgemv M N Trans Itype(Here Trans take binary values 0 or 1 while Itype takes 1 or 2)
+
+  (4) SGER - Single Precision General matrix rank 1 operation
+ 
+     * ./sger M N Itype(Itype takes 1 or 2)
+
+  (5) SAXPY - Scale vector X and add to vector Y
+    
+     * ./saxpy N Itype(Itype takes 1 or 2)
+
+  (6) SSCAL - Single Precision scaling of Vector X 
+  
+     * ./sscal N Itype(Itype takes 1 or 2)
+
+  (7) DSCAL - Double Precision scaling of Vector X
+   
+     * ./dscal N Itype(Itype takes 1 or 2)
+ 
+  (8) SCOPY - Single Precision Copy 
+
+     * ./scopy N Itype(Itype takes 1 or 2)
+
+  (9) DCOPY - Double Precision Copy
+   
+     * ./dcopy N Itype(Itype takes 1 or 2)
+
+  (10) SASUM - Single Precision sum of Absolute values
+
+     * ./sasum N Itype(Itype takes 1 or 2)
+
+  (11) DASUM - Double Precision sum of Absolute values
+
+     * ./dasum N Itype(Itype takes 1 or 2)
+
+  (12) SDOT - Single Precision Dot product
+
+     * ./sdot N Itype(Itype takes 1 or 2)
+
+  (13) DDOT - Double Precision Dot product
+
+     * ./ddot N Itype(Itype takes 1 or 2)
