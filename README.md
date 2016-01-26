@@ -19,7 +19,7 @@ The following list enumerates the current set of BLAS sub-routines that are supp
 * Sdot  : Single Precision Dot product
 * Ddot  : Double Precision Dot product
 
-To know more, go through the [Documentation] (http://hcblas-documentation.readthedocs.org/en/latest/)
+To know more, go through the [Documentation](http://hcblas-documentation.readthedocs.org/en/latest/)
 
 ## Key Features: ##
 
