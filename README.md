@@ -49,4 +49,4 @@ To know more, go through the [Documentation](http://hcblas-documentation.readthe
 
 ## API reference
 
-* The Specification of API's supported by hcblas along with their description  can be found [here](http://hcblas-documentation.readthedocs.org/en/latest/#hcblas-api-reference)
+* The Specification of API's supported along with description  can be found [here](http://hcblas-documentation.readthedocs.org/en/latest/#hcblas-api-reference)
