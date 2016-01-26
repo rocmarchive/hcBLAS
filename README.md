@@ -66,8 +66,6 @@ The following list enumerates the current set of BLAS sub-routines that are supp
 
 ## Tested Environment so far: 
 
-Torch7 has been tested via SPIR 1.2 interface with the OpenCL™ 1.2 Runtime against the FirePro Catalyst Linux driver on Ubuntu 14.04
-
 **Driver versions tested**  
 
 * Boltzmann Early Release Driver 
