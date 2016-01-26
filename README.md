@@ -1,4 +1,4 @@
-##Introduction: ##
+## A. Introduction: ##
 
 This repository hosts the HCC based BLAS Library (hcBLAS), that targets GPU acceleration of the traditional set of BLAS routines on AMD devices. . To know what HCC compiler features, refer [here](https://bitbucket.org/multicoreware/hcc/wiki/Home). 
 
@@ -21,7 +21,7 @@ The following list enumerates the current set of BLAS sub-routines that are supp
 
 To know more, go through the [Documentation](http://hcblas-documentation.readthedocs.org/en/latest/)
 
-## Key Features ##
+## B. Key Features ##
 
 * Support for 13 commonly used BLAS routines
 * Batched GEMM API
@@ -29,30 +29,30 @@ To know more, go through the [Documentation](http://hcblas-documentation.readthe
 * Single and Double precision
 
 
-##Prerequisites ##
+## C. Prerequisites ##
 
 * Refer Prerequisites section [here](http://hcblas-documentation.readthedocs.org/en/latest/#prerequisites)
 
-## Tested Environment so far 
+## D. Tested Environment so far 
 
 * Refer Tested environments enumerated [here](http://hcblas-documentation.readthedocs.org/en/latest/#tested-environments)
 
 
-## Installation  
+## E. Installation  
 
 * Follow installation steps as described [here](http://hcblas-documentation.readthedocs.org/en/latest/#installation-steps)
 
 
-## Unit testing
+## F. Unit testing
 
 * Follow testing procedures as explained [here](http://hcblas-documentation.readthedocs.org/en/latest/#unit-testing)
 
-## API reference
+## G. API reference
 
 * The Specification of API's supported along with description  can be found [here](http://hcblas-documentation.readthedocs.org/en/latest/#hcblas-api-reference)
 
 
-## Example Code
+## H. Example Code
 
 Sgemm (NoTranspose) example: 
 
@@ -174,6 +174,6 @@ int main() {
 ```
 * Compiling the example code:
    
-   Assuming the library and compiler installation is followed as in [here](http://hcblas-documentation.readthedocs.org/en/latest/#installation-steps)
+     Assuming the library and compiler installation is followed as in [here](http://hcblas-documentation.readthedocs.org/en/latest/#installation-steps)
 
           /opt/hcc/bin/clang++ `/opt/hcc/bin/hcc-config --cxxflags --ldflags` -lhc_am -lhcblas sgemmNN_example.cpp
