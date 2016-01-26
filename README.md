@@ -5,43 +5,43 @@ This repository hosts the HCC based BLAS Library (hcBLAS), that targets GPU acce
 
 The following list enumerates the current set of BLAS sub-routines that are supported so far. 
 
-1. Sgemm  : Single Precision real valued general matrix-matrix multiplication
-2. Cgemm  : Complex valued general matrix matrix multiplication
-3. Sgemv  : Single Precision real valued general matrix-vector multiplication
-4. Sger   : Single Precision General matrix rank 1 operation
-5. Saxpy  : Scale vector X and add to vector Y
-6. Sscal  : Single Precision scaling of Vector X 
-7. Dscal  : Double Precision scaling of Vector X
-8. Scopy  : Single Precision Copy 
-9. Dcopy  : Double Precision Copy
-10. Sasum : Single Precision Absolute sum of values of a vector
-11. Dasum : Double Precision Absolute sum of values of a vector
-12. Sdot  : Single Precision Dot product
-13. Ddot  : Double Precision Dot product
+  (a). Sgemm  : Single Precision real valued general matrix-matrix multiplication
+  (b). Cgemm  : Complex valued general matrix matrix multiplication
+  (c). Sgemv  : Single Precision real valued general matrix-vector multiplication
+  (d). Sger   : Single Precision General matrix rank 1 operation
+  (e). Saxpy  : Scale vector X and add to vector Y
+  (f). Sscal  : Single Precision scaling of Vector X 
+  (g). Dscal  : Double Precision scaling of Vector X
+  (h). Scopy  : Single Precision Copy 
+  (i). Dcopy  : Double Precision Copy
+  (j). Sasum : Single Precision Absolute sum of values of a vector
+  (k). Dasum : Double Precision Absolute sum of values of a vector
+  (l). Sdot  : Single Precision Dot product
+  (m). Ddot  : Double Precision Dot product
 
 ## Key Features: ##
 
-1. Support for 13 commonly used BLAS routines
-2. Batched GEMM API
-3. Ability to Choose desired target accelerator
-4. Single and Double precision
+  (a). Support for 13 commonly used BLAS routines
+  (b). Batched GEMM API
+  (c). Ability to Choose desired target accelerator
+  (d). Single and Double precision
 
 
 ##Prerequisites: ##
 
-**Hardware Requirements:**
+**A. Hardware Requirements:**
 
 * CPU: mainstream brand, Better if with >=4 Cores Intel Haswell based CPU 
 * System Memory >= 4GB (Better if >10GB for NN application over multiple GPUs)
 * Hard Drive > 200GB (Better if SSD or NVMe driver  for NN application over multiple GPUs)
 * Minimum GPU Memory (Global) > 2GB
 
-**GPU SDK and driver Requirements:**
+**B. GPU SDK and driver Requirements:**
 
 * AMD R9 Fury X, R9 Fur, R9 Nano
 * AMD APU Kaveri or Carrizo
 
-**System software requirements:**
+**C. System software requirements:**
 
 * Ubuntu 14.04 trusty
 * GCC 4.6 and later
@@ -49,7 +49,7 @@ The following list enumerates the current set of BLAS sub-routines that are supp
 * python 2.7 and later
 
 
-**Tools and Misc Requirements:**
+**D. Tools and Misc Requirements:**
 
 * git 1.9 and later
 * cmake 2.6 and later (2.6 and 2.8 are tested)
@@ -57,7 +57,7 @@ The following list enumerates the current set of BLAS sub-routines that are supp
 * root privilege or user account in sudo group
 
 
-**Ubuntu Packages requirements:**
+**E. Ubuntu Packages requirements:**
 
 * libc6-dev-i386
 * liblapack-dev
@@ -66,25 +66,25 @@ The following list enumerates the current set of BLAS sub-routines that are supp
 
 ## Tested Environment so far: 
 
-**Driver versions tested**  
+**A. Driver versions tested**  
 
 * Boltzmann Early Release Driver 
 * HSA driver
 
-**GPU Cards tested:**
+**B. GPU Cards tested:**
 
 * Radeon R9 Nano
 * Radeon R9 FuryX 
 * Radeon R9 Fury 
 * Kaveri and Carizo APU
 
-**Desktop System Tested**
+**C. Desktop System Tested**
 
 * Supermicro SYS-7048GR-TR  Tower 4 W9100 GPU
 * ASUS X99-E WS motherboard with 4 AMD FirePro W9100
 * Gigabyte GA-X79S 2 AMD FirePro W9100 GPU’s
 
-**Server System Tested**
+**D. Server System Tested**
 
 * Supermicro SYS 2028GR-THT  6 R9 NANO
 * Supermicro SYS-1028GQ-TRT 4 R9 NANO
