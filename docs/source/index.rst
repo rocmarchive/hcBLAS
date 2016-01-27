@@ -1,5 +1,5 @@
 ====================
-hcBLAS Documentaton
+hcBLAS Documentation
 ====================
 ***************
 1. Introduction
