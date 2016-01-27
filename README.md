@@ -21,7 +21,6 @@ The following list enumerates the current set of BLAS sub-routines that are supp
 
 To know more, go through the [Documentation](http://hcblas-documentation.readthedocs.org/en/latest/)
 
-For any queries, suggestions, feedback and information write to us at hcmath-developers@multicorewareinc.com
 
 ## B. Key Features ##
 
