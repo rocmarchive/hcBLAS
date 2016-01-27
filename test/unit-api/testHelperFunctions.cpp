@@ -10,11 +10,22 @@ TEST(hcblasCreateTest, return_Check_hcblasCreate) {
  // Assert if the handle is still NULL after allocation
  EXPECT_TRUE(handle != NULL);
  // If allocation succeeds we must expect a success status
-// if (handle != NULL)
+ if (handle != NULL)
    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS); 
-// else
-  // EXPECT_EQ(status, HCBLAS_STATUS_ALLOC_FAILED);
+ else
+   EXPECT_EQ(status, HCBLAS_STATUS_ALLOC_FAILED);
+}
 
+TEST(hcblasDestroyTest, return_Check_hcblasDestroy) {
+ hcblasHandle_t *handle = NULL;
+ // Passing a Null handle to the API
+ hcblasStatus_t status = hcblasCreate(handle);
+ //hcblasDestroy
+ status = hcblasDestroy(handle);
+ EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+ // Destory again
+ status = hcblasDestroy(handle);
+ EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 }
 
 TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {

@@ -16,7 +16,6 @@ HCBLAS Helper functions
 STATUS                            DESCRIPTION
 ==============================    =============================================
  HCBLAS_STATUS_SUCCESS            initialization succeeded
- HCBLAS_STATUS_NOT_INITIALIZED    Runtime initialization failed
  HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 ==============================    ============================================= 
 
