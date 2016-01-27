@@ -5,11 +5,20 @@ HCBLAS Helper functions
 1. hcblasCreate()
 -----------------
 
-hcblasHandle_t* **hcblasCreate** ()
+hcblasStatus_t **hcblasCreate** (hcblasHandle_t* &handle)
 
 | This function initializes the HCBLAS library and creates a handle to an opaque structure
 | holding the HCBLAS library context.
 |
+| Return Values, 
+
+==============================    =============================================
+STATUS                            DESCRIPTION
+==============================    =============================================
+ HCBLAS_STATUS_SUCCESS            initialization succeeded
+ HCBLAS_STATUS_NOT_INITIALIZED    Runtime initialization failed
+ HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
+==============================    ============================================= 
 
 2. hcblasDestory()
 ------------------

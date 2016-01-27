@@ -58,9 +58,11 @@ typedef hcFloatComplex hcComplex;
 
 // Return Values
 // --------------------------------------------------------------------
-// hcblasHandle_t*
+// HCBLAS_STATUS_SUCCESS            initialization succeeded
+// HCBLAS_STATUS_NOT_INITIALIZED    Runtime initialization failed
+// HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
-hcblasHandle_t* hcblasCreate();
+hcblasStatus_t hcblasCreate(hcblasHandle_t* &handle);
 
 // 2. hcblasDestory()
 

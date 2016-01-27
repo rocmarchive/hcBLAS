@@ -10,13 +10,20 @@
 
 // Return Values
 // --------------------------------------------------------------------
-// hcblasHandle_t*
+// HCBLAS_STATUS_SUCCESS            initialization succeeded
+// HCBLAS_STATUS_NOT_INITIALIZED    Runtime initialization failed
+// HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
-hcblasHandle_t* hcblasCreate() {
+hcblasStatus_t hcblasCreate(hcblasHandle_t* &handle) {
   std::vector<accelerator> accs = accelerator::get_all();
   assert(accs.size() && "Number of Accelerators == 0!");
-
-  hcblasHandle_t *handle = new hcblasHandle_t();
+  if(handle == NULL) {
+    // create new handle
+    handle = new hcblasHandle_t;
+  } else {
+    handle = NULL;
+    handle = new hcblasHandle_t;
+  }
 
   if(accs.size() >= 2)
       handle->deviceId = 1;
@@ -25,8 +32,7 @@ hcblasHandle_t* hcblasCreate() {
 
   if (!handle->Order)
       handle->Order = ColMajor;
-    
-  return handle;
+  return HCBLAS_STATUS_SUCCESS;  
 }
 
 // 2. hcblasDestory()
