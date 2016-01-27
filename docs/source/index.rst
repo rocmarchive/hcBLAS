@@ -41,13 +41,19 @@ This section lists the known set of hardware and software requirements to build 
 * Hard Drive > 200GB (Better if SSD or NVMe driver  for NN application over multiple GPUs)
 * Minimum GPU Memory (Global) > 2GB
 
-2.2. GPU SDK and driver
-^^^^^^^^^^^^^^^^^^^^^^^
+2.2. GPU cards supported
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-* AMD R9 Fury X, R9 Fur, R9 Nano
-* AMD APU Kaveri or Carrizo
+* dGPU: AMD R9 Fury X, R9 Fury, R9 Nano
+* APU: AMD Kaveri or Carrizo
 
-2.3. System software
+2.3 AMD Driver and Runtime
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Radeon Open Compute Kernel (ROCK) driver : https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver
+* HSA runtime API and runtime for Boltzmann:  https://github.com/RadeonOpenCompute/ROCR-Runtime
+
+2.4. System software
 ^^^^^^^^^^^^^^^^^^^^^
 
 * Ubuntu 14.04 trusty
@@ -57,7 +63,7 @@ This section lists the known set of hardware and software requirements to build 
 * HCC 0.9 from `here <https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb>`_
 
 
-2.4. Tools and Misc
+2.5. Tools and Misc
 ^^^^^^^^^^^^^^^^^^^
 
 * git 1.9 and later
@@ -66,7 +72,7 @@ This section lists the known set of hardware and software requirements to build 
 * root privilege or user account in sudo group
 
 
-2.5. Ubuntu Packages
+2.6. Ubuntu Packages
 ^^^^^^^^^^^^^^^^^^^^
 
 * libc6-dev-i386
@@ -83,8 +89,12 @@ This sections enumerates the list of tested combinations of Hardware and system 
 3.1. Driver versions 
 ^^^^^^^^^^^^^^^^^^^^
 
-* Boltzmann Early Release Driver 
-* HSA driver
+* Boltzmann Early Release Driver + dGPU
+
+      * Radeon Open Compute Kernel (ROCK) driver : https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver
+      * HSA runtime API and runtime for Boltzmann:  https://github.com/RadeonOpenCompute/ROCR-Runtime
+
+* Traditional HSA driver + APU (Kaveri)
 
 
 3.2. GPU Cards
@@ -117,13 +127,46 @@ This sections enumerates the list of tested combinations of Hardware and system 
 ************************
 -------------------------------------------------------------------------------------------------------------------------------------------
 
-The following are the steps to install the library
+The following are the steps to use the library
+      
+      * Boltzmann Driver and Runtime installation (if not done until now)
          
       * Compiler installation.
 
       * Library installation.
+      
+4.1 Boltzmann Driver and Runtime Installation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.1 Compiler Installation
+     a. Downloading the kernel binaries from the repo
+     
+        ``git clone https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git``
+        
+     b. Go to the top of the repo
+        
+         ``cd ROCK-Kernel-Driver``
+         
+     c. Configure udev to allow any user to access /dev/kfd. 
+        As root, use a text editor to create /etc/udev/rules.d/kfd.rules 
+        containing one line: KERNEL=="kfd", MODE="0666", Or you could use the following command
+        
+        ``echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules``
+        
+     d. For Ubuntu, install the kernel and libhsakmt packages using:
+       
+         ``sudo dpkg -i packages/ubuntu/*.deb``
+         
+     e. Reboot the system to install the new kernel and enable the HSA kernel driver
+         ``sudo reboot``
+         
+     f. Once done with reboot, one could proceed with runtime installation
+     
+         *  ``git clone https://github.com/RadeonOpenCompute/ROCR-Runtime``
+         *  ``cd ROCR-Runtime/packages/ubuntu``
+         *  ``sudo dpkg -i hsa-runtime-dev-1.0.0-amd64.deb``
+        
+
+4.2 Compiler Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
      a. Install pre-dependency packages
@@ -144,7 +187,7 @@ The following are the steps to install the library
 
 Once done with the above steps the compiler headers, binaries and libraries gets installed under /opt system path as ``/opt/hcc`` .
 
-4.2 Library Installation
+4.3 Library Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
     a. Clone the repo
