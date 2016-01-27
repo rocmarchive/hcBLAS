@@ -1181,3 +1181,204 @@ TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
 
 }
 
+TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
+  hcblasStatus_t status;
+  hcblasHandle_t *handle = NULL;
+  status = hcblasCreate(handle);
+  int M = 123;
+  int N = 78;
+  int K = 23;
+  int incx = 1, incy = 1;
+  long lda;
+  long ldb;
+  long ldc;
+  enum CBLAS_ORDER order;
+  order = (handle->Order)? CblasColMajor: CblasRowMajor;
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  hcblasOperation_t typeA, typeB;
+  enum CBLAS_TRANSPOSE Transa, Transb;
+    float alpha[2], beta[2];
+    hcComplex cAlpha, cBeta;
+    cAlpha.x = 1;
+    cAlpha.y = 1;
+    cBeta.x = 1;
+    cBeta.y = 1;
+    alpha[0] = cAlpha.x;
+    alpha[1] = cAlpha.y;
+    beta[0] = cBeta.x;
+    beta[1] = cBeta.y;
+    hcComplex *A = (hcComplex*) calloc(M * K, sizeof(hcComplex));
+    hcComplex *B = (hcComplex*) calloc(K * N, sizeof(hcComplex));
+    hcComplex *C = (hcComplex*) calloc(M * N, sizeof(hcComplex));
+    hcComplex* devA = hc::am_alloc(sizeof(hcComplex) * M * K, acc[1], 0);
+    hcComplex* devB = hc::am_alloc(sizeof(hcComplex) * K * N, acc[1], 0);
+    hcComplex* devC = hc::am_alloc(sizeof(hcComplex) * M * N, acc[1], 0);
+    float* ablas = (float *)malloc(sizeof(float )* M * K * 2);
+    float* bblas = (float *)malloc(sizeof(float )* K * N * 2);
+    float* cblas = (float *)malloc(sizeof(float )* M * N * 2);
+    int k = 0;
+    for(int i = 0; i < M * K; i++) {
+                A[i].x = rand() % 10;
+                A[i].y = rand() % 20;
+                ablas[k++] = A[i].x;
+                ablas[k++] = A[i].y;
+    }
+    k = 0;
+    for(int i = 0; i < K * N;i++) {
+                B[i].x = rand() % 15;
+                B[i].y = rand() % 25;
+                bblas[k++] = B[i].x;
+                bblas[k++] = B[i].y;
+    }
+    k = 0;
+    for(int i = 0; i < M * N;i++) {
+                C[i].x = rand() % 18;
+                C[i].y = rand() % 28;
+                cblas[k++] = C[i].x;
+                cblas[k++] = C[i].y;
+    }
+
+  status = hcblasSetMatrix(handle, M, K, sizeof(hcComplex), A, 1, devA, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasSetMatrix(handle, K, N, sizeof(hcComplex), B, 1, devB, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasSetMatrix(handle, M, N, sizeof(hcComplex), C, 1, devC, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  // NoTransA and NoTransB */           
+  typeA = HCBLAS_OP_N;
+  typeB = HCBLAS_OP_N;
+  Transa = CblasNoTrans;
+  Transb = CblasNoTrans;
+
+    // Column major */
+  lda = M; ldb = K ; ldc = M;
+  status = hcblasCgemm(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+
+  status = hcblasGetMatrix(handle, M, N, sizeof(hcComplex), devC, 1, C, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+
+  cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
+  for(int i = 0, k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
+            EXPECT_EQ(C[i].x, cblas[k]);
+            EXPECT_EQ(C[i].y, cblas[k+1]);
+  }
+
+   // HCBLAS_STATUS_NOT_INITIALIZED
+  hcblasDestroy(handle);
+  status = hcblasCgemm(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc);
+  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+  free(A);
+  free(B);
+  free(C);
+  hc::am_free(devA);
+  hc::am_free(devB);
+  hc::am_free(devC);
+  free(ablas);
+  free(bblas);
+  free(cblas);
+}
+
+TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
+  hcblasStatus_t status;
+  hcblasHandle_t *handle = NULL;
+  status = hcblasCreate(handle);
+  int M = 123;
+  int N = 78;
+  int K = 23;
+  int incx = 1, incy = 1;
+  long lda;
+  long ldb;
+  long ldc;
+  int batchSize = 64;
+  enum CBLAS_ORDER order;
+  order = (handle->Order)? CblasColMajor: CblasRowMajor;
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  hcblasOperation_t typeA, typeB;
+  enum CBLAS_TRANSPOSE Transa, Transb;
+    float alpha[2], beta[2];
+    hcComplex cAlpha, cBeta;
+    cAlpha.x = 1;
+    cAlpha.y = 1;
+    cBeta.x = 1;
+    cBeta.y = 1;
+    alpha[0] = cAlpha.x;
+    alpha[1] = cAlpha.y;
+    beta[0] = cBeta.x;
+    beta[1] = cBeta.y;
+    hcComplex *A = (hcComplex*) calloc(M * K, sizeof(hcComplex));
+    hcComplex *B = (hcComplex*) calloc(K * N, sizeof(hcComplex));
+    hcComplex *C = (hcComplex*) calloc(M * N * batchSize, sizeof(hcComplex));
+    hcComplex* devA = hc::am_alloc(sizeof(hcComplex) * M * K, acc[1], 0);
+    hcComplex* devB = hc::am_alloc(sizeof(hcComplex) * K * N, acc[1], 0);
+    hcComplex* devC = hc::am_alloc(sizeof(hcComplex) * M * N * batchSize, acc[1], 0);
+    float* ablas = (float *)malloc(sizeof(float )* M * K * 2);
+    float* bblas = (float *)malloc(sizeof(float )* K * N * 2);
+    float* cblas = (float *)malloc(sizeof(float )* M * N * batchSize * 2);
+    int k = 0;
+    for(int i = 0; i < M * K; i++) {
+                A[i].x = rand() % 10;
+                A[i].y = rand() % 20;
+                ablas[k++] = A[i].x;
+                ablas[k++] = A[i].y;
+    }
+    k = 0;
+    for(int i = 0; i < K * N;i++) {
+                B[i].x = rand() % 15;
+                B[i].y = rand() % 25;
+                bblas[k++] = B[i].x;
+                bblas[k++] = B[i].y;
+    }
+    k = 0;
+    for(int i = 0; i < M * N * batchSize;i++) {
+                C[i].x = rand() % 18;
+                C[i].y = rand() % 28;
+                cblas[k++] = C[i].x;
+                cblas[k++] = C[i].y;
+    }
+
+  status = hcblasSetMatrix(handle, M, K, sizeof(hcComplex), A, 1, devA, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasSetMatrix(handle, K, N, sizeof(hcComplex), B, 1, devB, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasSetMatrix(handle, M, N * batchSize, sizeof(hcComplex), C, 1, devC, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+
+  // NoTransA and NoTransB */           
+  typeA = HCBLAS_OP_N;
+  typeB = HCBLAS_OP_N;
+  Transa = CblasNoTrans;
+  Transb = CblasNoTrans;
+
+    // Column major */
+  lda = M; ldb = K ; ldc = M;
+  status = hcblasCgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc, batchSize);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+
+  status = hcblasGetMatrix(handle, M, N * batchSize, sizeof(hcComplex), devC, 1, C, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+
+  for(int i = 0; i < batchSize;i++)
+         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas + i * M * N * 2, ldc );
+  for(int i = 0, k = 0; ((i < M * N * batchSize) && ( k < M * N * batchSize * 2)) ; i++, k = k + 2) {
+            EXPECT_EQ(C[i].x, cblas[k]);
+            EXPECT_EQ(C[i].y, cblas[k+1]);
+  }
+
+   // HCBLAS_STATUS_NOT_INITIALIZED
+  hcblasDestroy(handle);
+  status = hcblasCgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc, batchSize);
+  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+  free(A);
+  free(B);
+  free(C);
+  hc::am_free(devA);
+  hc::am_free(devB);
+  hc::am_free(devC);
+  free(ablas);
+  free(bblas);
+  free(cblas);
+}
+
