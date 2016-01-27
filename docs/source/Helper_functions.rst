@@ -5,7 +5,7 @@ HCBLAS Helper functions
 1. hcblasCreate()
 -----------------
 
-hcblasStatus_t **hcblasCreate** (hcblasHandle_t* &handle)
+`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasCreate** (hcblasHandle_t* &handle)
 
 | This function initializes the HCBLAS library and creates a handle to an opaque structure
 | holding the HCBLAS library context.
