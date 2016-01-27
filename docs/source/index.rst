@@ -136,7 +136,7 @@ The following are the steps to use the library
       * Library installation.
       
 4.1 Boltzmann Driver and Runtime Installation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
      a. Downloading the kernel binaries from the repo
      
@@ -157,12 +157,15 @@ The following are the steps to use the library
          ``sudo dpkg -i packages/ubuntu/*.deb``
          
      e. Reboot the system to install the new kernel and enable the HSA kernel driver
+     
          ``sudo reboot``
          
      f. Once done with reboot, one could proceed with runtime installation
      
          *  ``git clone https://github.com/RadeonOpenCompute/ROCR-Runtime``
+         
          *  ``cd ROCR-Runtime/packages/ubuntu``
+         
          *  ``sudo dpkg -i hsa-runtime-dev-1.0.0-amd64.deb``
         
 
