@@ -123,6 +123,7 @@ int main() {
   status = hcblasSetMatrix(handle, K, N, sizeof(float), h_B, K, d_A, N);
   if(status != HCBLAS_STATUS_SUCCESS) {
      printf("Data download failure\n");
+     exit(1);
   }
   status = hcblasSetMatrix(handle, M, N, sizeof(float), h_C, M, d_C, N);
   if(status != HCBLAS_STATUS_SUCCESS) {
