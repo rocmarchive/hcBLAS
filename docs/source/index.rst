@@ -167,6 +167,8 @@ The following are the steps to use the library
          *  ``cd ROCR-Runtime/packages/ubuntu``
          
          *  ``sudo dpkg -i hsa-runtime-dev-1.0.0-amd64.deb``
+         
+         The contents get installed by default under /opt/hsa path
         
 
 4.2 Compiler Installation
