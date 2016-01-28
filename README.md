@@ -123,6 +123,7 @@ int main() {
   status = hcblasSetMatrix(handle, K, N, sizeof(float), h_B, K, d_A, N);
   if(status != HCBLAS_STATUS_SUCCESS) {
      printf("Data download failure\n");
+  }
   status = hcblasSetMatrix(handle, M, N, sizeof(float), h_C, M, d_C, N);
   if(status != HCBLAS_STATUS_SUCCESS) {
      printf("Data download failure\n");
@@ -161,7 +162,7 @@ int main() {
      exit(1);
   }
 
-  //Free host resources
+  //Free host resource}s
   free(h_A);
   free(h_B);
   free(h_C);
@@ -170,6 +171,8 @@ int main() {
   hc::am_free(d_A);
   hc::am_free(d_B);
   hc::am_free(d_C);
+
+}
 
 
 ```
