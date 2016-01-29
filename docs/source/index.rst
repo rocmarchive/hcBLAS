@@ -144,7 +144,7 @@ The following are the steps to use the library
         
      b. Go to the top of the repo
         
-         ``cd ROCK-Kernel-Driver``
+        ``cd ROCK-Kernel-Driver``
          
      c. Configure udev to allow any user to access /dev/kfd. 
         As root, use a text editor to create /etc/udev/rules.d/kfd.rules 
@@ -154,11 +154,11 @@ The following are the steps to use the library
         
      d. For Ubuntu, install the kernel and libhsakmt packages using:
        
-         ``sudo dpkg -i packages/ubuntu/*.deb``
+        ``sudo dpkg -i packages/ubuntu/*.deb``
          
      e. Reboot the system to install the new kernel and enable the HSA kernel driver
      
-         ``sudo reboot``
+        ``sudo reboot``
          
      f. Once done with reboot, one could proceed with runtime installation
      
@@ -170,6 +170,13 @@ The following are the steps to use the library
          
          The contents get installed by default under /opt/hsa path
         
+
+     e. Created a file called hsa.conf in /etc/ld.so.conf.d/ and write "/opt/hsa/lib" in it, 
+        then run "sudo ldconfig -v" or you could use the following command
+
+        ``echo "/opt/hsa/lib" | sudo tee /etc/ld.so.conf.d/hsa.conf``
+
+        ``sudo ldconfig -v``
 
 4.2 Compiler Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -188,7 +195,7 @@ The following are the steps to use the library
 
      c. Install the compiler
 
-                 ``sudo dpkg -i hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb``
+        ``sudo dpkg -i hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb``
 
 Once done with the above steps the compiler headers, binaries and libraries gets installed under /opt system path as ``/opt/hcc`` .
 
@@ -197,20 +204,24 @@ Once done with the above steps the compiler headers, binaries and libraries gets
 
     a. Clone the repo
              
-           ``git clone https://bitbucket.org/multicoreware/hcblas.git && cd hcblas``
+       ``git clone https://bitbucket.org/multicoreware/hcblas.git && cd hcblas``
 
     b. Modify scripts mode to binary
 
-           ``chmod +x install.sh``
+       ``chmod +x install.sh``
 
-    c. Install library
+    c. Install CPU based CBLAS library 
+  
+       ``sudo apt-get install libblas-dev``
 
-           ``./install.sh``
+    d. Install library
+
+       ``./install.sh``
 
 
-    d. Additionally to run the unit test along with installation invoke the following command
+    e. Additionally to run the unit test along with installation invoke the following command
 
-          ``./install.sh test=ON``
+       ``./install.sh test=ON``
 
 Once done with the above steps the libhcblas.so and associated headers gets installed under system path.
 
@@ -225,92 +236,87 @@ To uninstall the library, invoke the following series of commands
 5. Unit testing
 ************************
 
-5.1. Install CPU based CBLAS library
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-``sudo apt-get install libblas-dev``
-
-5.2. Testing hcBLAS against CBLAS:
+5.1. Testing hcBLAS against CBLAS:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     
 a) Automated testing:
 
-* ``cd ~/hcblas/test/unit/``
+      * ``cd ~/hcblas/test/unit/``
      
-* ``./test.sh``
+      * ``./test.sh``
      
 b) Manual testing:
 
-* ``cd ~/hcblas/test/build/linux/bin/``
+      * ``cd ~/hcblas/test/build/linux/bin/``
      
-* choose the appropriate named binary 
+      * choose the appropriate named binary 
      
 
 Here are some notes for performing manual testing:
      
-* ``TransA (TA) and TransB(TB) takes 0 or 1
+      * ``TransA (TA) and TransB(TB) takes 0 or 1
 
        where,            0 - NoTrans (Operate with the given matrix)
 
-                         1 - Trans   (Operate with the transpose of the given matrix)
+                         1 - Trans   (Operate with the transpose of the given matrix)``
                          
-* Implementation type (Itype) takes 1 or 2
+      * ``Implementation type (Itype) takes 1 or 2
 
        where,            1 - Inputs and Outputs are device pointers.
 
                          2 - Inputs and Outputs are device pointers with batch processing.``
      
-* SGEMM
+      * SGEMM
      
-     ``./sgemm M N K TA TB Itype``
+      ``./sgemm M N K TA TB Itype``
   
-* CGEMM 
+      * CGEMM 
 
-     ``./cgemm M N K TA TB Itype``
+      ``./cgemm M N K TA TB Itype``
 
-* SGEMV
+      * SGEMV
        
-     ``./sgemv M N Trans Itype``
+      ``./sgemv M N Trans Itype``
 
-* SGER
+      * SGER
  
-     ``./sger M N Itype``
+      ``./sger M N Itype``
 
-* SAXPY
+      * SAXPY
 
-     ``./saxpy N Itype``
+      ``./saxpy N Itype``
 
-* SSCAL
+      * SSCAL
   
-     ``./sscal N Itype``
+      ``./sscal N Itype``
 
-* DSCAL
+      * DSCAL
    
-    ``./dscal N Itype``
+      ``./dscal N Itype``
  
-* SCOPY 
+      * SCOPY 
 
-    ``./scopy N Itype``
+      ``./scopy N Itype``
 
-* DCOPY
+      * DCOPY
    
-   ``./dcopy N Itype``
+      ``./dcopy N Itype``
 
-* SASUM
+      * SASUM
 
-   ``./sasum N Itype``
+      ``./sasum N Itype``
 
-* DASUM
+      * DASUM
 
-   ``./dasum N Itype``
+      ``./dasum N Itype``
 
-* SDOT
+      * SDOT
 
-  ``./sdot N Itype``
+      ``./sdot N Itype``
 
-* DDOT
+      * DDOT
 
-  ``./ddot N Itype``
+      ``./ddot N Itype``
 
 
 ************************
