@@ -171,7 +171,7 @@ The following are the steps to use the library
         The contents get installed by default under /opt/hsa path
         
 
-     e. Created a file called hsa.conf in /etc/ld.so.conf.d/ and write "/opt/hsa/lib" in it, 
+     e. Create a file called hsa.conf in /etc/ld.so.conf.d/ and write "/opt/hsa/lib" in it, 
         then run "sudo ldconfig -v" or you could use the following command
 
         ``echo "/opt/hsa/lib" | sudo tee /etc/ld.so.conf.d/hsa.conf``
