@@ -162,13 +162,13 @@ The following are the steps to use the library
          
      f. Once done with reboot, one could proceed with runtime installation
      
-         *  ``git clone https://github.com/RadeonOpenCompute/ROCR-Runtime``
+        ``git clone https://github.com/RadeonOpenCompute/ROCR-Runtime``
          
-         *  ``cd ROCR-Runtime/packages/ubuntu``
+        ``cd ROCR-Runtime/packages/ubuntu``
          
-         *  ``sudo dpkg -i hsa-runtime-dev-1.0.0-amd64.deb``
+        ``sudo dpkg -i hsa-runtime-dev-1.0.0-amd64.deb``
          
-         The contents get installed by default under /opt/hsa path
+        The contents get installed by default under /opt/hsa path
         
 
      e. Created a file called hsa.conf in /etc/ld.so.conf.d/ and write "/opt/hsa/lib" in it, 
@@ -227,9 +227,9 @@ Once done with the above steps the libhcblas.so and associated headers gets inst
 
 To uninstall the library, invoke the following series of commands
 
-      * ``chmod +x uninstall.sh``
+       ``chmod +x uninstall.sh``
 
-      * ``./uninstall.sh``
+       ``./uninstall.sh``
 
 
 ************************
@@ -241,30 +241,30 @@ To uninstall the library, invoke the following series of commands
     
 a) Automated testing:
 
-      * ``cd ~/hcblas/test/unit/``
+       ``cd ~/hcblas/test/unit/``
      
-      * ``./test.sh``
+       ``./test.sh``
      
 b) Manual testing:
 
-      * ``cd ~/hcblas/test/build/linux/bin/``
+       ``cd ~/hcblas/test/build/linux/bin/``
      
-      * choose the appropriate named binary 
+       choose the appropriate named binary 
      
 
 Here are some notes for performing manual testing:
      
-      * ``TransA (TA) and TransB(TB) takes 0 or 1
+      TransA (TA) and TransB(TB) takes 0 or 1
 
        where,            0 - NoTrans (Operate with the given matrix)
 
-                         1 - Trans   (Operate with the transpose of the given matrix)``
+                         1 - Trans   (Operate with the transpose of the given matrix)
                          
-      * ``Implementation type (Itype) takes 1 or 2
+      Implementation type (Itype) takes 1 or 2
 
        where,            1 - Inputs and Outputs are device pointers.
 
-                         2 - Inputs and Outputs are device pointers with batch processing.``
+                         2 - Inputs and Outputs are device pointers with batch processing.
      
       * SGEMM
      
