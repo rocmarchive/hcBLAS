@@ -16,7 +16,7 @@ inputfile=open(filename,"r")
 out = csv.writer(open(HCBLAS_PATH +"/test/benchmark/profileSummary_sgemm.csv","a"), delimiter='\t',quoting=csv.QUOTE_NONE)
 html=inputfile.read()
 
-soup = BeautifulSoup(html)
+soup = BeautifulSoup(html, 'lxml')
 table = soup.find("table", attrs={"class":"draggable sortable"})
 
 # The first tr contains the field names.

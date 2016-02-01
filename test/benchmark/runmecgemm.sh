@@ -38,14 +38,14 @@ while read line; do
     mkdir -p $path2perf
 
 #Grep CLKernel Summary
-    cmd="(ls -a $path2outdir) | grep CLKernelSummary"
+    cmd="(ls -a $path2outdir) | grep HSAKernelSummary"
 
 #Check if executable exixts
     if [ -x $path2exe ]; then
       echo $path2exe $Mvalue $Nvalue $Kvalue $transA $transB 
 
 #Generate ATP file 
-      runcmd="$path2profiler -o $path2outdir/output.atp -t -T -w $path2outdir $path2exe $Mvalue $Nvalue $Kvalue $transA $transB $Implem --device gpu"
+      runcmd="$path2profiler --hsatrace -o $path2outdir/output.atp -t -T -w $path2outdir $path2exe $Mvalue $Nvalue $Kvalue $transA $transB $Implem --device gpu"
       echo $runcmd
       eval $runcmd
       echo $cmd
@@ -58,9 +58,9 @@ while read line; do
       fi
 
 #Run perf counter
-      runcmd2="$path2profiler -o $path2perf/output.csv -O -p -w $path2perf $path2exe $Mvalue $Nvalue $Kvalue $transA $transB $Implem --device gpu"
-      echo $runcmd2
-      eval $runcmd2
+#      runcmd2="$path2profiler --hsapmc -o $path2perf/output.csv -O -p -w $path2perf $path2exe $Mvalue $Nvalue $Kvalue $transA $transB $Implem --device gpu"
+#      echo $runcmd2
+#      eval $runcmd2
     else
       echo $path2exe "doesnot exist" 
     fi
