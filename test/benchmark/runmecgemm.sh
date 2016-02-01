@@ -66,5 +66,5 @@ while read line; do
     fi
 
 #Input file
-done < $workingdir/sgemm_input.txt
+done < $workingdir/cgemm_input.txt
 

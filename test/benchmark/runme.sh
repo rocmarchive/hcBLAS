@@ -16,16 +16,16 @@ cd $CURRENTDIR
 ./runmesgemm.sh
 
 #Profile SAXPY
-./runmesaxpy.sh
+#./runmesaxpy.sh
 
 #Profile SGER
-./runmesger.sh
+#./runmesger.sh
 
 #Profile CGEMM
 ./runmecgemm.sh
 
 #Profile SGEMV
-./runmesgemv.sh
+#./runmesgemv.sh
 
 red=`tput setaf 1`
 green=`tput setaf 2`

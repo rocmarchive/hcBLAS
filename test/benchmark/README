@@ -13,6 +13,7 @@ Prerequisites
     tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/
     AMD Driver installer: amd-driver-installer-14.301.1001-x86.x86_64
     Python 2.x or above with BeautifulSoup4
+    CodeXL-1.9 
 
 To profile:
 ==================================================================================
