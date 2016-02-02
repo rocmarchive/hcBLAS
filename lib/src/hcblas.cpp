@@ -275,8 +275,6 @@ hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t *handle, int deviceid, hcb
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
-// HCBLAS_STATUS_ALLOC_FAILED      the reduction buffer could not be allocated
-// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t  hcblasSasum(hcblasHandle_t *handle, const int n,
@@ -362,7 +360,6 @@ hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t *handle, const int n,
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
-// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t hcblasSaxpy(hcblasHandle_t *handle, int n,
@@ -421,7 +418,6 @@ hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t *handle, int n,
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
-// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t hcblasScopy(hcblasHandle_t *handle, int n,
@@ -515,8 +511,6 @@ hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t *handle, int n,
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
-// HCBLAS_STATUS_ALLOC_FAILED      the reduction buffer could not be allocated
-// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t hcblasSdot (hcblasHandle_t *handle, int n,
@@ -612,7 +606,6 @@ hcblasStatus_t hcblasDdotBatched (hcblasHandle_t *handle, int n,
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
-// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t  hcblasSscal(hcblasHandle_t *handle, int n,
@@ -724,7 +717,6 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t *handle, int n,
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
 // HCBLAS_STATUS_INVALID_VALUE     the parameters m,n<0 or incx,incy=0
-// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t hcblasSgemv(hcblasHandle_t *handle, hcblasOperation_t trans,
@@ -821,7 +813,6 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t *handle, hcblasOperation_t tran
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
 // HCBLAS_STATUS_INVALID_VALUE     the parameters m,n<0 or incx,incy=0
-// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t  hcblasSger(hcblasHandle_t *handle, int m, int n,
@@ -922,7 +913,6 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t *handle, int m, int n,
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
 // HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k<0 
-// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t hcblasSgemm(hcblasHandle_t *handle,
@@ -1029,7 +1019,6 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
 // HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k,batchCount<0
-// HCBLAS_STATUS_ARCH_MISMATCH     the device does not support double-precision
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t *handle,

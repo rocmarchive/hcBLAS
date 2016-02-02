@@ -66,6 +66,5 @@ STATUS                            DESCRIPTION
 ==============================    =============================================
 HCBLAS_STATUS_SUCCESS             the operation completed successfully
 HCBLAS_STATUS_NOT_INITIALIZED     the library was not initialized
-HCBLAS_STATUS_ARCH_MISMATCH       the device does not support double-precision
 HCBLAS_STATUS_EXECUTION_FAILED    the function failed to launch on the GPU
 ==============================    ============================================= 
