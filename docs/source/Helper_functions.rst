@@ -1,10 +1,10 @@
-#######################
-HCBLAS Helper functions 
-#######################
+###########################
+2.1 HCBLAS Helper functions 
+###########################
 --------------------------------------------------------------------------------------------------------------------------------------------
 
-1. hcblasCreate()
------------------
+2.1.1. hcblasCreate()
+---------------------
 
 `hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasCreate** (hcblasHandle_t* &handle)
 
@@ -20,8 +20,8 @@ STATUS                            DESCRIPTION
  HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 ==============================    ============================================= 
 
-2. hcblasDestory()
-------------------
+2.1.2. hcblasDestory()
+----------------------
 
 `hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDestroy** (hcblasHandle_t* &handle)
 
@@ -37,8 +37,8 @@ STATUS                            DESCRIPTION
  HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
 ==============================    ============================================= 
 
-3. hcblasSetVector()
---------------------
+2.1.3. hcblasSetVector()
+------------------------
 
 `hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSetVector** (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)
 
@@ -57,8 +57,8 @@ STATUS                            DESCRIPTION
  HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 ==============================    ============================================= 
 
-4. hcblasGetVector()
---------------------
+2.1.4. hcblasGetVector()
+------------------------
 
 `hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasGetVector** (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)
 
@@ -77,8 +77,8 @@ STATUS                            DESCRIPTION
  HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 ==============================    ============================================= 
 
-5. hcblasSetMatrix()
---------------------
+2.1.5. hcblasSetMatrix()
+------------------------
 
 `hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSetMatrix** (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
 
@@ -98,8 +98,8 @@ STATUS                            DESCRIPTION
  HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 ==============================    ===================================================== 
 
-6. hcblasGetMatrix()
---------------------
+2.1.6. hcblasGetMatrix()
+------------------------
 
 `hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasGetMatrix** (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
 
@@ -119,8 +119,8 @@ STATUS                            DESCRIPTION
  HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 ==============================    ===================================================== 
 
-7. hcblasDeviceOrderSelect()
-----------------------------
+2.1.7. hcblasDeviceOrderSelect()
+--------------------------------
 
 `hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDeviceOrderSelect** (hcblasHandle_t* handle, int deviceId, hcblasOrder order)
 

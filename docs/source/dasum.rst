@@ -1,6 +1,6 @@
-#####
-DASUM
-#####
+#############
+2.2.11. DASUM
+#############
 --------------------------------------------------------------------------------------------------------------------------------------------
 
 | Absolute sum of values of a vector (vector x) containing double elements (Double precision).
@@ -15,14 +15,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDasum** (hcblasHandle_t* handle, int n, double* x, int incx, double* result)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasDasum** (hcblasHandle_t* handle, int n, double* x, int incx, double* result)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDasumBatched** (hcblasHandle_t* handle, int n, double* x, int incx, double* result, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasDasumBatched** (hcblasHandle_t* handle, int n, double* x, int incx, double* result, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^

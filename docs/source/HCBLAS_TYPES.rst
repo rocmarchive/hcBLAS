@@ -1,10 +1,10 @@
-############
-HCBLAS TYPES
-############
+#################
+2.3. HCBLAS TYPES
+#################
 --------------------------------------------------------------------------------------------------------------------------------------------
 
-Enumerations
-^^^^^^^^^^^^
+2.3.1. Enumerations
+^^^^^^^^^^^^^^^^^^^
 
 | enum hcblasStatus_t {
 |  HCBLAS_STATUS_SUCCESS,
@@ -24,12 +24,13 @@ Enumerations
 
 | typedef float2 hcFloatComplex;
 | typedef hcFloatComplex hcComplex;
+|
 
-Detailed Description
-^^^^^^^^^^^^^^^^^^^^
+2.3.2. Detailed Description
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-HCBLAS STATUS (hcblasStatus_t)
-------------------------------
+2.3.2.1. HCBLAS STATUS (hcblasStatus_t)
+---------------------------------------
 
 | This enumeration is the set of HCBLAS error codes.
 +-------------------------------------+--------------------------------------------------------------------------------+
@@ -51,8 +52,9 @@ HCBLAS STATUS (hcblasStatus_t)
 +-------------------------------------+--------------------------------------------------------------------------------+
 
 |
-HCBLAS ORDER (hcblasOrder)
---------------------------
+
+2.3.2.2. HCBLAS ORDER (hcblasOrder)
+-----------------------------------
 
 | Shows how matrices are placed in memory.
 +------------+--------------------------------------------------------------------------------+
@@ -65,8 +67,8 @@ HCBLAS ORDER (hcblasOrder)
 
 |
 
-HCBLAS TRANSPOSE (hcblasOperation_t)
-------------------------------------
+2.3.2.3. HCBLAS TRANSPOSE (hcblasOperation_t)
+---------------------------------------------
 
 | Used to specify whether the matrix is to be transposed or not. 
 +----------------+--------------------------------------------------------------------------------+

@@ -1,6 +1,6 @@
-####
-SGER 
-####
+###########
+2.2.4. SGER 
+###########
 --------------------------------------------------------------------------------------------------------------------------------------------
 
 | Vector-vector product with float elements and performs the rank 1 operation (Single precision).
@@ -21,14 +21,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSger** (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSger** (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgerBatched** (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSgerBatched** (hcblasHandle_t* handle, int m, int n, const float* alpha, const float* x, int incx, const float* y, int incy, float* A, int lda, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^

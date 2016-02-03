@@ -1,0 +1,9 @@
+2. hcBLAS API Reference
+=======================
+
+.. toctree::
+   :maxdepth: 2
+
+   Helper_functions
+   Modules
+   HCBLAS_TYPES

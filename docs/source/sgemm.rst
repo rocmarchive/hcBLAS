@@ -1,6 +1,6 @@
-#####
-SGEMM
-#####
+############
+2.2.1. SGEMM
+############
 --------------------------------------------------------------------------------------------------------------------------------------------
 
 | Single precision real valued general matrix-matrix multiplication.
@@ -26,14 +26,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemm** (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const float* alpha, float* A, int lda, float* B, int ldb, const float* beta, float* C, int ldc)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSgemm** (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const float* alpha, float* A, int lda, float* B, int ldb, const float* beta, float* C, int ldc)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
                                                                                                
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSgemmBatched** (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const float* alpha, float* A, int lda, float* B, int ldb, const float* beta, float* C, int ldc, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSgemmBatched** (hcblasHandle_t* handle, hcblasOperation_t transa, hcblasOperation_t transb, int m, int n, int k, const float* alpha, float* A, int lda, float* B, int ldb, const float* beta, float* C, int ldc, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^

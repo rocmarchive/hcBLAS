@@ -1,6 +1,6 @@
-#####
-DCOPY
-#####
+############
+2.2.9. DCOPY
+############
 --------------------------------------------------------------------------------------------------------------------------------------------
 
 | Copies double elements from vector x to vector y (Double precision Copy).
@@ -17,14 +17,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDcopy** (hcblasHandle_t* handle, int n, const double* x, int incx, double* y, int incy)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasDcopy** (hcblasHandle_t* handle, int n, const double* x, int incx, double* y, int incy)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDcopyBatched** (hcblasHandle_t* handle, int n, const double* x, int incx, double* y, int incy, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasDcopyBatched** (hcblasHandle_t* handle, int n, const double* x, int incx, double* y, int incy, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
