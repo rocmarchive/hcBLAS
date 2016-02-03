@@ -119,7 +119,7 @@ STATUS                            DESCRIPTION
 ==============================    ===================================================== 
 
 7. hcblasDeviceOrderSelect()
------------------------
+----------------------------
 
 `hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDeviceOrderSelect** (hcblasHandle_t* handle, int deviceId, hcblasOrder order)
 
