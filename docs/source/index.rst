@@ -183,8 +183,13 @@ The following are the steps to use the library
 
      a. Install pre-dependency packages
 
-        ``sudo apt-get install cmake git subversion g++ libstdc++-4.8-dev libdwarf-dev libelf-dev libtinfo-dev libc6-dev-i386 gcc-multilib llvm llvm-dev llvm-runtime libc++1 libc++-dev libc++abi1 libc++abi-dev re2c libncurses5-dev``
+::
 
+        sudo apt-get install cmake git subversion g++ libstdc++-4.8-dev libdwarf-dev libelf-dev 
+        libtinfo-dev libc6-dev-i386 gcc-multilib llvm llvm-dev llvm-runtime libc++1 libc++-dev 
+        libc++abi1 libc++abi-dev re2c libncurses5-dev
+
+|
      b. Download Compiler 
 
         Click `here <https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb>`_
