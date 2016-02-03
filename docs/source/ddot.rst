@@ -1,6 +1,7 @@
 ####
 DDOT
 ####
+--------------------------------------------------------------------------------------------------------------------------------------------
 
 | Dot product of two vectors (vectors x and y) containing double elements (Double precision Dot product).
 |

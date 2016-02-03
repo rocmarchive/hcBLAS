@@ -1,6 +1,7 @@
 ####
 SGER 
 ####
+--------------------------------------------------------------------------------------------------------------------------------------------
 
 | Vector-vector product with float elements and performs the rank 1 operation (Single precision).
 |

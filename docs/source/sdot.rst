@@ -1,6 +1,7 @@
 ####
 SDOT
 ####
+--------------------------------------------------------------------------------------------------------------------------------------------
 
 | Dot product of two vectors (vectors x and y) containing float elements (Single precision Dot product).
 |
