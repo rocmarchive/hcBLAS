@@ -32,25 +32,25 @@ To know more, go through the [Documentation](http://hcblas-documentation.readthe
 
 ## C. Prerequisites ##
 
-* Refer Prerequisites section [here](http://hcblas-documentation.readthedocs.org/en/latest/#prerequisites)
+* Refer Prerequisites section [here](http://hcblas-documentation.readthedocs.org/en/latest/Prerequisites.html)
 
 ## D. Tested Environment so far 
 
-* Refer Tested environments enumerated [here](http://hcblas-documentation.readthedocs.org/en/latest/#tested-environments)
+* Refer Tested environments enumerated [here](http://hcblas-documentation.readthedocs.org/en/latest/Tested_Environments.html)
 
 
 ## E. Installation  
 
-* Follow installation steps as described [here](http://hcblas-documentation.readthedocs.org/en/latest/#installation-steps)
+* Follow installation steps as described [here](http://hcblas-documentation.readthedocs.org/en/latest/Installation_steps.html)
 
 
 ## F. Unit testing
 
-* Follow testing procedures as explained [here](http://hcblas-documentation.readthedocs.org/en/latest/#unit-testing)
+* Follow testing procedures as explained [here](http://hcblas-documentation.readthedocs.org/en/latest/Unit_testing.html)
 
 ## G. API reference
 
-* The Specification of API's supported along with description  can be found [here](http://hcblas-documentation.readthedocs.org/en/latest/#hcblas-api-reference)
+* The Specification of API's supported along with description  can be found [here](http://hcblas-documentation.readthedocs.org/en/latest/API_reference.html)
 
 
 ## H. Example Code
