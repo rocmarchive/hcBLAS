@@ -6,7 +6,7 @@
 2.1.1. hcblasCreate()
 ---------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasCreate** (hcblasHandle_t* &handle)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasCreate** (hcblasHandle_t* &handle)
 
 | This function initializes the HCBLAS library and creates a handle to an opaque structure
 | holding the HCBLAS library context.
@@ -23,7 +23,7 @@ STATUS                            DESCRIPTION
 2.1.2. hcblasDestory()
 ----------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDestroy** (hcblasHandle_t* &handle)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasDestroy** (hcblasHandle_t* &handle)
 
 | This function releases hardware resources used by the HCBLAS library. 
 | This function is usually the last call with a particular handle to the HCBLAS library.
@@ -40,7 +40,7 @@ STATUS                            DESCRIPTION
 2.1.3. hcblasSetVector()
 ------------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSetVector** (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSetVector** (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)
 
 | This function copies n elements from a vector x in host memory space to a vector y in GPU memory space. 
 | Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between 
@@ -60,7 +60,7 @@ STATUS                            DESCRIPTION
 2.1.4. hcblasGetVector()
 ------------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasGetVector** (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasGetVector** (hcblasHandle_t* handle, int n, int elemSize, const void* x, int incx, void* y, int incy)
 
 | This function copies n elements from a vector x in GPU memory space to a vector y in host memory space. 
 | Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between 
@@ -80,7 +80,7 @@ STATUS                            DESCRIPTION
 2.1.5. hcblasSetMatrix()
 ------------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasSetMatrix** (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSetMatrix** (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
 
 | This function copies a tile of rows x cols elements from a matrix A in host memory space to a 
 | matrix B in GPU memory space. It is assumed that each element requires storage of elemSize bytes 
@@ -101,7 +101,7 @@ STATUS                            DESCRIPTION
 2.1.6. hcblasGetMatrix()
 ------------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasGetMatrix** (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasGetMatrix** (hcblasHandle_t* handle, int rows, int cols, int elemSize, const void* A, int lda, void* B, int ldb)
 
 | This function copies a tile of rows x cols elements from a matrix A in GPU memory space to 
 | a matrix B in host memory space. It is assumed that each element requires storage of elemSize 
@@ -122,7 +122,7 @@ STATUS                            DESCRIPTION
 2.1.7. hcblasDeviceOrderSelect()
 --------------------------------
 
-`hcblasStatus_t <HCBLAS_TYPES.html>`_ **hcblasDeviceOrderSelect** (hcblasHandle_t* handle, int deviceId, hcblasOrder order)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasDeviceOrderSelect** (hcblasHandle_t* handle, int deviceId, hcblasOrder order)
 
 | This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls. User can select their order of operation in this function (RowMajor/ColMajor).
 |
