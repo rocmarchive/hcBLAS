@@ -25,15 +25,7 @@ This sections enumerates the list of tested combinations of Hardware and system 
 * Kaveri and Carizo APU
 
 
-1.3.3. Desktop System 
-^^^^^^^^^^^^^^^^^^^^^
-
-* Supermicro SYS-7048GR-TR  Tower 4 W9100 GPU
-* ASUS X99-E WS motherboard with 4 AMD FirePro W9100
-* Gigabyte GA-X79S 2 AMD FirePro W9100 GPU’s
-
-
-1.3.4. Server System 
+1.3.3. Server System 
 ^^^^^^^^^^^^^^^^^^^^
 
 * Supermicro SYS 2028GR-THT  6 R9 NANO
