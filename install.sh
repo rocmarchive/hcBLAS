@@ -59,21 +59,10 @@ build_dir=$current_work_dir/build
 # change to library build
 cd $build_dir
 
-# Cmake and make libhcRNG: Install hcRNG
+# Cmake and make libhcblas: Install hcblas
 cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir
 sudo make install
 
-
-# Build Tests
-cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
-
-set +e
-mkdir $current_work_dir/build/test/src/bin/
-#mkdir $current_work_dir/build/test/example/bin/
-mkdir $current_work_dir/build/test/unit/gtest/bin/
-set -e
-
-make
 red=`tput setaf 1`
 green=`tput setaf 2`
 reset=`tput sgr0`
@@ -84,11 +73,24 @@ if (([ "$var1" = "test=off" ] && [ "$var2" = "profile=off" ]) || ([ "$var1" = "p
    echo "${green}HCBLAS Installation Completed!${reset}"
 #Test=ON and Profile=OFF (Build and test the library)
 elif (([ "$var1" = "test=on" ] && [ "$var2" = "profile=off" ]) || ([ "$var1" = "profile=off" ] && [ "$var2" = "test=on" ])); then
+# Build Tests
+   cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+   set +e
+   mkdir $current_work_dir/build/test/src/bin/
+   mkdir $current_work_dir/build/test/unit/gtest/bin/
+   set -e
+   make
    cd $current_work_dir/test/unit/
 # Invoke test script 
    ./test.sh
 # Test=ON and Profile=ON (Build, test and profile the library)
 elif (([ "$var1" = "profile=on" ] && [ "$var2" = "test=on" ]) || ([ "$var1" = "test=on" ] && [ "$var2" = "profile=on" ])); then
+   cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+   set +e
+   mkdir $current_work_dir/build/test/src/bin/
+   mkdir $current_work_dir/build/test/unit/gtest/bin/
+   set -e
+   make
    cd $current_work_dir/test/unit/
 #Invoke test script
    ./test.sh

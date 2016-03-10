@@ -7,8 +7,11 @@ CURRENTDIR=$PWD
 #Export HCBLAS_PATH to be used by python scripts
 export HCBLAS_PATH=$CURRENTDIR/../../
 
-cd $CURRENTDIR/../../build/test/ && cmake -DCMAKE_CXX_FLAGS=-fPIC $HCBLAS_PATH/test/ -DPROFILE=ON && make
-
+cd $CURRENTDIR/../../build/test/ && cmake -DCMAKE_CXX_FLAGS=-fPIC $HCBLAS_PATH/test/ -DPROFILE=ON 
+set +e
+mkdir $current_work_dir/build/test/src/bin/
+set -e
+make
 #Move to test benchmark 
 cd $CURRENTDIR
 
