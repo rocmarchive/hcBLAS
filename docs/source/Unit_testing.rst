@@ -14,7 +14,7 @@ a) Automated testing:
 
 b) Manual testing:
 
-       ``cd ~/hcblas/test/build/linux/bin/``
+       ``cd ~/hcblas/build/test/src/bin/``
 
        choose the appropriate named binary
 
