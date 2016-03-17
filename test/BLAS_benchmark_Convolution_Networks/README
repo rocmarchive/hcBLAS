@@ -1,8 +1,9 @@
 ==================================================================================
-HCBLAS PROFILING
+HCBLAS PROFILING - FOR CONVOLUTION NETWORKS
 ==================================================================================
 This folder has all shell scripts and python scripts to profile 
-HCBLAS kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.
+popular convolution networks like OxfordBlas, GoogleBlas, OverfeatBlas and 
+AlexnetBlas.
 
 Prerequisites
 ==================================================================================
@@ -14,17 +15,18 @@ Prerequisites
 
 To profile:
 ==================================================================================
-Each kernel test script needs kernel_input.txt file that stores inputs. 
-The inputs to the kernels can be changed here if needed.
+AlexnetBlasDimensions.txt, GoogleBlasDimensions.txt, OverfeatBlasDimensions.txt  
+and OxfordBlasDimensions.txt are the input files. Scripts take inputs from
+Input.txt, where the order of profiling could be changed if needed.
 
 $ sudo apt-get install libgtest-dev 
 
 $ export CODEXL_PATH=path/to/AMD_CodeXL_Linux_x86_64_2.0.10823
 
-$ cd ~/hcblas/test/benchmark/
+$ cd ~/hcblas/test/BLAS_benchmark_Convolution_Networks/
 
 $ ./runme.sh
 
-After profiling, Kernel profile time outputs will be stored in separate CSV files 
-and their profiling data will be stored in respective kernelProfileData folders.
+After profiling, Kernel profile time outputs gets stored in CSV file 
+and their profiling data gets stored in SgemmprofileData folder.
 ===================================================================================

@@ -9,7 +9,8 @@ export HCBLAS_PATH=$CURRENTDIR/../../
 
 cd $CURRENTDIR/../../build/test/ && cmake -DCMAKE_CXX_FLAGS=-fPIC $HCBLAS_PATH/test/ -DPROFILE=ON 
 set +e
-mkdir $current_work_dir/build/test/src/bin/
+mkdir $CURRENTDIR/../../build/test/src/bin/
+mkdir $CURRENTDIR/../../build/test/unit/gtest/bin/
 set -e
 make
 #Move to test benchmark 
@@ -19,16 +20,16 @@ cd $CURRENTDIR
 ./runmesgemm.sh
 
 #Profile SAXPY
-#./runmesaxpy.sh
+./runmesaxpy.sh
 
 #Profile SGER
-#./runmesger.sh
+./runmesger.sh
 
 #Profile CGEMM
 ./runmecgemm.sh
 
 #Profile SGEMV
-#./runmesgemv.sh
+./runmesgemv.sh
 
 red=`tput setaf 1`
 green=`tput setaf 2`

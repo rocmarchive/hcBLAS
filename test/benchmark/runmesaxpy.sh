@@ -5,7 +5,7 @@
 CURRENTDIR=$PWD
 
 #Path to profile
-path2profiler="/opt/AMD/CodeXL*/x86_64/sprofile"
+path2profiler="${CODEXL_PATH}/CodeXLGpuProfiler"
 
 #Path to SAXPY executable
 path2exe="$CURRENTDIR/../../build/test/src/bin/saxpy"
@@ -27,11 +27,11 @@ while read line; do
     Mvalue=$(echo $line | cut -f1 -d" " )
     Implem=$(echo $line | cut -f2 -d" " )
     datetime=$(date +%b-%d-%a_%H-%M-%S_)
-    pc="perfCounter"
+#    pc="perfCounter"
     path2outdir="$profDir/$datetime$Mvalue$Implem"
     mkdir -p $path2outdir
-    path2perf="$path2outdir/$pc"
-    mkdir -p $path2perf
+#    path2perf="$path2outdir/$pc"
+#    mkdir -p $path2perf
 
 #Grep CLKernel Summary
     cmd="(ls -a $path2outdir) | grep HSAKernelSummary"
@@ -63,4 +63,3 @@ while read line; do
 
 #Input file
 done < $workingdir/saxpy_input.txt
-

@@ -5,7 +5,7 @@
 CURRENTDIR=$PWD
 
 #Path to profile
-path2profiler="/opt/AMD/CodeXL*/x86_64/sprofile"
+path2profiler="${CODEXL_PATH}/CodeXLGpuProfiler"
 
 #Path to SGER executable
 path2exe="$CURRENTDIR/../../build/test/src/bin/sger"
@@ -28,11 +28,11 @@ while read line; do
     Nvalue=$(echo $line | cut -f2 -d" " )
     Implem=$(echo $line | cut -f3 -d" " )
     datetime=$(date +%b-%d-%a_%H-%M-%S_)
-    pc="perfCounter"
+#    pc="perfCounter"
     path2outdir="$profDir/$datetime$Mvalue$Nvalue$Implem"
     mkdir -p $path2outdir
-    path2perf="$path2outdir/$pc"
-    mkdir -p $path2perf
+#    path2perf="$path2outdir/$pc"
+#    mkdir -p $path2perf
 
 #Grep CLKernel Summary
     cmd="(ls -a $path2outdir) | grep HSAKernelSummary"
@@ -64,4 +64,3 @@ while read line; do
 
 #Input file
 done < $workingdir/sger_input.txt
-

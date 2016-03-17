@@ -5,7 +5,7 @@
 CURRENTDIR=$PWD
 
 #Path to profile
-path2profiler="/opt/AMD/CodeXL*/x86_64/sprofile"
+path2profiler="${CODEXL_PATH}/CodeXLGpuProfiler"
 
 #Path to SGEMV executable
 path2exe="$CURRENTDIR/../../build/test/src/bin/sgemv"
@@ -29,11 +29,11 @@ while read line; do
     transA=$(echo $line | cut -f3 -d" " )
     Implem=$(echo $line | cut -f4 -d" " )
     datetime=$(date +%b-%d-%a_%H-%M-%S_)
-    pc="perfCounter"
+#    pc="perfCounter"
     path2outdir="$profDir/$datetime$Mvalue$Nvalue$transA$Implem"
     mkdir -p $path2outdir
-    path2perf="$path2outdir/$pc"
-    mkdir -p $path2perf
+#    path2perf="$path2outdir/$pc"
+#    mkdir -p $path2perf
 
 #Grep CLKernel Summary
     cmd="(ls -a $path2outdir) | grep HSAKernelSummary"
@@ -65,4 +65,3 @@ while read line; do
 
 #Input file
 done < $workingdir/sgemv_input.txt
-
