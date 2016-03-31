@@ -11,5 +11,6 @@ sudo xargs rm < $current_work_dir/build/install_manifest.txt
 sudo rm -rf $current_work_dir/build
 
 sed -i '/hcblas/ d' ~/.bashrc
+source ~/.bashrc
 
 # TODO: ADD More options

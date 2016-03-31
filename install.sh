@@ -84,8 +84,11 @@ if [ "$path" = "/opt/ROCm/" ]; then
 fi
 
 export hcblas_install=$path
-echo 'export LD_LIBRARY_PATH=$hcblas_install/lib/hcblas:$LD_LIBRARY_PATH' >> ~/.bashrc
-echo 'export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$hcblas_install/include/hcblas' >> ~/.bashrc
+set hcblas_install=$path
+
+eval "echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$hcblas_install/lib/hcblas' >> ~/.bashrc"
+eval "echo 'export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$hcblas_install/include/hcblas' >> ~/.bashrc"
+source ~/.bashrc
 
 set +e
 # MAKE BUILD DIR
