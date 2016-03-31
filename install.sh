@@ -23,29 +23,69 @@ fi
 #CURRENT_WORK_DIRECTORY
 current_work_dir=$PWD
 
-#Inputs converted to smallcase format
-input1=$1
-var1=${input1,,}
-input2=$2
-var2=${input2,,}
+red=`tput setaf 1`
+green=`tput setaf 2`
+reset=`tput sgr0`
 
-#If number of arguments = 0
-if [ "x$var1" = "x" ]; then
-   var1="test=off"
-   var2="profile=off"
+# Help menu
+print_help() {
+cat <<-HELP
+=============================================================================================================================
+This script is invoked to install hcblas library and test sources. Please provide the following arguments:
+
+  1) ${green}--path${reset}    Path to your hcblas installation.(default path is /opt/ROCm/ - needs sudo access)
+  2) ${green}--test${reset}    Test to enable the library testing. 
+  3) ${green}--profile${reset} Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.
+
+=============================================================================================================================
+Usage: ./install.sh --path=/path/to/user/installation --test=on --profile=on
+=============================================================================================================================
+Example: 
+(1) ${green}./install.sh --path=/path/to/user/installation --test=on --profile=on${reset}
+       <library gets installed in /path/to/user/installation, testing = on, profiling = on>
+(2) ${green}./install.sh --test=on --profile=on${reset} (sudo access needed)
+       <library gets installed in /opt/ROCm/, testing = on, profiling = on>
+
+export CODEXL_PATH=/path/to/profiler before enabling profile variable.
+=============================================================================================================================
+HELP
+exit 0
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --path=*)
+      path="${1#*=}"
+      ;;
+    --test=*)
+      testing="${1#*=}"
+      ;;
+    --profile=*)
+      profiling="${1#*=}"
+      ;;
+    --help) print_help;;
+    *)
+      printf "************************************************************\n"
+      printf "* Error: Invalid arguments, run --help for valid arguments.*\n"
+      printf "************************************************************\n"
+      exit 1
+  esac
+  shift
+done
+
+if [ -z $path ]; then
+    path="/opt/ROCm/"
 fi
 
-#If number of arguments = 1 
-if ([ "$var1" = "test=on" ] || [ "$var1" = "test=off" ]); then 
-   if [ "x$var2" = "x" ]; then 
-    var2="profile=off" 
-   fi
-fi  
-if ([ "$var1" = "profile=on" ] || [ "$var1" = "profile=off" ]); then
-   if [ "x$var2" = "x" ]; then 
-    var2="test=off"
-   fi
+if [ "$path" = "/opt/ROCm/" ]; then
+   set +e
+   sudo mkdir /opt/ROCm/
+   set -e
 fi
+
+export hcblas_install=$path
+echo 'export LD_LIBRARY_PATH=$hcblas_install/lib/hcblas:$LD_LIBRARY_PATH' >> ~/.bashrc
+echo 'export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$hcblas_install/include/hcblas' >> ~/.bashrc
 
 set +e
 # MAKE BUILD DIR
@@ -61,19 +101,19 @@ cd $build_dir
 
 # Cmake and make libhcblas: Install hcblas
 cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir
-sudo make install
-
-red=`tput setaf 1`
-green=`tput setaf 2`
-reset=`tput sgr0`
-
-#Various possibilities of test and profile arguments
-#Test=OFF and Profile=OFF (Build library and tests)
-if (([ "$var1" = "test=off" ] && [ "$var2" = "profile=off" ]) || ([ "$var1" = "profile=off" ] && [ "$var2" = "test=off" ])); then
-   echo "${green}HCBLAS Installation Completed!${reset}"
-#Test=ON and Profile=OFF (Build and test the library)
-elif (([ "$var1" = "test=on" ] && [ "$var2" = "profile=off" ]) || ([ "$var1" = "profile=off" ] && [ "$var2" = "test=on" ])); then
-# Build Tests
+if [ "$path" = "/opt/ROCm/" ]; then
+    sudo make install
+else
+    make install
+fi
+ 
+# Various possibilities of test and profile arguments
+# Test=OFF and Profile=OFF (Build library and tests)
+if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
+  echo "${green}HCBLAS Installation Completed!${reset}"
+# Test=ON and Profile=OFF (Build and test the library)
+elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
+ # Build Tests
    cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
    set +e
    mkdir $current_work_dir/build/test/src/bin/
@@ -81,10 +121,11 @@ elif (([ "$var1" = "test=on" ] && [ "$var2" = "profile=off" ]) || ([ "$var1" = "
    set -e
    make
    cd $current_work_dir/test/unit/
-# Invoke test script 
+ # Invoke test script 
    ./test.sh
 # Test=ON and Profile=ON (Build, test and profile the library)
-elif (([ "$var1" = "profile=on" ] && [ "$var2" = "test=on" ]) || ([ "$var1" = "test=on" ] && [ "$var2" = "profile=on" ])); then
+elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
+ # Build Tests
    cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
    set +e
    mkdir $current_work_dir/build/test/src/bin/
@@ -92,15 +133,14 @@ elif (([ "$var1" = "profile=on" ] && [ "$var2" = "test=on" ]) || ([ "$var1" = "t
    set -e
    make
    cd $current_work_dir/test/unit/
-#Invoke test script
+ #Invoke test script
    ./test.sh
    cd $current_work_dir/test/benchmark/
-#Invoke profiling script
+ #Invoke profiling script
    ./runme.sh
 # Test=OFF and Profile=ON (Build and profile the library)
-elif (([ "$var1" = "profile=on" ] && [ "$var2" = "test=off" ]) || ([ "$var1" = "test=off" ] && [ "$var2" = "profile=on" ])); then
+elif ( [ "$profiling" = "on" ] && [ -z $testing ] ) || ( [ "$testing" = "off" ] && [ "$profiling" = "on" ] ); then
    cd $current_work_dir/test/benchmark/
-#Invoke profiling script
+ #Invoke profiling script
    ./runme.sh
 fi 
-
