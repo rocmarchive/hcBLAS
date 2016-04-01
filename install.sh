@@ -86,9 +86,8 @@ fi
 export hcblas_install=$path
 set hcblas_install=$path
 
-eval "echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$hcblas_install/lib/hcblas' >> ~/.bashrc"
-eval "echo 'export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$hcblas_install/include/hcblas' >> ~/.bashrc"
-source ~/.bashrc
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$hcblas_install/lib/hcblas
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$hcblas_install/include/hcblas
 
 set +e
 # MAKE BUILD DIR
@@ -146,4 +145,13 @@ elif ( [ "$profiling" = "on" ] && [ -z $testing ] ) || ( [ "$testing" = "off" ] 
    cd $current_work_dir/test/benchmark/
  #Invoke profiling script
    ./runme.sh
-fi 
+fi
+
+if grep --quiet hcblas ~/.bashrc; then
+  echo 
+else
+  eval "echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH' >> ~/.bashrc"
+fi
+
+cd $current_work_dir
+exec bash 

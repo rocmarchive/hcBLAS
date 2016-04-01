@@ -95,16 +95,43 @@ Once done with the above steps the compiler headers, binaries and libraries gets
 
        ``sudo apt-get install libblas-dev``
 
-    d. Install library
+    d. Install library 
 
-       ``./install.sh``
+       (1) Installation in /opt/ROCm/ (sudo) 
 
+            ``./install.sh``
 
-    e. Additionally to run the unit test along with installation invoke the following command
+            Additionally to run the unit test along with installation invoke the following command,
 
-       ``./install.sh test=ON``
+            ``./install.sh --test=on`` 
+      
+            To get performance scores,
+ 
+            ``export CODEXL_PATH=/path/to/profiler/``
 
-Once done with the above steps the libhcblas.so and associated headers gets installed under system path.
+            ``./install.sh --profile=on``
+
+       .. note:: ``--test`` and ``--profile`` options could be used together as well.
+
+       (2) Installation in User Specific path
+
+            ``./install.sh --path=/path/to/user/installation/`` 
+ 
+            Additionally to run the unit test along with installation invoke the following command,
+
+            ``./install.sh --path=/path/to/user/installation/ --test=on``
+
+            To get performance scores,
+
+            ``export CODEXL_PATH=/path/to/profiler/``
+
+            ``./install.sh --path=/path/to/user/installation/ --profile=on``
+       
+       .. note:: ``--test`` and ``--profile`` options could be used together as well.
+
+    .. note:: **To switch between the installation paths, please uninstall the library and start the installation again.**
+
+Once done with the above steps the libhcblas.so and associated headers gets installed under either /opt/ROCm path (needs sudo access) or User specific path.
 
 To uninstall the library, invoke the following series of commands
 
