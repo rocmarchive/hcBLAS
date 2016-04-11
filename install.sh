@@ -148,10 +148,9 @@ elif ( [ "$profiling" = "on" ] && [ -z $testing ] ) || ( [ "$testing" = "off" ] 
 fi
 
 if grep --quiet hcblas ~/.bashrc; then
-  echo 
+  cd $current_work_dir
 else
   eval "echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH' >> ~/.bashrc"
+  cd $current_work_dir
+  exec bash
 fi
-
-cd $current_work_dir
-exec bash 
