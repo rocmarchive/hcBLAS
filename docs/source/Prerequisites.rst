@@ -32,6 +32,8 @@ This section lists the known set of hardware and software requirements to build 
 * GCC 4.6 and later
 * CPP 4.6 and later (come with GCC package)
 * python 2.7 and later
+* python-pip
+* BeautifulSoup4 (installed using python-pip)
 * HCC 0.9 from `here <https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb>`_
 
 
