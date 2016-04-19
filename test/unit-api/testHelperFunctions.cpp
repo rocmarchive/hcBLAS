@@ -230,7 +230,8 @@ TEST(hcblasDeviceOrderselect, func_return_Check_hcblasDeviceOrderselect) {
  EXPECT_EQ(handle->deviceId, 1);
  EXPECT_EQ(handle->Order, 0);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
- status = hcblasDeviceOrderSelect(handle, 2, order);
+ std::vector<accelerator> accs = accelerator::get_all();
+ status = hcblasDeviceOrderSelect(handle, accs.size(), order);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
 }
 
