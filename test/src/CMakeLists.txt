@@ -10,6 +10,7 @@ FIND_PACKAGE(HC++ 1.0 REQUIRED)
 SET (TESTSRCS
     cgemm_test.cpp  dcopy_test.cpp  dscal_test.cpp  saxpy_test.cpp  sdot_test.cpp   sgemv_test.cpp  sscal_test.cpp  
     dasum_test.cpp  ddot_test.cpp   sasum_test.cpp  scopy_test.cpp  sgemm_test.cpp  sger_test.cpp  sgemm_cn_test.cpp
+    sgemm_timer_test.cpp
     )
 
   # Choice to take compilation flags from source or package

@@ -1,3 +1,4 @@
+SquareMat.txt
 OxfordBlasDimensions.txt
 GoogleBlasDimensions.txt
 OverfeatBlasDimensions.txt

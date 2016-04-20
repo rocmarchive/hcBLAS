@@ -35,16 +35,26 @@ This script is invoked to install hcblas library and test sources. Please provid
 
   1) ${green}--path${reset}    Path to your hcblas installation.(default path is /opt/ROCm/ - needs sudo access)
   2) ${green}--test${reset}    Test to enable the library testing. 
-  3) ${green}--profile${reset} Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.
-
+  3) ${green}--profile${reset} Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.(CodeXL)
+  4) ${green}--bench${reset}   Profile benchmark using chrono timer.
 =============================================================================================================================
 Usage: ./install.sh --path=/path/to/user/installation --test=on --profile=on
+                            (or)
+       ./install.sh --path=/path/to/user/installation --bench=on
 =============================================================================================================================
 Example: 
 (1) ${green}./install.sh --path=/path/to/user/installation --test=on --profile=on${reset}
        <library gets installed in /path/to/user/installation, testing = on, profiling = on>
 (2) ${green}./install.sh --test=on --profile=on${reset} (sudo access needed)
        <library gets installed in /opt/ROCm/, testing = on, profiling = on>
+
+ (or)
+
+(1) ${green}./install.sh --path=/path/to/user/installation --bench=on${reset}
+       <library gets installed in /path/to/user/installation, testing = off, profiling = off, bench = on>
+(2) ${green}./install.sh --bench=on${reset} (sudo access needed)
+       <library gets installed in /opt/ROCm/, testing = off, profiling = off, bench = on>
+
 
 export CODEXL_PATH=/path/to/profiler before enabling profile variable.
 =============================================================================================================================
@@ -63,6 +73,9 @@ while [ $# -gt 0 ]; do
     --profile=*)
       profiling="${1#*=}"
       ;;
+    --bench=*)
+      bench="${1#*=}"
+      ;;
     --help) print_help;;
     *)
       printf "************************************************************\n"
@@ -72,6 +85,10 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+
+if [ -z $bench];then
+    bench="off"
+fi
 
 if [ -z $path ]; then
     path="/opt/ROCm/"
@@ -111,42 +128,48 @@ fi
  
 # Various possibilities of test and profile arguments
 # Test=OFF and Profile=OFF (Build library and tests)
-if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
-  echo "${green}HCBLAS Installation Completed!${reset}"
+if [ "$bench" = "off" ]; then
+  if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
+    echo "${green}HCBLAS Installation Completed!${reset}"
 # Test=ON and Profile=OFF (Build and test the library)
-elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
+  elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
  # Build Tests
-   cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
-   set +e
-   mkdir $current_work_dir/build/test/src/bin/
-   mkdir $current_work_dir/build/test/unit/gtest/bin/
-   set -e
-   make
-   cd $current_work_dir/test/unit/
+     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+     set +e
+     mkdir $current_work_dir/build/test/src/bin/
+     mkdir $current_work_dir/build/test/unit/gtest/bin/
+     set -e
+     make
+     cd $current_work_dir/test/unit/
  # Invoke test script 
-   ./test.sh
+     ./test.sh
 # Test=ON and Profile=ON (Build, test and profile the library)
-elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
+  elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
  # Build Tests
-   cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
-   set +e
-   mkdir $current_work_dir/build/test/src/bin/
-   mkdir $current_work_dir/build/test/unit/gtest/bin/
-   set -e
-   make
-   cd $current_work_dir/test/unit/
+     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+     set +e
+     mkdir $current_work_dir/build/test/src/bin/
+     mkdir $current_work_dir/build/test/unit/gtest/bin/
+     set -e
+     make
+     cd $current_work_dir/test/unit/
  #Invoke test script
-   ./test.sh
-   cd $current_work_dir/test/benchmark/
+     ./test.sh
+     cd $current_work_dir/test/benchmark/
  #Invoke profiling script
-   ./runme.sh
+     ./runme.sh
 # Test=OFF and Profile=ON (Build and profile the library)
-elif ( [ "$profiling" = "on" ] && [ -z $testing ] ) || ( [ "$testing" = "off" ] && [ "$profiling" = "on" ] ); then
-   cd $current_work_dir/test/benchmark/
+  elif ( [ "$profiling" = "on" ] && [ -z $testing ] ) || ( [ "$testing" = "off" ] && [ "$profiling" = "on" ] ); then
+     cd $current_work_dir/test/benchmark/
  #Invoke profiling script
-   ./runme.sh
-fi
+     ./runme.sh
+  fi
 
+else #bench=on run chrono timer
+  cd $current_work_dir/test/BLAS_benchmark_Convolution_Networks/
+  ./runme_chronotimer.sh
+fi
+  
 if grep --quiet hcblas ~/.bashrc; then
   cd $current_work_dir
 else
