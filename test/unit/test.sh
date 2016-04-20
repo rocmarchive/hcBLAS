@@ -13,6 +13,7 @@ reset=`tput sgr0`
 working_dir1="$current_work_dir/../../build/test/unit/gtest/bin/"
 working_dir2="$current_work_dir/../../build/test/unit-api/bin/"
 cd $working_dir1
+rm $working_dir1/gtestlog.txt
 
 #Gtest functions
 unittest="$working_dir1/unittest"
@@ -24,10 +25,14 @@ eval $runcmd1
 eval $runcmd2
 
 Log_file="$working_dir1/gtestlog.txt"
-if grep -q FAILED "$Log_file";
-then
-    echo "${red}GTEST               ----- [ FAILED ]${reset}"
+
+if [ ! -s "$Log_file" ]; then
+   echo "${red}GTEST IS NOT WORKING....${reset}"
 else
-    echo "${green}GTEST               ----- [ PASSED ]${reset}"
-    rm $working_dir1/gtestlog.txt
-fi
+   if grep -q FAILED "$Log_file"; then
+      echo "${red}GTEST               ----- [ FAILED ]${reset}"
+   else
+      echo "${green}GTEST               ----- [ PASSED ]${reset}"
+      rm $working_dir1/gtestlog.txt
+   fi
+fi 
