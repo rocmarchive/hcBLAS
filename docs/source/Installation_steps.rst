@@ -97,7 +97,7 @@ Once done with the above steps the compiler headers, binaries and libraries gets
 
     d. Install library 
 
-       (1) Installation in /opt/ROCm/ (sudo) 
+       (1) Installation in /opt/rocm/ (sudo) 
 
             ``./install.sh``
 
@@ -131,7 +131,7 @@ Once done with the above steps the compiler headers, binaries and libraries gets
 
     .. note:: **To switch between the installation paths, please uninstall the library and start the installation again.**
 
-Once done with the above steps the libhcblas.so and associated headers gets installed under either /opt/ROCm path (needs sudo access) or User specific path.
+Once done with the above steps the libhcblas.so and associated headers gets installed under either /opt/rocm path (needs sudo access) or User specific path.
 
 To uninstall the library, invoke the following series of commands
 

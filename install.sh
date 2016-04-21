@@ -11,10 +11,10 @@ then
     cmake_cxx_compiler="$MCWHCCBUILD/compiler/bin/clang++"
   fi
 
-elif [ -x "/opt/hcc/bin/clang++" ];
+elif [ -x "/opt/rocm/hcc/bin/clang++" ];
 then
-  cmake_c_compiler="/opt/hcc/bin/clang"
-  cmake_cxx_compiler="/opt/hcc/bin/clang++"
+  cmake_c_compiler="/opt/rocm/hcc/bin/clang"
+  cmake_cxx_compiler="/opt/rocm/hcc/bin/clang++"
 else
   echo "Clang compiler not found"
   exit 1
@@ -33,7 +33,7 @@ cat <<-HELP
 =============================================================================================================================
 This script is invoked to install hcblas library and test sources. Please provide the following arguments:
 
-  1) ${green}--path${reset}    Path to your hcblas installation.(default path is /opt/ROCm/ - needs sudo access)
+  1) ${green}--path${reset}    Path to your hcblas installation.(default path is /opt/rocm/ - needs sudo access)
   2) ${green}--test${reset}    Test to enable the library testing. 
   3) ${green}--profile${reset} Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.(CodeXL)
   4) ${green}--bench${reset}   Profile benchmark using chrono timer.
@@ -46,14 +46,14 @@ Example:
 (1) ${green}./install.sh --path=/path/to/user/installation --test=on --profile=on${reset}
        <library gets installed in /path/to/user/installation, testing = on, profiling = on>
 (2) ${green}./install.sh --test=on --profile=on${reset} (sudo access needed)
-       <library gets installed in /opt/ROCm/, testing = on, profiling = on>
+       <library gets installed in /opt/rocm/, testing = on, profiling = on>
 
  (or)
 
 (1) ${green}./install.sh --path=/path/to/user/installation --bench=on${reset}
        <library gets installed in /path/to/user/installation, testing = off, profiling = off, bench = on>
 (2) ${green}./install.sh --bench=on${reset} (sudo access needed)
-       <library gets installed in /opt/ROCm/, testing = off, profiling = off, bench = on>
+       <library gets installed in /opt/rocm/, testing = off, profiling = off, bench = on>
 
 
 export CODEXL_PATH=/path/to/profiler before enabling profile variable.
@@ -91,14 +91,9 @@ if [ -z $bench];then
 fi
 
 if [ -z $path ]; then
-    path="/opt/ROCm/"
+    path="/opt/rocm/"
 fi
 
-if [ "$path" = "/opt/ROCm/" ]; then
-   set +e
-   sudo mkdir /opt/ROCm/
-   set -e
-fi
 
 export hcblas_install=$path
 set hcblas_install=$path
@@ -120,7 +115,7 @@ cd $build_dir
 
 # Cmake and make libhcblas: Install hcblas
 cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir
-if [ "$path" = "/opt/ROCm/" ]; then
+if [ "$path" = "/opt/rocm/" ]; then
     sudo make install
 else
     make install
