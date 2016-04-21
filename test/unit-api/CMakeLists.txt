@@ -12,12 +12,12 @@ file(GLOB SRCS *.cpp)
 if(EXISTS ${MCWHCCBUILD})
   execute_process(COMMAND ${HCC_CONFIG} --build --cxxflags
                          OUTPUT_VARIABLE HCC_CXXFLAGS)
-  execute_process(COMMAND ${HCC_CONFIG} --build --ldflags --gtest 
+  execute_process(COMMAND ${HCC_CONFIG} --build --ldflags  
                             OUTPUT_VARIABLE HCC_LDFLAGS)
 else(EXISTS ${MCWHCCBUILD})
   execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
-  execute_process(COMMAND ${HCC_CONFIG}  --install --ldflags --gtest
+  execute_process(COMMAND ${HCC_CONFIG}  --install --ldflags
                             OUTPUT_VARIABLE HCC_LDFLAGS)
 endif(EXISTS ${MCWHCCBUILD})
 
