@@ -42,6 +42,10 @@ SET (SRCS ${BLASSRC} hcblas.cpp)
   ADD_EXECUTABLE("${PROJECT_NAME}.so" ${SRCS})
   SET_PROPERTY(TARGET "${PROJECT_NAME}.so" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
   TARGET_LINK_LIBRARIES("${PROJECT_NAME}.so" hc_am)
-  MESSAGE(STATUS "hcblas_install path : $ENV{hcblas_install}")
-  INSTALL(TARGETS "${PROJECT_NAME}.so" DESTINATION "$ENV{hcblas_install}/lib/hcblas")
-  INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcblaslib.h" "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcblas.h" DESTINATION "$ENV{hcblas_install}/include/hcblas")
+  INSTALL(TARGETS "${PROJECT_NAME}.so" 
+    RUNTIME DESTINATION lib
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+  )
+
+  INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcblaslib.h" "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcblas.h" DESTINATION include)

@@ -30,11 +30,12 @@ SET (TESTSRCS
     execute_process(COMMAND ${HCC_CONFIG} --install --ldflags 
                             OUTPUT_VARIABLE HCC_LDFLAGS)
   endif(EXISTS ${MCWHCCBUILD})
-
+  SET(HCBLAS_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/include/")
+  SET(HCBLAS_LIBRARY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../build/lib/src")
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
-  set (HCC_CXXFLAGS "${HCC_CXXFLAGS}")
+  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${HCBLAS_INCLUDE_PATH}")
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
-  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L $ENV{hcblas_install}/lib/hcblas")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HCBLAS_LIBRARY_PATH}")
   SET (LINK "-lblas -lhcblas -lhc_am")
   FOREACH(test_file ${TESTSRCS})
     SET_PROPERTY(SOURCE ${test_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS}")

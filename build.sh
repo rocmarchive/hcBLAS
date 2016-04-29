@@ -1,5 +1,5 @@
 #!/bin/bash -e
-#This script is invoked to install the hcblas library and test sources
+#This script is invoked to build the hcblas library and test sources
 
 # CHECK FOR COMPILER PATH
 
@@ -23,6 +23,8 @@ fi
 #CURRENT_WORK_DIRECTORY
 current_work_dir=$PWD
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$current_work_dir/build/lib/src
+
 red=`tput setaf 1`
 green=`tput setaf 2`
 reset=`tput sgr0`
@@ -31,32 +33,13 @@ reset=`tput sgr0`
 print_help() {
 cat <<-HELP
 =============================================================================================================================
-This script is invoked to install hcblas library and test sources. Please provide the following arguments:
+This script is invoked to build hcblas library and test sources. Please provide the following arguments:
 
-  1) ${green}--path${reset}    Path to your hcblas installation.(default path is /opt/rocm/ - needs sudo access)
-  2) ${green}--test${reset}    Test to enable the library testing. 
-  3) ${green}--profile${reset} Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.(CodeXL)
-  4) ${green}--bench${reset}   Profile benchmark using chrono timer.
-=============================================================================================================================
-Usage: ./install.sh --path=/path/to/user/installation --test=on --profile=on
-                            (or)
-       ./install.sh --path=/path/to/user/installation --bench=on
-=============================================================================================================================
-Example: 
-(1) ${green}./install.sh --path=/path/to/user/installation --test=on --profile=on${reset}
-       <library gets installed in /path/to/user/installation, testing = on, profiling = on>
-(2) ${green}./install.sh --test=on --profile=on${reset} (sudo access needed)
-       <library gets installed in /opt/rocm/, testing = on, profiling = on>
+  1) ${green}--test${reset}    Test to enable the library testing. 
+  2) ${green}--profile${reset} Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.(CodeXL)
+  3) ${green}--bench${reset}   Profile benchmark using chrono timer.
 
- (or)
-
-(1) ${green}./install.sh --path=/path/to/user/installation --bench=on${reset}
-       <library gets installed in /path/to/user/installation, testing = off, profiling = off, bench = on>
-(2) ${green}./install.sh --bench=on${reset} (sudo access needed)
-       <library gets installed in /opt/rocm/, testing = off, profiling = off, bench = on>
-
-
-export CODEXL_PATH=/path/to/profiler before enabling profile variable.
+NOTE: export CODEXL_PATH=/path/to/profiler before enabling profile variable.
 =============================================================================================================================
 HELP
 exit 0
@@ -64,9 +47,6 @@ exit 0
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --path=*)
-      path="${1#*=}"
-      ;;
     --test=*)
       testing="${1#*=}"
       ;;
@@ -90,16 +70,8 @@ if [ -z $bench];then
     bench="off"
 fi
 
-if [ -z $path ]; then
-    path="/opt/rocm/"
-fi
+current_dir=$PWD
 
-
-export hcblas_install=$path
-set hcblas_install=$path
-
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$hcblas_install/lib/hcblas
-export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$hcblas_install/include/hcblas
 
 set +e
 # MAKE BUILD DIR
@@ -113,13 +85,10 @@ build_dir=$current_work_dir/build
 # change to library build
 cd $build_dir
 
-# Cmake and make libhcblas: Install hcblas
+# Cmake and make libhcblas: Install hcblas under install_path
 cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir
-if [ "$path" = "/opt/rocm/" ]; then
-    sudo make install
-else
-    make install
-fi
+make package
+make
  
 # Various possibilities of test and profile arguments
 # Test=OFF and Profile=OFF (Build library and tests)
@@ -165,10 +134,3 @@ else #bench=on run chrono timer
   ./runme_chronotimer.sh
 fi
   
-if grep --quiet hcblas ~/.bashrc; then
-  cd $current_work_dir
-else
-  eval "echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH' >> ~/.bashrc"
-  cd $current_work_dir
-  exec bash
-fi

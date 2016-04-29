@@ -225,7 +225,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_TS16XMTS2(hc::accelerator_view &accl_view,
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float alpha, float beta) {
 #define TILESIZE 16
-#define MICROTILESIZE 2
+#define MICROTILESIZE 2 
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
   int N_ = hc::fast_math::fmax(1, (N / MICROTILESIZE + 1));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
