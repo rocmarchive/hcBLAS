@@ -68,6 +68,9 @@ using namespace hc;
            offA += BANKMICROTILESIZE;                              \
            offB += BANKMICROTILESIZE;                              \
 
+
+
+
 #define  MTS_AB                                                                \
            for (int iter = 0; iter < MICROTILESIZE_A ; iter++) {               \
              rA[0][iter] = lA[offA + (iter * TILESIZE_A)];                     \
@@ -86,6 +89,107 @@ using namespace hc;
 	/* 
 *  SGEMM kernels - column major Order
 */
+#define mad(a, b, c) a * b + c
+
+#define  M4x4                            \
+             rA[0][0] = lA[offA + 0];          \
+             rA[0][1] = lA[offA + 16];         \
+             rA[0][2] = lA[offA + 32];         \
+             rA[0][3] = lA[offA + 48];         \
+             rB[0][0] = lB[offB + 0];          \
+             rB[0][1] = lB[offB + 16];         \
+             rB[0][2] = lB[offB + 32];         \
+             rB[0][3] = lB[offB + 48];         \
+             offA += 65;                       \
+             offB += 65;  \
+            rC[0][0]=mad(rA[0][0],rB[0][0],rC[0][0]); \
+            rC[1][0]=mad(rA[0][1],rB[0][0],rC[1][0]); \
+            rC[2][0]=mad(rA[0][2],rB[0][0],rC[2][0]); \
+            rC[3][0]=mad(rA[0][3],rB[0][0],rC[3][0]); \
+            rC[0][1]=mad(rA[0][0],rB[0][1],rC[0][1]); \
+            rC[1][1]=mad(rA[0][1],rB[0][1],rC[1][1]); \
+            rC[2][1]=mad(rA[0][2],rB[0][1],rC[2][1]); \
+            rC[3][1]=mad(rA[0][3],rB[0][1],rC[3][1]); \
+            rC[0][2]=mad(rA[0][0],rB[0][2],rC[0][2]); \
+            rC[1][2]=mad(rA[0][1],rB[0][2],rC[1][2]); \
+            rC[2][2]=mad(rA[0][2],rB[0][2],rC[2][2]); \
+            rC[3][2]=mad(rA[0][3],rB[0][2],rC[3][2]); \
+            rC[0][3]=mad(rA[0][0],rB[0][3],rC[0][3]); \
+            rC[1][3]=mad(rA[0][1],rB[0][3],rC[1][3]); \
+            rC[2][3]=mad(rA[0][2],rB[0][3],rC[2][3]); \
+            rC[3][3]=mad(rA[0][3],rB[0][3],rC[3][3]); \
+
+
+
+#define  M6x6 \
+            rA[0][0] = lA[offA + 0];                              \
+            rA[0][1] = lA[offA + 16];                             \
+            rA[0][2] = lA[offA + 32];                             \
+            rA[0][3] = lA[offA + 48];                             \
+            rA[0][4] = lA[offA + 64];                             \
+            rA[0][5] = lA[offA + 80];                             \
+            rB[0][0] = lB[offB + 0];                              \
+            rB[0][1] = lB[offB + 16];                             \
+            rB[0][2] = lB[offB + 32];                             \
+            rB[0][3] = lB[offB + 48];                             \
+            rB[0][4] = lB[offB + 64];                             \
+            rB[0][5] = lB[offB + 80];                             \
+            offA += 97;                                                           \
+            offB += 97;                                                           \
+            rC[0][0]=mad(rA[0][0],rB[0][0],rC[0][0]); \
+            rC[1][0]=mad(rA[0][1],rB[0][0],rC[1][0]); \
+            rC[2][0]=mad(rA[0][2],rB[0][0],rC[2][0]); \
+            rC[3][0]=mad(rA[0][3],rB[0][0],rC[3][0]); \
+            rC[4][0]=mad(rA[0][4],rB[0][0],rC[4][0]); \
+            rC[5][0]=mad(rA[0][5],rB[0][0],rC[5][0]); \
+            rC[0][1]=mad(rA[0][0],rB[0][1],rC[0][1]); \
+            rC[1][1]=mad(rA[0][1],rB[0][1],rC[1][1]); \
+            rC[2][1]=mad(rA[0][2],rB[0][1],rC[2][1]); \
+            rC[3][1]=mad(rA[0][3],rB[0][1],rC[3][1]); \
+            rC[4][1]=mad(rA[0][4],rB[0][1],rC[4][1]); \
+            rC[5][1]=mad(rA[0][5],rB[0][1],rC[5][1]); \
+            rC[0][2]=mad(rA[0][0],rB[0][2],rC[0][2]); \
+            rC[1][2]=mad(rA[0][1],rB[0][2],rC[1][2]); \
+            rC[2][2]=mad(rA[0][2],rB[0][2],rC[2][2]); \
+            rC[3][2]=mad(rA[0][3],rB[0][2],rC[3][2]); \
+            rC[4][2]=mad(rA[0][4],rB[0][2],rC[4][2]); \
+            rC[5][2]=mad(rA[0][5],rB[0][2],rC[5][2]); \
+            rC[0][3]=mad(rA[0][0],rB[0][3],rC[0][3]); \
+            rC[1][3]=mad(rA[0][1],rB[0][3],rC[1][3]); \
+            rC[2][3]=mad(rA[0][2],rB[0][3],rC[2][3]); \
+            rC[3][3]=mad(rA[0][3],rB[0][3],rC[3][3]); \
+            rC[4][3]=mad(rA[0][4],rB[0][3],rC[4][3]); \
+            rC[5][3]=mad(rA[0][5],rB[0][3],rC[5][3]); \
+            rC[0][4]=mad(rA[0][0],rB[0][4],rC[0][4]); \
+            rC[1][4]=mad(rA[0][1],rB[0][4],rC[1][4]); \
+            rC[2][4]=mad(rA[0][2],rB[0][4],rC[2][4]); \
+            rC[3][4]=mad(rA[0][3],rB[0][4],rC[3][4]); \
+            rC[4][4]=mad(rA[0][4],rB[0][4],rC[4][4]); \
+            rC[5][4]=mad(rA[0][5],rB[0][4],rC[5][4]); \
+            rC[0][5]=mad(rA[0][0],rB[0][5],rC[0][5]); \
+            rC[1][5]=mad(rA[0][1],rB[0][5],rC[1][5]); \
+            rC[2][5]=mad(rA[0][2],rB[0][5],rC[2][5]); \
+            rC[3][5]=mad(rA[0][3],rB[0][5],rC[3][5]); \
+            rC[4][5]=mad(rA[0][4],rB[0][5],rC[4][5]); \
+            rC[5][5]=mad(rA[0][5],rB[0][5],rC[5][5]); \
+
+
+
+
+hcblasStatus gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(hc::accelerator_view accl_view,
+					       const  float *A, long aOffset,
+					       const  float *B, long bOffset,
+					        float *C, long cOffset,
+					        int M, int N, int K, int lda, int ldb, int ldc,
+					        float alpha, float beta); 
+
+hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator_view accl_view,
+					       const  float *A, long aOffset,
+					       const  float *B, long bOffset,
+					        float *C, long cOffset,
+					        int M, int N, int K, int lda, int ldb, int ldc,
+					        float alpha, float beta); 
+
 hcblasStatus gemm_NoTransAB(hc::accelerator_view &accl_view,
                             float *A, long aOffset,
                             float *B, long bOffset,
