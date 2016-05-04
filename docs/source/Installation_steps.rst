@@ -5,136 +5,60 @@
 
 The following are the steps to use the library
 
-      * Boltzmann Driver and Runtime installation (if not done until now)
-
-      * Compiler installation.
-
+      * ROCM 1.0 Kernel, Driver and Compiler Installation (if not done until now)
       * Library installation.
 
-1.4.1. Boltzmann Driver and Runtime Installation
+1.4.1. ROCM 1.0 Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-     a. Downloading the kernel binaries from the repo
+To Know more about ROCM Please refer [here](https://github.com/RadeonOpenCompute/ROCm/blob/master/README.md)
 
-        ``git clone https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git``
+   a. Installing Debian ROCM repositories
+     
+     Before proceeding, make sure to completely [uninstall any pre-release ROCm packages](https://github.com/RadeonOpenCompute/ROCm#removing-pre-release-packages) 
+     installed earlier:
+     
+      * ``wget -qO - http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -``
+      
+      * ``sudo sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ trusty main > /etc/apt/sources.list.d/rocm.list'``
+      
+      * ``sudo apt-get update``
+    
+      * ``sudo apt-get install rocm``
+     
+      * Reboot the system
+      
+    b. Once Reboot, verify the installation
+    
+      To verify that the ROCm stack completed successfully you can execute to HSA vectory_copy sample application:
 
-     b. Go to the top of the repo
-
-        ``cd ROCK-Kernel-Driver``
-
-     c. Configure udev to allow any user to access /dev/kfd.
-        As root, use a text editor to create /etc/udev/rules.d/kfd.rules
-        containing one line: KERNEL=="kfd", MODE="0666", Or you could use the following command
-
-        ``echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules``
-
-     d. For Ubuntu, install the kernel and libhsakmt packages using:
-
-        ``sudo dpkg -i packages/ubuntu/*.deb``
-
-     e. Reboot the system to install the new kernel and enable the HSA kernel driver
-
-        ``sudo reboot``
-
-     f. Once done with reboot, one could proceed with runtime installation
-
-        ``git clone https://github.com/RadeonOpenCompute/ROCR-Runtime``
-
-        ``cd ROCR-Runtime/packages/ubuntu``
-
-        ``sudo dpkg -i hsa-runtime-dev-1.0.0-amd64.deb``
-
-        The contents get installed by default under /opt/hsa path
-
-
-     e. Create a file called hsa.conf in /etc/ld.so.conf.d/ and write "/opt/hsa/lib" in it,
-        then run "sudo ldconfig -v" or you could use the following command
-
-        ``echo "/opt/hsa/lib" | sudo tee /etc/ld.so.conf.d/hsa.conf``
-
-        ``sudo ldconfig -v``
-
-1.4.2. Compiler Installation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-     a. Install pre-dependency packages
-
-::
-
-        sudo apt-get install cmake git subversion g++ libstdc++-4.8-dev libdwarf-dev libelf-dev 
-        libtinfo-dev libc6-dev-i386 gcc-multilib llvm llvm-dev llvm-runtime libc++1 libc++-dev 
-        libc++abi1 libc++abi-dev re2c libncurses5-dev
-
-|
-     b. Download Compiler
-
-        Click `here <https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb>`_
-
-                                              (or)
-
-        wget https://bitbucket.org/multicoreware/hcc/downloads/hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb
-
-     c. Install the compiler
-
-        ``sudo dpkg -i hcc-0.9.16041-0be508d-ff03947-5a1009a-Linux.deb``
-
-Once done with the above steps the compiler headers, binaries and libraries gets installed under /opt system path as ``/opt/hcc`` .
+       * ``cd /opt/rocm/hsa/sample``
+       
+       * ``make``
+       
+       * ``./vector_copy``
+   
 
 1.4.3. Library Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    a. Clone the repo
+    a. Install using Prebuilt debian
+    
+        * ``wget https://bitbucket.org/multicoreware/hcblas/downloads/hcblas-master-db04c54-Linux.deb``
+        
+        * ``sudo dpkg -i hcblas-master-db04c54-Linux.deb``
 
-       ``git clone https://bitbucket.org/multicoreware/hcblas.git && cd hcblas``
-
-    b. Modify scripts mode to binary
-
-       ``chmod +x install.sh``
+     
+    b. Build debian from source
+    
+        * ``git clone https://bitbucket.org/multicoreware/hcblas.git && cd hcblas``
+        
+        * ``chmod +x build.sh && ./build.sh``
+        
+        build.sh execution builds the library and generates a debian under build dir
 
     c. Install CPU based CBLAS library
 
        ``sudo apt-get install libblas-dev``
 
-    d. Install library 
 
-       (1) Installation in /opt/rocm/ (sudo) 
-
-            ``./install.sh``
-
-            Additionally to run the unit test along with installation invoke the following command,
-
-            ``./install.sh --test=on`` 
-      
-            To get performance scores,
- 
-            ``export CODEXL_PATH=/path/to/profiler/``
-
-            ``./install.sh --profile=on``
-
-       .. note:: ``--test`` and ``--profile`` options could be used together as well.
-
-       (2) Installation in User Specific path
-
-            ``./install.sh --path=/path/to/user/installation/`` 
- 
-            Additionally to run the unit test along with installation invoke the following command,
-
-            ``./install.sh --path=/path/to/user/installation/ --test=on``
-
-            To get performance scores,
-
-            ``export CODEXL_PATH=/path/to/profiler/``
-
-            ``./install.sh --path=/path/to/user/installation/ --profile=on``
-       
-       .. note:: ``--test`` and ``--profile`` options could be used together as well.
-
-    .. note:: **To switch between the installation paths, please uninstall the library and start the installation again.**
-
-Once done with the above steps the libhcblas.so and associated headers gets installed under either /opt/rocm path (needs sudo access) or User specific path.
-
-To uninstall the library, invoke the following series of commands
-
-       ``chmod +x uninstall.sh``
-
-       ``./uninstall.sh``
