@@ -183,6 +183,13 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(hc::accelerator
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float alpha, float beta); 
 
+hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_view,
+					       const  float *A, long aOffset,
+					       const  float *B, long bOffset,
+					        float *C, long cOffset,
+					        int M, int N, int K, int lda, int ldb, int ldc,
+					        float alpha, float beta); 
+
 hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator_view accl_view,
 					       const  float *A, long aOffset,
 					       const  float *B, long bOffset,
