@@ -8,9 +8,9 @@
 
 a) Automated testing:
 
-       ``cd ~/hcblas/test/unit/``
-
-       ``./test.sh``
+       ``cd ~/hcblas/``
+ 
+       ``./build.sh --test=on``
 
 b) Manual testing:
 
@@ -21,13 +21,13 @@ b) Manual testing:
 
 Here are some notes for performing manual testing:
 
-|      TransA (TA) and TransB(TB) takes 0 or 1
-|       where,            0 - NoTrans (Operate with the given matrix)
-|                         1 - Trans   (Operate with the transpose of the given matrix)
+|      TransA (TA) and TransB(TB) takes 0 or 1.             
+|      0 - NoTrans (Operate with the given matrix)
+|      1 - Trans   (Operate with the transpose of the given matrix)
 |
-|      Implementation type (Itype) takes 1 or 2
-|       where,            1 - Inputs and Outputs are device pointers.
-|                         2 - Inputs and Outputs are device pointers with batch processing.
+|      Implementation type (Itype) takes 1 or 2.
+|      1 - Inputs and Outputs are device pointers.
+|      2 - Inputs and Outputs are device pointers with batch processing.
 |
 
       * SGEMM
