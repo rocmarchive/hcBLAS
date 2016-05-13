@@ -171,9 +171,61 @@ using namespace hc;
             rC[2][5]=mad(rA[0][2],rB[0][5],rC[2][5]); \
             rC[3][5]=mad(rA[0][3],rB[0][5],rC[3][5]); \
             rC[4][5]=mad(rA[0][4],rB[0][5],rC[4][5]); \
-            rC[5][5]=mad(rA[0][5],rB[0][5],rC[5][5]); \
+            rC[5][5]=mad(rA[0][5],rB[0][5],rC[5][5]); 
 
 
+#define MSS4X4					      \
+           rA[0][0] = lA[offA];                       \
+           rA[0][1] = lA[offA + 272];		      \
+           rA[0][2] = lA[offA + 544];		      \
+           rA[0][3] = lA[offA + 816];		      \
+           rB[0][0] = lB[offB];	 		      \
+           rB[0][1] = lB[offB + 272];		      \
+           rB[0][2] = lB[offB + 544];		      \
+           rB[0][3] = lB[offB + 816];		      \
+           rC[0][0]=mad(rA[0][0],rB[0][0],rC[0][0]);  \
+           rC[0][0]=mad(rA[0][1],rB[0][1],rC[0][0]);  \
+           rC[0][0]=mad(rA[0][2],rB[0][2],rC[0][0]);  \
+           rC[0][0]=mad(rA[0][3],rB[0][3],rC[0][0]);  \
+           offA++;       			      \
+           offB++;       			      
+
+#define MSS6X6					      \
+           rA[0][0] = lA[offA];                       \
+           rA[0][1] = lA[offA + 272];		      \
+           rA[0][2] = lA[offA + 544];		      \
+           rA[0][3] = lA[offA + 816];		      \
+           rA[0][4] = lA[offA + 1088];		      \
+           rA[0][5] = lA[offA + 1360];		      \
+           rB[0][0] = lB[offB];	 		      \
+           rB[0][1] = lB[offB + 272];		      \
+           rB[0][2] = lB[offB + 544];		      \
+           rB[0][3] = lB[offB + 816];		      \
+           rB[0][4] = lB[offB + 1088];		      \
+           rB[0][5] = lB[offB + 1360];		      \
+           rC[0][0]=mad(rA[0][0],rB[0][0],rC[0][0]);  \
+           rC[0][0]=mad(rA[0][1],rB[0][1],rC[0][0]);  \
+           rC[0][0]=mad(rA[0][2],rB[0][2],rC[0][0]);  \
+           rC[0][0]=mad(rA[0][3],rB[0][3],rC[0][0]);  \
+           rC[0][0]=mad(rA[0][4],rB[0][4],rC[0][0]);  \
+           rC[0][0]=mad(rA[0][5],rB[0][5],rC[0][0]);  \
+           offA++;       			      \
+           offB++;       			      
+
+
+hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_view &accl_view,
+					     float *A, long aOffset,
+					     float *B, long bOffset,
+					     float *C, long cOffset,
+					     int M, int N, int K, int lda, int ldb, int ldc,
+					     float alpha, float beta);
+
+hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_view &accl_view,
+					     float *A, long aOffset,
+					     float *B, long bOffset,
+					     float *C, long cOffset,
+					     int M, int N, int K, int lda, int ldb, int ldc,
+					     float alpha, float beta);
 
 
 hcblasStatus gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(hc::accelerator_view accl_view,

@@ -213,4 +213,138 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator
   return HCBLAS_SUCCEEDS;
 }
 
+hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_view &accl_view,
+					     float *A, long aOffset,
+					     float *B, long bOffset,
+					     float *C, long cOffset,
+					     int M, int N, int K, int lda, int ldb, int ldc,
+					     float alpha, float beta) {
+#define TILESIZE 16
+#define STEPSIZE 64
+  hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
 
+   float rC[1][1];
+   float rA[1][4];
+   float rB[1][4];
+   tile_static float lA[1088];
+   tile_static float lB[1088];
+   int gidx = tidx.tile[1];
+   int gidy = tidx.tile[0];
+   int idx = tidx.local[1];
+   int idy = tidx.local[0];
+   int block_k = K >> 6;
+   int i = 0;
+   int alIndex = idx * 17 + idy;
+   int blIndex = idy * 17 + idx;
+   int AIndex = aOffset + (gidx * 16) + idx + (idy * lda);
+   int BIndex = bOffset + ((gidy * 16) + idy)*ldb + idx;
+   long CIndex = cOffset + (gidx * 16) + idx + (((gidy * 16) + idy) * ldc);
+   long AinitOffset = 0; 
+   long BinitOffset = 0;
+
+   do {
+
+     tidx.barrier.wait();
+     lB[blIndex] = B[BIndex + BinitOffset];
+     lB[blIndex + 272] = B[BIndex + BinitOffset + 16];
+     lB[blIndex + 544] = B[BIndex + BinitOffset + 32];
+     lB[blIndex + 816] = B[BIndex + BinitOffset + 48];
+     lA[alIndex] = A[AIndex + AinitOffset];
+     lA[alIndex + 272] = A[AIndex + AinitOffset + 16 * lda];
+     lA[alIndex + 544] = A[AIndex + AinitOffset + 32 * lda];
+     lA[alIndex + 816] = A[AIndex + AinitOffset + 48 * lda];
+      
+     tidx.barrier.wait();
+
+     int offA = idx * 17;
+     int offB = idy * 17;
+
+     for (int iter = 0; iter < TILESIZE; ++iter) { 
+       MSS4X4; 
+     }
+
+     AinitOffset += lda << 6;
+     BinitOffset += 64;
+
+   } while (--block_k > 0); // (((K + TILESIZE - 1) & ~(TILESIZE - 1)) / TILESIZE));
+
+  C[CIndex] = alpha*rC[0][0] + beta * C[CIndex] ;
+
+  }).wait();
+
+#undef TILESIZE
+#undef STEPSIZE
+  return HCBLAS_SUCCEEDS;
+}
+
+hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_view &accl_view,
+					     float *A, long aOffset,
+					     float *B, long bOffset,
+					     float *C, long cOffset,
+					     int M, int N, int K, int lda, int ldb, int ldc,
+					     float alpha, float beta) {
+#define TILESIZE 16
+#define STEPSIZE 96
+  hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
+  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+
+   float rC[1][1];
+   float rA[1][6];
+   float rB[1][6];
+   tile_static float lA[1632];
+   tile_static float lB[1632];
+   int gidx = tidx.tile[1];
+   int gidy = tidx.tile[0];
+   int idx = tidx.local[1];
+   int idy = tidx.local[0];
+   int block_k = K / 96;
+   int i = 0;
+   int alIndex = idx * 17 + idy;
+   int blIndex = idy * 17 + idx;
+   int AIndex = aOffset + (gidx * 16) + idx + (idy * lda);
+   int BIndex = bOffset + ((gidy * 16) + idy)*ldb + idx;
+   long CIndex = cOffset + (gidx * 16) + idx + (((gidy * 16) + idy) * ldc);
+   long AinitOffset = 0; 
+   long BinitOffset = 0;
+
+   do {
+
+     tidx.barrier.wait();
+     lB[blIndex] = B[BIndex + BinitOffset];
+     lB[blIndex + 272] = B[BIndex + BinitOffset + 16];
+     lB[blIndex + 544] = B[BIndex + BinitOffset + 32];
+     lB[blIndex + 816] = B[BIndex + BinitOffset + 48];
+     lB[blIndex + 1088] = B[BIndex + BinitOffset + 64];
+     lB[blIndex + 1360] = B[BIndex + BinitOffset + 80];
+     lA[alIndex] = A[AIndex + AinitOffset];
+     lA[alIndex + 272] = A[AIndex + AinitOffset + 16 * lda];
+     lA[alIndex + 544] = A[AIndex + AinitOffset + 32 * lda];
+     lA[alIndex + 816] = A[AIndex + AinitOffset + 48 * lda];
+     lA[alIndex + 1088] = A[AIndex + AinitOffset + 64 * lda];
+     lA[alIndex + 1360] = A[AIndex + AinitOffset + 80 * lda];
+      
+     tidx.barrier.wait();
+
+     int offA = idx * 17;
+     int offB = idy * 17;
+
+     for (int iter = 0; iter < TILESIZE; ++iter) { 
+       MSS6X6; 
+     }
+
+     AinitOffset += lda / 96;
+     BinitOffset += 96;
+
+   } while (--block_k > 0); // (((K + TILESIZE - 1) & ~(TILESIZE - 1)) / TILESIZE));
+
+  C[CIndex] = alpha*rC[0][0] + beta * C[CIndex] ;
+
+  }).wait();
+
+#undef TILESIZE
+#undef STEPSIZE
+  return HCBLAS_SUCCEEDS;
+}
