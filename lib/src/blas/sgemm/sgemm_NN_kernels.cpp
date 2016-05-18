@@ -628,7 +628,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_v
    int gidy = tidx.tile[0];
    int idx = tidx.local[1];
    int idy = tidx.local[0];
-   int block_k = K _R / TILESIZE;
+   int block_k = K_R / TILESIZE;
    int i = 0;
    int alIndex = idx * 17 + idy;
    int blIndex = idy * 17 + idx;

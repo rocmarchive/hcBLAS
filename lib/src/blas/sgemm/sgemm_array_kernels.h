@@ -212,6 +212,12 @@ using namespace hc;
            offA++;       			      \
            offB++;       			      
 
+hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_view,
+                                             float *A, long aOffset,
+                                             float *B, long bOffset,
+                                             float *C, long cOffset,
+                                             int M, int N, int K, int lda, int ldb, int ldc,
+                                             float alpha, float beta);
 
 hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_view &accl_view,
 					     float *A, long aOffset,
