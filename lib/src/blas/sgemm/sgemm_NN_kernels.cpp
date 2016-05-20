@@ -619,7 +619,6 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_v
   int M_blocks = M_R/TILESIZE;
   int N_blocks = N_R/TILESIZE;
   int K_blocks = K_R/STEPSIZE;
-  std::cout<<"M_Blocks: "<<M_blocks<<"  N_Blocks: "<<N_blocks<<"  K_Blocks: "<<K_blocks<<std::endl;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
@@ -701,6 +700,104 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_v
   return HCBLAS_SUCCEEDS;
 }
 
+hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view &accl_view,
+					     float *A, long aOffset,
+					     float *B, long bOffset,
+					     float *C, long cOffset,
+					     int M, int N, int K, int lda, int ldb, int ldc,
+					     float alpha, float beta) {
+#define TILESIZE 16
+#define STEPSIZE 96
+
+  int M_R = (M + (TILESIZE - 1)) & ~(TILESIZE - 1);
+  int N_R = (N + (TILESIZE - 1)) & ~(TILESIZE - 1);
+  int K_R = (K + (STEPSIZE - 1)) & ~(STEPSIZE - 1);
+  int M_blocks = M_R/TILESIZE;
+  int N_blocks = N_R/TILESIZE;
+  int K_blocks = K_R/STEPSIZE;
+  hc::extent<2> grdExt(N_R, M_R);
+  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+
+   float rC[1][1];
+   float rA[1][6];
+   float rB[1][6];
+   tile_static float lA[1632];
+   tile_static float lB[1632];
+   int gidx = tidx.tile[1];
+   int gidy = tidx.tile[0];
+   int idx = tidx.local[1];
+   int idy = tidx.local[0];
+   int block_k = 0;
+   int i = 0;
+   int alIndex = idx * 17 + idy;
+   int blIndex = idy * 17 + idx;
+   int AIndex = aOffset + (gidx * 16) + idx + (idy * lda);
+   int BIndex = bOffset + ((gidy * 16) + idy)*ldb + idx;
+   long CIndex = cOffset + (gidx * 16) + idx + (((gidy * 16) + idy) * ldc);
+   long AinitOffset = 0;
+   long BinitOffset = 0;
+
+   do {
+
+     tidx.barrier.wait();
+
+     if ( gidx == M_blocks-1 || gidy == N_blocks-1 || block_k == K_blocks-1) {
+       for (int sec = 0; sec < 6; sec++)  {
+
+          if (gidy * 16 + idy < N && (idx + block_k * 96 + sec * TILESIZE) < K)
+            lB[blIndex + 272 * sec] = B[BIndex + BinitOffset + (TILESIZE * sec)];
+          else
+            lB[blIndex + 272 * sec] = 0;
+
+          if (gidx * 16 + idx  < M  && (block_k * 96 + idy + sec * TILESIZE) < K)
+            lA[alIndex + 272 * sec] = A[AIndex + AinitOffset + (TILESIZE * sec) * lda];
+          else
+            lA[alIndex + 272 * sec] = 0;
+
+       }
+     } else {
+       lB[blIndex] = B[BIndex + BinitOffset];
+       lB[blIndex + 272] = B[BIndex + BinitOffset + 16];
+       lB[blIndex + 544] = B[BIndex + BinitOffset + 32]; 
+       lB[blIndex + 816] = B[BIndex + BinitOffset + 48];
+       lB[blIndex + 1088] = B[BIndex + BinitOffset + 64];
+       lB[blIndex + 1360] = B[BIndex + BinitOffset + 80];
+       lA[alIndex] = A[AIndex + AinitOffset];
+       lA[alIndex + 272] = A[AIndex + AinitOffset + 16 * lda];
+       lA[alIndex + 544] = A[AIndex + AinitOffset + 32 * lda];
+       lA[alIndex + 816] = A[AIndex + AinitOffset + 48 * lda];
+       lA[alIndex + 1088] = A[AIndex + AinitOffset + 64 * lda];
+       lA[alIndex + 1360] = A[AIndex + AinitOffset + 80 * lda];
+     }
+
+     tidx.barrier.wait();
+
+     int offA = idx * 17;
+     int offB = idy * 17;
+
+     for (int iter = 0; iter < TILESIZE; ++iter) {
+       MSS4X4;
+     }
+
+     AinitOffset += lda << 6;
+     BinitOffset += 96;
+
+   } while (++block_k < K_blocks); // (((K + TILESIZE - 1) & ~(TILESIZE - 1)) / TILESIZE));
+
+
+  if (gidx == M_blocks-1 || gidy == N_blocks-1) {
+    if( gidy * 16 + idy < N && gidx * 16 + idx  < M)
+       C[CIndex] = alpha*rC[0][0] + beta * C[CIndex] ;
+    }
+    else  C[CIndex] = alpha*rC[0][0] + beta * C[CIndex];
+
+  }).wait();
+
+#undef TILESIZE
+#undef STEPSIZE
+  return HCBLAS_SUCCEEDS;
+}
 hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_view &accl_view,
 					     float *A, long aOffset,
 					     float *B, long bOffset,
