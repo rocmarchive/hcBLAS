@@ -612,9 +612,14 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_v
 					     float alpha, float beta) {
 #define TILESIZE 16
 #define STEPSIZE 64
-  int N_R =  (N + (TILESIZE - 1)) & ~(TILESIZE - 1);
+
   int M_R = (M + (TILESIZE - 1)) & ~(TILESIZE - 1);
-  int K_R =  (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
+  int N_R = (N + (TILESIZE - 1)) & ~(TILESIZE - 1);
+  int K_R = (K + (STEPSIZE - 1)) & ~(STEPSIZE - 1);
+  int M_blocks = M_R/TILESIZE;
+  int N_blocks = N_R/TILESIZE;
+  int K_blocks = K_R/STEPSIZE;
+  std::cout<<"M_Blocks: "<<M_blocks<<"  N_Blocks: "<<N_blocks<<"  K_Blocks: "<<K_blocks<<std::endl;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
@@ -628,7 +633,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_v
    int gidy = tidx.tile[0];
    int idx = tidx.local[1];
    int idy = tidx.local[0];
-   int block_k = K_R / TILESIZE;
+   int block_k = 0;
    int i = 0;
    int alIndex = idx * 17 + idy;
    int blIndex = idy * 17 + idx;
@@ -637,43 +642,36 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_v
    long CIndex = cOffset + (gidx * 16) + idx + (((gidy * 16) + idy) * ldc);
    long AinitOffset = 0;
    long BinitOffset = 0;
-   int M_block = M_R/TILESIZE;
-   int N_block = N_R/TILESIZE;
-   int K_block = K_R/TILESIZE;
 
    do {
 
      tidx.barrier.wait();
-     if ( gidx == M_block-1 || gidy == N_block-1 || block_k == K_block-1) {
 
-            // Load Sections of A and B into respective shared memory slots
-      for (int sec = 0; sec < 4; ++sec) {
-        int secVal  = sec << 4;
+     if ( gidx == M_blocks-1 || gidy == N_blocks-1 || block_k == K_blocks-1) {
+       for (int sec = 0; sec < 4; sec++)  {
 
-        // Load Section 'sec' from global memory B onto shared lB
-        if(gidy * 16 + idy  < N && (idx + secVal) < K) {
-          lB[idy * 16 + idx + (256 * sec)] = B[BIndex + BinitOffset + secVal];
-        } else {
-          lB[idy * 16 + idx + (256 * sec)] = 0;
-        }
+          if (gidy * 16 + idy < N && (idx + block_k * 64 + sec * TILESIZE) < K)
+            lB[blIndex + 272 * sec] = B[BIndex + BinitOffset + (TILESIZE * sec)];
+          else
+            lB[blIndex + 272 * sec] = 0;
 
-        // Load Section 'sec' from global memory A onto shared lA
-        if(gidx * 16 + idx < M &&  (idy + secVal) < K) {
-          lA[idx * 16 + idy + (256 * sec)] = A[AIndex + AinitOffset  + secVal * lda];
-        } else {
-          lA[idx * 16 + idy + (256 * sec)] = 0;
-        }
-      }
+          if (gidx * 16 + idx  < M  && (block_k * 64 + idy + sec * TILESIZE) < K)
+            lA[alIndex + 272 * sec] = A[AIndex + AinitOffset + (TILESIZE * sec) * lda];
+          else
+            lA[alIndex + 272 * sec] = 0;
+
+       }
      } else {
-         lB[blIndex] = B[BIndex + BinitOffset];
-         lB[blIndex + 272] = B[BIndex + BinitOffset + 16];
-         lB[blIndex + 544] = B[BIndex + BinitOffset + 32];
-         lB[blIndex + 816] = B[BIndex + BinitOffset + 48];
-         lA[alIndex] = A[AIndex + AinitOffset];
-         lA[alIndex + 272] = A[AIndex + AinitOffset + 16 * lda];
-         lA[alIndex + 544] = A[AIndex + AinitOffset + 32 * lda];
-         lA[alIndex + 816] = A[AIndex + AinitOffset + 48 * lda];
+       lB[blIndex] = B[BIndex + BinitOffset];
+       lB[blIndex + 272] = B[BIndex + BinitOffset + 16];
+       lB[blIndex + 544] = B[BIndex + BinitOffset + 32]; 
+       lB[blIndex + 816] = B[BIndex + BinitOffset + 48];
+       lA[alIndex] = A[AIndex + AinitOffset];
+       lA[alIndex + 272] = A[AIndex + AinitOffset + 16 * lda];
+       lA[alIndex + 544] = A[AIndex + AinitOffset + 32 * lda];
+       lA[alIndex + 816] = A[AIndex + AinitOffset + 48 * lda];
      }
+
      tidx.barrier.wait();
 
      int offA = idx * 17;
@@ -686,11 +684,17 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_v
      AinitOffset += lda << 6;
      BinitOffset += 64;
 
-   } while (--block_k > 0); // (((K + TILESIZE - 1) & ~(TILESIZE - 1)) / TILESIZE));
+   } while (++block_k < K_blocks); // (((K + TILESIZE - 1) & ~(TILESIZE - 1)) / TILESIZE));
 
-  C[CIndex] = alpha*rC[0][0] + beta * C[CIndex] ;
+
+  if (gidx == M_blocks-1 || gidy == N_blocks-1) {
+    if( gidy * 16 + idy < N && gidx * 16 + idx  < M)
+       C[CIndex] = alpha*rC[0][0] + beta * C[CIndex] ;
+    }
+    else  C[CIndex] = alpha*rC[0][0] + beta * C[CIndex];
 
   }).wait();
+
 
 #undef TILESIZE
 #undef STEPSIZE
