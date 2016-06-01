@@ -91,6 +91,18 @@ using namespace hc;
 */
 #define mad(a, b, c) a * b + c
 
+#define  M2x2                            \
+             rA[0][0] = lA[offA + 0];          \
+             rA[0][1] = lA[offA + 16];         \
+             rB[0][0] = lB[offB + 0];          \
+             rB[0][1] = lB[offB + 16];         \
+             offA += 33;                       \
+             offB += 33;  \
+            rC[0][0]=mad(rA[0][0],rB[0][0],rC[0][0]); \
+            rC[1][0]=mad(rA[0][1],rB[0][0],rC[1][0]); \
+            rC[0][1]=mad(rA[0][0],rB[0][1],rC[0][1]); \
+            rC[1][1]=mad(rA[0][1],rB[0][1],rC[1][1]); \
+
 #define  M4x4                            \
              rA[0][0] = lA[offA + 0];          \
              rA[0][1] = lA[offA + 16];         \
@@ -242,6 +254,20 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view &accl_v
 
 
 hcblasStatus gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(hc::accelerator_view accl_view,
+					       const  float *A, long aOffset,
+					       const  float *B, long bOffset,
+					        float *C, long cOffset,
+					        int M, int N, int K, int lda, int ldb, int ldc,
+					        float alpha, float beta); 
+
+hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_view,
+					       const  float *A, long aOffset,
+					       const  float *B, long bOffset,
+					        float *C, long cOffset,
+					        int M, int N, int K, int lda, int ldb, int ldc,
+					        float alpha, float beta); 
+
+hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS8XMTS4(hc::accelerator_view accl_view,
 					       const  float *A, long aOffset,
 					       const  float *B, long bOffset,
 					        float *C, long cOffset,
