@@ -8,14 +8,10 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(hc::accelerator
 					        float *C, long cOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float alpha, float beta) {
-#undef TILESIZE
-#undef MICROTILESIZE
-#define TILESIZE 16
-#define MICROTILESIZE 4
   int M_ = M >> 2;
   int N_ = N >> 2;
-  hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
-  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::extent<2> grdExt((N_ + 15) & ~15, (M_ + 15) & ~15);
+  hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     float rC[4][4] = {{(float)0}};
     float rA[1][4];
@@ -52,7 +48,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(hc::accelerator
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
+      for (int iter = 0; iter < 16; iter+=8) {
         M4x4;
         M4x4;
         M4x4;
@@ -89,8 +85,6 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(hc::accelerator
     C[CIndex + CinitOffset + 48 * ldc] = alpha*rC[3][3] + beta * C[CIndex + CinitOffset + 48 * ldc] ;
 
   }).wait();
-#undef TILESIZE
-#undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
@@ -100,17 +94,13 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_
                                                 float *C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
                                                 float alpha, float beta) {
-#undef TILESIZE
-#undef MICROTILESIZE
-#define TILESIZE 16
-#define MICROTILESIZE 2
   int M_ = (M-1)/2 + 1;
   int N_ = (N-1)/2 + 1;
-  int N_R = (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
-  int M_R = (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
-  int K_R = (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
+  int N_R = (N_ + 15) & ~15;
+  int M_R = (M_ + 15) & ~15;
+  int K_R = (K + 15) & ~15;
   hc::extent<2> grdExt(N_R, M_R);
-  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     float rC[2][2] = {{(float)0}};
     float rA[1][2];
@@ -130,16 +120,16 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_
     long AinitOffset = 0;
     long BinitOffset = 0;
     long CinitOffset = 0;
-    int N_block = N_R/TILESIZE;
-    int M_block = M_R/TILESIZE;
-    int K_block = K_R/TILESIZE;
+    int N_block = N_R >> 4;
+    int M_block = M_R >> 4;
+    int K_block = K_R >> 4;
     do {
 
       tidx.barrier.wait();
 
       if(gidx == M_block-1 || gidy == N_block-1 || block_k == K_block-1)
       {
-          for(int sec = 0; sec < MICROTILESIZE; ++sec) {
+          for(int sec = 0; sec < 2; ++sec) {
             int secVal = sec << 4;
 
             if( (gidy*32 + idy + secVal) < N && (block_k * 16 + idx) < K) {
@@ -182,7 +172,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_
       AinitOffset += lda << 4;
       BinitOffset += 16;
 
-    } while (++block_k < (K_R / TILESIZE));
+    } while (++block_k < (K_R >> 4));
 
       tidx.barrier.wait();
     if(gidx == M_block-1 || gidy == N_block-1)
@@ -207,8 +197,6 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_
     }
 
   }).wait();
-#undef TILESIZE
-#undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
@@ -218,17 +206,13 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS8XMTS4(hc::accelerator_view accl_v
                                                 float *C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
                                                 float alpha, float beta) {
-#undef TILESIZE
-#undef MICROTILESIZE
-#define TILESIZE 8
-#define MICROTILESIZE 4
   int M_ = (M-1)/4 + 1;
   int N_ = (N-1)/4 + 1;
-  int N_R = (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
-  int M_R = (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
-  int K_R = (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
+  int N_R = (N_ + 7) & ~7;
+  int M_R = (M_ + 7) & ~7;
+  int K_R = (K + 7) & ~7;
   hc::extent<2> grdExt(N_R, M_R);
-  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::tiled_extent<2> t_ext = grdExt.tile(8, 8);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     float rC[4][4] = {{(float)0}};
     float rA[1][4];
@@ -248,16 +232,16 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS8XMTS4(hc::accelerator_view accl_v
     long AinitOffset = 0;
     long BinitOffset = 0;
     long CinitOffset = 0;
-    int N_block = N_R/TILESIZE;
-    int M_block = M_R/TILESIZE;
-    int K_block = K_R/TILESIZE;
+    int N_block = N_R >> 3;
+    int M_block = M_R >> 3;
+    int K_block = K_R >> 3;
     do {
 
       tidx.barrier.wait();
 
       if(gidx == M_block-1 || gidy == N_block-1 || block_k == K_block-1)
       {
-          for(int sec = 0; sec < MICROTILESIZE; ++sec) {
+          for(int sec = 0; sec < 4; ++sec) {
             int secVal = sec << 3;
 
             if( (gidy*32 + idy + secVal) < N && (block_k * 8 + idx) < K) {
@@ -290,7 +274,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS8XMTS4(hc::accelerator_view accl_v
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=4) {
+      for (int iter = 0; iter < 8; iter+=4) {
         M4x4;
         M4x4;
         M4x4;
@@ -300,7 +284,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS8XMTS4(hc::accelerator_view accl_v
       AinitOffset += lda << 3;
       BinitOffset += 8;
 
-    } while (++block_k < (K_R / TILESIZE));
+    } while (++block_k < (K_R >> 3));
 
       tidx.barrier.wait();
     if(gidx == M_block-1 || gidy == N_block-1)
@@ -365,8 +349,6 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS8XMTS4(hc::accelerator_view accl_v
     }
 
   }).wait();
-#undef TILESIZE
-#undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
@@ -376,17 +358,13 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_
 					        float *C, long cOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float alpha, float beta) {
-#undef TILESIZE
-#undef MICROTILESIZE
-#define TILESIZE 16
-#define MICROTILESIZE 4
   int M_ = (M-1)/4 + 1;
   int N_ = (N-1)/4 + 1;
-  int N_R = (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
-  int M_R = (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
-  int K_R = (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
+  int N_R = (N_ + 15) & ~15;
+  int M_R = (M_ + 15) & ~15;
+  int K_R = (K + 15) & ~15;
   hc::extent<2> grdExt(N_R, M_R);
-  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     float rC[4][4] = {{(float)0}};
     float rA[1][4];
@@ -406,16 +384,16 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_
     long AinitOffset = 0;
     long BinitOffset = 0;
     long CinitOffset = 0;
-    int N_block = N_R/TILESIZE;
-    int M_block = M_R/TILESIZE;
-    int K_block = K_R/TILESIZE;
+    int N_block = N_R >> 4;
+    int M_block = M_R >> 4;
+    int K_block = K_R >> 4;
     do {
 
       tidx.barrier.wait();
 
       if(gidx == M_block-1 || gidy == N_block-1 || block_k == K_block-1)
       {
-          for(int sec = 0; sec < MICROTILESIZE; ++sec) {
+          for(int sec = 0; sec < 4; ++sec) {
             int secVal = sec << 4;
 
             if( (gidy*64 + idy + secVal) < N && (block_k * 16 + idx) < K) {
@@ -448,7 +426,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
+      for (int iter = 0; iter < 16; iter+=8) {
         M4x4;
         M4x4;
         M4x4;
@@ -462,7 +440,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_
       AinitOffset += lda << 4;
       BinitOffset += 16;
 
-    } while (++block_k < (K_R / TILESIZE));
+    } while (++block_k < (K_R >> 4));
 
       tidx.barrier.wait();
     if(gidx == M_block-1 || gidy == N_block-1)
@@ -527,8 +505,6 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_
     }
 
   }).wait();
-#undef TILESIZE
-#undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
@@ -538,17 +514,13 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_
                                                 float *C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
                                                 float alpha, float beta) {
-#undef TILESIZE
-#undef MICROTILESIZE
-#define TILESIZE 16
-#define MICROTILESIZE 6
   int M_ = (M-1)/6 + 1;
   int N_ = (N-1)/6 + 1;
-  int N_R = (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
-  int M_R = (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
-  int K_R = (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
+  int N_R = (N_ + 15) & ~15;
+  int M_R = (M_ + 15) & ~15;
+  int K_R = (K + 15) & ~15;
   hc::extent<2> grdExt(N_R, M_R);
-  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     float rC[6][6] = {{(float)0}};
     float rA[1][6];
@@ -568,16 +540,16 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_
     long AinitOffset = 0;
     long BinitOffset = 0;
     long CinitOffset = 0;
-    int N_block = N_R/TILESIZE;
-    int M_block = M_R/TILESIZE;
-    int K_block = K_R/TILESIZE;
+    int N_block = N_R >> 4;
+    int M_block = M_R >> 4;
+    int K_block = K_R >> 4;
     do {
 
       tidx.barrier.wait();
 
       if(gidx == M_block-1 || gidy == N_block-1 || block_k == K_block-1)
       {
-          for(int sec = 0; sec < MICROTILESIZE; ++sec) {
+          for(int sec = 0; sec < 6; ++sec) {
             int secVal = sec << 4;
 
             if( (gidy*96 + idy + secVal) < N && (block_k * 16 + idx) < K) {
@@ -614,7 +586,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
+      for (int iter = 0; iter < 16; iter+=8) {
         M6x6;
         M6x6;
         M6x6;
@@ -628,7 +600,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_
       AinitOffset += lda << 4;
       BinitOffset += 16;
 
-    } while (++block_k < (K_R / TILESIZE));
+    } while (++block_k < (K_R >> 4));
 
       tidx.barrier.wait();
     if(gidx == M_block-1 || gidy == N_block-1)
@@ -757,8 +729,6 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_
     }
 
   }).wait();
-#undef TILESIZE
-#undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
@@ -768,14 +738,10 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator
 					        float *C, long cOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float alpha, float beta) {
-#undef TILESIZE
-#undef MICROTILESIZE
-#define TILESIZE 16
-#define MICROTILESIZE 6
   int M_ = M/6;
   int N_ = N/6 ;
-  hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
-  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::extent<2> grdExt((N_ + 15) & ~15, (M_ + 15) & ~15);
+  hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     float rC[6][6] = {{(float)0}};
     float rA[1][6];
@@ -816,7 +782,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
+      for (int iter = 0; iter < 16; iter+=8) {
         M6x6;
         M6x6;
         M6x6;
@@ -875,8 +841,6 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator
     C[CIndex + CinitOffset + 80 * ldc] = alpha*rC[5][5] + beta * C[CIndex + CinitOffset + 80 * ldc] ;
 
   }).wait();
-#undef TILESIZE
-#undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
@@ -1073,12 +1037,8 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_vie
 					     float *C, long cOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
 					     float alpha, float beta) {
-#undef TILESIZE
-#undef STEPSIZE
-#define TILESIZE 16
-#define STEPSIZE 64
-  hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
-  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::extent<2> grdExt((N + 15) & ~15, (M + 15) & ~15);
+  hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
 
    float rC[1][1];
@@ -1117,7 +1077,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_vie
      int offA = idx * 17;
      int offB = idy * 17;
 
-     for (int iter = 0; iter < TILESIZE; ++iter) {
+     for (int iter = 0; iter < 16; ++iter) {
        MSS4X4;
      }
 
@@ -1130,8 +1090,6 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_vie
 
   }).wait();
 
-#undef TILESIZE
-#undef STEPSIZE
   return HCBLAS_SUCCEEDS;
 }
 
@@ -1141,10 +1099,8 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_vie
 					     float *C, long cOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
 					     float alpha, float beta) {
-#define TILESIZE 16
-#define STEPSIZE 96
-  hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
-  hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
+  hc::extent<2> grdExt((N + 15) & ~15, (M + 15) & ~15);
+  hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
 
    float rC[1][1];
@@ -1187,7 +1143,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_vie
      int offA = idx * 17;
      int offB = idy * 17;
 
-     for (int iter = 0; iter < TILESIZE; ++iter) {
+     for (int iter = 0; iter < 16; ++iter) {
        MSS6X6;
      }
 
@@ -1200,7 +1156,5 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_vie
 
   }).wait();
 
-#undef TILESIZE
-#undef STEPSIZE
   return HCBLAS_SUCCEEDS;
 }
