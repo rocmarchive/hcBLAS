@@ -850,7 +850,6 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_v
 					     float *C, long cOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
 					     float alpha, float beta) {
-
   int M_R = (M + 15) & ~(15);
   int N_R = (N + 15) & ~(15);
   int K_R = (K + 63) & ~(63);
