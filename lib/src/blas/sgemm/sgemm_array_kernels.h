@@ -344,6 +344,27 @@ hcblasStatus gemm_NoTransA(hc::accelerator_view &accl_view,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta);
 
+hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view &accl_view,
+					       const float *A, long aOffset,
+					       const float *B, long bOffset,
+					       float *C, long cOffset,
+					       int M, int N, int K, int lda, int ldb, int ldc,
+					       float alpha, float beta);
+
+hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view &accl_view,
+					       const float *A, long aOffset,
+					       const float *B, long bOffset,
+					       float *C, long cOffset,
+					       int M, int N, int K, int lda, int ldb, int ldc,
+					       float alpha, float beta);
+
+hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view &accl_view,
+					       const float *A, long aOffset,
+					       const float *B, long bOffset,
+					       float *C, long cOffset,
+					       int M, int N, int K, int lda, int ldb, int ldc,
+					       float alpha, float beta);
+
 hcblasStatus gemm_NoTransB(hc::accelerator_view &accl_view,
           		   float *A, long aOffset,
                            float *B, long bOffset,
