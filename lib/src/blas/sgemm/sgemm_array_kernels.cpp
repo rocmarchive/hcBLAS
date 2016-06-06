@@ -3069,16 +3069,22 @@ hcblasStatus gemm_NoTransB(hc::accelerator_view &accl_view,
                            float *C, long cOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta) {
-  if (M <= 800 && N <= 800 && K <= 800){
+  if (M%64==0 && N%64==0 && K%16==0 && M > 2000 && M < 3300 && N > 2000 && N < 3300) {
+    return gemm_NoTransB_MICRO_NBK_M064_N064_K064_TS16XMTS4(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  if (M%96==0 && N%96==0 && K%16==0 && M > 2000 && N > 2000) {
+    return gemm_NoTransB_MICRO_NBK_M096_N096_K096_TS16XMTS6(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if (M <= 800 && N <= 800 && K <= 800){
     return gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
   else if (M <= 2500 && N <= 2500 && K <= 2500) {
     return gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS4(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else {
+  else if ( M == N) {
     return gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS6(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-/*  if(M < 1000 && N < 1000 && K > 10000) {
+  else if(M < 1000 && N < 1000 && K > 10000) {
     return gemm_NoTransB_largeK(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if((M < 6000 && N < 600 && K < 10) || (M < 1800 && N < 80 &&  K > 1800 && K < 6000)) {
     return gemm_NoTransB_STEP_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
@@ -3090,7 +3096,7 @@ hcblasStatus gemm_NoTransB(hc::accelerator_view &accl_view,
     return gemm_NoTransB_MICRO_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else {
     return gemm_NoTransB_MICRO_NBK_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
-  }*/
+  }
 }
 
 hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
