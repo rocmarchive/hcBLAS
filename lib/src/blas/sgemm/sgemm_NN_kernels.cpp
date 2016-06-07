@@ -158,7 +158,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
+      for (int iter = 0; iter < 16; iter+=8) {
         M2x2;
         M2x2;
         M2x2;
