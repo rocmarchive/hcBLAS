@@ -944,10 +944,9 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view &accl_v
 
   int M_R = (M + 15) & ~(15);
   int N_R = (N + 15) & ~(15);
-  int K_R = (K + 95) & ~(95);
   int M_blocks = M_R/16;
   int N_blocks = N_R/16;
-  int K_blocks = K_R/96;
+  int K_blocks = (K -1) / 96 + 1;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
@@ -1011,10 +1010,10 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view &accl_v
      int offB = idy * 17;
 
      for (int iter = 0; iter < 16; ++iter) {
-       MSS4X4;
+       MSS6X6;
      }
 
-     AinitOffset += lda << 6;
+     AinitOffset += lda * 96;
      BinitOffset += 96;
 
    } while (++block_k < K_blocks); // (((K + TILESIZE - 1) & ~(TILESIZE - 1)) / TILESIZE));
@@ -1146,7 +1145,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_vie
        MSS6X6;
      }
 
-     AinitOffset += lda / 96;
+     AinitOffset += lda * 96;
      BinitOffset += 96;
 
    } while (--block_k > 0); // (((K + TILESIZE - 1) & ~(TILESIZE - 1)) / TILESIZE));
