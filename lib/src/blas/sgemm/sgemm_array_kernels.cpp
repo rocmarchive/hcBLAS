@@ -2978,20 +2978,26 @@ hcblasStatus gemm_NoTransAB(hc::accelerator_view &accl_view,
                             float *C, long cOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float alpha, float beta) {
-  if (M%16 == 0 && N%16 == 0 && K%64 == 0 && K > M) {
+if (M%16 == 0 && N%16 == 0 && K%64 == 0 && K > M) {
     return gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
   else if (M%16 == 0 && N%16 == 0 && K%96 == 0 && K > M) {
     return gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if (K < 1000 && M <= K) {
-     return gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
-  } 
+//  else if (K < 1000 && M <= K) {
+//     return gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+//  } 
   else if (K > M && M < 4000) {
      return gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
 
-  if( M%64==0 && N%64==0 && K%16==0) {
+  if( M%128==0 && N%128==0 && K%128==0 && M <= 6700) {
+    return gemm_NoTransAB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if( M%128==0 && N%128==0 && K%128==0) {
+    return gemm_NoTransAB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS4(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if( M%64==0 && N%64==0 && K%16==0) {
     return gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
   else if( M%96==0 && N%96==0 && K%16==0) {
