@@ -2,7 +2,7 @@
 #include <cmath>
 #include "hc_math.hpp"
 
-hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS2(hc::accelerator_view accl_view,
+hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::accelerator_view accl_view,
                                                 const float *A, long aOffset,
                                                 const float *B, long bOffset,
                                                 float *C, long cOffset,
@@ -84,7 +84,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS2(hc::accelerator
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS4(hc::accelerator_view accl_view,
+hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M128_N128_K128_TS16XMTS4_MB2(hc::accelerator_view accl_view,
 					        const float *A, long aOffset,
 					        const float *B, long bOffset,
 					        float *C, long cOffset,
