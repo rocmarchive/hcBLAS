@@ -11,7 +11,7 @@ import argparse
 # Make OpenCL Kernel String
 ##############################################################################
 def makeOpenCLKernelString(kernel):
-  endLine = "\\n\"\n\""
+  endLine = "\n"
 
   ####################################
   # parameters valid?
@@ -20,35 +20,13 @@ def makeOpenCLKernelString(kernel):
 
   ####################################
   # initializations
-  kStr = ""
+  kStr = "/* %s */" % kernel.getName()
   kStr += endLine
-  kStr += "/* %s */" % kernel.getName()
-  kStr += endLine
-
-  ####################################
-  # Double precision pragma
-  prec = kernel.getName()[0].lower()
-  if prec == "d" or prec == "z":
-    kStr += endLine
-    kStr += "#pragma OPENCL EXTENSION cl_khr_fp64 : enable" + endLine
 
   ####################################
   # kernel parameters
   kStr += endLine
   kStr += "/* kernel parameters */" + endLine
-  #if kernel.order == "clblasColumnMajor":
-  #  kStr += "#define COLUMN_MAJOR          1" + endLine
-  #else:
-  #  kStr += "#define COLUMN_MAJOR          0" + endLine
-  #if kernel.transA == "T":
-  #  kStr += "#define TRANSPOSE_A           1" + endLine
-  #else:
-  #  kStr += "#define TRANSPOSE_A           0" + endLine
-  #if kernel.transB == "T":
-  #  kStr += "#define TRANSPOSE_B           1" + endLine
-  #else:
-  #  kStr += "#define TRANSPOSE_B           0" + endLine
-  #kStr += "" + endLine
   kStr += "#define WG_NUM_ROWS          %d%s" % (kernel.workGroupNumRows, endLine )
   kStr += "#define WG_NUM_COLS          %d%s" % (kernel.workGroupNumCols, endLine )
   kStr += "#define MICRO_TILE_NUM_ROWS  %d%s" % (kernel.microTileNumRows, endLine )
@@ -66,19 +44,19 @@ def makeOpenCLKernelString(kernel):
   kStr += endLine
   kStr += "/* global memory indices */" + endLine
   if (kernel.order=="clblasColumnMajor")==(kernel.transA=="N"):
-    kStr += "#define GET_GLOBAL_INDEX_A(ROW,COL) ((COL)*lda+(ROW))" + endLine
+    kStr += "#define GET_GLOBAL_INDEX_A(ROW,COL) (offsetA + (COL)*lda+(ROW))" + endLine
   else:
-    kStr += "#define GET_GLOBAL_INDEX_A(ROW,COL) ((ROW)*lda+(COL))" + endLine
+    kStr += "#define GET_GLOBAL_INDEX_A(ROW,COL) (offsetA + (ROW)*lda+(COL))" + endLine
   # B
   if (kernel.order=="clblasColumnMajor")==(kernel.transB=="N"):
-    kStr += "#define GET_GLOBAL_INDEX_B(ROW,COL) ((COL)*ldb+(ROW))" + endLine
+    kStr += "#define GET_GLOBAL_INDEX_B(ROW,COL) (offsetB + (COL)*ldb+(ROW))" + endLine
   else:
-    kStr += "#define GET_GLOBAL_INDEX_B(ROW,COL) ((ROW)*ldb+(COL))" + endLine
+    kStr += "#define GET_GLOBAL_INDEX_B(ROW,COL) (offsetB + (ROW)*ldb+(COL))" + endLine
   # C
   if (kernel.order=="clblasColumnMajor"):
-    kStr += "#define GET_GLOBAL_INDEX_C(ROW,COL) ((COL)*ldc+(ROW))" + endLine
+    kStr += "#define GET_GLOBAL_INDEX_C(ROW,COL) (offsetC + (COL)*ldc+(ROW))" + endLine
   else:
-    kStr += "#define GET_GLOBAL_INDEX_C(ROW,COL) ((ROW)*ldc+(COL))" + endLine
+    kStr += "#define GET_GLOBAL_INDEX_C(ROW,COL) (offsetC + (ROW)*ldc+(COL))" + endLine
 
   ####################################
   # local memory indices
@@ -93,6 +71,7 @@ def makeOpenCLKernelString(kernel):
   # data types
   kStr += endLine
   kStr += "/* data types */" + endLine
+  kStr += "#define uint unsigned int"
   kStr += "#define DATA_TYPE_STR %s%s" \
       % (Common.openclDataType[kernel.precision], endLine)
   if kernel.precision=="s" or kernel.precision=="d":
@@ -168,30 +147,29 @@ def makeOpenCLKernelString(kernel):
   # micro-tile
   kStr += endLine
   kStr += "/* %dx%d micro-tile */%s" % (kernel.microTileNumRows, kernel.microTileNumCols, endLine)
-  kStr += "#define MICRO_TILE \\\\" + endLine
+  kStr += "#define MICRO_TILE \ " + endLine
   for a in range(0, int(kernel.microTileNumRows)):
-    kStr += "  rA[%d] = localA[offA + %d*WG_NUM_ROWS]; \\\\%s" % (a, a, endLine)
+    kStr += "  rA[%d] = lA[offA + %d*WG_NUM_ROWS]; \ %s" % (a, a, endLine)
   for b in range(0, int(kernel.microTileNumCols)):
-    kStr += "  rB[%d] = localB[offB + %d*WG_NUM_COLS]; \\\\%s" % (b, b, endLine)
-  kStr += "  offA += (MACRO_TILE_NUM_ROWS+LOCAL_COL_PAD); \\\\" + endLine
-  kStr += "  offB += (MACRO_TILE_NUM_COLS+LOCAL_ROW_PAD); \\\\" + endLine
+    kStr += "  rB[%d] = lB[offB + %d*WG_NUM_COLS]; \ %s" % (b, b, endLine)
+  kStr += "  offA += (MACRO_TILE_NUM_ROWS+LOCAL_COL_PAD); \ " + endLine
+  kStr += "  offB += (MACRO_TILE_NUM_COLS+LOCAL_ROW_PAD); \ " + endLine
   for a in range(0, int(kernel.microTileNumRows)):
     for b in range(0, int(kernel.microTileNumCols)):
-      kStr += "  TYPE_MAD(rA[%d],rB[%d],rC[%d][%d]); \\\\%s" % (a, b, a, b, endLine)
-  kStr += "  mem_fence(CLK_LOCAL_MEM_FENCE);" + endLine
+      kStr += "  TYPE_MAD(rA[%d],rB[%d],rC[%d][%d]); \ %s" % (a, b, a, b, endLine)
   kStr += endLine
 
   ####################################
   # function signature
   ####################################
-  kStr += "__attribute__((reqd_work_group_size(WG_NUM_COLS,WG_NUM_ROWS,1)))" + endLine
-  kStr += "__kernel void %s" % ( kernel.getName() )
+  kStr += "__hcblasStatus %s" % ( kernel.getName() )
   kStr += "(" + endLine
   # arguments
   kStr += (
-    "  __global DATA_TYPE_STR const * restrict A," + endLine +
-    "  __global DATA_TYPE_STR const * restrict B," + endLine +
-    "  __global DATA_TYPE_STR       *          C," + endLine +
+    "  hc::accelerator_view accl_view, " + endLine +
+    "  DATA_TYPE_STR const * A," + endLine +
+    "  DATA_TYPE_STR const * B," + endLine +
+    "  DATA_TYPE_STR * C," + endLine +
     "  DATA_TYPE_STR const alpha," + endLine +
     "  DATA_TYPE_STR const beta," + endLine +
     "  uint const M," + endLine +
@@ -206,13 +184,19 @@ def makeOpenCLKernelString(kernel):
     ") {" + endLine )
 
   ####################################
-  # apply offsets
-  kStr += endLine
-  kStr += (
-    "  /* apply offsets */" + endLine +
-    "  A += offsetA;" + endLine +
-    "  B += offsetB;" + endLine +
-    "  C += offsetC;" + endLine )
+  # launch the thread grids
+  kStr += endLine 
+  kStr += ( 
+    "  /* Launch the Grid */" + endLine + 
+    "  int M_ = (M - 1)/ MICRO_TILE_NUM_ROWS + 1;" + endLine + 
+    "  int N_ = (N - 1)/ MICRO_TILE_NUM_COLS + 1;" + endLine +
+    "  hc::extent<2> grdExt((N_ + (WG_NUM_COLS - 1)) & ~(WG_NUM_COLS - 1), (M_ + (WG_NUM_ROWS - 1)) & ~(WG_NUM_ROWS - 1));" + endLine +
+    "  hc::tiled_extent<2> t_ext = grdExt.tile(WG_NUM_COLS, WG_NUM_ROWS);" + endLine )
+
+  ####################################
+  # Call parallel_for_each 
+  kStr += endLine 
+  kStr += "  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) { " + endLine
 
   ####################################
   # allocate registers
@@ -228,54 +212,29 @@ def makeOpenCLKernelString(kernel):
   kStr += endLine
   kStr += (
     "  /* allocate local memory */" + endLine +
-    "  __local DATA_TYPE_STR localA[NUM_UNROLL_ITER*(MACRO_TILE_NUM_ROWS+LOCAL_COL_PAD)];" + endLine +
-    "  __local DATA_TYPE_STR localB[NUM_UNROLL_ITER*(MACRO_TILE_NUM_COLS+LOCAL_ROW_PAD)];" + endLine )
+    "  tile_static DATA_TYPE_STR lA[NUM_UNROLL_ITER*(MACRO_TILE_NUM_ROWS+LOCAL_COL_PAD)];" + endLine +
+    "  tile_static DATA_TYPE_STR lB[NUM_UNROLL_ITER*(MACRO_TILE_NUM_COLS+LOCAL_ROW_PAD)];" + endLine )
 
   ####################################
-  # work item indices
+  # work item indices : TODO: CHANGE THE ORDER OF ACCESS
   kStr += endLine
   kStr += "  /* work item indices */" + endLine
   if kernel.isRowKernel():
-    kStr += "  uint groupRow = M / " + str(kernel.workGroupNumRows*kernel.microTileNumRows) + "; // last row" + endLine
+    kStr += "  uint gidx = M / " + str(kernel.workGroupNumRows*kernel.microTileNumRows) + "; // last row" + endLine
   else:
-    kStr += "  uint groupRow = get_group_id(0);" + endLine
+    kStr += "  uint gidx = tidx.tile[1];" + endLine
   if kernel.isColKernel():
-    kStr += "  uint groupCol = N / " + str(kernel.workGroupNumCols*kernel.microTileNumCols) + "; // last column" + endLine
+    kStr += "  uint gidy = N / " + str(kernel.workGroupNumCols*kernel.microTileNumCols) + "; // last column" + endLine
   else:
-    kStr += "  uint groupCol = get_group_id(1);" + endLine
-
-  ####################################
-  # z-order - TODO doesn't improve caching, only lowers occupancy
-  if False:
-    kStr += (
-        "  // convert work-group order to z-order" + endLine +
-        "  unsigned int morton = get_group_id(1) * get_num_groups(0) + get_group_id(0);" + endLine +
-        "  groupRow = morton;" + endLine +
-        "  groupCol = ( groupRow >> 1 );" + endLine +
-        "  groupRow &= 0x55555555;" + endLine +
-        "  groupCol &= 0x55555555;" + endLine +
-        "  groupRow |= ( groupRow >> 1 );" + endLine +
-        "  groupCol |= ( groupCol >> 1 );" + endLine +
-        "  groupRow &= 0x33333333;" + endLine +
-        "  groupCol &= 0x33333333;" + endLine +
-        "  groupRow |= ( groupRow >> 2 );" + endLine +
-        "  groupCol |= ( groupCol >> 2 );" + endLine +
-        "  groupRow &= 0x0f0f0f0f;" + endLine +
-        "  groupCol &= 0x0f0f0f0f;" + endLine +
-        "  groupRow |= ( groupRow >> 4 );" + endLine +
-        "  groupCol |= ( groupCol >> 4 );" + endLine +
-        "  groupRow &= 0x00ff00ff;" + endLine +
-        "  groupCol &= 0x00ff00ff;" + endLine +
-        "  groupRow |= ( groupRow >> 8 );" + endLine +
-        "  groupCol |= ( groupCol >> 8 );" + endLine +
-        "  groupRow &= 0x0000ffff;" + endLine +
-        "  groupCol &= 0x0000ffff;" + endLine + endLine
-        )
-
+    kStr += "  uint gidy = tidx.tile[0];" + endLine
+  
   kStr += (
-    "  uint localRow = get_local_id(0);" + endLine +
-    "  uint localCol = get_local_id(1);" + endLine +
-    "  uint localSerial = localRow + localCol*WG_NUM_ROWS;" + endLine )
+    "  uint idx = tidx.local[1];" + endLine  +
+    "  uint idy = tidx.local[0];" + endLine +
+    "  uint lIndex = idy * WG_NUM_ROWS + idx;" + endLine +
+    "  long AinitOffset = 0;" + endLine + 
+    "  long BinitOffset = 0;" + endLine +
+    "  long CinitOffset = 0;" + endLine )
 
   ####################################
   # global indices being loaded
@@ -283,21 +242,21 @@ def makeOpenCLKernelString(kernel):
   kStr += "  /* global indices being loaded */" + endLine
   if (kernel.order=="clblasColumnMajor")==(kernel.transA=="N"):
     kStr += (
-      "#define globalARow(LID) (groupRow*MACRO_TILE_NUM_ROWS + (localSerial+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%MACRO_TILE_NUM_ROWS)" + endLine +
-      "#define globalACol(LID) ((localSerial+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/MACRO_TILE_NUM_ROWS)" + endLine )
+      "#define globalARow(LID) (gidx*MACRO_TILE_NUM_ROWS + (lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%MACRO_TILE_NUM_ROWS)" + endLine +
+      "#define globalACol(LID) ((lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/MACRO_TILE_NUM_ROWS)" + endLine )
   else:
     kStr += (
-      "#define globalARow(LID) (groupRow*MACRO_TILE_NUM_ROWS + (localSerial+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/NUM_UNROLL_ITER)" + endLine +
-      "#define globalACol(LID) ((localSerial+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%NUM_UNROLL_ITER)" + endLine )
+      "#define globalARow(LID) (gidx*MACRO_TILE_NUM_ROWS + (lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/NUM_UNROLL_ITER)" + endLine +
+      "#define globalACol(LID) ((lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%NUM_UNROLL_ITER)" + endLine )
 
   if (kernel.order=="clblasColumnMajor")==(kernel.transB=="N"):
     kStr += (
-      "#define globalBRow(LID) ((localSerial+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%NUM_UNROLL_ITER)" + endLine +
-      "#define globalBCol(LID) (groupCol*MACRO_TILE_NUM_COLS + (localSerial+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/NUM_UNROLL_ITER)" + endLine )
+      "#define globalBRow(LID) ((lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%NUM_UNROLL_ITER)" + endLine +
+      "#define globalBCol(LID) (gidy*MACRO_TILE_NUM_COLS + (lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/NUM_UNROLL_ITER)" + endLine )
   else:
     kStr += (
-      "#define globalBRow(LID) ((localSerial+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/MACRO_TILE_NUM_COLS)" + endLine +
-      "#define globalBCol(LID) (groupCol*MACRO_TILE_NUM_COLS + (localSerial+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%MACRO_TILE_NUM_COLS)" + endLine )
+      "#define globalBRow(LID) ((lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/MACRO_TILE_NUM_COLS)" + endLine +
+      "#define globalBCol(LID) (gidy*MACRO_TILE_NUM_COLS + (lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%MACRO_TILE_NUM_COLS)" + endLine )
 
   #kStr += (
   #  "  A += GET_GLOBAL_INDEX_A( globalARow, globalACol );" + endLine +
@@ -317,31 +276,28 @@ def makeOpenCLKernelString(kernel):
   kStr += "    /* local indices being written */" + endLine
   if (kernel.order=="clblasColumnMajor")==(kernel.transA=="N"):
     kStr += (
-      "#define localARow (localSerial % MACRO_TILE_NUM_ROWS)" + endLine +
-      "#define localACol (localSerial / MACRO_TILE_NUM_ROWS)" + endLine +
+      "#define localARow (lIndex % MACRO_TILE_NUM_ROWS)" + endLine +
+      "#define localACol (lIndex / MACRO_TILE_NUM_ROWS)" + endLine +
       "#define localAStride (WG_NUM_ROWS*WG_NUM_COLS)" + endLine )
   else:
     kStr += (
-      "#define localARow (localSerial / NUM_UNROLL_ITER)" + endLine +
-      "#define localACol (localSerial % NUM_UNROLL_ITER)" + endLine +
+      "#define localARow (lIndex / NUM_UNROLL_ITER)" + endLine +
+      "#define localACol (lIndex % NUM_UNROLL_ITER)" + endLine +
       "#define localAStride (WG_NUM_ROWS*WG_NUM_COLS/NUM_UNROLL_ITER)" + endLine )
 
   if (kernel.order=="clblasColumnMajor")==(kernel.transB=="N"):
     kStr += (
-      "#define localBRow ( localSerial % NUM_UNROLL_ITER )" + endLine +
-      "#define localBCol ( localSerial / NUM_UNROLL_ITER )" + endLine +
+      "#define localBRow ( lIndex % NUM_UNROLL_ITER )" + endLine +
+      "#define localBCol ( lIndex / NUM_UNROLL_ITER )" + endLine +
       "#define localBStride (WG_NUM_ROWS*WG_NUM_COLS/NUM_UNROLL_ITER)" + endLine )
   else:
     kStr += (
-      "#define localBRow ( localSerial / MACRO_TILE_NUM_COLS )" + endLine +
-      "#define localBCol ( localSerial % MACRO_TILE_NUM_COLS )" + endLine +
+      "#define localBRow ( lIndex / MACRO_TILE_NUM_COLS )" + endLine +
+      "#define localBCol ( lIndex % MACRO_TILE_NUM_COLS )" + endLine +
       "#define localBStride  (WG_NUM_ROWS*WG_NUM_COLS)" + endLine )
 
-
-  kStr += (
-    "    __local DATA_TYPE_STR *lA = localA + GET_LOCAL_INDEX_A(localARow, localACol);" + endLine +
-    "    __local DATA_TYPE_STR *lB = localB + GET_LOCAL_INDEX_B(localBRow, localBCol);" + endLine +
-    "    barrier(CLK_LOCAL_MEM_FENCE);" + endLine )
+  kStr += endLine 
+  kStr += "    tidx.barrier.wait();" + endLine 
 
   ####################################
   # load global -> local
@@ -367,34 +323,34 @@ def makeOpenCLKernelString(kernel):
   else:
     zeroString = "0.0"
   for a in range(0, int(numALoads)):
-    kStr += "    lA[ %d*localAStride ] = " % a
+    kStr += "    lA[ GET_LOCAL_INDEX_A(localARow, localACol) + %d*localAStride ] = " % a
     if kernel.isRowKernel():
       kStr += "( globalARow(%d) >= M) ? %s : " % ( a, zeroString )
-    kStr += "A[ GET_GLOBAL_INDEX_A( globalARow(%d), globalACol(%d) ) ];%s" % (a, a, endLine)
+    kStr += "A[ AinitOffset + GET_GLOBAL_INDEX_A( globalARow(%d), globalACol(%d) ) ];%s" % (a, a, endLine)
   if numALoadsR:
-    kStr += "    if ( localSerial + " + str(numALoads) + "*WG_NUM_ROWS*WG_NUM_COLS < (WG_NUM_ROWS*MICRO_TILE_NUM_ROWS*NUM_UNROLL_ITER) ) {" + endLine
-    kStr += "      lA[ %d*localAStride ] = " % numALoads
+    kStr += "    if ( lIndex + " + str(numALoads) + "*WG_NUM_ROWS*WG_NUM_COLS < (WG_NUM_ROWS*MICRO_TILE_NUM_ROWS*NUM_UNROLL_ITER) ) {" + endLine
+    kStr += "      lA[GET_LOCAL_INDEX_A(localARow, localACol)+ %d*localAStride ] = " % numALoads
     if kernel.isRowKernel():
       kStr += "( globalARow(%d) >= M) ? %s : " % ( numALoads, zeroString )
-    kStr += "A[ GET_GLOBAL_INDEX_A( globalARow(%d), globalACol(%d) ) ];%s" % (numALoads, numALoads, endLine)
+    kStr += "A[ AinitOffset + GET_GLOBAL_INDEX_A( globalARow(%d), globalACol(%d) ) ];%s" % (numALoads, numALoads, endLine)
     kStr += "    }" + endLine
 
   for b in range(0, int(numBLoads)):
-    kStr += "    lB[ %d*localBStride ] = " % b
+    kStr += "    lB[ GET_LOCAL_INDEX_B(localBRow, localBCol) + %d*localBStride ] = " % b
     if kernel.isColKernel():
       kStr += "( globalBCol(%d) >= N) ? %s : " % ( b, zeroString )
-    kStr += "B[ GET_GLOBAL_INDEX_B( globalBRow(%d), globalBCol(%d) ) ];%s" % (b, b, endLine)
+    kStr += "B[ BinitOffset + GET_GLOBAL_INDEX_B( globalBRow(%d), globalBCol(%d) ) ];%s" % (b, b, endLine)
   if numBLoadsR:
-    kStr += "    if ( localSerial + " + str(numBLoads) + "*WG_NUM_ROWS*WG_NUM_COLS < (WG_NUM_COLS*MICRO_TILE_NUM_COLS*NUM_UNROLL_ITER) ) {" + endLine
-    kStr += "      lB[ %d*localBStride ] = " % numBLoads
+    kStr += "    if ( lIndex + " + str(numBLoads) + "*WG_NUM_ROWS*WG_NUM_COLS < (WG_NUM_COLS*MICRO_TILE_NUM_COLS*NUM_UNROLL_ITER) ) {" + endLine
+    kStr += "      lB[ GET_LOCAL_INDEX_B(localBRow, localBCol) + %d*localBStride ] = " % numBLoads
     if kernel.isColKernel():
       kStr += "(globalBCol(%d) >= N) ? %s : " % ( numBLoads, zeroString )
-    kStr += "B[ GET_GLOBAL_INDEX_B( globalBRow(%d), globalBCol(%d) ) ];%s" % (numBLoads, numBLoads, endLine)
+    kStr += "B[ BinitOffset + GET_GLOBAL_INDEX_B( globalBRow(%d), globalBCol(%d) ) ];%s" % (numBLoads, numBLoads, endLine)
     kStr += "    }" + endLine
   kStr += (
-    "    barrier(CLK_LOCAL_MEM_FENCE);" + endLine +
-    "    uint offA = localRow;" + endLine +
-    "    uint offB = localCol;" + endLine )
+    "    tidx.barrier.wait();" + endLine +
+    "    uint offA = idx;" + endLine +
+    "    uint offB = idy;" + endLine )
 
   ####################################
   # do mads
@@ -408,13 +364,13 @@ def makeOpenCLKernelString(kernel):
   kStr += endLine
   kStr += "    /* shift to next k block */" + endLine
   if (kernel.order=="clblasColumnMajor")==(kernel.transA=="N"):
-    kStr += "    A += lda*NUM_UNROLL_ITER;" + endLine
+    kStr += "    AinitOffset += lda*NUM_UNROLL_ITER;" + endLine
   else:
-    kStr += "    A += NUM_UNROLL_ITER;" + endLine
+    kStr += "    AinitOffset += NUM_UNROLL_ITER;" + endLine
   if (kernel.order=="clblasColumnMajor")==(kernel.transB=="N"):
-    kStr += "    B += NUM_UNROLL_ITER;" + endLine
+    kStr += "    BinitOffset += NUM_UNROLL_ITER;" + endLine
   else:
-    kStr += "    B += ldb*NUM_UNROLL_ITER;" + endLine
+    kStr += "    BinitOffset += ldb*NUM_UNROLL_ITER;" + endLine
 
   ####################################
   # end loop
@@ -426,8 +382,8 @@ def makeOpenCLKernelString(kernel):
   # which global Cij index
   kStr += endLine
   kStr += "  /* which global Cij index */" + endLine
-  kStr += "  uint globalCRow = groupRow * MACRO_TILE_NUM_ROWS + localRow;" + endLine
-  kStr += "  uint globalCCol = groupCol * MACRO_TILE_NUM_COLS + localCol;" + endLine
+  kStr += "  uint globalCRow = gidx * MACRO_TILE_NUM_ROWS + idx;" + endLine
+  kStr += "  uint globalCCol = gidy * MACRO_TILE_NUM_COLS + idy;" + endLine
 
   ####################################
   # write global Cij
@@ -452,6 +408,12 @@ def makeOpenCLKernelString(kernel):
       kStr += endLine
 
   ####################################
+  # end parallel for each
+  kStr += endLine 
+  kStr += "  }).wait();" + endLine
+  kStr += "  return HCBLAS_SUCCEEDS;" + endLine 
+ 
+  ####################################
   # end kernel
   kStr += endLine
   kStr += "}" + endLine
@@ -470,19 +432,7 @@ def writeOpenCLKernelToFile(kernel):
   kernelFile.write( Common.getAutoGemmHeader() )
   kernelFile.write("#ifndef KERNEL_" + kernelName.upper() + "_SRC_H\n")
   kernelFile.write("#define KERNEL_" + kernelName.upper() + "_SRC_H\n")
-  kernelFile.write("\n")
-  kernelFile.write("const unsigned int %s_workGroupNumRows = %u;\n" % (kernel.getName(), kernel.workGroupNumRows ) )
-  kernelFile.write("const unsigned int %s_workGroupNumCols = %u;\n" % (kernel.getName(), kernel.workGroupNumCols ) )
-  kernelFile.write("const unsigned int %s_microTileNumRows = %u;\n" % (kernel.getName(), kernel.microTileNumRows ) )
-  kernelFile.write("const unsigned int %s_microTileNumCols = %u;\n" % (kernel.getName(), kernel.microTileNumCols ) )
-  kernelFile.write("const unsigned int %s_unroll = %u;\n" % (kernel.getName(), kernel.unroll) )
-  kernelFile.write("\n")
-  kernelFile.write("const char * const %s_src =\"" % (kernelName) )
   kernelFile.write(kernelString)
-  kernelFile.write("\";\n")
-  kernelFile.write("\n")
-  kernelFile.write("#else\n")
-  # kernelFile.write("#pragma message(\"AutoGemmKernelSources.cpp: %s was overriden by user kernel.\")\n" % kernel.getName() )
   kernelFile.write("#endif\n")
   kernelFile.close()
 
@@ -543,7 +493,7 @@ def writeOpenCLKernels():
 # Main
 ################################################################################
 if __name__ == "__main__":
-  ap = argparse.ArgumentParser(description="KernelOpenCL")
+  ap = argparse.ArgumentParser(description="Kernelgemm")
   ap.add_argument("precision", choices=["s","d","c","z"], help="precision" )
   ap.add_argument("order", choices=["row","col"], help="order: row major or column major" )
   ap.add_argument("transA", choices=["N","T", "C"], help="transA" )
