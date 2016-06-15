@@ -675,9 +675,8 @@ def writeKernelSelection():
 # Main
 ################################################################################
 if __name__ == "__main__":
-  if len(sys.argv) == 3:
+  if len(sys.argv) == 2:
     Common.setOutputPath(sys.argv[1])
-    AutoGemmParameters.setArchitecture(sys.argv[2])
     writeKernelSelection()
   else:
-    print("USAGE: python KernelSelection.py output_path architecture")
+    print("USAGE: python KernelSelection.py output_path")
