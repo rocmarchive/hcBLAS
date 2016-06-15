@@ -3,15 +3,6 @@
 ################################################################################
 
 outputPath = ""
-clCompilerVersion = "2.0"
-
-def setClCompilerVersion(version):
-  global clCompilerVersion
-  clCompilerVersion = version
-
-def getClCompilerVersion():
-  global clCompilerVersion
-  return clCompilerVersion
 
 def setOutputPath(path):
   global outputPath
@@ -24,17 +15,11 @@ def getOutputPath():
 def getRelativeKernelSourcePath():
   return "AutoGemmKernelSources/"
 
-def getRelativeKernelBinaryPath():
-  return "AutoGemmKernelBinaries/"
-
 def getRelativeIncludePath():
   return "AutoGemmIncludes/"
 
 def getKernelSourcePath():
   return getOutputPath() + getRelativeKernelSourcePath()
-
-def getKernelBinaryPath():
-  return getOutputPath() + getRelativeKernelBinaryPath()
 
 def getIncludePath():
   return getOutputPath() + getRelativeIncludePath()
@@ -44,7 +29,7 @@ def getAutoGemmHeader():
       "/*******************************************************************************\n"
       " * This file was auto-generated using the AutoGemm.py python script.\n"
       " * DO NOT modify this file! Instead, make changes to scripts in\n"
-      " *   clBLAS/src/library/blas/AutoGemm/ then re-generate files\n"
+      " *   hcblas/lib/src/blas/autoGemm/ then re-generate files\n"
       " *   (otherwise local changes will be lost after re-generation).\n"
       " ******************************************************************************/\n\n"
       )
