@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 #include "hc_am.hpp"
 #include "cblas.h"
+#include "test_constants.h"
 
 TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
    Hcblaslibrary hc;
@@ -58,9 +59,244 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
    hc::am_free(devY); 
 }
 
-TEST(hcblas_sdot, func_correct_sdot_Implementation_type_1) {
+// vvlarge test
+TEST(hcblas_sdot, func_correct_sdot_vvlargeN_Implementation_type_1) {
    Hcblaslibrary hc;
-   int N = 189;
+   int N = gen_vvlarge();
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   long xOffset = 0;
+   float dothcblas;
+   hcblasStatus status;
+   float  dotcblas = 0.0; 
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *X = (float*)calloc(lenx, sizeof(float));
+   float *Y = (float*)calloc(leny, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   for(int i = 0; i < lenx; i++){
+            X[i] = rand() % 10;
+   }
+   for(int i = 0; i < leny; i++){
+            Y[i] =  rand() % 15;
+   }
+   hc::am_copy(devX, X, lenx * sizeof(float));
+   hc::am_copy(devY, Y, leny * sizeof(float));
+   /* Proper call */
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   dotcblas = cblas_sdot( N, X, incX, Y, incY);
+   EXPECT_EQ(dothcblas, dotcblas);
+   free(X);
+   free(Y);
+   hc::am_free(devX);
+   hc::am_free(devY);
+}
+
+// vlarge test
+TEST(hcblas_sdot, func_correct_sdot_vlargeN_Implementation_type_1) {
+   Hcblaslibrary hc;
+   int N = gen_vlarge();
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   long xOffset = 0;
+   float dothcblas;
+   hcblasStatus status;
+   float  dotcblas = 0.0; 
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *X = (float*)calloc(lenx, sizeof(float));
+   float *Y = (float*)calloc(leny, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   for(int i = 0; i < lenx; i++){
+            X[i] = rand() % 10;
+   }
+   for(int i = 0; i < leny; i++){
+            Y[i] =  rand() % 15;
+   }
+   hc::am_copy(devX, X, lenx * sizeof(float));
+   hc::am_copy(devY, Y, leny * sizeof(float));
+   /* Proper call */
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   dotcblas = cblas_sdot( N, X, incX, Y, incY);
+   EXPECT_EQ(dothcblas, dotcblas);
+   free(X);
+   free(Y);
+   hc::am_free(devX);
+   hc::am_free(devY);
+}
+
+// large test
+TEST(hcblas_sdot, func_correct_sdot_largeN_Implementation_type_1) {
+   Hcblaslibrary hc;
+   int N = gen_large();
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   long xOffset = 0;
+   float dothcblas;
+   hcblasStatus status;
+   float  dotcblas = 0.0; 
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *X = (float*)calloc(lenx, sizeof(float));
+   float *Y = (float*)calloc(leny, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   for(int i = 0; i < lenx; i++){
+            X[i] = rand() % 10;
+   }
+   for(int i = 0; i < leny; i++){
+            Y[i] =  rand() % 15;
+   }
+   hc::am_copy(devX, X, lenx * sizeof(float));
+   hc::am_copy(devY, Y, leny * sizeof(float));
+   /* Proper call */
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   dotcblas = cblas_sdot( N, X, incX, Y, incY);
+   EXPECT_EQ(dothcblas, dotcblas);
+   free(X);
+   free(Y);
+   hc::am_free(devX);
+   hc::am_free(devY);
+}
+
+// REGULAR test
+TEST(hcblas_sdot, func_correct_sdot_regularN_Implementation_type_1) {
+   Hcblaslibrary hc;
+   int N = gen_regular();
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   long xOffset = 0;
+   float dothcblas;
+   hcblasStatus status;
+   float  dotcblas = 0.0; 
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *X = (float*)calloc(lenx, sizeof(float));
+   float *Y = (float*)calloc(leny, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   for(int i = 0; i < lenx; i++){
+            X[i] = rand() % 10;
+   }
+   for(int i = 0; i < leny; i++){
+            Y[i] =  rand() % 15;
+   }
+   hc::am_copy(devX, X, lenx * sizeof(float));
+   hc::am_copy(devY, Y, leny * sizeof(float));
+   /* Proper call */
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   dotcblas = cblas_sdot( N, X, incX, Y, incY);
+   EXPECT_EQ(dothcblas, dotcblas);
+   free(X);
+   free(Y);
+   hc::am_free(devX);
+   hc::am_free(devY);
+}
+
+// SMALL test
+TEST(hcblas_sdot, func_correct_sdot_smallN_Implementation_type_1) {
+   Hcblaslibrary hc;
+   int N = gen_small();
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   long xOffset = 0;
+   float dothcblas;
+   hcblasStatus status;
+   float  dotcblas = 0.0; 
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *X = (float*)calloc(lenx, sizeof(float));
+   float *Y = (float*)calloc(leny, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   for(int i = 0; i < lenx; i++){
+            X[i] = rand() % 10;
+   }
+   for(int i = 0; i < leny; i++){
+            Y[i] =  rand() % 15;
+   }
+   hc::am_copy(devX, X, lenx * sizeof(float));
+   hc::am_copy(devY, Y, leny * sizeof(float));
+   /* Proper call */
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   dotcblas = cblas_sdot( N, X, incX, Y, incY);
+   EXPECT_EQ(dothcblas, dotcblas);
+   free(X);
+   free(Y);
+   hc::am_free(devX);
+   hc::am_free(devY);
+}
+
+// VSMALL test
+TEST(hcblas_sdot, func_correct_sdot_vsmallN_Implementation_type_1) {
+   Hcblaslibrary hc;
+   int N = gen_vsmall();
+   int incX = 1;
+   int incY = 1;
+   long yOffset = 0;
+   long xOffset = 0;
+   float dothcblas;
+   hcblasStatus status;
+   float  dotcblas = 0.0; 
+   long lenx = 1 + (N-1) * abs(incX);
+   long leny = 1 + (N-1) * abs(incY);
+   float *X = (float*)calloc(lenx, sizeof(float));
+   float *Y = (float*)calloc(leny, sizeof(float));
+   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+   accelerator_view accl_view = (acc[1].create_view());
+/* Implementation type I - Inputs and Outputs are HCC float array containers */
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   for(int i = 0; i < lenx; i++){
+            X[i] = rand() % 10;
+   }
+   for(int i = 0; i < leny; i++){
+            Y[i] =  rand() % 15;
+   }
+   hc::am_copy(devX, X, lenx * sizeof(float));
+   hc::am_copy(devY, Y, leny * sizeof(float));
+   /* Proper call */
+   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
+   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+   dotcblas = cblas_sdot( N, X, incX, Y, incY);
+   EXPECT_EQ(dothcblas, dotcblas);
+   free(X);
+   free(Y);
+   hc::am_free(devX);
+   hc::am_free(devY);
+}
+
+// VV_SMALL test
+TEST(hcblas_sdot, func_correct_sdot_vvsmallN_Implementation_type_1) {
+   Hcblaslibrary hc;
+   int N = gen_vvsmall();
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
