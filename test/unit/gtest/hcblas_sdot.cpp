@@ -7,7 +7,7 @@
 
 TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
    Hcblaslibrary hc;
-   int N = 189;
+   long N = 189;
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
@@ -62,7 +62,7 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
 // vvlarge test
 TEST(hcblas_sdot, func_correct_sdot_vvlargeN_Implementation_type_1) {
    Hcblaslibrary hc;
-   int N = gen_vvlarge();
+   long N = gen_vvlarge();
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
@@ -101,7 +101,7 @@ TEST(hcblas_sdot, func_correct_sdot_vvlargeN_Implementation_type_1) {
 // vlarge test
 TEST(hcblas_sdot, func_correct_sdot_vlargeN_Implementation_type_1) {
    Hcblaslibrary hc;
-   int N = gen_vlarge();
+   long N = gen_vlarge();
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
@@ -140,7 +140,7 @@ TEST(hcblas_sdot, func_correct_sdot_vlargeN_Implementation_type_1) {
 // large test
 TEST(hcblas_sdot, func_correct_sdot_largeN_Implementation_type_1) {
    Hcblaslibrary hc;
-   int N = gen_large();
+   long N = gen_large();
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
@@ -179,7 +179,7 @@ TEST(hcblas_sdot, func_correct_sdot_largeN_Implementation_type_1) {
 // REGULAR test
 TEST(hcblas_sdot, func_correct_sdot_regularN_Implementation_type_1) {
    Hcblaslibrary hc;
-   int N = gen_regular();
+   long N = gen_regular();
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
@@ -218,7 +218,7 @@ TEST(hcblas_sdot, func_correct_sdot_regularN_Implementation_type_1) {
 // SMALL test
 TEST(hcblas_sdot, func_correct_sdot_smallN_Implementation_type_1) {
    Hcblaslibrary hc;
-   int N = gen_small();
+   long N = gen_small();
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
@@ -257,7 +257,7 @@ TEST(hcblas_sdot, func_correct_sdot_smallN_Implementation_type_1) {
 // VSMALL test
 TEST(hcblas_sdot, func_correct_sdot_vsmallN_Implementation_type_1) {
    Hcblaslibrary hc;
-   int N = gen_vsmall();
+   long N = gen_vsmall();
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
@@ -296,7 +296,7 @@ TEST(hcblas_sdot, func_correct_sdot_vsmallN_Implementation_type_1) {
 // VV_SMALL test
 TEST(hcblas_sdot, func_correct_sdot_vvsmallN_Implementation_type_1) {
    Hcblaslibrary hc;
-   int N = gen_vvsmall();
+   long N = gen_vvsmall();
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
@@ -334,7 +334,7 @@ TEST(hcblas_sdot, func_correct_sdot_vvsmallN_Implementation_type_1) {
 
 TEST(hcblas_sdot, return_correct_sdot_Implementation_type_2) {
    Hcblaslibrary hc;
-   int N = 189;
+   long N = 189;
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
@@ -392,7 +392,7 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_2) {
 
 TEST(hcblas_sdot, func_correct_sdot_Implementation_type_2) {
    Hcblaslibrary hc;
-   int N = 189;
+   long N = 189;
    int incX = 1;
    int incY = 1;
    long yOffset = 0;
