@@ -53,12 +53,10 @@ class KernelSelection:
 
 
     self.inc = (
-      "#include <clBLAS.h>\n"
+      "#include <hc.hpp>\n"
+      "#include \"hcblaslib.h\"\n"
       "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelSources.h\"\n"
-      "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelBinaries.h\"\n"
       "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelBuildOptionsSource.h\"\n"
-      "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelBuildOptionsBinary.h\"\n"
-      "#include \"" + Common.getRelativeIncludePath() + "AutoGemmClKernels.h\"\n"
       "\n"
       "#define EXACT_MULTIPLES(MULTIPLE_STR) MULTIPLE_STR\n"
       "\n"
@@ -77,20 +75,6 @@ class KernelSelection:
       "  const char **rowKernelSource,\n"
       "  const char **colKernelSource,\n"
       "  const char **cornerKernelSource,\n"
-      "  const char **sourceBuildOptions,\n"
-      "  const unsigned char **tileKernelBinary,\n"
-      "  const unsigned char **rowKernelBinary,\n"
-      "  const unsigned char **colKernelBinary,\n"
-      "  const unsigned char **cornerKernelBinary,\n"
-      "  size_t **tileKernelBinarySize,\n"
-      "  size_t **rowKernelBinarySize,\n"
-      "  size_t **colKernelBinarySize,\n"
-      "  size_t **cornerKernelBinarySize,\n"
-      "  const char **binaryBuildOptions,\n"
-      "  cl_kernel  **tileClKernel,\n"
-      "  cl_kernel  **rowClKernel,\n"
-      "  cl_kernel  **colClKernel,\n"
-      "  cl_kernel  **cornerClKernel,\n"
       "  unsigned int *workGroupNumRows,\n"
       "  unsigned int *workGroupNumCols,\n"
       "  unsigned int *microTileNumRows,\n"
@@ -136,19 +120,6 @@ class KernelSelection:
           "  const char **colKernelSource,\n"
           "  const char **cornerKernelSource,\n"
           "  const char **sourceBuildOptions,\n"
-          "  const unsigned char **tileKernelBinary,\n"
-          "  const unsigned char **rowKernelBinary,\n"
-          "  const unsigned char **colKernelBinary,\n"
-          "  const unsigned char **cornerKernelBinary,\n"
-          "  size_t **tileKernelBinarySize,\n"
-          "  size_t **rowKernelBinarySize,\n"
-          "  size_t **colKernelBinarySize,\n"
-          "  size_t **cornerKernelBinarySize,\n"
-          "  const char **binaryBuildOptions,\n"
-          "  cl_kernel  **tileClKernel,\n"
-          "  cl_kernel  **rowClKernel,\n"
-          "  cl_kernel  **colClKernel,\n"
-          "  cl_kernel  **cornerClKernel,\n"
           "  unsigned int *workGroupNumRows,\n"
           "  unsigned int *workGroupNumCols,\n"
           "  unsigned int *microTileNumRows,\n"
@@ -284,19 +255,6 @@ class KernelSelection:
     self.logic += indent(7) + "*colKernelSource        =  " + kernel.getColName()    + "_src;\n"
     self.logic += indent(7) + "*cornerKernelSource     =  " + kernel.getCornerName() + "_src;\n"
     self.logic += indent(7) + "*sourceBuildOptions     =  " + kernel.getName()       + "_srcBuildOptions;\n"
-    self.logic += indent(7) + "*tileKernelBinary       =  " + kernel.getName()       + "_bin;\n"
-    self.logic += indent(7) + "*rowKernelBinary        =  " + kernel.getRowName()    + "_bin;\n"
-    self.logic += indent(7) + "*colKernelBinary        =  " + kernel.getColName()    + "_bin;\n"
-    self.logic += indent(7) + "*cornerKernelBinary     =  " + kernel.getCornerName() + "_bin;\n"
-    self.logic += indent(7) + "*tileKernelBinarySize   = &" + kernel.getName()       + "_binSize;\n"
-    self.logic += indent(7) + "*rowKernelBinarySize    = &" + kernel.getRowName()    + "_binSize;\n"
-    self.logic += indent(7) + "*colKernelBinarySize    = &" + kernel.getColName()    + "_binSize;\n"
-    self.logic += indent(7) + "*cornerKernelBinarySize = &" + kernel.getCornerName() + "_binSize;\n"
-    self.logic += indent(7) + "*binaryBuildOptions     =  " + kernel.getName()       + "_binBuildOptions;\n"
-    self.logic += indent(7) + "*tileClKernel           = &" + kernel.getName()       + "_clKernel;\n"
-    self.logic += indent(7) + "*rowClKernel            = &" + kernel.getRowName()    + "_clKernel;\n"
-    self.logic += indent(7) + "*colClKernel            = &" + kernel.getColName()    + "_clKernel;\n"
-    self.logic += indent(7) + "*cornerClKernel         = &" + kernel.getCornerName() + "_clKernel;\n"
     self.logic += indent(7) + "*workGroupNumRows       =  " + kernel.getName()       + "_workGroupNumRows;\n"
     self.logic += indent(7) + "*workGroupNumCols       =  " + kernel.getName()       + "_workGroupNumCols;\n"
     self.logic += indent(7) + "*microTileNumRows       =  " + kernel.getName()       + "_microTileNumRows;\n"
@@ -339,7 +297,8 @@ class KernelSelectionSpecific:
     self.selectionFile.write( Common.getAutoGemmHeader() )
 
     self.inc = (
-      "#include <clBLAS.h>\n"
+      "#include <hc.hpp>\n"
+      "#include \"hcblaslib.h\"\n"
       "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelSources.h\"\n"
       "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelBinaries.h\"\n"
       "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelBuildOptionsSource.h\"\n"
@@ -361,19 +320,6 @@ class KernelSelectionSpecific:
       "  const char **colKernelSource,\n"
       "  const char **cornerKernelSource,\n"
       "  const char **sourceBuildOptions,\n"
-      "  const unsigned char **tileKernelBinary,\n"
-      "  const unsigned char **rowKernelBinary,\n"
-      "  const unsigned char **colKernelBinary,\n"
-      "  const unsigned char **cornerKernelBinary,\n"
-      "  size_t **tileKernelBinarySize,\n"
-      "  size_t **rowKernelBinarySize,\n"
-      "  size_t **colKernelBinarySize,\n"
-      "  size_t **cornerKernelBinarySize,\n"
-      "  const char **binaryBuildOptions,\n"
-      "  cl_kernel  **tileClKernel,\n"
-      "  cl_kernel  **rowClKernel,\n"
-      "  cl_kernel  **colClKernel,\n"
-      "  cl_kernel  **cornerClKernel,\n"
       "  unsigned int *workGroupNumRows,\n"
       "  unsigned int *workGroupNumCols,\n"
       "  unsigned int *microTileNumRows,\n"
@@ -424,19 +370,6 @@ class KernelSelectionSpecific:
       "  const char **colKernelSource,\n"
       "  const char **cornerKernelSource,\n"
       "  const char **sourceBuildOptions,\n"
-      "  const unsigned char **tileKernelBinary,\n"
-      "  const unsigned char **rowKernelBinary,\n"
-      "  const unsigned char **colKernelBinary,\n"
-      "  const unsigned char **cornerKernelBinary,\n"
-      "  size_t **tileKernelBinarySize,\n"
-      "  size_t **rowKernelBinarySize,\n"
-      "  size_t **colKernelBinarySize,\n"
-      "  size_t **cornerKernelBinarySize,\n"
-      "  const char **binaryBuildOptions,\n"
-      "  cl_kernel  **tileClKernel,\n"
-      "  cl_kernel  **rowClKernel,\n"
-      "  cl_kernel  **colClKernel,\n"
-      "  cl_kernel  **cornerClKernel,\n"
       "  unsigned int *workGroupNumRows,\n"
       "  unsigned int *workGroupNumCols,\n"
       "  unsigned int *microTileNumRows,\n"
@@ -537,45 +470,6 @@ class KernelSelectionSpecific:
     self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
     self.logic += "*sourceBuildOptions =  " + kernel.getName() + "_srcBuildOptions;\n"
 
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*tileKernelBinary   =  " + kernel.getName()       + "_bin;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*rowKernelBinary    =  " + kernel.getRowName()    + "_bin;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*colKernelBinary    =  " + kernel.getColName()    + "_bin;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*cornerKernelBinary =  " + kernel.getCornerName() + "_bin;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*tileKernelBinarySize   = &" + kernel.getName()       + "_binSize;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*rowKernelBinarySize    = &" + kernel.getRowName()    + "_binSize;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*colKernelBinarySize    = &" + kernel.getColName()    + "_binSize;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*cornerKernelBinarySize = &" + kernel.getCornerName() + "_binSize;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*binaryBuildOptions =  " + kernel.getName() + "_binBuildOptions;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*tileClKernel       = &" + kernel.getName()       + "_clKernel;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*rowClKernel        = &" + kernel.getRowName()    + "_clKernel;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*colClKernel        = &" + kernel.getColName()    + "_clKernel;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*cornerClKernel     = &" + kernel.getCornerName() + "_clKernel;\n"
-    # dims
     self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
     self.logic += "*workGroupNumRows   =  " + kernel.getName() + "_workGroupNumRows;\n"
 
