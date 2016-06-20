@@ -85,7 +85,7 @@ int main(int argc,char* argv[])
         batchSize = 1;
     }
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view()); 
+    accelerator_view accl_view = (acc[1].get_default_view()); 
     std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
     std::vector<std::chrono::duration<double>> elapsed_pfe;
 

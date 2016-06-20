@@ -20,7 +20,7 @@ void func_check_sdot_with_input(long N) {
   float* X = (float*)calloc(lenx, sizeof(float));
   float* Y = (float*)calloc(leny, sizeof(float));
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
+  accelerator_view accl_view = (acc[1].get_default_view());
   /*Implementation type I - Inputs and Outputs are HCC float array containers */
   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
@@ -60,7 +60,7 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
   float* X = (float*)calloc(lenx, sizeof(float));
   float* Y = (float*)calloc(leny, sizeof(float));
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
+  accelerator_view accl_view = (acc[1].get_default_view());
   /* Implementation type I - Inputs and Outputs are HCC float array containers */
   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
@@ -121,7 +121,7 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_2) {
   float* Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
   float* Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
+  accelerator_view accl_view = (acc[1].get_default_view());
   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
   float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
 
@@ -226,7 +226,7 @@ void func_check_sdot_batch_with_input(long N) {
   float* Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
   float* Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
+  accelerator_view accl_view = (acc[1].get_default_view());
   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
   float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
 

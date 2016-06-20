@@ -14,7 +14,7 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_1) {
    long lenx = 1 + (N-1) * abs(incX);
    double *X = (double*)calloc(lenx, sizeof(double));
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].create_view());
+   accelerator_view accl_view = (acc[1].get_default_view());
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
    double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
    for(int i = 0; i < lenx; i++){
@@ -51,7 +51,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_1) {
    long lenx = 1 + (N-1) * abs(incX);
    double *X = (double*)calloc(lenx, sizeof(double));
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].create_view());
+   accelerator_view accl_view = (acc[1].get_default_view());
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
    double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
    for(int i = 0; i < lenx; i++){
@@ -79,7 +79,7 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_2) {
    long lenx = 1 + (N-1) * abs(incX);
    double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].create_view());
+   accelerator_view accl_view = (acc[1].get_default_view());
    double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0); 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
@@ -119,7 +119,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_2) {
    long lenx = 1 + (N-1) * abs(incX);
    double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].create_view());
+   accelerator_view accl_view = (acc[1].get_default_view());
    double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
 /* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){

@@ -29,7 +29,7 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_1) {
     lenx = 1 + (row - 1) * abs(incX);
     leny = 1 + (col - 1) * abs(incY);
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+    accelerator_view accl_view = (acc[1].get_default_view());
 
 /* Implementation type I - Inputs and Outputs are HCC float array containers */
     float *x = (float*)calloc( lenx , sizeof(float));
@@ -153,7 +153,7 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     lenx = 1 + (row - 1) * abs(incX);
     leny = 1 + (col - 1) * abs(incY);
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+    accelerator_view accl_view = (acc[1].get_default_view());
     enum CBLAS_TRANSPOSE transa;
     transa = CblasTrans; 
 /* Implementation type I - Inputs and Outputs are HCC float array containers */
@@ -300,7 +300,7 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_2) {
     long Y_batchOffset = col;
     long A_batchOffset = row * col;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+    accelerator_view accl_view = (acc[1].get_default_view());
 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
 
@@ -432,7 +432,7 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     long Y_batchOffset = col;
     long A_batchOffset = row * col;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+    accelerator_view accl_view = (acc[1].get_default_view());
     enum CBLAS_TRANSPOSE transa;
     transa = CblasTrans;
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */

@@ -75,7 +75,7 @@ int main(int argc,char* argv[])
         batchSize = 1;
     }
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view()); 
+    accelerator_view accl_view = (acc[1].get_default_view()); 
     std::vector<double> elapsed_pfe;
 
     float *C_cblas = (float*) calloc(M * N * 10  + cOffset, sizeof(float));

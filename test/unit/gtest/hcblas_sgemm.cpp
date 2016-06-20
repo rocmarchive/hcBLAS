@@ -17,7 +17,7 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_1) {
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view()); 
+    accelerator_view accl_view = (acc[1].get_default_view()); 
     
 // Implementation type I - Inputs and Outputs are HCC device pointers */
 
@@ -135,7 +135,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_1) {
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view()); 
+    accelerator_view accl_view = (acc[1].get_default_view()); 
     enum CBLAS_TRANSPOSE Transa, Transb;
 // Implementation type I - Inputs and Outputs are HCC device pointers */
 
@@ -318,7 +318,7 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view()); 
+    accelerator_view accl_view = (acc[1].get_default_view()); 
     
    // Implementation type II - Inputs and Outputs are HCC float array containers with batch processing 
         
@@ -442,7 +442,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view()); 
+    accelerator_view accl_view = (acc[1].get_default_view()); 
     enum CBLAS_TRANSPOSE Transa, Transb;
    // Implementation type II - Inputs and Outputs are HCC float array containers with batch processing 
         

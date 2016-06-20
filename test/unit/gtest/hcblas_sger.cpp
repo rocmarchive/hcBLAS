@@ -22,7 +22,7 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_1) {
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+    accelerator_view accl_view = (acc[1].get_default_view());
 
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
     float *x = (float*)calloc( lenx , sizeof(float));
@@ -103,7 +103,7 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+    accelerator_view accl_view = (acc[1].get_default_view());
     float *Acblas = (float *)calloc( lenx * leny , sizeof(float));
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
     float *x = (float*)calloc( lenx , sizeof(float));
@@ -173,7 +173,7 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_2) {
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+    accelerator_view accl_view = (acc[1].get_default_view());
 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
 
@@ -258,7 +258,7 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_2) {
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view());
+    accelerator_view accl_view = (acc[1].get_default_view());
 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
     float *Acblasbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));

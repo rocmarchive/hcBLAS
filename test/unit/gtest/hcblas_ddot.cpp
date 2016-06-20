@@ -20,7 +20,7 @@ void func_check_ddot_with_input(long N) {
   double* X = (double*)calloc(lenx, sizeof(double));
   double* Y = (double*)calloc(leny, sizeof(double));
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
+  accelerator_view accl_view = (acc[1].get_default_view());
   /*Implementation type I - Inputs and Outputs are HCC double array containers */
   double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
   double* devY = hc::am_alloc(sizeof(double) * leny, acc[1], 0);
@@ -60,7 +60,7 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_1) {
   double* X = (double*)calloc(lenx, sizeof(double));
   double* Y = (double*)calloc(leny, sizeof(double));
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
+  accelerator_view accl_view = (acc[1].get_default_view());
   /* Implementation type I - Inputs and Outputs are HCC double array containers */
   double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
   double* devY = hc::am_alloc(sizeof(double) * leny, acc[1], 0);
@@ -121,7 +121,7 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_2) {
   double* Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
   double* Ybatch = (double*)calloc(leny * batchSize, sizeof(double));
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
+  accelerator_view accl_view = (acc[1].get_default_view());
   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
   double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc[1], 0);
 
@@ -226,7 +226,7 @@ void func_check_ddot_batch_with_input(long N) {
   double* Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
   double* Ybatch = (double*)calloc(leny * batchSize, sizeof(double));
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].create_view());
+  accelerator_view accl_view = (acc[1].get_default_view());
   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
   double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc[1], 0);
 

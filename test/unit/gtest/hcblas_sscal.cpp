@@ -14,7 +14,7 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_1) {
    long lenx = 1 + (N-1) * abs(incX);
    float *X = (float*)calloc(lenx, sizeof(float));//host input
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].create_view());
+   accelerator_view accl_view = (acc[1].get_default_view());
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
    for(int i = 0; i < lenx; i++){
@@ -49,7 +49,7 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_1) {
    float *X = (float*)calloc(lenx, sizeof(float));//host input
    float *Xcblas = (float*)calloc(lenx, sizeof(float));
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].create_view());
+   accelerator_view accl_view = (acc[1].get_default_view());
  /* Implementation type I - Inputs and Outputs are HCC device pointers */
    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
    for(int i = 0; i < lenx; i++){
@@ -88,7 +88,7 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_2) {
    long lenx = 1 + (N-1) * abs(incX);
    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));//host input
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].create_view());
+   accelerator_view accl_view = (acc[1].get_default_view());
    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
    float* devX1batch = NULL; 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
@@ -125,7 +125,7 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_2) {
    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));//host input
    float *Xcblasbatch = (float*)calloc(lenx * batchSize, sizeof(float));
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].create_view());
+   accelerator_view accl_view = (acc[1].get_default_view());
    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
    /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){

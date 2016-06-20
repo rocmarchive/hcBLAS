@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     long X_batchOffset = N; 
     long lenx = 1 + (N-1) * abs(incX);
     std::vector<hc::accelerator>accs = hc::accelerator::get_all();
-    accelerator_view accl_view = (accs[1].create_view());
+    accelerator_view accl_view = (accs[1].get_default_view());
     bool ispassed = 1;
 
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
