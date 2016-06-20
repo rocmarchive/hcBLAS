@@ -102,11 +102,12 @@ if [ "$bench" = "off" ]; then
      set +e
      mkdir $current_work_dir/build/test/src/bin/
      mkdir $current_work_dir/build/test/unit/gtest/bin/
-     set -e
+     
      make
      cd $current_work_dir/test/unit/
  # Invoke test script 
      ./test.sh
+     set -e
 # Test=ON and Profile=ON (Build, test and profile the library)
   elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
  # Build Tests

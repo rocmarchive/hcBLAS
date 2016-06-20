@@ -18,8 +18,8 @@ rm $working_dir1/gtestlog.txt
 #Gtest functions
 unittest="$working_dir1/unittest"
 unitapitest="$working_dir2/unit-api-test"
-runcmd1="$unittest >> gtestlog.txt"
-runcmd2="$unitapitest >> gtestlog.txt"
+runcmd1="$unittest >> $working_dir1/gtestlog.txt"
+runcmd2="$unitapitest >> $working_dir2/gtestlog.txt"
 
 eval $runcmd1
 eval $runcmd2
@@ -31,8 +31,10 @@ if [ ! -s "$Log_file" ]; then
 else
    if grep -q FAILED "$Log_file"; then
       echo "${red}GTEST               ----- [ FAILED ]${reset}"
-   else
+   elif grep -q PASSED "$Log_file"; then
       echo "${green}GTEST               ----- [ PASSED ]${reset}"
       rm $working_dir1/gtestlog.txt
+   else
+      echo "${red}GTEST STOPED WORKING${reset}" 
    fi
 fi 
