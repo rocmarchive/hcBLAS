@@ -149,7 +149,7 @@ class Hcblaslibrary
                              const  float_2 &beta, 
                              float_2 *C, const long cOffset, const long ldc);
 
-   /*hcblasStatus hcblas_zgemm(hc::accelerator_view &accl_view,
+   hcblasStatus hcblas_zgemm(hc::accelerator_view &accl_view,
 			     hcblasOrder order, hcblasTranspose typeA,
                              hcblasTranspose typeB, const int M,
                              const int N, const int K,
@@ -157,7 +157,7 @@ class Hcblaslibrary
                              double_2 *A, const long aOffset, const long lda,
                              double_2 *B, const long bOffset, const long ldb,
                              const  double_2 &beta, 
-                             double_2 *C, const long cOffset, const long ldc);*/
+                             double_2 *C, const long cOffset, const long ldc);
 
 /* CGEMM - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_cgemm(hc::accelerator_view &accl_view,
