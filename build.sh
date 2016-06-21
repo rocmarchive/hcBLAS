@@ -94,7 +94,7 @@ make
 # Test=OFF and Profile=OFF (Build library and tests)
 if [ "$bench" = "off" ]; then
   if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
-    echo "${green}HCBLAS Installation Completed!${reset}"
+    echo "${green}HCBLAS Build Completed!${reset}"
 # Test=ON and Profile=OFF (Build and test the library)
   elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
  # Build Tests
@@ -106,7 +106,7 @@ if [ "$bench" = "off" ]; then
      make
      cd $current_work_dir/test/unit/
  # Invoke test script 
-     ./test.sh
+     ${current_work_dir}/build/test/unit/gtest/bin/unittest
 # Test=ON and Profile=ON (Build, test and profile the library)
   elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
  # Build Tests
