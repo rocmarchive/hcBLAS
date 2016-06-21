@@ -980,6 +980,70 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
         return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
+hcblasStatus_t hcblasDgemm(hcblasHandle_t *handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const double           *alpha,
+                           double           *A, int lda,
+                           double           *B, int ldb,
+                           const double           *beta,
+                           double           *C, int ldc) {
+  if(handle == nullptr)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+
+  if(m < 0 || n < 0 || k < 0)
+    return HCBLAS_STATUS_INVALID_VALUE;
+
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
+  long aOffset = 0;
+  long bOffset = 0;
+  long cOffset = 0;
+  hcblasStatus status;
+  hcblasTranspose transA, transB;
+  transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
+  transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+  status = handle->hcblas_dgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
+  if(status == HCBLAS_SUCCEEDS) 
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}
+
+hcblasStatus_t hcblasZgemm(hcblasHandle_t *handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const hcDoubleComplex       *alpha,
+                           hcDoubleComplex       *A, int lda,
+                           hcDoubleComplex       *B, int ldb,
+                           const hcDoubleComplex       *beta,
+                           hcDoubleComplex       *C, int ldc) {
+  if(handle == nullptr)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+
+  if(m < 0 || n < 0 || k < 0)
+    return HCBLAS_STATUS_INVALID_VALUE;
+
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
+
+  long aOffset = 0;
+  long bOffset = 0;
+  long cOffset = 0;
+
+  hcblasStatus status;
+
+  hcblasTranspose transA, transB;
+  transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
+  transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+
+  //status = handle->hcblas_zgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, A, aOffset, lda, B, bOffset, ldb, *beta, C, cOffset, ldc);
+
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}
 // 2. hcblas<t>gemmBatched()
 
 // This function performs the matrix-matrix multiplications of an array of matrices.

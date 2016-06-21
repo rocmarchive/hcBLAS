@@ -48,6 +48,8 @@ enum hcblasOperation_t {
 
 typedef float2 hcFloatComplex;
 typedef hcFloatComplex hcComplex;
+typedef double2 hcDoubleComplex;
+typedef hcDoubleComplex hcDoubleComplex;
 
 // hcblas Helper functions 
 
@@ -486,6 +488,16 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t *handle,
                            float           *B, int ldb,
                            const float           *beta,
                            float           *C, int ldc);
+
+hcblasStatus_t hcblasDgemm(hcblasHandle_t *handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const double          *alpha,
+                           double           *A, int lda,
+                           double           *B, int ldb,
+                           const double           *beta,
+                           double           *C, int ldc);
+
 hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
@@ -494,6 +506,15 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
                            hcComplex       *B, int ldb,
                            const hcComplex       *beta,
                            hcComplex       *C, int ldc);
+
+hcblasStatus_t hcblasZgemm(hcblasHandle_t *handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const hcDoubleComplex       *alpha,
+                           hcDoubleComplex       *A, int lda,
+                           hcDoubleComplex       *B, int ldb,
+                           const hcDoubleComplex       *beta,
+                           hcDoubleComplex       *C, int ldc);
 
 // 2. hcblas<t>gemmBatched()
 

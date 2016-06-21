@@ -2,7 +2,7 @@
 *
 *  FILENAME : hcblaslib.h
 *  This file is the top level header file which includes the Hcblaslilbrary class
-*  for performing five blas operations ( saxpy, sger, sgemv, sgemm, cgemm )
+*  for performing blas operations ( saxpy, sger, sgemv, sgemm, cgemm , dgemm, zgemm )
 *
 */
 
@@ -105,7 +105,7 @@ class Hcblaslibrary
                               const long yOffset, const long Y_batchOffset, const int incY, const int batchSize);
 
 /* SGEMM - C = alpha * op(A) * op(B) + beta * C                 */
-/* SGEMM - Overloaded function with arguments of type hc::array */
+/* SGEMM - Overloaded function with arguments of type dev pointer */
     hcblasStatus hcblas_sgemm(hc::accelerator_view &accl_view,
  			      hcblasOrder order, hcblasTranspose typeA,
                               hcblasTranspose typeB, const int M,
@@ -116,6 +116,15 @@ class Hcblaslibrary
 		       	      float *C, const long ldc, 
 			      const long aOffset, const long bOffset, const long cOffset);
 
+    hcblasStatus hcblas_dgemm(hc::accelerator_view &accl_view,
+ 			      hcblasOrder order, hcblasTranspose typeA,
+                              hcblasTranspose typeB, const int M,
+                              const int N, const int K, const double &alpha,
+                              double *A, const long lda, 
+		              double *B, const long ldb, 
+			      const double  &beta,  
+		       	      double *C, const long ldc, 
+			      const long aOffset, const long bOffset, const long cOffset);
 
 /* SGEMM - Overloaded function with arguments related to batch processing */
     hcblasStatus hcblas_sgemm(hc::accelerator_view &accl_view,
@@ -139,6 +148,16 @@ class Hcblaslibrary
                              float_2 *B, const long bOffset, const long ldb,
                              const  float_2 &beta, 
                              float_2 *C, const long cOffset, const long ldc);
+
+   /*hcblasStatus hcblas_zgemm(hc::accelerator_view &accl_view,
+			     hcblasOrder order, hcblasTranspose typeA,
+                             hcblasTranspose typeB, const int M,
+                             const int N, const int K,
+                             const  double_2 &alpha,
+                             double_2 *A, const long aOffset, const long lda,
+                             double_2 *B, const long bOffset, const long ldb,
+                             const  double_2 &beta, 
+                             double_2 *C, const long cOffset, const long ldc);*/
 
 /* CGEMM - Overloaded function with arguments related to batch processing */
    hcblasStatus hcblas_cgemm(hc::accelerator_view &accl_view,
