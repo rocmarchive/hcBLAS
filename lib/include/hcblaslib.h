@@ -137,6 +137,16 @@ class Hcblaslibrary
                               float *C, const long ldc, const long C_batchOffset,
                               const long aOffset, const long bOffset, const long cOffset, const int batchSize);
 
+/*  DGEMM - Overloaded function with arguments related to batch processing */
+    hcblasStatus hcblas_dgemm(hc::accelerator_view &accl_view,
+                              hcblasOrder order, hcblasTranspose typeA,
+                              hcblasTranspose typeB, const int M,
+                              const int N, const int K, const double &alpha,
+                              double *A, const long lda, const long A_batchOffset,
+                              double *B, const long ldb, const long B_batchOffset,
+                              const double &beta,
+                              double *C, const long ldc, const long C_batchOffset,
+                              const long aOffset, const long bOffset, const long cOffset, const int batchSize);
 /* CGEMM - C = alpha * op(A) * op(B) + beta * C                   */
 /* CGEMM - Overloaded function with arguments of type hc::array   */     
    hcblasStatus hcblas_cgemm(hc::accelerator_view &accl_view,
@@ -173,6 +183,20 @@ class Hcblaslibrary
                              float_2 *C, 
 			     const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 				 
+/* ZGEMM - Overloaded function with arguments related to batch processing */
+   hcblasStatus hcblas_zgemm(hc::accelerator_view &accl_view,
+                             hcblasOrder order, hcblasTranspose typeA,
+                             hcblasTranspose typeB, const int M,
+                             const int N, const int K,
+                             const  double_2 &alpha,
+                             double_2 *A, 
+                             const long aOffset, const long A_batchOffset, const long lda,
+                             double_2 *B, 
+			     const long bOffset, const long B_batchOffset, const long ldb,
+                             const  double_2 &beta,
+                             double_2 *C, 
+			     const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
+
 /* SSCAL - X = alpha * X */
 /* SSCAL - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_sscal(hc::accelerator_view &accl_view,

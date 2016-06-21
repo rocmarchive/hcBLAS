@@ -1157,3 +1157,77 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t *handle,
   else
         return HCBLAS_STATUS_EXECUTION_FAILED;
 }
+
+// Batche Double Implementations
+hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t *handle,
+                                  hcblasOperation_t transa, hcblasOperation_t transb,
+                                  int m, int n, int k,
+                                  const double           *alpha,
+                                  double           *Aarray, int lda,
+                                  double           *Barray, int ldb,
+                                  const double           *beta,
+                                  double           *Carray, int ldc, int batchCount) {
+  if(handle == nullptr)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+
+  if(m < 0 || n < 0 || k < 0 || batchCount < 0)
+    return HCBLAS_STATUS_INVALID_VALUE;
+
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
+
+  long aOffset = 0;
+  long bOffset = 0;
+  long cOffset = 0;
+  long A_batchOffset = 0;
+  long B_batchOffset = 0;
+  long C_batchOffset = m * n;
+
+  hcblasStatus status;
+  hcblasTranspose transA, transB;
+  transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
+  transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+
+  status = handle->hcblas_dgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, Aarray, lda, A_batchOffset, Barray, ldb, B_batchOffset, *beta, Carray, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchCount);
+
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}
+
+hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t *handle,
+                                  hcblasOperation_t transa, hcblasOperation_t transb,
+                                  int m, int n, int k,
+                                  const hcDoubleComplex       *alpha,
+                                  hcDoubleComplex       *Aarray, int lda,
+                                  hcDoubleComplex       *Barray, int ldb,
+                                  const hcDoubleComplex       *beta,
+                                  hcDoubleComplex       *Carray, int ldc, int batchCount) {
+  if(handle == nullptr)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+
+  if(m < 0 || n < 0 || k < 0 || batchCount < 0)
+    return HCBLAS_STATUS_INVALID_VALUE;
+
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
+  long aOffset = 0;
+  long bOffset = 0;
+  long cOffset = 0;
+  long A_batchOffset = 0;
+  long B_batchOffset = 0;
+  long C_batchOffset = m * n;
+
+  hcblasStatus status;
+  hcblasTranspose transA, transB;
+  transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
+  transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+
+  status = handle->hcblas_zgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, Aarray, aOffset, A_batchOffset, lda, Barray, bOffset, B_batchOffset, ldb, *beta, Carray, cOffset, C_batchOffset, ldc, batchCount);
+
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}

@@ -238,7 +238,7 @@ hcblasStatus  Hcblaslibrary :: hcblas_dgemm(hc::accelerator_view &accl_view,
 }
 
 /* DGEMM- Overloaded function with arguments related to batch processing */
-/*hcblasStatus Hcblaslibrary :: hcblas_dgemm(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_dgemm(hc::accelerator_view &accl_view,
 					   hcblasOrder order,
 					   hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
@@ -272,5 +272,5 @@ hcblasStatus  Hcblaslibrary :: hcblas_dgemm(hc::accelerator_view &accl_view,
   status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
           bOffset, ldb, beta, C, cOffset, ldc, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);
   return status;
-}*/
+}
 

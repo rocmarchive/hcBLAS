@@ -206,7 +206,7 @@ hcblasStatus Hcblaslibrary :: hcblas_zgemm(hc::accelerator_view &accl_view,
 }
 
 /* ZGEMM Call Type II - Overloaded function with arguments related to batch processing */
-/*hcblasStatus Hcblaslibrary :: hcblas_zgemm(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_zgemm(hc::accelerator_view &accl_view,
 					   hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,
@@ -261,6 +261,6 @@ hcblasStatus Hcblaslibrary :: hcblas_zgemm(hc::accelerator_view &accl_view,
   }
 
   return status;
-}*/
+}
 
 
