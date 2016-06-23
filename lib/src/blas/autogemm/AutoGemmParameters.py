@@ -51,7 +51,7 @@ kernelSelectionData = {
 ################################################################################
 precisions = ["s", "d", "c", "z"]
 
-orders = [ "clblasColumnMajor" ]
+orders = [ "ColMajor" ]
 
 transposes = { "s":["N", "T"], "d":["N", "T"], \
     "c":["N", "T", "C"], "z":["N", "T", "C"] }

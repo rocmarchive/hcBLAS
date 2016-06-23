@@ -56,16 +56,15 @@ class KernelSelection:
       "#include <hc.hpp>\n"
       "#include \"hcblaslib.h\"\n"
       "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelSources.h\"\n"
-      "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelBuildOptionsSource.h\"\n"
       "\n"
       "#define EXACT_MULTIPLES(MULTIPLE_STR) MULTIPLE_STR\n"
       "\n"
       "// kernel selection logic template\n"
       "template<typename Precision>\n"
       "void gemmSelectKernel(\n"
-      "  clblasOrder order,\n"
-      "  clblasTranspose transA,\n"
-      "  clblasTranspose transB,\n"
+      "  hcblasOrder order,\n"
+      "  hcblasTranspose transA,\n"
+      "  hcblasTranspose transB,\n"
       "  size_t M,\n"
       "  size_t N,\n"
       "  size_t K,\n"
@@ -107,9 +106,9 @@ class KernelSelection:
 
       self.logic += (
           ">(\n"
-          "  clblasOrder order,\n"
-          "  clblasTranspose transA,\n"
-          "  clblasTranspose transB,\n"
+          "  hcblasOrder order,\n"
+          "  hcblasTranspose transA,\n"
+          "  hcblasTranspose transB,\n"
           "  size_t M,\n"
           "  size_t N,\n"
           "  size_t K,\n"
@@ -142,11 +141,11 @@ class KernelSelection:
           kernel.transA = transA
           self.logic += indent(2) + "if (transA == "
           if transA == "N":
-            self.logic += "clblasNoTrans"
+            self.logic += "NoTrans"
           elif transA == "T":
-            self.logic += "clblasTrans"
+            self.logic += "Trans"
           else:
-            self.logic += "clblasConjTrans"
+            self.logic += "hcblasConjTrans"
           self.logic += ") {\n"
 
           ####################################
@@ -155,11 +154,11 @@ class KernelSelection:
             kernel.transB = transB
             self.logic += indent(3) + "if (transB == "
             if transB == "N":
-              self.logic += "clblasNoTrans"
+              self.logic += "NoTrans"
             elif transB == "T":
-              self.logic += "clblasTrans"
+              self.logic += "Trans"
             else:
-              self.logic += "clblasConjTrans"
+              self.logic += "hcblasConjTrans"
             self.logic += ") {\n"
 
             ####################################
@@ -300,17 +299,13 @@ class KernelSelectionSpecific:
       "#include <hc.hpp>\n"
       "#include \"hcblaslib.h\"\n"
       "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelSources.h\"\n"
-      "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelBinaries.h\"\n"
-      "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelBuildOptionsSource.h\"\n"
-      "#include \"" + Common.getRelativeIncludePath() + "AutoGemmKernelBuildOptionsBinary.h\"\n"
-      "#include \"" + Common.getRelativeIncludePath() + "AutoGemmClKernels.h\"\n"
       "\n"
       "// kernel selection specific template\n"
       "template<typename Precision>\n"
       "bool gemmSelectKernelSpecific(\n"
-      "  clblasOrder order,\n"
-      "  clblasTranspose transA,\n"
-      "  clblasTranspose transB,\n"
+      "  hcblasOrder order,\n"
+      "  Transpose transA,\n"
+      "  Transpose transB,\n"
       "  bool betaNonZero,\n"
       "  unsigned int macroTileNumRows,\n"
       "  unsigned int macroTileNumCols,\n"
@@ -358,9 +353,9 @@ class KernelSelectionSpecific:
 
     self.logic += (
       ">(\n"
-      "  clblasOrder order,\n"
-      "  clblasTranspose transA,\n"
-      "  clblasTranspose transB,\n"
+      "  hcblasOrder order,\n"
+      "  Transpose transA,\n"
+      "  Transpose transB,\n"
       "  bool betaNonZero,\n"
       "  unsigned int macroTileNumRows,\n"
       "  unsigned int macroTileNumCols,\n"
@@ -408,18 +403,18 @@ class KernelSelectionSpecific:
       self.logic += self.zeroIndent+self.tab # 1 tabs
     self.logic += "if (transA == "
     if transA == "N":
-      self.logic += "clblasNoTrans"
+      self.logic += "NoTrans"
     elif transA == "T":
-      self.logic += "clblasTrans"
+      self.logic += "Trans"
     else:
-      self.logic += "clblasConjTrans"
+      self.logic += "hcblasConjTrans"
     self.logic += " && transB == "
     if transB == "N":
-      self.logic += "clblasNoTrans"
+      self.logic += "NoTrans"
     elif transB == "T":
-      self.logic += "clblasTrans"
+      self.logic += "Trans"
     else:
-      self.logic += "clblasConjTrans"
+      self.logic += "hcblasConjTrans"
     self.logic += ") {\n"
     self.transInitialized = True
     self.betaInitialized = False

@@ -43,17 +43,17 @@ def makeOpenCLKernelString(kernel):
   # A
   kStr += endLine
   kStr += "/* global memory indices */" + endLine
-  if (kernel.order=="clblasColumnMajor")==(kernel.transA=="N"):
+  if (kernel.order=="ColMajor")==(kernel.transA=="N"):
     kStr += "#define GET_GLOBAL_INDEX_A(ROW,COL) (offsetA + (COL)*lda+(ROW))" + endLine
   else:
     kStr += "#define GET_GLOBAL_INDEX_A(ROW,COL) (offsetA + (ROW)*lda+(COL))" + endLine
   # B
-  if (kernel.order=="clblasColumnMajor")==(kernel.transB=="N"):
+  if (kernel.order=="ColMajor")==(kernel.transB=="N"):
     kStr += "#define GET_GLOBAL_INDEX_B(ROW,COL) (offsetB + (COL)*ldb+(ROW))" + endLine
   else:
     kStr += "#define GET_GLOBAL_INDEX_B(ROW,COL) (offsetB + (ROW)*ldb+(COL))" + endLine
   # C
-  if (kernel.order=="clblasColumnMajor"):
+  if (kernel.order=="ColMajor"):
     kStr += "#define GET_GLOBAL_INDEX_C(ROW,COL) (offsetC + (COL)*ldc+(ROW))" + endLine
   else:
     kStr += "#define GET_GLOBAL_INDEX_C(ROW,COL) (offsetC + (ROW)*ldc+(COL))" + endLine
@@ -240,7 +240,7 @@ def makeOpenCLKernelString(kernel):
   # global indices being loaded
   kStr += endLine
   kStr += "  /* global indices being loaded */" + endLine
-  if (kernel.order=="clblasColumnMajor")==(kernel.transA=="N"):
+  if (kernel.order=="ColMajor")==(kernel.transA=="N"):
     kStr += (
       "#define globalARow(LID) (gidx*MACRO_TILE_NUM_ROWS + (lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%MACRO_TILE_NUM_ROWS)" + endLine +
       "#define globalACol(LID) ((lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/MACRO_TILE_NUM_ROWS)" + endLine )
@@ -249,7 +249,7 @@ def makeOpenCLKernelString(kernel):
       "#define globalARow(LID) (gidx*MACRO_TILE_NUM_ROWS + (lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/NUM_UNROLL_ITER)" + endLine +
       "#define globalACol(LID) ((lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%NUM_UNROLL_ITER)" + endLine )
 
-  if (kernel.order=="clblasColumnMajor")==(kernel.transB=="N"):
+  if (kernel.order=="ColMajor")==(kernel.transB=="N"):
     kStr += (
       "#define globalBRow(LID) ((lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)%NUM_UNROLL_ITER)" + endLine +
       "#define globalBCol(LID) (gidy*MACRO_TILE_NUM_COLS + (lIndex+(LID)*WG_NUM_ROWS*WG_NUM_COLS)/NUM_UNROLL_ITER)" + endLine )
@@ -274,7 +274,7 @@ def makeOpenCLKernelString(kernel):
   # local indices being written
   kStr += endLine
   kStr += "    /* local indices being written */" + endLine
-  if (kernel.order=="clblasColumnMajor")==(kernel.transA=="N"):
+  if (kernel.order=="ColMajor")==(kernel.transA=="N"):
     kStr += (
       "#define localARow (lIndex % MACRO_TILE_NUM_ROWS)" + endLine +
       "#define localACol (lIndex / MACRO_TILE_NUM_ROWS)" + endLine +
@@ -285,7 +285,7 @@ def makeOpenCLKernelString(kernel):
       "#define localACol (lIndex % NUM_UNROLL_ITER)" + endLine +
       "#define localAStride (WG_NUM_ROWS*WG_NUM_COLS/NUM_UNROLL_ITER)" + endLine )
 
-  if (kernel.order=="clblasColumnMajor")==(kernel.transB=="N"):
+  if (kernel.order=="ColMajor")==(kernel.transB=="N"):
     kStr += (
       "#define localBRow ( lIndex % NUM_UNROLL_ITER )" + endLine +
       "#define localBCol ( lIndex / NUM_UNROLL_ITER )" + endLine +
@@ -363,11 +363,11 @@ def makeOpenCLKernelString(kernel):
   # shift to next k block
   kStr += endLine
   kStr += "    /* shift to next k block */" + endLine
-  if (kernel.order=="clblasColumnMajor")==(kernel.transA=="N"):
+  if (kernel.order=="ColMajor")==(kernel.transA=="N"):
     kStr += "    AinitOffset += lda*NUM_UNROLL_ITER;" + endLine
   else:
     kStr += "    AinitOffset += NUM_UNROLL_ITER;" + endLine
-  if (kernel.order=="clblasColumnMajor")==(kernel.transB=="N"):
+  if (kernel.order=="ColMajor")==(kernel.transB=="N"):
     kStr += "    BinitOffset += NUM_UNROLL_ITER;" + endLine
   else:
     kStr += "    BinitOffset += ldb*NUM_UNROLL_ITER;" + endLine
@@ -444,8 +444,6 @@ def writeOpenCLKernels():
 
   if not os.path.exists( Common.getKernelSourcePath() ):
     os.makedirs( Common.getKernelSourcePath() )
-  if not os.path.exists( Common.getKernelBinaryPath() ):
-    os.makedirs( Common.getKernelBinaryPath() )
 
   numKernels = 0
   # for each precision
@@ -511,9 +509,9 @@ if __name__ == "__main__":
   kernel = KernelParameters.KernelParameters()
   kernel.precision = args.precision
   if args.order == "col":
-    kernel.order = "clblasColumnMajor"
+    kernel.order = "ColMajor"
   else:
-    kernel.order = "clblasRowMajor"
+    kernel.order = "RowMajor"
   kernel.transA = args.transA
   kernel.transB = args.transB
   kernel.beta = args.beta
