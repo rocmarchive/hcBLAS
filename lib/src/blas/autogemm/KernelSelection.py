@@ -118,7 +118,6 @@ class KernelSelection:
           "  const char **rowKernelSource,\n"
           "  const char **colKernelSource,\n"
           "  const char **cornerKernelSource,\n"
-          "  const char **sourceBuildOptions,\n"
           "  unsigned int *workGroupNumRows,\n"
           "  unsigned int *workGroupNumCols,\n"
           "  unsigned int *microTileNumRows,\n"
@@ -253,7 +252,6 @@ class KernelSelection:
     self.logic += indent(7) + "*rowKernelSource        =  " + kernel.getRowName()    + "_src;\n"
     self.logic += indent(7) + "*colKernelSource        =  " + kernel.getColName()    + "_src;\n"
     self.logic += indent(7) + "*cornerKernelSource     =  " + kernel.getCornerName() + "_src;\n"
-    self.logic += indent(7) + "*sourceBuildOptions     =  " + kernel.getName()       + "_srcBuildOptions;\n"
     self.logic += indent(7) + "*workGroupNumRows       =  " + kernel.getName()       + "_workGroupNumRows;\n"
     self.logic += indent(7) + "*workGroupNumCols       =  " + kernel.getName()       + "_workGroupNumCols;\n"
     self.logic += indent(7) + "*microTileNumRows       =  " + kernel.getName()       + "_microTileNumRows;\n"
@@ -314,7 +312,6 @@ class KernelSelectionSpecific:
       "  const char **rowKernelSource,\n"
       "  const char **colKernelSource,\n"
       "  const char **cornerKernelSource,\n"
-      "  const char **sourceBuildOptions,\n"
       "  unsigned int *workGroupNumRows,\n"
       "  unsigned int *workGroupNumCols,\n"
       "  unsigned int *microTileNumRows,\n"
@@ -364,7 +361,6 @@ class KernelSelectionSpecific:
       "  const char **rowKernelSource,\n"
       "  const char **colKernelSource,\n"
       "  const char **cornerKernelSource,\n"
-      "  const char **sourceBuildOptions,\n"
       "  unsigned int *workGroupNumRows,\n"
       "  unsigned int *workGroupNumCols,\n"
       "  unsigned int *microTileNumRows,\n"
@@ -461,9 +457,6 @@ class KernelSelectionSpecific:
 
     self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
     self.logic += "*cornerKernelSource =  " + kernel.getCornerName() + "_src;\n"
-
-    self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
-    self.logic += "*sourceBuildOptions =  " + kernel.getName() + "_srcBuildOptions;\n"
 
     self.logic += self.zeroIndent+self.tab+self.tab+self.tab+self.tab # 4 tabs
     self.logic += "*workGroupNumRows   =  " + kernel.getName() + "_workGroupNumRows;\n"

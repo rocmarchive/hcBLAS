@@ -199,7 +199,7 @@ class TileParameters:
 class NonTileParameters:
   def __init__(self):
     self.precision = ""  # s, d, c, z
-    self.order = ""      # clblasColumnMajor, clblasRowMajor
+    self.order = ""      # ColMajor, RowMajor
     self.transA = ""     # N, T, C
     self.transB = ""     # N, T, C
     self.beta = -1       # 0, 1
@@ -217,7 +217,7 @@ class NonTileParameters:
   def getName(self):
     return "%sgemm_%3s_%1s%1s_B%d" \
         % (Common.hostDataChar[self.precision], \
-        "Col" if self.order=="clblasColumnMajor" else "Row", \
+        "Col" if self.order=="ColMajor" else "Row", \
         self.transA, self.transB, self.beta )
 
 
