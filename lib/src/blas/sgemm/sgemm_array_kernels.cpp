@@ -3041,7 +3041,13 @@ hcblasStatus gemm_NoTransA(hc::accelerator_view &accl_view,
                            float *C, long cOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta) {
-  if(M%64==0 && N%64==0 && K%16==0) {
+  if( M%128==0 && N%128==0 && K%128==0 && M <= 4000) {
+    return gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if( M%128==0 && N%128==0 && K%128==0) {
+    return gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+  }
+  else if(M%64==0 && N%64==0 && K%16==0) {
     return gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
   else if(M%96==0 && N%96==0 && K%16==0) {
