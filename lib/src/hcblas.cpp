@@ -935,6 +935,58 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t *handle, int m, int n,
         return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
+//Dger routines
+hcblasStatus_t  hcblasDger(hcblasHandle_t *handle, int m, int n,
+                           const double           *alpha,
+                           const double           *x, int incx,
+                           const double           *y, int incy,
+                           double           *A, int lda) {
+  if(handle == nullptr)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+
+  if(m < 0 || n < 0 || incx == 0 || incy == 0)
+    return HCBLAS_STATUS_INVALID_VALUE;
+
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
+  long xOffset = 0;
+  long yOffset = 0;
+  long aOffset = 0;
+  hcblasStatus status;
+  status = handle->hcblas_dger(accl_view, handle->Order, m, n, *alpha, x, xOffset, incx, y, yOffset, incy, A, aOffset, lda );
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}
+
+hcblasStatus_t  hcblasDgerBatched(hcblasHandle_t *handle, int m, int n,
+                                  const double           *alpha,
+                                  const double           *x, int incx,
+                                  const double           *y, int incy,
+                                  double           *A, int lda, int batchCount) {
+  if(handle == nullptr)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+
+  if(m < 0 || n < 0 || incx == 0 || incy == 0)
+    return HCBLAS_STATUS_INVALID_VALUE;
+
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
+  long xOffset = 0;
+  long yOffset = 0;
+  long aOffset = 0;
+  long X_batchOffset = m;
+  long Y_batchOffset = n;
+  long A_batchOffset = m * n;
+  hcblasStatus status;
+  status = handle->hcblas_dger(accl_view, handle->Order, m, n, *alpha, x, xOffset, X_batchOffset, incx, y, yOffset, Y_batchOffset, incy, A, aOffset, A_batchOffset, lda, batchCount);
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}
+
 // HCBLAS Level-3 Function Reference
 
 // The Level-3 Basic Linear Algebra Subprograms (BLAS3) functions perform matrix-matrix operations.
