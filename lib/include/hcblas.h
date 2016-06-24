@@ -392,6 +392,21 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t *handle, hcblasOperation_t tran
                            const float           *beta,
                            float           *y, int incy, int batchCount);
 
+hcblasStatus_t hcblasDgemv(hcblasHandle_t *handle, hcblasOperation_t trans,
+                           int m, int n,
+                           const double           *alpha,
+                           double           *A, int lda,
+                           double           *x, int incx,
+                           const double           *beta,
+                           double           *y, int incy);
+hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t *handle, hcblasOperation_t trans,
+                           int m, int n,
+                           const double           *alpha,
+                           double           *A, int lda,
+                           double           *x, int incx,
+                           const double           *beta,
+                           double           *y, int incy, int batchCount);
+
 
 // 2. hcblas<t>ger() and hcblas<t>gerBatched()
 
