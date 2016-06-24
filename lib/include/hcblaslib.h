@@ -85,7 +85,6 @@ class Hcblaslibrary
                              const long aOffset, const long A_batchOffset, const int lda, const int batchSize);
 
 /* SGEMV - Y = alpha * op(A) * X + beta * Y                     */
-/* SGEMV - Overloaded function with arguments of type hc::array */
     hcblasStatus hcblas_sgemv(hc::accelerator_view &accl_view,
 			      hcblasOrder order, hcblasTranspose type, const int M,
                               const int N, const float &alpha, 
@@ -102,6 +101,25 @@ class Hcblaslibrary
                               float *X, 
                               const long xOffset, const long X_batchOffset, const int incX,
                               const float &beta, float *Y, 
+                              const long yOffset, const long Y_batchOffset, const int incY, const int batchSize);
+
+/* DGEMV - Y = alpha * op(A) * X + beta * Y                     */
+    hcblasStatus hcblas_dgemv(hc::accelerator_view &accl_view,
+			      hcblasOrder order, hcblasTranspose type, const int M,
+                              const int N, const double &alpha, 
+                              double *A, const long aOffset, const int lda, 
+			      double *X, const long xOffset, const int incX,
+                              const double &beta,  
+			      double *Y, const long yOffset, const int incY);
+
+/* DGEMV - Overloaded function with arguments related to batch processing */
+    hcblasStatus hcblas_dgemv(hc::accelerator_view &accl_view,
+                              hcblasOrder order, hcblasTranspose type, const int M,
+                              const int N, const double &alpha, double *A, 
+                              const long aOffset, const long A_batchOffset, const int lda,
+                              double *X, 
+                              const long xOffset, const long X_batchOffset, const int incX,
+                              const double &beta, double *Y, 
                               const long yOffset, const long Y_batchOffset, const int incY, const int batchSize);
 
 /* SGEMM - C = alpha * op(A) * op(B) + beta * C                 */
