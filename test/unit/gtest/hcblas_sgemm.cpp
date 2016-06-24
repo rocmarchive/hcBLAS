@@ -945,6 +945,172 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_square_large_Implementation_type_1) 
  func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta);
 }
 
+// CASE 2: Slim A Fat B
+// SGEMM NN Case
+// check slim A with large M and VVsmall K
+TEST(hcblas_sgemm, func_correct_sgemmNN_Col_slimA_vvsmallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_vvsmall();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and Vsmall K
+TEST(hcblas_sgemm, func_correct_sgemmNN_Col_slimA_vsmallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_vsmall();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and small K
+TEST(hcblas_sgemm, func_correct_sgemmNN_Col_slimA_smallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_small();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and regular K
+TEST(hcblas_sgemm, func_correct_sgemmNN_Col_slimA_regularK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_regular();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta);
+}
+
+// SGEMM NT Case
+// check slim A with large M and VVsmall K
+TEST(hcblas_sgemm, func_correct_sgemmNT_Col_slimA_vvsmallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_vvsmall();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and Vsmall K
+TEST(hcblas_sgemm, func_correct_sgemmNT_Col_slimA_vsmallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_vsmall();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and small K
+TEST(hcblas_sgemm, func_correct_sgemmNT_Col_slimA_smallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_small();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and regular K
+TEST(hcblas_sgemm, func_correct_sgemmNT_Col_slimA_regularK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_regular();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta);
+}
+
+// SGEMM TN Case
+// check slim A with large M and VVsmall K
+TEST(hcblas_sgemm, func_correct_sgemmTN_Col_slimA_vvsmallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_vvsmall();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and Vsmall K
+TEST(hcblas_sgemm, func_correct_sgemmTN_Col_slimA_vsmallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_vsmall();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and small K
+TEST(hcblas_sgemm, func_correct_sgemmTN_Col_slimA_smallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_small();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and regular K
+TEST(hcblas_sgemm, func_correct_sgemmTN_Col_slimA_regularK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_regular();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta);
+}
+
+// SGEMM TT Case
+// check slim A with large M and VVsmall K
+TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimA_vvsmallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_vvsmall();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and Vsmall K
+TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimA_vsmallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_vsmall();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and small K
+TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimA_smallK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_small();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta);
+}
+
+// check slim A with large M and regular K
+TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimA_regularK_Implementation_type_1) {
+ int M, N, K;
+ M = N = gen_vlarge();
+ K = gen_regular();
+ float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
+ float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
+ func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta);
+}
+
+
 TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
   Hcblaslibrary hc;
   int M = 189, N = 9, K = 19;
