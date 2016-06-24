@@ -66,7 +66,6 @@ class Hcblaslibrary
 							  
 /* SGER - A = alpha * X * Y' + A                               */
 /* SGER - Overloaded function with arguments of type hc::array */
-
     hcblasStatus hcblas_sger(hc::accelerator_view &accl_view,
 			     hcblasOrder order, const int M, const int N, const float &alpha,
                              const float *X, const long xOffset, const int incX,
@@ -74,7 +73,6 @@ class Hcblaslibrary
                              float *A, const long aOffset, const int lda);
 
 /* SGER - Overloaded function with arguments related to batch processing */
-
     hcblasStatus hcblas_sger(hc::accelerator_view &accl_view,
                              hcblasOrder order, const int M, const int N, const float &alpha,
                              const float *X, 
@@ -82,6 +80,23 @@ class Hcblaslibrary
                              const float *Y, 
                              const long yOffset, const long Y_batchOffset, const int incY,
                              float *A, 
+                             const long aOffset, const long A_batchOffset, const int lda, const int batchSize);
+
+/* DGER - A = alpha * X * Y' + A                               */
+    hcblasStatus hcblas_dger(hc::accelerator_view &accl_view,
+			     hcblasOrder order, const int M, const int N, const double &alpha,
+                             const double *X, const long xOffset, const int incX,
+                             const double *Y, const long yOffset, const int incY,
+                             double *A, const long aOffset, const int lda);
+
+/* DGER - Overloaded function with arguments related to batch processing */
+    hcblasStatus hcblas_dger(hc::accelerator_view &accl_view,
+                             hcblasOrder order, const int M, const int N, const double &alpha,
+                             const double *X, 
+                             const long xOffset, const long X_batchOffset, const int incX,
+                             const double *Y, 
+                             const long yOffset, const long Y_batchOffset, const int incY,
+                             double *A, 
                              const long aOffset, const long A_batchOffset, const int lda, const int batchSize);
 
 /* SGEMV - Y = alpha * op(A) * X + beta * Y                     */
