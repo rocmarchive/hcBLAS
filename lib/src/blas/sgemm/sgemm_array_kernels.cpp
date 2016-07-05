@@ -2990,7 +2990,7 @@ hcblasStatus gemm_NoTransAB(hc::accelerator_view &accl_view,
   else if( M%96==0 && N%96==0 && K%16==0) {
     return gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if ((M <= 500 && N <= 700) || (M <= 700 && N <= 500) || K < 20 ) { 
+  else if ((M <= 500 && N <= 700) || (M <= 700 && N <= 500) || K < 20 || M < 20 || N < 20) { 
     return gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
   else if ((K <= 5000) || (((M <= 5000 && N <= 8000) || (M <= 8000 && N <= 5000)) && K <= 8000) || 
@@ -3033,7 +3033,7 @@ hcblasStatus gemm_NoTransA(hc::accelerator_view &accl_view,
            (K >= 6000 && (M >= 7000 || N >= 7000)) || (K >= 8500 && (M >= 700 || N >= 700))) {
     return gemm_NoTransA_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS2_MB2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
-  else if ((M <= 500 && N <= 1000) || (N <= 500 && M <= 1000) || K < 20) { 
+  else if ((M <= 500 && N <= 1000) || (N <= 500 && M <= 1000) || K <= 30) { 
     return gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
   else if ((M < 9000 && N < 9000 & K < 5000) || (M < 8000 && N < 8000 && K < 6000) ||
