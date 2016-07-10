@@ -100,9 +100,9 @@ class KernelSelection:
       elif precision == "d":
         self.logic += "double"
       elif precision == "c":
-        self.logic += "FloatComplex"
+        self.logic += "float2"
       else:
-        self.logic += "DoubleComplex"
+        self.logic += "double2"
 
       self.logic += (
           ">(\n"
@@ -144,7 +144,7 @@ class KernelSelection:
           elif transA == "T":
             self.logic += "Trans"
           else:
-            self.logic += "hcblasConjTrans"
+            self.logic += "0"  #hcblasConjTrans"  #TODO: Add Conjugate transpose for CGEMM 
           self.logic += ") {\n"
 
           ####################################
@@ -157,7 +157,7 @@ class KernelSelection:
             elif transB == "T":
               self.logic += "Trans"
             else:
-              self.logic += "hcblasConjTrans"
+              self.logic += "0" #hcblasConjTrans"
             self.logic += ") {\n"
 
             ####################################
@@ -403,14 +403,14 @@ class KernelSelectionSpecific:
     elif transA == "T":
       self.logic += "Trans"
     else:
-      self.logic += "hcblasConjTrans"
+      self.logic += "0" #hcblasConjTrans"
     self.logic += " && transB == "
     if transB == "N":
       self.logic += "NoTrans"
     elif transB == "T":
       self.logic += "Trans"
     else:
-      self.logic += "hcblasConjTrans"
+      self.logic += "0" #hcblasConjTrans"
     self.logic += ") {\n"
     self.transInitialized = True
     self.betaInitialized = False
