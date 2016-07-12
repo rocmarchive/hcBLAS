@@ -68,7 +68,7 @@ int main(int argc,char* argv[])
         batchSize = 1;
     }
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].create_view()); 
+    accelerator_view accl_view = (acc[1].get_default_view()); 
 
     float *C_cblas = (float*) calloc(M * N  + cOffset, sizeof(float));
     float *A = (float*) calloc(M * K  + aOffset, sizeof(float));

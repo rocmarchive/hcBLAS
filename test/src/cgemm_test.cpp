@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     beta[0] = cBeta.x;
     beta[1] = cBeta.y;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    hc::accelerator_view accl_view = (acc[1].create_view());
+    hc::accelerator_view accl_view = (acc[1].get_default_view());
     if(M > 3000 && N > 3000) {
         batchSize = 25;
     }

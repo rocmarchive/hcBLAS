@@ -282,7 +282,7 @@ hcblasStatus_t  hcblasSasum(hcblasHandle_t *handle, const int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   hcblasStatus status;
   status = handle->hcblas_sasum(accl_view, n, x, incx, xOffset, result);
@@ -298,7 +298,7 @@ hcblasStatus_t  hcblasSasumBatched(hcblasHandle_t *handle, const int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long X_batchOffset = n;
   hcblasStatus status;
@@ -314,7 +314,7 @@ hcblasStatus_t  hcblasDasum(hcblasHandle_t *handle, const int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());  
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());  
   long xOffset = 0;
   hcblasStatus status;
   status = handle->hcblas_dasum(accl_view, n, x, incx, xOffset, result);
@@ -329,7 +329,7 @@ hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t *handle, const int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long X_batchOffset = n;
   hcblasStatus status;
@@ -369,7 +369,7 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
@@ -387,7 +387,7 @@ hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
@@ -426,7 +426,7 @@ hcblasStatus_t hcblasScopy(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
@@ -443,7 +443,7 @@ hcblasStatus_t hcblasScopyBatched(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
@@ -462,7 +462,7 @@ hcblasStatus_t hcblasDcopy(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
@@ -479,7 +479,7 @@ hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
@@ -520,7 +520,7 @@ hcblasStatus_t hcblasSdot (hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
@@ -538,7 +538,7 @@ hcblasStatus_t hcblasSdotBatched (hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
@@ -558,7 +558,7 @@ hcblasStatus_t hcblasDdot (hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
@@ -576,7 +576,7 @@ hcblasStatus_t hcblasDdotBatched (hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
@@ -614,7 +614,7 @@ hcblasStatus_t  hcblasSscal(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   hcblasStatus status;
   status = handle->hcblas_sscal(accl_view, n, *alpha, x, incx, xOffset);
@@ -630,7 +630,7 @@ hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long X_batchOffset = n;
   hcblasStatus status;
@@ -647,7 +647,7 @@ hcblasStatus_t  hcblasDscal(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   hcblasStatus status;
   status = handle->hcblas_dscal(accl_view, n, *alpha, x, incx, xOffset);
@@ -663,7 +663,7 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t *handle, int n,
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long X_batchOffset = n;
   hcblasStatus status;
@@ -733,7 +733,7 @@ hcblasStatus_t hcblasSgemv(hcblasHandle_t *handle, hcblasOperation_t trans,
     return HCBLAS_STATUS_INVALID_VALUE;
 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long xOffset = 0;
   long yOffset = 0;
@@ -761,7 +761,7 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t *handle, hcblasOperation_t tran
     return HCBLAS_STATUS_INVALID_VALUE;
 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long xOffset = 0;
   long yOffset = 0;
@@ -827,7 +827,7 @@ hcblasStatus_t  hcblasSger(hcblasHandle_t *handle, int m, int n,
     return HCBLAS_STATUS_INVALID_VALUE;
 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long aOffset = 0;
@@ -851,7 +851,7 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t *handle, int m, int n,
     return HCBLAS_STATUS_INVALID_VALUE;
 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long aOffset = 0;
@@ -930,7 +930,7 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t *handle,
     return HCBLAS_STATUS_INVALID_VALUE;
 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long bOffset = 0;
   long cOffset = 0;
@@ -960,7 +960,7 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
     return HCBLAS_STATUS_INVALID_VALUE;
 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
 
   long aOffset = 0;
   long bOffset = 0;
@@ -1036,7 +1036,7 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t *handle,
     return HCBLAS_STATUS_INVALID_VALUE;
 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
 
   long aOffset = 0;
   long bOffset = 0;
@@ -1073,7 +1073,7 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t *handle,
     return HCBLAS_STATUS_INVALID_VALUE;
 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].create_view());
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long bOffset = 0;
   long cOffset = 0;

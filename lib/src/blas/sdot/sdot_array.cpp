@@ -1,7 +1,10 @@
 #include "hcblaslib.h"
 #include <hc.hpp>
 #include <hc_math.hpp>
+#include "hc_am.hpp"
+
 #define TILE_SIZE 256
+
 using namespace hc;
 using namespace hc::fast_math;
 float sdot_HC(hc::accelerator_view &accl_view, long n,
@@ -13,8 +16,8 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   // simultaneous live threads
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
-  hc::array<float, 1> global_buffer(tile_count);
-  hc::array_view<float, 1> global_buffer_view(global_buffer);
+  hc::accelerator accl = accl_view.get_accelerator();
+  float* dev_global_buffer = (float *) hc::am_alloc(sizeof(float) * tile_count, accl, 1);
   // configuration
   hc::extent<1> extent(thread_count);
   hc::parallel_for_each(
@@ -32,7 +35,11 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += xView[xOffset + hc::index<1>(idx)[0]] * yView[yOffset + hc::index<1>(idx)[0]] ;
+      if (yView != NULL) {
+        smem += xView[xOffset + hc::index<1>(idx)[0]] * yView[yOffset + hc::index<1>(idx)[0]] ;
+      } else {
+        smem += xView[xOffset + hc::index<1>(idx)[0]];
+      }
       // next chunk
       idx += thread_count;
     }
@@ -95,14 +102,21 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
     // only 1 thread per tile does the inter tile communication*/
     if (tid.local[0] == 0) {
       // write to global buffer in this tiles
-      global_buffer_view[ tid.tile[0] ] = smem;
+      dev_global_buffer[ tid.tile[0] ] = smem;
     }
   }).wait();
 
   // 2nd pass reduction
-  for(int i = 0; i < tile_count; i++) {
-    out = (isnan(out) || isinf(out)) ? 0 : out;
-    out += global_buffer_view[ i ] ;
+  // Check if the residual is capable of occupying 50% of compute units
+  // Assumption : The target architecture has 40 compute units
+  if (tile_count < TILE_SIZE * 20) {
+    for(int i = 0; i < tile_count; i++) {
+      out = (isnan(out) || isinf(out)) ? 0 : out;
+      out += dev_global_buffer[ i ] ;
+    }
+  } else
+  {
+    out = sdot_HC(accl_view, tile_count, dev_global_buffer, 1, 0, NULL, 0, 0, out); 
   }
 
   return out;
@@ -120,8 +134,8 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   // simultaneous live threads
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
-  hc::array<float, 1> global_buffer(batchSize * tile_count);
-  hc::array_view<float, 1> global_buffer_view(global_buffer);
+  hc::accelerator accl = accl_view.get_accelerator();
+  float* dev_global_buffer = (float *) hc::am_alloc(sizeof(float) * tile_count, accl, 1);
   // configuration
   hc::extent<2> extent(batchSize, thread_count);
   hc::parallel_for_each(
@@ -203,14 +217,14 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
     // only 1 thread per tile does the inter tile communication*/
     if (tid.local[1] == 0) {
       // write to global buffer in this tiles
-      global_buffer_view[ elt * tile_count + tid.tile[1] ] = smem;
+      dev_global_buffer[ elt * tile_count + tid.tile[1] ] = smem;
     }
   }).wait();
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
     out = (isnan(out) || isinf(out)) ? 0 : out;
-    out += global_buffer_view[ i ] ;
+    out += dev_global_buffer[ i ] ;
   }
 
   return out;
