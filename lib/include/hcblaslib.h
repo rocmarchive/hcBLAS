@@ -16,6 +16,9 @@
 using namespace hc;
 using namespace hc::short_vector;
 using namespace std;
+
+#define uint unsigned int 
+
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {
     HCBLAS_SUCCEEDS = 0,
@@ -41,12 +44,41 @@ struct hc_Complex
      float img;
 };
 
+typedef hcblasStatus (*Sgemm_tileKernel)(hc::accelerator_view, float const *,
+                                         float const *, float *, float const,
+                                         float const, uint const, uint const,
+                                         uint const, uint const, uint const,
+                                         uint const, uint const, uint const,
+                                         uint const) = NULL;
+typedef hcblasStatus (*Sgemm_rowKernel)(hc::accelerator_view, float const *,
+                                        float const *, float *, float const,
+                                        float const, uint const, uint const,
+                                        uint const, uint const, uint const,
+                                        uint const, uint const, uint const,
+                                        uint const) = NULL;
+typedef hcblasStatus (*Sgemm_colKernel)(hc::accelerator_view, float const *
+                                        float const *, float *, float const,
+                                        float const, uint const, uint const,
+                                        uint const, uint const, uint const,
+                                        uint const, uint const, uint const,
+                                        uint const) = NULL;
+typedef hcblasStatus (*Sgemm_cornerKernel)(hc::accelerator_view, float const *,
+                                           float const *, float *, float const,
+                                           float const, uint const, uint const,
+                                           uint const, uint const, uint const,
+                                           uint const, uint const, uint const,
+                                           uint const) = NULL;
+
+
+
+
 /* Class which implements the blas ( SGEMM, CGEMM, SGEMV, SGER, SAXPY )  */
 class Hcblaslibrary
 {
     public:
     int deviceId;
     hcblasOrder Order;
+        
 /* SAXPY - Y = alpha * X + Y                                    */
 /* SAXPY - Overloaded function with arguments of type hc::array */
 
@@ -134,10 +166,10 @@ class Hcblaslibrary
 			     hcblasOrder order, hcblasTranspose typeA,
                              hcblasTranspose typeB, const int M,
                              const int N, const int K,
-                             const  float_2 &alpha,
+                             const float_2 &alpha,
                              float_2 *A, const long aOffset, const long lda,
                              float_2 *B, const long bOffset, const long ldb,
-                             const  float_2 &beta, 
+                             const float_2 &beta, 
                              float_2 *C, const long cOffset, const long ldc);
 
 /* CGEMM - Overloaded function with arguments related to batch processing */
@@ -145,12 +177,12 @@ class Hcblaslibrary
                              hcblasOrder order, hcblasTranspose typeA,
                              hcblasTranspose typeB, const int M,
                              const int N, const int K,
-                             const  float_2 &alpha,
+                             const float_2 &alpha,
                              float_2 *A, 
                              const long aOffset, const long A_batchOffset, const long lda,
                              float_2 *B, 
 			     const long bOffset, const long B_batchOffset, const long ldb,
-                             const  float_2 &beta,
+                             const float_2 &beta,
                              float_2 *C, 
 			     const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 				 

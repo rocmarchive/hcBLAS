@@ -180,7 +180,10 @@ class KernelSelection:
                 sizeMin = sizeEvent[0]
                 fallbackTile = sizeEvent[1]
                 validTiles = sizeEvent[2]
-                self.logic += indent(5)+"if ( M*N >= "+str(sizeMin)+"*"+str(sizeMin) + ") {\n"
+                if sizeMin != 0:
+                  self.logic += indent(5)+"if ( M*N >= "+str(sizeMin)+"*"+str(sizeMin) + ") {\n"
+                else: 
+                  self.logic += indent(5)+"{\n"
                 #print(precision + "gemm" + "_" + order + "_" + transA + "_" + transB + "_B" + str(beta) + "_" + str(sizeMin) + "->" + str(sizeMax))
 
                 ####################################
@@ -302,8 +305,8 @@ class KernelSelectionSpecific:
       "template<typename Precision>\n"
       "bool gemmSelectKernelSpecific(\n"
       "  hcblasOrder order,\n"
-      "  Transpose transA,\n"
-      "  Transpose transB,\n"
+      "  hcblasTranspose transA,\n"
+      "  hcblasTranspose transB,\n"
       "  bool betaNonZero,\n"
       "  unsigned int macroTileNumRows,\n"
       "  unsigned int macroTileNumCols,\n"
@@ -344,15 +347,15 @@ class KernelSelectionSpecific:
     elif precision == "d":
       self.logic += "double"
     elif precision == "c":
-      self.logic += "FloatComplex"
+      self.logic += "float2"
     else:
-      self.logic += "DoubleComplex"
+      self.logic += "double2"
 
     self.logic += (
       ">(\n"
       "  hcblasOrder order,\n"
-      "  Transpose transA,\n"
-      "  Transpose transB,\n"
+      "  hcblasTranspose transA,\n"
+      "  hcblasTranspose transB,\n"
       "  bool betaNonZero,\n"
       "  unsigned int macroTileNumRows,\n"
       "  unsigned int macroTileNumCols,\n"

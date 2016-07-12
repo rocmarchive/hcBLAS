@@ -20,8 +20,7 @@ def makeOpenCLKernelString(kernel):
 
   ####################################
   # initializations
-  kStr = "/* %s */" % kernel.getName()
-  kStr += endLine
+  kStr = "/* %s */" % kernel.getName() + endLine
 
   ####################################
   # kernel parameters
@@ -71,11 +70,12 @@ def makeOpenCLKernelString(kernel):
   # data types
   kStr += endLine
   kStr += "/* data types */" + endLine
-  kStr += "#define uint unsigned int"
+  kStr += "#define uint unsigned int" + endLine
   kStr += "#define DATA_TYPE_STR %s%s" \
       % (Common.openclDataType[kernel.precision], endLine)
   if kernel.precision=="s" or kernel.precision=="d":
     # real arithmetic
+    kStr += "#define mad(a, b ,c) a*b+c" + endLine
     kStr += "#define TYPE_MAD(MULA,MULB,DST) DST = mad(MULA,MULB,DST);" + endLine
     if kernel.beta==1:
       kStr += "#define TYPE_MAD_WRITE(DST,ALPHA,REG,BETA) DST = (ALPHA)*(REG) + (BETA)*(DST);" + endLine
@@ -87,82 +87,82 @@ def makeOpenCLKernelString(kernel):
     if kernel.transA!="C" and kernel.transB!="C":
       # neither conjugate
       kStr += (
-        "#define TYPE_MAD(MULA,MULB,DST) \\\\" + endLine +
-        "  DST.s0 = mad(  MULA.s0, MULB.s0, DST.s0 ); \\\\" + endLine +
-        "  DST.s0 = mad( -MULA.s1, MULB.s1, DST.s0 ); \\\\" + endLine +
-        "  DST.s1 = mad(  MULA.s0, MULB.s1, DST.s1 ); \\\\" + endLine +
-        "  DST.s1 = mad(  MULA.s1, MULB.s0, DST.s1 );" + endLine )
+        "#define TYPE_MAD(MULA,MULB,DST) \\" + endLine +
+        "  DST.x = mad(  MULA.x, MULB.x, DST.x ); \\" + endLine +
+        "  DST.x = mad( -MULA.y, MULB.y, DST.x ); \\" + endLine +
+        "  DST.y = mad(  MULA.x, MULB.y, DST.y ); \\" + endLine +
+        "  DST.y = mad(  MULA.y, MULB.x, DST.y );" + endLine )
     elif kernel.transA=="C" and kernel.transB!="C":
-      # A conjugate (negate imaginary A.s1)
+      # A conjugate (negate imaginary A.y)
       kStr += (
-        "#define TYPE_MAD(MULA,MULB,DST) \\\\" + endLine +
-        "  DST.s0 = mad(  MULA.s0, MULB.s0, DST.s0 ); \\\\" + endLine +
-        "  DST.s0 = mad(  MULA.s1, MULB.s1, DST.s0 ); \\\\" + endLine +
-        "  DST.s1 = mad(  MULA.s0, MULB.s1, DST.s1 ); \\\\" + endLine +
-        "  DST.s1 = mad( -MULA.s1, MULB.s0, DST.s1 );" + endLine )
+        "#define TYPE_MAD(MULA,MULB,DST) \\" + endLine +
+        "  DST.x = mad(  MULA.x, MULB.x, DST.x ); \\" + endLine +
+        "  DST.x = mad(  MULA.y, MULB.y, DST.x ); \\" + endLine +
+        "  DST.y = mad(  MULA.x, MULB.y, DST.y ); \\" + endLine +
+        "  DST.y = mad( -MULA.y, MULB.x, DST.y );" + endLine )
     elif kernel.transA!="C" and kernel.transB=="C":
-      # B conjugate (negate imaginary B.s1)
+      # B conjugate (negate imaginary B.y)
       kStr += (
-        "#define TYPE_MAD(MULA,MULB,DST) \\\\" + endLine +
-        "  DST.s0 = mad(  MULA.s0,  MULB.s0, DST.s0 ); \\\\" + endLine +
-        "  DST.s0 = mad( -MULA.s1, -MULB.s1, DST.s0 ); \\\\" + endLine +
-        "  DST.s1 = mad(  MULA.s0, -MULB.s1, DST.s1 ); \\\\" + endLine +
-        "  DST.s1 = mad(  MULA.s1,  MULB.s0, DST.s1 );" + endLine )
+        "#define TYPE_MAD(MULA,MULB,DST) \\" + endLine +
+        "  DST.x = mad(  MULA.x,  MULB.x, DST.x ); \\" + endLine +
+        "  DST.x = mad( -MULA.y, -MULB.y, DST.x ); \\" + endLine +
+        "  DST.y = mad(  MULA.x, -MULB.y, DST.y ); \\" + endLine +
+        "  DST.y = mad(  MULA.y,  MULB.x, DST.y );" + endLine )
     else:
-      # A & B conjugate (negate imaginary .s1)
+      # A & B conjugate (negate imaginary .y)
       kStr += (
-        "#define TYPE_MAD(MULA,MULB,DST) \\\\" + endLine +
-        "  DST.s0 = mad(  MULA.s0,  MULB.s0, DST.s0 ); \\\\" + endLine +
-        "  DST.s0 = mad(  MULA.s1, -MULB.s1, DST.s0 ); \\\\" + endLine +
-        "  DST.s1 = mad(  MULA.s0, -MULB.s1, DST.s1 ); \\\\" + endLine +
-        "  DST.s1 = mad( -MULA.s1,  MULB.s0, DST.s1 );" + endLine )
+        "#define TYPE_MAD(MULA,MULB,DST) \\" + endLine +
+        "  DST.x = mad(  MULA.x,  MULB.x, DST.x ); \\" + endLine +
+        "  DST.x = mad(  MULA.y, -MULB.y, DST.x ); \\" + endLine +
+        "  DST.y = mad(  MULA.x, -MULB.y, DST.y ); \\" + endLine +
+        "  DST.y = mad( -MULA.y,  MULB.x, DST.y );" + endLine )
     if kernel.beta==1:
       kStr += (
-        "#define TYPE_MAD_WRITE( DST, ALPHA, REG, BETA ) \\\\" + endLine +
-        "  /* (1) */ \\\\" + endLine +
-        "  type_mad_tmp = REG.s0; \\\\" + endLine +
-        "  REG.s0 *= ALPHA.s0; \\\\" + endLine +
-        "  REG.s0 = mad( -ALPHA.s1, REG.s1, REG.s0 ); \\\\" + endLine +
-        "  REG.s1 *= ALPHA.s0; \\\\" + endLine +
-        "  REG.s1 = mad(  ALPHA.s1, type_mad_tmp, REG.s1 ); \\\\" + endLine +
-        "  /* (2) */ \\\\" + endLine +
-        "  REG.s0 = mad(  BETA.s0, DST.s0, REG.s0 ); \\\\" + endLine +
-        "  REG.s0 = mad( -BETA.s1, DST.s1, REG.s0 ); \\\\" + endLine +
-        "  REG.s1 = mad(  BETA.s1, DST.s0, REG.s1 ); \\\\" + endLine +
-        "  REG.s1 = mad(  BETA.s0, DST.s1, REG.s1 ); \\\\" + endLine +
-        "  /* (3) */ \\\\" + endLine +
+        "#define TYPE_MAD_WRITE( DST, ALPHA, REG, BETA ) \\" + endLine +
+        "  /* (1) */ \\" + endLine +
+        "  type_mad_tmp = REG.x; \\" + endLine +
+        "  REG.x *= ALPHA.x; \\" + endLine +
+        "  REG.x = mad( -ALPHA.y, REG.y, REG.x ); \\" + endLine +
+        "  REG.y *= ALPHA.x; \\" + endLine +
+        "  REG.y = mad(  ALPHA.y, type_mad_tmp, REG.y ); \\" + endLine +
+        "  /* (2) */ \\" + endLine +
+        "  REG.x = mad(  BETA.x, DST.x, REG.x ); \\" + endLine +
+        "  REG.x = mad( -BETA.y, DST.y, REG.x ); \\" + endLine +
+        "  REG.y = mad(  BETA.y, DST.x, REG.y ); \\" + endLine +
+        "  REG.y = mad(  BETA.x, DST.y, REG.y ); \\" + endLine +
+        "  /* (3) */ \\" + endLine +
         "  DST = REG;" + endLine )
     else:
       kStr += (
-        "#define TYPE_MAD_WRITE( DST, ALPHA, REG, BETA ) \\\\" + endLine +
-        "  /* (1) */ \\\\" + endLine +
-        "  type_mad_tmp = REG.s0; \\\\" + endLine +
-        "  REG.s0 *= ALPHA.s0; \\\\" + endLine +
-        "  REG.s0 = mad( -ALPHA.s1, REG.s1, REG.s0 ); \\\\" + endLine +
-        "  REG.s1 *= ALPHA.s0; \\\\" + endLine +
-        "  REG.s1 = mad(  ALPHA.s1, type_mad_tmp, REG.s1 ); \\\\" + endLine +
+        "#define TYPE_MAD_WRITE( DST, ALPHA, REG, BETA ) \\" + endLine +
+        "  /* (1) */ \\" + endLine +
+        "  type_mad_tmp = REG.x; \\" + endLine +
+        "  REG.x *= ALPHA.x; \\" + endLine +
+        "  REG.x = mad( -ALPHA.y, REG.y, REG.x ); \\" + endLine +
+        "  REG.y *= ALPHA.x; \\" + endLine +
+        "  REG.y = mad(  ALPHA.y, type_mad_tmp, REG.y ); \\" + endLine +
         "  DST = REG;" + endLine )
 
   ####################################
   # micro-tile
   kStr += endLine
   kStr += "/* %dx%d micro-tile */%s" % (kernel.microTileNumRows, kernel.microTileNumCols, endLine)
-  kStr += "#define MICRO_TILE \ " + endLine
+  kStr += "#define MICRO_TILE \\" + endLine
   for a in range(0, int(kernel.microTileNumRows)):
-    kStr += "  rA[%d] = lA[offA + %d*WG_NUM_ROWS]; \ %s" % (a, a, endLine)
+    kStr += "  rA[%d] = lA[offA + %d*WG_NUM_ROWS]; \%s" % (a, a, endLine)
   for b in range(0, int(kernel.microTileNumCols)):
-    kStr += "  rB[%d] = lB[offB + %d*WG_NUM_COLS]; \ %s" % (b, b, endLine)
-  kStr += "  offA += (MACRO_TILE_NUM_ROWS+LOCAL_COL_PAD); \ " + endLine
-  kStr += "  offB += (MACRO_TILE_NUM_COLS+LOCAL_ROW_PAD); \ " + endLine
+    kStr += "  rB[%d] = lB[offB + %d*WG_NUM_COLS]; \%s" % (b, b, endLine)
+  kStr += "  offA += (MACRO_TILE_NUM_ROWS+LOCAL_COL_PAD); \\" + endLine
+  kStr += "  offB += (MACRO_TILE_NUM_COLS+LOCAL_ROW_PAD); \\" + endLine
   for a in range(0, int(kernel.microTileNumRows)):
     for b in range(0, int(kernel.microTileNumCols)):
-      kStr += "  TYPE_MAD(rA[%d],rB[%d],rC[%d][%d]); \ %s" % (a, b, a, b, endLine)
+      kStr += "  TYPE_MAD(rA[%d],rB[%d],rC[%d][%d]); \%s" % (a, b, a, b, endLine)
   kStr += endLine
 
   ####################################
   # function signature
   ####################################
-  kStr += "__hcblasStatus %s" % ( kernel.getName() )
+  kStr += "hcblasStatus %s" % ( kernel.getName() )
   kStr += "(" + endLine
   # arguments
   kStr += (
