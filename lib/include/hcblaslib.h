@@ -44,34 +44,6 @@ struct hc_Complex
      float img;
 };
 
-typedef hcblasStatus (*Sgemm_tileKernel)(hc::accelerator_view, float const *,
-                                         float const *, float *, float const,
-                                         float const, uint const, uint const,
-                                         uint const, uint const, uint const,
-                                         uint const, uint const, uint const,
-                                         uint const) = NULL;
-typedef hcblasStatus (*Sgemm_rowKernel)(hc::accelerator_view, float const *,
-                                        float const *, float *, float const,
-                                        float const, uint const, uint const,
-                                        uint const, uint const, uint const,
-                                        uint const, uint const, uint const,
-                                        uint const) = NULL;
-typedef hcblasStatus (*Sgemm_colKernel)(hc::accelerator_view, float const *
-                                        float const *, float *, float const,
-                                        float const, uint const, uint const,
-                                        uint const, uint const, uint const,
-                                        uint const, uint const, uint const,
-                                        uint const) = NULL;
-typedef hcblasStatus (*Sgemm_cornerKernel)(hc::accelerator_view, float const *,
-                                           float const *, float *, float const,
-                                           float const, uint const, uint const,
-                                           uint const, uint const, uint const,
-                                           uint const, uint const, uint const,
-                                           uint const) = NULL;
-
-
-
-
 /* Class which implements the blas ( SGEMM, CGEMM, SGEMV, SGER, SAXPY )  */
 class Hcblaslibrary
 {
