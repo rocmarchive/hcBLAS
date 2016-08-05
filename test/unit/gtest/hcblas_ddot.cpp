@@ -259,12 +259,6 @@ void func_check_ddot_batch_with_input(long N) {
 
 // SDOT batch functionality check for different sizes
 
-// REGULAR test
-/*TEST(hcblas_ddot, func_correct_ddot_batch_regularN_Implementation_type_2) {
-  long input = gen_regular();
-  func_check_ddot_batch_with_input(input);
-}*/
-
 // SMALL test
 TEST(hcblas_ddot, func_correct_ddot_batch_smallN_Implementation_type_2) {
   long input = gen_small();

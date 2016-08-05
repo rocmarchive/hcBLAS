@@ -48,6 +48,8 @@ enum hcblasOperation_t {
 
 typedef float2 hcFloatComplex;
 typedef hcFloatComplex hcComplex;
+typedef double2 hcDoubleComplex;
+typedef hcDoubleComplex hcDoubleComplex;
 
 // hcblas Helper functions 
 
@@ -390,6 +392,21 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t *handle, hcblasOperation_t tran
                            const float           *beta,
                            float           *y, int incy, int batchCount);
 
+hcblasStatus_t hcblasDgemv(hcblasHandle_t *handle, hcblasOperation_t trans,
+                           int m, int n,
+                           const double           *alpha,
+                           double           *A, int lda,
+                           double           *x, int incx,
+                           const double           *beta,
+                           double           *y, int incy);
+hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t *handle, hcblasOperation_t trans,
+                           int m, int n,
+                           const double           *alpha,
+                           double           *A, int lda,
+                           double           *x, int incx,
+                           const double           *beta,
+                           double           *y, int incy, int batchCount);
+
 
 // 2. hcblas<t>ger() and hcblas<t>gerBatched()
 
@@ -486,6 +503,16 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t *handle,
                            float           *B, int ldb,
                            const float           *beta,
                            float           *C, int ldc);
+
+hcblasStatus_t hcblasDgemm(hcblasHandle_t *handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const double          *alpha,
+                           double           *A, int lda,
+                           double           *B, int ldb,
+                           const double           *beta,
+                           double           *C, int ldc);
+
 hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
@@ -494,6 +521,15 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
                            hcComplex       *B, int ldb,
                            const hcComplex       *beta,
                            hcComplex       *C, int ldc);
+
+hcblasStatus_t hcblasZgemm(hcblasHandle_t *handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const hcDoubleComplex       *alpha,
+                           hcDoubleComplex       *A, int lda,
+                           hcDoubleComplex       *B, int ldb,
+                           const hcDoubleComplex       *beta,
+                           hcDoubleComplex       *C, int ldc);
 
 // 2. hcblas<t>gemmBatched()
 
@@ -544,6 +580,7 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t *handle,
                                   float           *Barray, int ldb,
                                   const float           *beta,
                                   float           *Carray, int ldc, int batchCount);
+
 hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t *handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
@@ -552,6 +589,24 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t *handle,
                                   hcComplex       *Barray, int ldb,
                                   const hcComplex       *beta,
                                   hcComplex       *Carray, int ldc, int batchCount);
+
+hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t *handle,
+                                  hcblasOperation_t transa, hcblasOperation_t transb,
+                                  int m, int n, int k,
+                                  const float           *alpha,
+                                  float           *Aarray, int lda,
+                                  float           *Barray, int ldb,
+                                  const float           *beta,
+                                  double           *Carray, int ldc, int batchCount);
+
+hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t *handle,
+                                  hcblasOperation_t transa, hcblasOperation_t transb,
+                                  int m, int n, int k,
+                                  const hcDoubleComplex       *alpha,
+                                  hcDoubleComplex       *Aarray, int lda,
+                                  hcDoubleComplex       *Barray, int ldb,
+                                  const hcDoubleComplex       *beta,
+                                  hcDoubleComplex       *Carray, int ldc, int batchCount);
 
 
 #endif
