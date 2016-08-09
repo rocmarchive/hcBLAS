@@ -62,15 +62,18 @@ class AutogemmKernel {
 
    public:
 
-       void initKernParam(AutogemmKernel* gemmKernel);
+       void initKernParam(AutogemmKernel* gemmKernel, hcblasOrder order,
+                          hcblasTranspose typeA, hcblasTranspose typeB,
+                          const float &beta);
        int validateKernParam(AutogemmKernel* gemmKernel);
        int makeGemmKernel(AutogemmKernel* gemmKernel);
        int compileKernel(AutogemmKernel* gemmKernel);
        int invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
-                        hcblasOrder order, hcblasTranspose typeA, hcblasTranspose typeB, 
-                        const int M, const int N, const int K, const float &alpha,
-                        float *A, const long lda, float *B, const long ldb, const float &beta,
-                        float *C, const long ldc, const long aOffset, const long bOffset, const long cOffset);
+                        const uint M, const uint N, const uint K, const float &alpha,
+                        float *A, const uint lda, float *B, const uint ldb, const float &beta,
+                        float *C, const uint ldc, const uint aOffset, const uint bOffset,
+                        const uint cOffset);
+
 };
 
 #endif // AUTOGEMM_KERNEL_H

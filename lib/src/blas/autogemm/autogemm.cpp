@@ -104,14 +104,20 @@ std::string AutogemmKernel::getKernelLib() {
  *                                  AutogemmKernel object
  *  TODO : Generalize the init logic
  */
-void AutogemmKernel::initKernParam(AutogemmKernel* gemmKernel) {
+void AutogemmKernel::initKernParam(AutogemmKernel* gemmKernel, hcblasOrder order, 
+                                   hcblasTranspose typeA, hcblasTranspose typeB,
+                                   const float &beta) {
 
+   // TODO: Generalize the precision assignment 
    gemmKernel->precision = 's';
-   gemmKernel->isColMajor = 1;
-   gemmKernel->isTransA = 0;
-   gemmKernel->isTransB = 0;
-   gemmKernel->isBeta_nonZero = 1;
 
+   gemmKernel->isColMajor = (order == ColMajor) ? 1 : 0  ;
+   gemmKernel->isTransA = (typeA == NoTrans) ? 0 : 1;
+   gemmKernel->isTransB = (typeB == NoTrans) ? 0 : 1;
+   gemmKernel->isBeta_nonZero = (beta == 0) ? 0 : 1;
+
+   // Default Kernel tile elements
+   // These elements will be changed in the kernelSelection function
    gemmKernel->tileNumRows = 16;
    gemmKernel->tileNumCols = 16;
    gemmKernel->microtileNumRows = 6;
@@ -121,6 +127,7 @@ void AutogemmKernel::initKernParam(AutogemmKernel* gemmKernel) {
    gemmKernel->macrotileNumRows = gemmKernel->tileNumRows * gemmKernel->microtileNumRows;
    gemmKernel->macrotileNumCols = gemmKernel->tileNumCols * gemmKernel->microtileNumCols;
 
+   // Always the generate "libblasKernel.so" file
    gemmKernel->kernelLib = "libblaskernel.so";
 }
 
@@ -630,11 +637,10 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
  *                     - Close the symbol
  */
 int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
-                                 hcblasOrder order, hcblasTranspose typeA, hcblasTranspose typeB, 
-                                 const int M, const int N, const int K, const float &alpha,
-                                 float *A, const long lda, float *B, const long ldb, const float &beta,
-                                 float *C, const long ldc, const long aOffset, const long bOffset, 
-                                 const long cOffset) {
+                                 const uint M, const uint N, const uint K, const float &alpha,
+                                 float *A, const uint lda, float *B, const uint ldb, const float &beta,
+                                 float *C, const uint ldc, const uint aOffset, const uint bOffset, 
+                                 const uint cOffset) {
 
   // loads the module specified by FilePath into the executing process's address space 
   void* kernelHandle = dlopen(gemmKernel->getKernelLib().c_str(), RTLD_NOW);
@@ -673,11 +679,34 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
 }
 
 /* TODO: Remove this in the future */
-int main()
+int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
+                       hcblasTranspose typeA, hcblasTranspose typeB, const int M,
+                       const uint N, const uint K, const float &alpha, float *A,
+                       const uint lda, float *B, const uint ldb, const float &beta,
+                       float *C, const uint ldc, const uint aOffset, const uint bOffset,
+                       const uint cOffset) 
 {
+
+    // Instantiate the autogemm kernel
     AutogemmKernel* gemmKernel = new AutogemmKernel();
-    gemmKernel->initKernParam(gemmKernel);
+
+    
+    // Initialize and validate the kernel parameters 
+    gemmKernel->initKernParam(gemmKernel, order, typeA, typeB, beta);
+    gemmKernel->validateKernParam(gemmKernel);
+
+    // Prepare the gemm Kernel
     gemmKernel->makeGemmKernel(gemmKernel);
+
+    // Compile and invoke the Autogemm Kernel 
     gemmKernel->compileKernel(gemmKernel);
+    gemmKernel->invokeKernel(gemmKernel, accl_view, M, N, K, alpha, A, lda, B, ldb, beta,
+                             C, ldc, aOffset, bOffset, cOffset);
     return 0;
+}
+
+int main () {
+
+ return 0;
+
 }
