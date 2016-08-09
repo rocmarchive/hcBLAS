@@ -678,7 +678,17 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
   return SUCCESS;
 }
 
-/* TODO: Remove this in the future */
+/* hcblasAutogemmCall():  Top level function called by the sgemm wrapper to 
+ *                        invoke the Autogemm routines.
+ *                           Does the following - 
+ *                            1) Create a autogemm object with default parameters
+ *                            2) Initialize the Kernel Parameters
+ *                            3) Validate the setted kernel parameters
+ *                            4) Select the Autogemm kernel for the given size
+ *                            5) Compile and generate the shared library
+ *                            6) Load the function symbol from the shared library and
+ *                                invoke the Autogemm kernel
+ */
 int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
                        hcblasTranspose typeA, hcblasTranspose typeB, const int M,
                        const uint N, const uint K, const float &alpha, float *A,
@@ -705,8 +715,10 @@ int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
     return 0;
 }
 
+#if 0
 int main () {
 
  return 0;
 
 }
+#endif
