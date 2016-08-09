@@ -39,9 +39,9 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_1) {
     C[i] = rand() % 25;
   }
 
-  hc::am_copy(devA, A, M * K * sizeof(float));
-  hc::am_copy(devB, B, K * N * sizeof(float));
-  hc::am_copy(devC, C, M * N * sizeof(float));
+  accl_view.copy(A, devA, M * K * sizeof(float));
+  accl_view.copy(B, devB, K * N * sizeof(float));
+  accl_view.copy(C, devC, M * N * sizeof(float));
   // NoTransA and NoTransB
   typeA = NoTrans;
   typeB = NoTrans;
@@ -173,9 +173,9 @@ void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta,
     C_cblas[i] = C[i];
   }
 
-  hc::am_copy(devA, A, M * K * sizeof(float));
-  hc::am_copy(devB, B, K * N * sizeof(float));
-  hc::am_copy(devC, C, M * N * sizeof(float));
+  accl_view.copy(A, devA, M * K * sizeof(float));
+  accl_view.copy(B, devB, K * N * sizeof(float));
+  accl_view.copy(C, devC, M * N * sizeof(float));
   // NoTransA and NoTransB
   typeA = NoTrans;
   typeB = NoTrans;
@@ -187,7 +187,7 @@ void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta,
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -241,9 +241,9 @@ void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta,
     C_cblas[i] = C[i];
   }
 
-  hc::am_copy(devA, A, M * K * sizeof(float));
-  hc::am_copy(devB, B, K * N * sizeof(float));
-  hc::am_copy(devC, C, M * N * sizeof(float));
+  accl_view.copy(A, devA, M * K * sizeof(float));
+  accl_view.copy(B, devB, K * N * sizeof(float));
+  accl_view.copy(C, devC, M * N * sizeof(float));
   // NoTransA and NoTransB
   typeA = NoTrans;
   typeB = NoTrans;
@@ -256,7 +256,7 @@ void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta,
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -313,9 +313,9 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
     C_cblas[i] = C[i];
   }
 
-  hc::am_copy(devA, A, M * K * sizeof(float));
-  hc::am_copy(devB, B, K * N * sizeof(float));
-  hc::am_copy(devC, C, M * N * sizeof(float));
+  accl_view.copy(A, devA, M * K * sizeof(float));
+  accl_view.copy(B, devB, K * N * sizeof(float));
+  accl_view.copy(C, devC, M * N * sizeof(float));
 
   // NoTransA TransB
   typeA = NoTrans;
@@ -328,7 +328,7 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -342,7 +342,7 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -355,7 +355,7 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, 0, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, 0, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -410,9 +410,9 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
     C_cblas[i] = C[i];
   }
 
-  hc::am_copy(devA, A, M * K * sizeof(float));
-  hc::am_copy(devB, B, K * N * sizeof(float));
-  hc::am_copy(devC, C, M * N * sizeof(float));
+  accl_view.copy(A, devA, M * K * sizeof(float));
+  accl_view.copy(B, devB, K * N * sizeof(float));
+  accl_view.copy(C, devC, M * N * sizeof(float));
 
   // NoTransA TransB
   typeA = NoTrans;
@@ -426,7 +426,7 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm(CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -440,7 +440,7 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm(CblasRowMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -453,7 +453,7 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, 0, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm(CblasRowMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, 0, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -508,9 +508,9 @@ void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta,
     C_cblas[i] = C[i];
   }
 
-  hc::am_copy(devA, A, M * K * sizeof(float));
-  hc::am_copy(devB, B, K * N * sizeof(float));
-  hc::am_copy(devC, C, M * N * sizeof(float));
+  accl_view.copy(A, devA, M * K * sizeof(float));
+  accl_view.copy(B, devB, K * N * sizeof(float));
+  accl_view.copy(C, devC, M * N * sizeof(float));
   
   // TransA NoTransB
   typeA = Trans;
@@ -523,7 +523,7 @@ void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta,
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -579,9 +579,9 @@ void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta,
     C_cblas[i] = C[i];
   }
 
-  hc::am_copy(devA, A, M * K * sizeof(float));
-  hc::am_copy(devB, B, K * N * sizeof(float));
-  hc::am_copy(devC, C, M * N * sizeof(float));
+  accl_view.copy(A, devA, M * K * sizeof(float));
+  accl_view.copy(B, devB, K * N * sizeof(float));
+  accl_view.copy(C, devC, M * N * sizeof(float));
   
   // TransA NoTransB
   typeA = Trans;
@@ -595,7 +595,7 @@ void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta,
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -650,9 +650,9 @@ void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta,
     C_cblas[i] = C[i];
   }
 
-  hc::am_copy(devA, A, M * K * sizeof(float));
-  hc::am_copy(devB, B, K * N * sizeof(float));
-  hc::am_copy(devC, C, M * N * sizeof(float));
+  accl_view.copy(A, devA, M * K * sizeof(float));
+  accl_view.copy(B, devB, K * N * sizeof(float));
+  accl_view.copy(C, devC, M * N * sizeof(float));
 
   // TransA TransB
   typeA = Trans;
@@ -667,7 +667,7 @@ void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta,
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -722,9 +722,9 @@ void func_check_sgemmTT_Row_type_1(int M, int N, int K, float alpha, float beta,
     C_cblas[i] = C[i];
   }
 
-  hc::am_copy(devA, A, M * K * sizeof(float));
-  hc::am_copy(devB, B, K * N * sizeof(float));
-  hc::am_copy(devC, C, M * N * sizeof(float));
+  accl_view.copy(A, devA, M * K * sizeof(float));
+  accl_view.copy(B, devB, K * N * sizeof(float));
+  accl_view.copy(C, devC, M * N * sizeof(float));
 
   // TransA TransB
   typeA = Trans;
@@ -738,7 +738,7 @@ void func_check_sgemmTT_Row_type_1(int M, int N, int K, float alpha, float beta,
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(float));
   cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++) {
@@ -1131,9 +1131,9 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
     Cbatch[i] = rand() % 25;
   }
 
-  hc::am_copy(devAbatch, Abatch, M * K * sizeof(float));
-  hc::am_copy(devBbatch, Bbatch, K * N * sizeof(float));
-  hc::am_copy(devCbatch, Cbatch, M * N * batchSize * sizeof(float));
+  accl_view.copy(Abatch, devAbatch, M * K * sizeof(float));
+  accl_view.copy(Bbatch, devBbatch, K * N * sizeof(float));
+  accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(float));
   // NoTransA and NoTransB
   typeA = NoTrans;
   typeB = NoTrans;
@@ -1268,9 +1268,9 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
     CCblasbatch[i] = Cbatch[i];
   }
 
-  hc::am_copy(devAbatch, Abatch, M * K * sizeof(float));
-  hc::am_copy(devBbatch, Bbatch, K * N * sizeof(float));
-  hc::am_copy(devCbatch, Cbatch, M * N * batchSize * sizeof(float));
+  accl_view.copy(Abatch, devAbatch, M * K * sizeof(float));
+  accl_view.copy(Bbatch, devBbatch, K * N * sizeof(float));
+  accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(float));
   // NoTransA and NoTransB
   typeA = NoTrans;
   typeB = NoTrans;
@@ -1282,7 +1282,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
@@ -1298,7 +1298,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, 0, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
@@ -1314,7 +1314,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, 0, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, 0, Abatch, lda, Bbatch, ldb, 0, CCblasbatch  + i * M * N , ldc );
@@ -1330,7 +1330,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
@@ -1346,7 +1346,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch,  M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, 0, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
@@ -1362,7 +1362,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, 0, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, 0, Abatch, lda, Bbatch, ldb, 0, CCblasbatch  + i * M * N , ldc );
@@ -1383,7 +1383,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
@@ -1399,7 +1399,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
@@ -1420,7 +1420,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch,  M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
@@ -1436,7 +1436,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
@@ -1457,7 +1457,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = M;
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
@@ -1473,7 +1473,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   ldc = N;
   status = hc.hcblas_sgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  hc::am_copy(Chcblasbatch, devCbatch,  M * N * batchSize * sizeof(float));
+  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
 
   for(int i = 0; i < batchSize; i++) {
     cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );

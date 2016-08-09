@@ -20,7 +20,7 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_1) {
    for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
-   hc::am_copy(devX, X, lenx * sizeof(double));
+   accl_view.copy(X, devX, lenx * sizeof(double));
    /* Proper call */
    status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -57,7 +57,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_1) {
    for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
-   hc::am_copy(devX, X, lenx * sizeof(double));
+   accl_view.copy(X, devX, lenx * sizeof(double));
    /* Proper call */
    status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -85,7 +85,7 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_2) {
    for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;
    }
-   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
+   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
    /* Proper call */
    status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -125,7 +125,7 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_2) {
    for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;
    }
-   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
+   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
    /* Proper call */
    status= hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);

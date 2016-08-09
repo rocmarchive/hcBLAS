@@ -83,11 +83,11 @@ int main(int argc, char** argv)
             y[i] = rand() % 15;
             ycblas[i] = y[i];
         }
-        hc::am_copy(devA, A, lenx * leny * sizeof(float));
-        hc::am_copy(devX, x, lenx * sizeof(float));
-        hc::am_copy(devY, y, leny * sizeof(float));
+        accl_view.copy(A, devA, lenx * leny * sizeof(float));
+        accl_view.copy(x, devX, lenx * sizeof(float));
+        accl_view.copy(y, devY, leny * sizeof(float));
         status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
-        hc::am_copy(y, devY, leny * sizeof(float));
+        accl_view.copy(devY, y, leny * sizeof(float));
         lda = (hcOrder)? M: N;
         cblas_sgemv( order, transa, M, N, alpha, A, lda , x, incX, beta, ycblas, incY );
         for(int i =0; i < leny; i ++){
@@ -136,11 +136,11 @@ int main(int argc, char** argv)
             ybatch[i] = rand() % 15;
             ycblasbatch[i] = ybatch[i];
         }
-        hc::am_copy(devXbatch, xbatch, lenx * batchSize * sizeof(float));
-        hc::am_copy(devYbatch, ybatch, leny * batchSize * sizeof(float));
-        hc::am_copy(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
+        accl_view.copy(xbatch, devXbatch, lenx * batchSize * sizeof(float));
+        accl_view.copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+        accl_view.copy(Abatch, devAbatch, lenx * leny * batchSize * sizeof(float));
         status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch, aOffset, A_batchOffset, lda, devXbatch, xOffset, X_batchOffset, incX, beta, devYbatch, yOffset, Y_batchOffset, incY, batchSize);
-        hc::am_copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+        accl_view.copy(devYbatch, ybatch, leny * batchSize * sizeof(float));
         lda = (hcOrder)? M : N;
         for(int i =0 ; i < batchSize; i++)
             cblas_sgemv( order, transa, M, N, alpha, Abatch + i * M * N, lda , xbatch + i * row, incX, beta, ycblasbatch + i * col, incY );

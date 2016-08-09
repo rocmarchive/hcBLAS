@@ -107,16 +107,16 @@ int main(int argc,char* argv[])
             C[i  + cOffset] = rand() % 25;
             C_cblas[i + cOffset] = C[i + cOffset];
         }
-        hc::am_copy(devA, A, (M * K + aOffset)* sizeof(float));
-        hc::am_copy(devB, B, (K * N + bOffset)* sizeof(float));
-        hc::am_copy(devC, C, (M * N + cOffset)* sizeof(float));
+        accl_view.copy(A, devA, (M * K + aOffset)* sizeof(float));
+        accl_view.copy(B, devB, (K * N + bOffset)* sizeof(float));
+        accl_view.copy(C, devC, (M * N + cOffset)* sizeof(float));
         start = std::chrono::high_resolution_clock::now();
         status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
         //accl_view.wait();
         end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> dur = end - start;
         elapsed_pfe.push_back(dur);
-        hc::am_copy(C, devC,  (M * N + cOffset) * sizeof(float));
+        accl_view.copy(devC, C,  (M * N + cOffset) * sizeof(float));
 #if 0
         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A + aOffset, lda, B + bOffset, ldb, beta, C_cblas + cOffset, ldc);
         for(int i = 0 ; i < M * N ; i++) { 

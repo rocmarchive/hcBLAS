@@ -21,7 +21,7 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_1) {
             X[i] = rand() % 10;
    }
    double* devX1 = NULL;
-   hc::am_copy(devX, X, lenx * sizeof(double));
+   accl_view.copy(X, devX, lenx * sizeof(double));
    /* devX1 is NULL */
    status = hc.hcblas_dscal(accl_view, N, alpha, devX1, incX, xOffset);
    EXPECT_EQ(status, HCBLAS_INVALID);
@@ -60,10 +60,10 @@ TEST(hcblas_dscal, function_correct_dscal_Implementation_type_1) {
            X[i] = rand() % 10;
 	   Xcblas[i] = X[i];
    }
-   hc::am_copy(devX, X, lenx * sizeof(double));
+   accl_view.copy(X, devX, lenx * sizeof(double));
    status = hc.hcblas_dscal(accl_view, N, alpha, devX, incX, xOffset);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-   hc::am_copy(X, devX, lenx * sizeof(double));
+   accl_view.copy(devX, X, lenx * sizeof(double));
    cblas_dscal( N, alpha, Xcblas, incX );
    for(int i = 0; i < lenx ; i++){
 	   EXPECT_EQ(X[i], Xcblas[i]);
@@ -89,7 +89,7 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_2) {
    for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;
    }
-   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
+   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
    /* x1 is NULL */
    status= hc.hcblas_dscal(accl_view, N, alpha, devX1batch, incX, xOffset, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_INVALID);
@@ -130,10 +130,10 @@ TEST(hcblas_dscal, function_correct_dscal_Implementation_type_2) {
                Xbatch[i] = rand() % 10;
 	       Xcblasbatch[i] =  Xbatch[i];
    }
-   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
+   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
    status= hc.hcblas_dscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-   hc::am_copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
+   accl_view.copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
    for(int i = 0; i < batchSize; i++)
         cblas_dscal( N, alpha, Xcblasbatch + i * N, incX);
    for(int i =0; i < lenx * batchSize; i ++){
