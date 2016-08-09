@@ -541,7 +541,7 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     hcOrder = RowMajor;
     status = hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devAbatch1, aOffset, A_batchOffset, lda, devXbatch1, xOffset, X_batchOffset, incX, beta, devYbatch1, yOffset, Y_batchOffset, incY, batchSize);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(ybatch1, devYbatch1, leny * batchSize * sizeof(float));
+    accl_view.copy(devYbatch1, ybatch1, leny * batchSize * sizeof(float));
     lda = (hcOrder)? M : N;
     for(int i =0 ; i < batchSize; i++)
          cblas_sgemv( CblasRowMajor, transa, M, N, alpha, Abatch1 + i * M * N, lda , xbatch1 + i * row, incX, beta, ycblasbatch1 + i * col, incY );
