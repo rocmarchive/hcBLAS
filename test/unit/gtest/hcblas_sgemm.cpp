@@ -1113,15 +1113,6 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimA_regularK_Implementation_type_1
 
 // CASE 2: Slim C Fat B Square A
 // SGEMM NN Case
-// check slim C with large M and VVsmall N
-TEST(hcblas_sgemm, func_correct_sgemmNN_Col_slimC_vvsmallN_Implementation_type_1) {
- int M, N, K;
- M = K = gen_vlarge();
- N = gen_vvsmall();
- float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
- float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta, 0.01);
-}
 
 // check slim C with large M and Vsmall N
 TEST(hcblas_sgemm, func_correct_sgemmNN_Col_slimC_vsmallN_Implementation_type_1) {
@@ -1130,7 +1121,7 @@ TEST(hcblas_sgemm, func_correct_sgemmNN_Col_slimC_vsmallN_Implementation_type_1)
  N = gen_vsmall();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta, 0.01);
+ func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // check slim C with large M and small N
@@ -1140,7 +1131,7 @@ TEST(hcblas_sgemm, func_correct_sgemmNN_Col_slimC_smallN_Implementation_type_1) 
  N = gen_small();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta, 0.01);
+ func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // check slim C with large M and regular N
@@ -1150,19 +1141,10 @@ TEST(hcblas_sgemm, func_correct_sgemmNN_Col_slimC_regularN_Implementation_type_1
  N = gen_regular();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta, 0.1);
+ func_check_sgemmNN_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // SGEMM NT Case
-// check slim C with large M and VVsmall N
-TEST(hcblas_sgemm, func_correct_sgemmNT_Col_slimC_vvsmallN_Implementation_type_1) {
- int M, N, K;
- M = K = gen_vlarge();
- K = gen_vvsmall();
- float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
- float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 0.01);
-}
 
 // check slim C with large M and Vsmall N
 TEST(hcblas_sgemm, func_correct_sgemmNT_Col_slimC_vsmallN_Implementation_type_1) {
@@ -1171,7 +1153,7 @@ TEST(hcblas_sgemm, func_correct_sgemmNT_Col_slimC_vsmallN_Implementation_type_1)
  N = gen_vsmall();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 0.01);
+ func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // check slim C with large M and small N
@@ -1181,7 +1163,7 @@ TEST(hcblas_sgemm, func_correct_sgemmNT_Col_slimC_smallN_Implementation_type_1) 
  N = gen_small();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 0.01);
+ func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // check slim C with large M and regular N
@@ -1191,20 +1173,10 @@ TEST(hcblas_sgemm, func_correct_sgemmNT_Col_slimC_regularN_Implementation_type_1
  N = gen_regular();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 0.1);
+ func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // SGEMM TN Case
-// check slim C with large M and VVsmall N
-TEST(hcblas_sgemm, func_correct_sgemmTN_Col_slimC_vvsmallN_Implementation_type_1) {
- int M, N, K;
- M = K = gen_vlarge();
- N = gen_vvsmall();
- float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
- float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta, 0.01);
-}
-
 // check slim C with large M and Vsmall N
 TEST(hcblas_sgemm, func_correct_sgemmTN_Col_slimC_vsmallN_Implementation_type_1) {
  int M, N, K;
@@ -1212,7 +1184,7 @@ TEST(hcblas_sgemm, func_correct_sgemmTN_Col_slimC_vsmallN_Implementation_type_1)
  N = gen_vsmall();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta, 0.01);
+ func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // check slim C with large M and small N
@@ -1222,7 +1194,7 @@ TEST(hcblas_sgemm, func_correct_sgemmTN_Col_slimC_smallN_Implementation_type_1) 
  N = gen_small();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta, 0.01);
+ func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // check slim C with large M and regular N
@@ -1232,20 +1204,9 @@ TEST(hcblas_sgemm, func_correct_sgemmTN_Col_slimC_regularN_Implementation_type_1
  N = gen_regular();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta, 0.1);
+ func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
-
 // SGEMM TT Case
-// check slim C with large M and VVsmall N
-TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_vvsmallN_Implementation_type_1) {
- int M, N, K;
- M = K = gen_vlarge();
- N = gen_vvsmall();
- float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
- float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 0.01);
-}
-
 // check slim C with large M and Vsmall N
 TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_vsmallN_Implementation_type_1) {
  int M, N, K;
@@ -1253,7 +1214,7 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_vsmallN_Implementation_type_1)
  N = gen_vsmall();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 0.01);
+ func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // check slim C with large M and small N
@@ -1263,7 +1224,7 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_smallN_Implementation_type_1) 
  N = gen_small();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 0.01);
+ func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 // check slim C with large M and regular N
@@ -1273,7 +1234,7 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_regularN_Implementation_type_1
  N = gen_regular();
  float alpha = ((float)rand()/(float)(RAND_MAX)) * 1.172; 
  float beta = ((float)rand()/(float)(RAND_MAX)) * 3.414; 
- func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 0.1);
+ func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 0.25);
 }
 
 TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
