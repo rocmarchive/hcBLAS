@@ -49,6 +49,12 @@ class Hcblaslibrary
 {
     public:
     int deviceId;
+    // Add current Accerator field
+    hc::accelerator currentAccl;
+
+    // Add current Accerator View field set with a default accelerator view of default accelerator
+    hc::accelerator_view currentAcclView = hc::accelerator().get_default_view();
+
     hcblasOrder Order;
         
 /* SAXPY - Y = alpha * X + Y                                    */
