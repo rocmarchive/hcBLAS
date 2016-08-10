@@ -66,6 +66,9 @@ class AutogemmKernel {
                           hcblasTranspose typeA, hcblasTranspose typeB,
                           const float &beta);
        int validateKernParam(AutogemmKernel* gemmKernel);
+       int selectMicrotileLogic(AutogemmKernel* gemmKernel, hcblasOrder order,
+                                hcblasTranspose typeA, hcblasTranspose typeB,
+                                uint M, uint N, uint K, float beta);
        int makeGemmKernel(AutogemmKernel* gemmKernel);
        int compileKernel(AutogemmKernel* gemmKernel);
        int invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
@@ -73,7 +76,6 @@ class AutogemmKernel {
                         float *A, const uint lda, float *B, const uint ldb, const float &beta,
                         float *C, const uint ldc, const uint aOffset, const uint bOffset,
                         const uint cOffset);
-
 };
 
 #endif // AUTOGEMM_KERNEL_H

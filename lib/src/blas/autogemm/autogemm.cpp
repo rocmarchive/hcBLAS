@@ -9,9 +9,9 @@
 using namespace std;
 
 /* isRowKernel():  Return true if
-  *                                   - macroTileNumRows = 1
-  *                                   - guards around gA -> lA
-  *                                    - guards around gC[gRow,:] = rC[row,:]
+  *                     - macroTileNumRows = 1
+  *                     - guards around gA -> lA
+  *                     - guards around gC[gRow,:] = rC[row,:]
  */
  bool AutogemmKernel::isRowKernel() {
 
@@ -28,9 +28,9 @@ using namespace std;
 }
 
 /* isColKernel():  Return true if
-  *                                   - macroTileNumCols = 1
-  *                                   - guards around gB -> lB
-  *                                    - guards around gC[:,gCol] = rC[:,Col]
+  *                    - macroTileNumCols = 1
+  *                    - guards around gB -> lB
+  *                    - guards around gC[:,gCol] = rC[:,Col]
  */
  bool AutogemmKernel::isColKernel() {
 
@@ -46,7 +46,7 @@ using namespace std;
   }
 }
 
-/* getName():  Return the generated Kernel name based on
+/* getKernelName():  Return the generated Kernel name based on
  *                                - TransA, TransB
  *                                - Beta value
  *                                - microtileSize * macrotileSize
@@ -168,6 +168,549 @@ int AutogemmKernel::validateKernParam(AutogemmKernel* gemmKernel) {
   }
   return SUCCESS;
 
+}
+
+/* SelectMicrotileLogic(): Determing the Microtile logic to be called for
+ *                         particular size
+ *
+ *          **** Works only for sizes M*N >= 3072*3072 ****
+ *
+ * Format: {Size, fallback tile, valid tiles}
+ *
+ * "s":[
+ *  [ 3072, [ 16, 16, 6, 6], [ [ 16, 16, 6, 6], [ 16, 16, 5, 5], [ 16, 16, 4, 4] ] ],
+ *  [ 2240, [ 16, 16, 6, 6], [ [ 16, 16, 6, 6], [ 16, 16, 4, 4], [ 16, 16, 5, 5], [ 16, 16, 3, 3] ] ],
+ *  [ 1760, [ 16, 16, 4, 4], [ [ 16, 16, 6, 6], [ 16, 16, 4, 4], [ 16, 16, 5, 5], [ 16, 16, 3, 3] ] ],
+ *  [ 1600, [ 16, 16, 4, 4], [ [ 16, 16, 4, 4], [ 16, 16, 6, 6], [ 16, 16, 5, 5], [ 16, 16, 3, 3] ] ],
+ *  [ 1056, [ 16, 16, 4, 4], [ [ 16, 16, 4, 4], [ 16, 16, 6, 6], [ 16, 16, 5, 5], [ 16, 16, 3, 3], [ 16, 16, 2, 2] ] ],
+ *  [  960, [ 16, 16, 4, 4], [ [ 16, 16, 4, 4], [ 16, 16, 5, 5], [ 16, 16, 3, 3], [ 16, 16, 2, 2] ] ],
+ *  [  736, [ 16, 16, 3, 3], [ [ 16, 16, 4, 4], [ 16, 16, 3, 3], [ 16, 16, 5, 5], [ 16, 16, 2, 2] ] ],
+ *  [  528, [ 16, 16, 3, 3], [ [ 16, 16, 4, 4], [ 16, 16, 3, 3], [ 16, 16, 2, 2], [ 16, 16, 1, 1] ] ],
+ *  [  432, [ 16, 16, 2, 2], [ [ 16, 16, 3, 3], [ 16, 16, 2, 2], [ 16, 16, 1, 1] ] ],
+ *  [  320, [ 16, 16, 2, 2], [ [ 16, 16, 2, 2], [ 16, 16, 1, 1] ] ],
+ *  [    1, [ 16, 16, 1, 1], [ [ 16, 16, 1, 1] ] ],
+ *
+ */
+int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
+                                         hcblasOrder order,
+                                         hcblasTranspose typeA,
+                                         hcblasTranspose typeB,
+                                         uint M, uint N, uint K,
+                                         float beta) {
+
+   gemmKernel->isColMajor = (order == ColMajor) ? 1 : 0  ;
+   gemmKernel->isTransA = (typeA == NoTrans) ? 0 : 1;
+   gemmKernel->isTransB = (typeB == NoTrans) ? 0 : 1;
+   gemmKernel->isBeta_nonZero = (beta == 0) ? 0 : 1;
+
+  if (M*N >= 3072*3072) {
+
+    // Valid Tiles
+    if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 2240*2240) {
+
+    // Valid Tiles
+    if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 1760*1760) {
+
+     // Valid Tiles
+    if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 1600*1600) {
+
+      // Valid Tiles
+    if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 1056*1056) {
+
+    // Valid Tiles
+    if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
+
+    }
+    if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 960*960) {
+
+    // Valid Tiles
+    if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 736*736) {
+
+    // Valid Tiles
+    if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+
+    }
+    if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 528*528) {
+
+    // Valid Tiles
+    if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+
+    }
+    if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 432*432) {
+
+    // Valid Tiles
+    if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+
+    }
+    if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 320*320) {
+
+    // Valid Tiles
+    if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+
+    }
+    if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  if (M*N >= 1*1) {
+
+    // Valid Tiles
+    if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
+
+    }
+    if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
+
+    }
+
+    // Fallback Tile
+    if (K%16 == 0) {
+
+    }
+    if (K%8 == 0) {
+
+    }
+    if (K%1 == 0) {
+
+    }
+  }
+  return SUCCESS;
 }
 
 /* makeGemmKernel():   Generates gemm Kernel String and write onto
@@ -678,10 +1221,10 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
   return SUCCESS;
 }
 
-/* hcblasAutogemmCall():  Top level function called by the sgemm wrapper to 
+/* hcblasAutogemmCall():  Top level function called by the sgemm wrapper to
  *                        invoke the Autogemm routines.
- *                           Does the following - 
- *                            1) Create a autogemm object with default parameters
+ *                           Does the following -
+ *                            1) Create a autogemm object instantiate with default parameters
  *                            2) Initialize the Kernel Parameters
  *                            3) Validate the setted kernel parameters
  *                            4) Select the Autogemm kernel for the given size
@@ -715,7 +1258,7 @@ int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
     return 0;
 }
 
-#if 0
+#if 1 
 int main () {
 
  return 0;
