@@ -165,6 +165,38 @@ int AutogemmKernel::validateKernParam(AutogemmKernel* gemmKernel) {
 
 }
 
+/*
+ * writeKernel():  This function
+ *                  1) Determines number of kernels required for a given size
+ *                  2) Calls makegemmKernel to generate it
+ *
+ */
+void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uint K) {
+
+  bool needTileKernel = M/gemmKernel->macrotileNumRows > 0 && N/gemmKernel->macrotileNumCols > 0;
+  bool needRowKernel = M%gemmKernel->macrotileNumRows > 0 && N/gemmKernel->macrotileNumCols > 0;
+  bool needColKernel = N%gemmKernel->macrotileNumCols > 0 && M/gemmKernel->macrotileNumRows > 0;
+  bool needCornerKernel = M%gemmKernel->macrotileNumRows > 0 && N%gemmKernel->macrotileNumCols > 0;
+
+  std::string kStr;
+
+  if (needTileKernel) {
+
+    // Disable Row/Col/Corner kernel generation cases
+    
+    // Generate kernel for Tile Kernel
+    gemmKernel->makeGemmKernel(gemmKernel);
+
+  }
+
+  if (needRowKernel) {
+
+    // Disable Col/Corner cases
+
+    gemmKernel->macrotileNumRows = 1;
+  } 
+
+}
 /* compileKernel():  This function 
  *                    1) picks either COMPILER default path or user path  
  *                      and compile the generated kernel at runtime

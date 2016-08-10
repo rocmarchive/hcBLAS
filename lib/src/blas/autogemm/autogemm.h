@@ -72,6 +72,7 @@ class AutogemmKernel {
        int selectMicrotileLogic(AutogemmKernel* gemmKernel, hcblasOrder order,
                                 hcblasTranspose typeA, hcblasTranspose typeB,
                                 uint M, uint N, uint K, float beta);
+       void writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uint K);
        int makeGemmKernel(AutogemmKernel* gemmKernel);
        int compileKernel(AutogemmKernel* gemmKernel);
        int invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
