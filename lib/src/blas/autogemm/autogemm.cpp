@@ -207,41 +207,121 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     // Valid Tiles
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
-
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 16;
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
-
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 8;
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
-
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 1;
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
-
-    }
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 16;
+   }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 8;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 1;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -249,50 +329,155 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     // Valid Tiles
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 16;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 8;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 1;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 16;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 8;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 1;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -300,50 +485,155 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
      // Valid Tiles
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 16;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 8;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 1;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 16;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 8;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 1;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -351,50 +641,155 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
       // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 16;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 8;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 1;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 16;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 8;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 1;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -402,59 +797,185 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 16;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 8;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 6;
+      gemmKernel->microtileNumCols = 6;
+      gemmKernel->macrotileNumRows = 96;
+      gemmKernel->macrotileNumCols = 96;
+      gemmKernel->unroll = 1;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 16;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 8;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 1;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 16;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 8;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -462,50 +983,155 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 16;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 8;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 1;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 16;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 8;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -513,50 +1139,155 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 16;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 8;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 5;
+      gemmKernel->microtileNumCols = 5;
+      gemmKernel->macrotileNumRows = 80;
+      gemmKernel->macrotileNumCols = 80;
+      gemmKernel->unroll = 1;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 16;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 8;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -564,50 +1295,155 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 16;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 8;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 4;
+      gemmKernel->microtileNumCols = 4;
+      gemmKernel->macrotileNumRows = 64;
+      gemmKernel->macrotileNumCols = 64;
+      gemmKernel->unroll = 1;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 16;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 8;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 1;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 16;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 8;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -615,41 +1451,125 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     // Valid Tiles
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 16;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 8;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 3;
+      gemmKernel->microtileNumCols = 3;
+      gemmKernel->macrotileNumRows = 48;
+      gemmKernel->macrotileNumCols = 48;
+      gemmKernel->unroll = 1;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 16;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 8;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 1;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 16;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 8;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -657,32 +1577,95 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     // Valid Tiles
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 16;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 8;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 1;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 16;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 8;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 2;
+      gemmKernel->microtileNumCols = 2;
+      gemmKernel->macrotileNumRows = 32;
+      gemmKernel->macrotileNumCols = 32;
+      gemmKernel->unroll = 1;
 
     }
   }
@@ -690,23 +1673,65 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     // Valid Tiles
     if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 16;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 8;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 1;
 
     }
 
     // Fallback Tile
     if (K%16 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 16;
 
     }
     if (K%8 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 8;
 
     }
     if (K%1 == 0) {
+      gemmKernel->tileNumRows = 16;
+      gemmKernel->tileNumCols = 16;
+      gemmKernel->microtileNumRows = 1;
+      gemmKernel->microtileNumCols = 1;
+      gemmKernel->macrotileNumRows = 16;
+      gemmKernel->macrotileNumCols = 16;
+      gemmKernel->unroll = 1;
 
     }
   }
