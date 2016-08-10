@@ -6,6 +6,9 @@
 #include <sstream>
 #include <cstdio>
 #include <map>
+#include <fstream>
+#include <unistd.h>
+#include <dlfcn.h>
 
 #include "hcblaslib.h"
 
@@ -23,7 +26,7 @@ std::string toString(T val) {
 
 }
 
-std::map<char, std::string> dataTypes = {{'s', "float"}, {'d', "double"}, {'c', "float"}, {'z', "double"}};
+static std::map<char, std::string> dataTypes = {{'s', "float"}, {'d', "double"}, {'c', "float"}, {'z', "double"}};
 
 class AutogemmKernel {
 
