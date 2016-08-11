@@ -73,7 +73,7 @@ class AutogemmKernel {
                                 hcblasTranspose typeA, hcblasTranspose typeB,
                                 uint M, uint N, uint K, float beta);
        void writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uint K);
-       int makeGemmKernel(AutogemmKernel* gemmKernel);
+       int makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr);
        int compileKernel(AutogemmKernel* gemmKernel);
        int invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
                         const uint M, const uint N, const uint K, const float &alpha,

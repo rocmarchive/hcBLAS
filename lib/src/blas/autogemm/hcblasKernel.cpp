@@ -6,17 +6,17 @@
 /* makeGemmKernel():   Generates gemm Kernel String and write onto
  *                                         the file
  */
-int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel) {
-
-  std::string kStr;
+int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr) {
 
   // Check whether the kernel parameters are valid
   if (gemmKernel->validateKernParam(gemmKernel) != SUCCESS) {
         return CRIT_ERR;
   }
 
+  kStr += endLine;
+
   // initializations
-  kStr = "/* " + gemmKernel->getKernelName()  +  " */" + endLine;
+  kStr += "/* " + gemmKernel->getKernelName()  +  " */" + endLine;
 
   // Add header files
   kStr = kStr + "#include \"hc.hpp\"" + endLine;
@@ -36,8 +36,8 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel) {
   kStr = kStr + "#define WG_NUM_COLS          " + toString<int>(gemmKernel->tileNumCols) + endLine;
   kStr = kStr + "#define MICRO_TILE_NUM_ROWS  " + toString<int>(gemmKernel->microtileNumRows) + endLine;
   kStr = kStr + "#define MICRO_TILE_NUM_COLS  " + toString<int>(gemmKernel->microtileNumCols) + endLine;
-  kStr = kStr + "#define MACRO_TILE_NUM_ROWS  " + toString<int>(gemmKernel->macrotileNumRows) + endLine;
-  kStr = kStr + "#define MACRO_TILE_NUM_COLS  " + toString<int>(gemmKernel->macrotileNumCols) + endLine;
+  kStr = kStr + "#define MACRO_TILE_NUM_ROWS  " + toString<int>(gemmKernel->tileNumRows*gemmKernel->microtileNumCols) + endLine;
+  kStr = kStr + "#define MACRO_TILE_NUM_COLS  " + toString<int>(gemmKernel->tileNumColsgemmKernel->microtileNumCols) + endLine;
   kStr = kStr + "#define NUM_UNROLL_ITER      " + toString<int>(gemmKernel->unroll) + endLine;
   kStr += endLine;
   kStr = kStr + "#define LOCAL_ROW_PAD        0"  + endLine;
@@ -220,11 +220,11 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel) {
   kStr += endLine;
   kStr = kStr + "  /* work item indices */" + endLine;
   if (gemmKernel->isRowKernel())
-    kStr = kStr + "  uint gidx = M / " + toString(gemmKernel->macrotileNumRows) + "; // last row" + endLine;
+    kStr = kStr + "  uint gidx = M / " + toString(gemmKernel->tileNumRows*gemmKernel->microtileNumRows) + "; // last row" + endLine;
   else
     kStr = kStr + "  uint gidx = tidx.tile[1];" + endLine;
   if (gemmKernel->isColKernel())
-    kStr = kStr + "  uint gidy = N / " + toString(gemmKernel->macrotileNumCols) + "; // last column" + endLine;
+    kStr = kStr + "  uint gidy = N / " + toString(gemmKernel->tileNumCols*gemmKernel->microtileNumCols) + "; // last column" + endLine;
   else
     kStr = kStr + "  uint gidy = tidx.tile[0];" + endLine;
 
@@ -411,11 +411,6 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel) {
   // end kernel
   kStr = kStr + endLine + "}" + endLine;
   kStr = kStr + endLine + "#endif" + endLine;
-
-  ofstream kFile;
-  kFile.open(gemmKernel->getFileName());
-  kFile << kStr;
-  kFile.close();
 
   return SUCCESS;
 }
