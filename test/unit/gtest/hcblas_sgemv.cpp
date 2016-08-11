@@ -524,7 +524,7 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
             ycblasbatch1[i] = ybatch1[i];
     }
     accl_view.copy(xbatch1, devXbatch1, lenx * batchSize * sizeof(float));
-    accl_view.copy(ybatch1, devXbatch1, leny * batchSize * sizeof(float));
+    accl_view.copy(ybatch1, devYbatch1, leny * batchSize * sizeof(float));
     accl_view.copy(Abatch1, devAbatch1, lenx * leny * batchSize * sizeof(float));
 
    /* Proper call with column major */
