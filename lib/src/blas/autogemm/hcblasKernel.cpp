@@ -37,7 +37,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
   kStr = kStr + "#define MICRO_TILE_NUM_ROWS  " + toString<int>(gemmKernel->microtileNumRows) + endLine;
   kStr = kStr + "#define MICRO_TILE_NUM_COLS  " + toString<int>(gemmKernel->microtileNumCols) + endLine;
   kStr = kStr + "#define MACRO_TILE_NUM_ROWS  " + toString<int>(gemmKernel->tileNumRows*gemmKernel->microtileNumCols) + endLine;
-  kStr = kStr + "#define MACRO_TILE_NUM_COLS  " + toString<int>(gemmKernel->tileNumColsgemmKernel->microtileNumCols) + endLine;
+  kStr = kStr + "#define MACRO_TILE_NUM_COLS  " + toString<int>(gemmKernel->tileNumCols*gemmKernel->microtileNumCols) + endLine;
   kStr = kStr + "#define NUM_UNROLL_ITER      " + toString<int>(gemmKernel->unroll) + endLine;
   kStr += endLine;
   kStr = kStr + "#define LOCAL_ROW_PAD        0"  + endLine;

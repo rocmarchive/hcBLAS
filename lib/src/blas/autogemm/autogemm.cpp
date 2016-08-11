@@ -173,28 +173,51 @@ int AutogemmKernel::validateKernParam(AutogemmKernel* gemmKernel) {
  */
 void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uint K) {
 
-  bool needTileKernel = M/gemmKernel->macrotileNumRows > 0 && N/gemmKernel->macrotileNumCols > 0;
-  bool needRowKernel = M%gemmKernel->macrotileNumRows > 0 && N/gemmKernel->macrotileNumCols > 0;
-  bool needColKernel = N%gemmKernel->macrotileNumCols > 0 && M/gemmKernel->macrotileNumRows > 0;
-  bool needCornerKernel = M%gemmKernel->macrotileNumRows > 0 && N%gemmKernel->macrotileNumCols > 0;
+
+  // Temporarily access the microtile elements
+  uint macrotileNumRows = gemmKernel->macrotileNumRows;
+  uint macrotileNumCols = gemmKernel->macrotileNumCols;
+
+  bool needTileKernel = M/macrotileNumRows > 0 && N/macrotileNumCols > 0;
+  bool needRowKernel = M%macrotileNumRows > 0 && N/macrotileNumCols > 0;
+  bool needColKernel = N%macrotileNumCols > 0 && M/macrotileNumRows > 0;
+  bool needCornerKernel = M%macrotileNumRows > 0 && N%macrotileNumCols > 0;
 
   std::string kStr;
 
   if (needTileKernel) {
-
-    // Disable Row/Col/Corner kernel generation cases
-    
-    // Generate kernel for Tile Kernel
-    gemmKernel->makeGemmKernel(gemmKernel);
-
+    gemmKernel->makeGemmKernel(gemmKernel, kStr);
   }
 
   if (needRowKernel) {
-
-    // Disable Col/Corner cases
-
+    // Set macrotile value for Row Kernel generation
     gemmKernel->macrotileNumRows = 1;
-  } 
+
+    // Generate the kernel with the same string
+    gemmKernel->makeGemmKernel(gemmKernel, kStr);
+  }
+
+  if (needColKernel) {
+    // Set macrotile value for Row Kernel generation
+    gemmKernel->macrotileNumCols = 1;
+
+    // Generate the kernel with the same string
+    gemmKernel->makeGemmKernel(gemmKernel, kStr);
+  }
+
+  if (needCornerKernel) {
+    // Set macrotile value for Corner Kernel generation
+    gemmKernel->macrotileNumRows = 1;
+    gemmKernel->macrotileNumCols = 1;
+
+    // Generate the kernel with the same string
+    gemmKernel->makeGemmKernel(gemmKernel, kStr);
+  }
+
+  ofstream kFile;
+  kFile.open(gemmKernel->getFileName());
+  kFile << kStr;
+  kFile.close();
 
 }
 /* compileKernel():  This function 
@@ -314,9 +337,6 @@ int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
     // Initialize and validate the kernel parameters 
     gemmKernel->initKernParam(gemmKernel, order, typeA, typeB, beta);
     gemmKernel->validateKernParam(gemmKernel);
-
-    // Prepare the gemm Kernel
-    gemmKernel->makeGemmKernel(gemmKernel);
 
     // Compile and invoke the Autogemm Kernel 
     gemmKernel->compileKernel(gemmKernel);
