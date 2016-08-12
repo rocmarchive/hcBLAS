@@ -117,7 +117,7 @@ int main(int argc,char* argv[])
         std::chrono::duration<double> dur = end - start;
         elapsed_pfe.push_back(dur);
         hc::am_copy(C, devC,  (M * N + cOffset) * sizeof(float));
-#if 0
+#if 1
         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A + aOffset, lda, B + bOffset, ldb, beta, C_cblas + cOffset, ldc);
         for(int i = 0 ; i < M * N ; i++) { 
             if( C_cblas[i + cOffset] != (C[i + cOffset])) {

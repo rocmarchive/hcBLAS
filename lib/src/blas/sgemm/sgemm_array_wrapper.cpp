@@ -235,7 +235,10 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
 
 #define AUTOGEMM
 #ifdef AUTOGEMM
+
    hcblasAutogemmCall(accl_view, order, typeA, typeB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc, aOffset, bOffset, cOffset);
+   return status;
+
 #endif
   status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A,
                                 aOffset, lda, B, bOffset, ldb, beta, C,
