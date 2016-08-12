@@ -77,11 +77,14 @@ std::string AutogemmKernel::getFileName() {
 
   std::string fName;
  
+  fName = "/home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources/";
+
   /* Append the kernel function and extension */
-  fName = this->getKernelName() + "_src.cpp";
+  fName = fName + this->getKernelName() + "_src.cpp";
   if (this->kernelName.empty()) {
       this->kernelName = fName;
   }
+
   return fName;
 }
 
@@ -90,7 +93,6 @@ std::string AutogemmKernel::getFileName() {
  */
 std::string AutogemmKernel::getKernelLib() {
  
-  cout << this->kernelLib << endl;
   return this->kernelLib;
 
 }
@@ -214,6 +216,7 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
     gemmKernel->makeGemmKernel(gemmKernel, kStr);
   }
 
+  system("mkdir -p /home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources");
   ofstream kFile;
   kFile.open(gemmKernel->getFileName());
   kFile << kStr;
@@ -240,14 +243,13 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
       // build_mode = true;
       char* compilerPath = getenv ("MCWHCCBUILD");
       string Path(compilerPath);
-      execCmd = Path + "/compiler/bin/clang++ `" + Path + "/bin/hcc-config --build --cxxflags --ldflags --shared` -lhc_am -I" + hcblasIncPath + " " + gemmKernel->getFileName() + " -o " + gemmKernel->getKernelLib() ;
+      execCmd = Path + "/compiler/bin/clang++ `" + Path + "/bin/hcc-config --build --cxxflags --ldflags --shared` -lhc_am -I" + hcblasIncPath + " /home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources/sgemm_Col_NN_B1_MX016_NX016_KX01_src.cpp "  + " -o /home/sujitha/Documents/hcblas/build/" + gemmKernel->getKernelLib() ;
     }
     else if( access( fname, F_OK ) != -1 ) {
       // compiler exists
       // install_mode = true;
       string Path = "/opt/rocm/hcc/bin/";
-      execCmd = Path + "/clang++ `" + Path + "/hcc-config --install --cxxflags --ldflags --shared` -I" + hcblasIncPath + " " + gemmKernel->getFileName() + " -o " + gemmKernel->getKernelLib() ;
-      cout << "sd  " << execCmd << endl;
+      execCmd = Path + "/clang++ `" + Path + "/hcc-config --install --cxxflags --ldflags --shared` -I" + hcblasIncPath + " /home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources/sgemm_Col_NN_B1_MX016_NX016_KX01_src.cpp " + " -o /home/sujitha/Documents/hcblas/lib/include/" + gemmKernel->getKernelLib() ;
     }
     else {
       // No compiler found
@@ -255,8 +257,6 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
       return CRIT_ERR;
     }
 
-    cout << "system cmd" <<endl;
-    cout << execCmd << endl;
     system(execCmd.c_str());
 
    return SUCCESS;
@@ -276,7 +276,7 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
                                  const uint cOffset) {
 
   // loads the module specified by FilePath into the executing process's address space 
-  void* kernelHandle = dlopen(gemmKernel->getKernelLib().c_str(), RTLD_NOW);
+  void* kernelHandle = dlopen("/home/sujitha/Documents/hcblas/lib/include/libblaskernel.so", RTLD_NOW);
   if(!kernelHandle) {
     std::cout << "Failed to load Kernel: " << gemmKernel->getKernelLib().c_str() << std::endl;
     return CRIT_ERR;
@@ -322,6 +322,7 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
  *                            6) Load the function symbol from the shared library and
  *                                invoke the Autogemm kernel
  */
+//TODO : Add templates to this function
 int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
                        hcblasTranspose typeA, hcblasTranspose typeB, const int M,
                        const uint N, const uint K, const float &alpha, float *A,
@@ -333,10 +334,14 @@ int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
     // Instantiate the autogemm kernel
     AutogemmKernel* gemmKernel = new AutogemmKernel();
 
-    
-    // Initialize and validate the kernel parameters 
+    // Initialize and validate the kernel parameters
+    // TODO: Move the init function into constructor
+    // TODO: Remove the validate function call here
     gemmKernel->initKernParam(gemmKernel, order, typeA, typeB, beta);
     gemmKernel->validateKernParam(gemmKernel);
+
+    gemmKernel->selectMicrotileLogic(gemmKernel, order, typeA, typeB, M, N, K, beta);
+    gemmKernel->writeKernel(gemmKernel, M, N, K);
 
     // Compile and invoke the Autogemm Kernel 
     gemmKernel->compileKernel(gemmKernel);
@@ -345,11 +350,8 @@ int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
     return 0;
 }
 
-#if 1 
-int main () {
+int main() {
 
- return 0;
+  return 0;
 
 }
-#endif
-

@@ -1,1 +1,1 @@
-TN_SquareMat.txt
+NN_SquareMat.txt

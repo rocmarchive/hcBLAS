@@ -28,6 +28,13 @@ std::string toString(T val) {
 
 static std::map<char, std::string> dataTypes = {{'s', "float"}, {'d', "double"}, {'c', "float"}, {'z', "double"}};
 
+int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
+                       hcblasTranspose typeA, hcblasTranspose typeB, const int M,
+                       const uint N, const uint K, const float &alpha, float *A,
+                       const uint lda, float *B, const uint ldb, const float &beta,
+                       float *C, const uint ldc, const uint aOffset, const uint bOffset,
+                       const uint cOffset);
+
 class AutogemmKernel {
 
    private:

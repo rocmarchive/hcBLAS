@@ -1,5 +1,5 @@
 #include "sgemm_array_kernels.h"
-
+#include "../autogemm/autogemm.h"
 // Sgemm Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 hcblasStatus gemm_HC(hc::accelerator_view &accl_view,
                      const int order, char TransA, char TransB,
@@ -231,6 +231,12 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
     }
    return status;
   }
+
+
+#define AUTOGEMM
+#ifdef AUTOGEMM
+   hcblasAutogemmCall(accl_view, order, typeA, typeB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc, aOffset, bOffset, cOffset);
+#endif
   status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A,
                                 aOffset, lda, B, bOffset, ldb, beta, C,
                                 cOffset, ldc);
