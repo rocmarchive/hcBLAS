@@ -167,6 +167,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
 
   //function signature
 
+  kStr = kStr + "extern \"C\" {" + endLine;
   kStr = kStr + "hcblasStatus " + gemmKernel->getKernelName();
   kStr = kStr + "(" + endLine;
   // arguments
@@ -410,6 +411,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
 
   // end kernel
   kStr = kStr + endLine + "}" + endLine;
+  kStr = kStr + "} /// extern" + endLine;
   kStr = kStr + endLine + "#endif" + endLine;
 
   return SUCCESS;
