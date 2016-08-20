@@ -1,5 +1,6 @@
 #include "hcblaslib.h"
 #include <cstdlib>
+#include "../../src/helper_functions.h"
 #include "gtest/gtest.h"
 #include "hc_am.hpp"
 #include "cblas.h"
@@ -190,9 +191,15 @@ void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  bool result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
+
   free(A);
   free(B);
   free(C);
@@ -259,9 +266,14 @@ void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  bool result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   free(A);
   free(B);
@@ -331,9 +343,14 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  bool result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   // alpha and beta are zeroes
   //alpha = 0
@@ -345,9 +362,14 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   //alpha = 0, beta = 0
   lda = M;
@@ -358,9 +380,15 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, 0, C_cblas, ldc);
 
+  result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
+
   free(A);
   free(B);
   free(C);
@@ -429,9 +457,14 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm(CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  bool result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   // alpha and beta are zeroes
   // alpha = 0
@@ -443,9 +476,14 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm(CblasRowMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   // alpha = 0, beta = 0
   lda = K;
@@ -456,9 +494,14 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm(CblasRowMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, 0, C_cblas, ldc);
 
+  result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   free(A);
   free(B);
@@ -526,9 +569,14 @@ void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  bool result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   free(A);
   free(B);
@@ -598,9 +646,14 @@ void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  bool result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   free(A);
   free(B);
@@ -670,9 +723,14 @@ void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  bool result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   free(A);
   free(B);
@@ -741,9 +799,14 @@ void func_check_sgemmTT_Row_type_1(int M, int N, int K, float alpha, float beta,
   hc::am_copy(C_hcblas, devC,  M * N * sizeof(float));
   cblas_sgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
+  bool result = sgemmCompareL2fe(C_cblas, C_hcblas, M*N, 1.0e-6f);
+  EXPECT_EQ(result, true);
+
+#if 0
   for(int i = 0 ; i < M * N ; i++) {
     EXPECT_NEAR(C_hcblas[i], C_cblas[i], tolerance);
   }
+#endif
 
   free(A);
   free(B);
