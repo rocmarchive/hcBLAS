@@ -17,7 +17,6 @@ using namespace hc;
 using namespace hc::short_vector;
 using namespace std;
 
-#define uint unsigned int 
 
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {
