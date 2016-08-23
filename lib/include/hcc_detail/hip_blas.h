@@ -136,12 +136,12 @@ inline static hipblasStatus_t hipblasGetMatrix(int rows, int cols, int elemSize,
 	return hipHCBLASStatusToHIPStatus(hcblasGetMatrix(dummyGlobal, rows, cols, elemSize, A, lda, B, ldb));
 }
 
-inline static hipblasStatus_t  hipblasSasum(hipblasHandle_t handle, int n, float *x, int incx, float  *result){
-	return hipHCBLASStatusToHIPStatus(hcblasSasum(handle, n, x, incx, result));
+inline static hipblasStatus_t  hipblasSasum(hipblasHandle_t handle, int n, const float *x, int incx, float  *result){
+	return hipHCBLASStatusToHIPStatus(hcblasSasum(handle, n, const_cast<float*>(x), incx, result));
 }
 
-inline static hipblasStatus_t  hipblasDasum(hipblasHandle_t handle, int n, double *x, int incx, double *result){
-	return hipHCBLASStatusToHIPStatus(hcblasDasum(handle, n, x, incx, result));
+inline static hipblasStatus_t  hipblasDasum(hipblasHandle_t handle, int n, const double *x, int incx, double *result){
+	return hipHCBLASStatusToHIPStatus(hcblasDasum(handle, n, const_cast<double*>(x), incx, result));
 }
 
 inline static hipblasStatus_t  hipblasSasumBatched(hipblasHandle_t handle, int n, float *x, int incx, float  *result, int batchCount){
@@ -212,14 +212,16 @@ inline static hipblasStatus_t  hipblasDscalBatched(hipblasHandle_t handle, int n
 	return hipHCBLASStatusToHIPStatus(hcblasDscalBatched(handle, n, alpha,  x, incx, batchCount));
 }
 
-inline static hipblasStatus_t hipblasSgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const float *alpha, float *A, int lda,
-                           float *x, int incx,  const float *beta,  float *y, int incy){
-	return hipHCBLASStatusToHIPStatus(hcblasSgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, A, lda, x, incx, beta,  y, incy));						   
+inline static hipblasStatus_t hipblasSgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const float *alpha, const float *A, int lda,
+                           const float *x, int incx,  const float *beta,  float *y, int incy){
+        // TODO: Remove const_cast
+	return hipHCBLASStatusToHIPStatus(hcblasSgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, const_cast<float*>(A), lda, const_cast<float*>(x), incx, beta,  y, incy));						   
 }
 
-inline static hipblasStatus_t hipblasDgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const double *alpha, double *A, int lda,
-                           double *x, int incx,  const double *beta,  double *y, int incy){
-	return hipHCBLASStatusToHIPStatus(hcblasDgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, A, lda, x, incx, beta,  y, incy));						   
+inline static hipblasStatus_t hipblasDgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const double *alpha, const double *A, int lda,
+                           const double *x, int incx,  const double *beta,  double *y, int incy){
+        // TODO: Remove const_cast
+	return hipHCBLASStatusToHIPStatus(hcblasDgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, const_cast<double*>(A), lda, const_cast<double*>(x), incx, beta,  y, incy));						   
 }
 inline static hipblasStatus_t hipblasSgemvBatched(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const float *alpha, float *A, int lda,
                            float *x, int incx,  const float *beta,  float *y, int incy, int batchCount){
@@ -235,13 +237,14 @@ inline static hipblasStatus_t  hipblasSgerBatched(hipblasHandle_t handle, int m,
 }
 
 inline static hipblasStatus_t hipblasSgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const float *alpha, float *A, int lda, float *B, int ldb, const float *beta, float *C, int ldc){
-	return hipHCBLASStatusToHIPStatus(hcblasSgemm( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc));
+                           int m, int n, int k,  const float *alpha, const float *A, int lda, const float *B, int ldb, const float *beta, float *C, int ldc){
+   // TODO: Remove const_cast
+	return hipHCBLASStatusToHIPStatus(hcblasSgemm( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, const_cast<float*>(A),  lda, const_cast<float*>(B),  ldb, beta, C,  ldc));
 }
 
 inline static hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const double *alpha, double *A, int lda, double *B, int ldb, const double *beta, double *C, int ldc){
-	return hipHCBLASStatusToHIPStatus(hcblasDgemm( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc));
+                           int m, int n, int k,  const double *alpha, const double *A, int lda, const double *B, int ldb, const double *beta, double *C, int ldc){
+	return hipHCBLASStatusToHIPStatus(hcblasDgemm( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, const_cast<double*>(A),  lda, const_cast<double*>(B),  ldb, beta, C,  ldc));
 }
 
 inline static hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
