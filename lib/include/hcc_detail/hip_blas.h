@@ -156,6 +156,10 @@ inline static hipblasStatus_t hipblasSaxpy(hipblasHandle_t handle, int n, const 
 	return hipHCBLASStatusToHIPStatus(hcblasSaxpy(handle, n, alpha, x, incx, y, incy));
 }
 
+inline static hipblasStatus_t hipblasDaxpy(hipblasHandle_t handle, int n, const double *alpha,   const double *x, int incx, double *y, int incy) {
+	return hipHCBLASStatusToHIPStatus(hcblasDaxpy(handle, n, alpha, x, incx, y, incy));
+}
+
 inline static hipblasStatus_t hipblasSaxpyBatched(hipblasHandle_t handle, int n, const float *alpha, const float *x, int incx,  float *y, int incy, int batchCount){
 	return hipHCBLASStatusToHIPStatus(hcblasSaxpyBatched(handle, n, alpha, x, incx, y, incy, batchCount));
 }
@@ -213,6 +217,10 @@ inline static hipblasStatus_t hipblasSgemv(hipblasHandle_t handle, hipblasOperat
 	return hipHCBLASStatusToHIPStatus(hcblasSgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, A, lda, x, incx, beta,  y, incy));						   
 }
 
+inline static hipblasStatus_t hipblasDgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const double *alpha, double *A, int lda,
+                           double *x, int incx,  const double *beta,  double *y, int incy){
+	return hipHCBLASStatusToHIPStatus(hcblasSgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, A, lda, x, incx, beta,  y, incy));						   
+}
 inline static hipblasStatus_t hipblasSgemvBatched(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const float *alpha, float *A, int lda,
                            float *x, int incx,  const float *beta,  float *y, int incy, int batchCount){
 	return hipHCBLASStatusToHIPStatus(hcblasSgemvBatched(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, A, lda, x, incx, beta,  y, incy, batchCount));						   
@@ -231,6 +239,11 @@ inline static hipblasStatus_t hipblasSgemm(hipblasHandle_t handle,  hipblasOpera
 	return hipHCBLASStatusToHIPStatus(hcblasSgemm( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc));
 }
 
+inline static hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
+                           int m, int n, int k,  const double *alpha, double *A, int lda, double *B, int ldb, const double *beta, double *C, int ldc){
+	return hipHCBLASStatusToHIPStatus(hcblasDgemm( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc));
+}
+
 inline static hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc){
 	return hipHCBLASStatusToHIPStatus(hcblasCgemm( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc));
@@ -239,6 +252,11 @@ inline static hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOpera
 inline static hipblasStatus_t hipblasSgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const float *alpha, float *A, int lda, float *B, int ldb, const float *beta, float *C, int ldc, int batchCount){
 	return hipHCBLASStatusToHIPStatus(hcblasSgemmBatched( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
+}
+
+inline static hipblasStatus_t hipblasDgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
+                           int m, int n, int k,  const double *alpha, double *A, int lda, double *B, int ldb, const double *beta, double *C, int ldc, int batchCount){
+	return hipHCBLASStatusToHIPStatus(hcblasDgemmBatched( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
 }
 
 inline static hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,

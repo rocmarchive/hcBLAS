@@ -380,6 +380,24 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t *handle, int n,
         return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
+hcblasStatus_t hcblasDaxpy(hcblasHandle_t *handle, int n,
+                           const double           *alpha,
+                           const double           *x, int incx,
+                           double                 *y, int incy) {
+  if(handle == nullptr)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
+  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
+  long xOffset = 0;
+  long yOffset = 0;
+  hcblasStatus status;
+  status = handle->hcblas_daxpy(accl_view, n, *alpha, x, incx, y, incy , xOffset, yOffset);
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}
+
 hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t *handle, int n,
                                   const float           *alpha,
                                   const float           *x, int incx,

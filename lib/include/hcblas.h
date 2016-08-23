@@ -220,6 +220,10 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t *handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            float                 *y, int incy);
+hcblasStatus_t hcblasDaxpy(hcblasHandle_t *handle, int n,
+                           const double           *alpha,
+                           const double           *x, int incx,
+                           double                 *y, int incy);
 hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t *handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,

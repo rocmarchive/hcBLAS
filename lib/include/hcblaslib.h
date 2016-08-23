@@ -67,6 +67,23 @@ class Hcblaslibrary
                               float *Y, const int incY, const long Y_batchOffset,
                               const long xOffset, const long yOffset, const int batchSize);
 							  
+/* DAXPY - Y = alpha * X + Y                                    */
+/* DAXPY - Overloaded function with arguments of type hc::array */
+
+    hcblasStatus hcblas_daxpy(hc::accelerator_view &accl_view,
+			      const int N, const double &alpha,
+			      const double *X, const int incX,
+                              double *Y, const int incY, 
+			      const long xOffset, const long yOffset);
+
+/* DAXPY - Overloaded function with arguments related to batch processing */
+
+    hcblasStatus hcblas_daxpy(hc::accelerator_view &accl_view,
+                              const int N, const double &alpha,
+                              const double *X, const int incX, const long X_batchOffset,
+                              double *Y, const int incY, const long Y_batchOffset,
+                              const long xOffset, const long yOffset, const int batchSize);
+							  
 /* SGER - A = alpha * X * Y' + A                               */
 /* SGER - Overloaded function with arguments of type hc::array */
     hcblasStatus hcblas_sger(hc::accelerator_view &accl_view,
