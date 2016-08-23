@@ -1,6 +1,9 @@
 #!/bin/bash -e
 #This script is invoked to build the hcblas library and test sources
 
+# getconf _NPROCESSORS_ONLN
+working_threads=8
+
 # CHECK FOR COMPILER PATH
 
 if [ ! -z $MCWHCCBUILD ];
@@ -87,8 +90,8 @@ cd $build_dir
 
 # Cmake and make libhcblas: Install hcblas under install_path
 cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir
-make package
-make
+make -j$working_threads package
+make -j$working_threads
  
 # Various possibilities of test and profile arguments
 # Test=OFF and Profile=OFF (Build library and tests)
@@ -103,7 +106,7 @@ if [ "$bench" = "off" ]; then
      mkdir $current_work_dir/build/test/src/bin/
      mkdir $current_work_dir/build/test/unit/gtest/bin/
      
-     make
+     make -j$working_threads
      cd $current_work_dir/test/unit/
  # Invoke test script 
      ${current_work_dir}/build/test/unit/gtest/bin/unittest
@@ -115,7 +118,7 @@ if [ "$bench" = "off" ]; then
      mkdir $current_work_dir/build/test/src/bin/
      mkdir $current_work_dir/build/test/unit/gtest/bin/
      set -e
-     make
+     make -j$working_threads
      cd $current_work_dir/test/unit/
  #Invoke test script
      ./test.sh
