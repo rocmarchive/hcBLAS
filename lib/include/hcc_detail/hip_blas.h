@@ -219,7 +219,7 @@ inline static hipblasStatus_t hipblasSgemv(hipblasHandle_t handle, hipblasOperat
 
 inline static hipblasStatus_t hipblasDgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const double *alpha, double *A, int lda,
                            double *x, int incx,  const double *beta,  double *y, int incy){
-	return hipHCBLASStatusToHIPStatus(hcblasSgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, A, lda, x, incx, beta,  y, incy));						   
+	return hipHCBLASStatusToHIPStatus(hcblasDgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, A, lda, x, incx, beta,  y, incy));						   
 }
 inline static hipblasStatus_t hipblasSgemvBatched(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const float *alpha, float *A, int lda,
                            float *x, int incx,  const float *beta,  float *y, int incy, int batchCount){
