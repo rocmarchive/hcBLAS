@@ -4,7 +4,7 @@
 #include <iostream>
 #include <math.h>
 
-bool sgemmCompareL2fe(const float *reference, const float *data,
+float sgemmCompareL2fe(const float *reference, const float *data,
                const unsigned int len, const float epsilon)
 {
     if(epsilon < 0) {
@@ -42,10 +42,9 @@ bool sgemmCompareL2fe(const float *reference, const float *data,
         std::cerr << "ERROR, l2-norm error "
                   << error << " is greater than epsilon " << epsilon << "\n";
     }
-
 #endif
 
-    return result;
+      return error;
 }
 
 void printDiff(float *data1, float *data2, int width, int height, int iListLength, float fListTol)
