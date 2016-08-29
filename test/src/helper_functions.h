@@ -2,6 +2,8 @@
 #define HELPER_FUNC_H
 
 #include <iostream>
+#include<vector>
+#include<numeric>
 #include <math.h>
 
 float sgemmCompareL2fe(const float *reference, const float *data,
@@ -14,14 +16,16 @@ float sgemmCompareL2fe(const float *reference, const float *data,
     float error = 0;
     float ref = 0;
 
-    for (unsigned int i = 0; i < len; ++i)
-    {
-
-        float diff = reference[i] - data[i];
-        error += diff * diff;
-        ref += reference[i] * reference[i];
-    }
-
+    // Making Vector conversions to invoke standar library routines
+    std::vector<float> refVec(reference, reference + len);
+    std::vector<float> dataVec(data, data + len);
+    std::vector<float> diffVec(len);
+    // Compute the difference vector with respect to reference data
+    std::transform(refVec.begin(), refVec.end(), dataVec.begin(), diffVec.begin(), std::minus<float>());
+    // Compute the square of the difference element wise
+    std::transform(diffVec.begin(), diffVec.end(), diffVec.begin(), diffVec.begin(), multiplies<float>());
+    error = std::inner_product(diffVec.begin(), diffVec.end(), diffVec.begin(), error);
+    ref = std::inner_product(refVec.begin(), refVec.end(), refVec.begin(), ref);
     float normRef = sqrtf(ref);
 
     if (fabs(ref) < 1e-7)
