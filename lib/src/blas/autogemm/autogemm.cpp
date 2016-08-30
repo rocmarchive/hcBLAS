@@ -1,4 +1,4 @@
-
+#include <unistd.h>
 #include "autogemm.h"
 
 using namespace std;
@@ -77,8 +77,6 @@ std::string AutogemmKernel::getFileName() {
 
   std::string fName;
  
-  fName = "/home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources/";
-
   /* Append the kernel function and extension */
   fName = fName + this->getKernelName() + "_src.cpp";
   if (this->kernelName.empty()) {
@@ -234,8 +232,19 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
 
     // Check if the default compiler path exists
     std::string execCmd; 
+    std::string hcblasIncPath;
+    std::string autogemmSourcePath;
     char fname[256] = "/opt/rocm/hcc/bin/clang++";
-    char hcblasIncPath[256] = "/home/sujitha/Documents/hcblas/lib/include";
+    char cwd[1024];
+
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+       perror("getcwd() error");
+       return CRIT_ERR;
+    }
+
+    hcblasIncPath = hcblasIncPath + cwd + "/./../../lib/include/";
+    autogemmSourcePath = autogemmSourcePath + cwd + "/./../../lib/src/blas/autogemm/sources/";
+
     if ( access ( getenv ("MCWHCCBUILD"), F_OK ) != -1) {
       // TODO: This path shall be removed. User shall build from default path
       // compiler doesn't exist in default path
@@ -243,13 +252,13 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
       // build_mode = true;
       char* compilerPath = getenv ("MCWHCCBUILD");
       string Path(compilerPath);
-      execCmd = Path + "/compiler/bin/clang++ `" + Path + "/bin/hcc-config --build --cxxflags --ldflags --shared` -lhc_am -I" + hcblasIncPath + " /home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources/sgemm_Col_NN_B1_MX016_NX016_KX01_src.cpp "  + " -o /home/sujitha/Documents/hcblas/build/" + gemmKernel->getKernelLib() ;
+      execCmd = Path + "/compiler/bin/clang++ `" + Path + "/bin/hcc-config --build --cxxflags --ldflags --shared` -lhc_am -I" + hcblasIncPath + " " + autogemmSourcePath + gemmKernel->getFileName() + " -o " + kernelLibPath + gemmKernel->getKernelLib() ;
     }
     else if( access( fname, F_OK ) != -1 ) {
       // compiler exists
       // install_mode = true;
       string Path = "/opt/rocm/hcc/bin/";
-      execCmd = Path + "/clang++ `" + Path + "/hcc-config --install --cxxflags --ldflags --shared` -I" + hcblasIncPath + " /home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources/sgemm_Col_NN_B1_MX016_NX016_KX01_src.cpp " + " -o /home/sujitha/Documents/hcblas/lib/include/" + gemmKernel->getKernelLib() ;
+      execCmd = Path + "/clang++ `" + Path + "/hcc-config --install --cxxflags --ldflags --shared` -I" + hcblasIncPath + " " + autogemmSourcePath + gemmKernel->getFileName() + " -o " + autogemmSourcePath + gemmKernel->getKernelLib();
     }
     else {
       // No compiler found
@@ -257,7 +266,7 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
       return CRIT_ERR;
     }
 
-    system(execCmd.c_str());
+   system(execCmd.c_str());
 
    return SUCCESS;
 
@@ -276,7 +285,7 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
                                  const uint cOffset) {
 
   // loads the module specified by FilePath into the executing process's address space 
-  void* kernelHandle = dlopen("/home/sujitha/Documents/hcblas/lib/include/libblaskernel.so", RTLD_NOW);
+  void* kernelHandle = dlopen("/home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources/libblaskernel.so", RTLD_NOW);
   if(!kernelHandle) {
     std::cout << "Failed to load Kernel: " << gemmKernel->getKernelLib().c_str() << std::endl;
     return CRIT_ERR;
