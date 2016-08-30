@@ -6,7 +6,7 @@
 /* makeGemmKernel():   Generates gemm Kernel String and write onto
  *                                         the file
  */
-int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr) {
+int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernelType, std::string& kStr) {
 
   // Check whether the kernel parameters are valid
   if (gemmKernel->validateKernParam(gemmKernel) != SUCCESS) {
@@ -16,7 +16,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
   kStr += endLine;
 
   // initializations
-  kStr += "/* " + gemmKernel->getKernelName()  +  " */" + endLine;
+  kStr += "/* " + gemmKernel->getKernelName(kernelType)  +  " */" + endLine;
 
   // Add header files
   kStr = kStr + "#include \"hc.hpp\"" + endLine;
@@ -26,8 +26,8 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
   kStr = kStr + "#include <iostream>" + endLine + "using namespace std;" + endLine;
 
   // Add header guards
-  kStr = kStr + "#ifndef " + gemmKernel->getKernelName() + "_H" + endLine;
-  kStr = kStr + "#define " + gemmKernel->getKernelName() + "_H" + endLine;
+  kStr = kStr + "#ifndef " + gemmKernel->getKernelName(kernelType) + "_H" + endLine;
+  kStr = kStr + "#define " + gemmKernel->getKernelName(kernelType) + "_H" + endLine;
 
   // kernel parameters
   kStr += endLine;
@@ -168,7 +168,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
   //function signature
 
   kStr = kStr + "extern \"C\" {" + endLine;
-  kStr = kStr + "hcblasStatus " + gemmKernel->getKernelName();
+  kStr = kStr + "hcblasStatus " + gemmKernel->getKernelName(kernelType);
   kStr = kStr + "(" + endLine;
   // arguments
   kStr = kStr +
@@ -220,11 +220,11 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
   // work item indices : TODO: CHANGE THE ORDER OF ACCESS
   kStr += endLine;
   kStr = kStr + "  /* work item indices */" + endLine;
-  if (gemmKernel->isRowKernel())
+  if (gemmKernel->isRowKernel(kernelType))
     kStr = kStr + "  uint gidx = M / " + toString(gemmKernel->tileNumRows*gemmKernel->microtileNumRows) + "; // last row" + endLine;
   else
     kStr = kStr + "  uint gidx = tidx.tile[1];" + endLine;
-  if (gemmKernel->isColKernel())
+  if (gemmKernel->isColKernel(kernelType))
     kStr = kStr + "  uint gidy = N / " + toString(gemmKernel->tileNumCols*gemmKernel->microtileNumCols) + "; // last column" + endLine;
   else
     kStr = kStr + "  uint gidy = tidx.tile[0];" + endLine;
@@ -313,7 +313,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
 
   for ( int a = 0; a < numALoads; a++) {
     kStr = kStr + "    lA[ GET_LOCAL_INDEX_A(localARow, localACol) + " + toString(a) + "*localAStride ] = ";
-    if (gemmKernel->isRowKernel())
+    if (gemmKernel->isRowKernel(kernelType))
       kStr = kStr + "( globalARow(" + toString(a) + ") >= M) ? " + zeroString + " : ";
     kStr = kStr + "A[ AinitOffset + GET_GLOBAL_INDEX_A( globalARow(" + toString(a) + \
                 "), globalACol(" + toString(a) + ") ) ];" + endLine;
@@ -321,7 +321,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
   if (numALoadsR) {
     kStr = kStr + "    if ( lIndex + " + toString(numALoads) + "*WG_NUM_ROWS*WG_NUM_COLS < (WG_NUM_ROWS*MICRO_TILE_NUM_ROWS*NUM_UNROLL_ITER) ) {" + endLine;
     kStr = kStr + "      lA[GET_LOCAL_INDEX_A(localARow, localACol)+ " + toString(numALoads) + "*localAStride ] = ";
-    if (gemmKernel->isRowKernel())
+    if (gemmKernel->isRowKernel(kernelType))
       kStr = kStr + "( globalARow(" + toString(numALoads) + ") >= M) ? " + zeroString + " : ";
     kStr = kStr + "A[ AinitOffset + GET_GLOBAL_INDEX_A( globalARow(" + toString(numALoads) + \
                 "), globalACol(" + toString(numALoads) + ") ) ];" + endLine;
@@ -330,7 +330,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
 
    for ( int b = 0 ; b < numBLoads; b++) {
     kStr = kStr + "    lB[ GET_LOCAL_INDEX_B(localBRow, localBCol) + "  + toString(b) + "*localBStride ] = ";
-    if (gemmKernel->isColKernel())
+    if (gemmKernel->isColKernel(kernelType))
       kStr = kStr + "( globalBCol(" + toString(b) + ") >= N) ? " + zeroString + " : ";
     kStr = kStr + "B[ BinitOffset + GET_GLOBAL_INDEX_B( globalBRow(" + toString(b) + \
                 "), globalBCol(" + toString(b) + ") ) ];" + endLine;
@@ -339,7 +339,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
     kStr = kStr + "    if ( lIndex + " + toString(numBLoads) + "*WG_NUM_ROWS*WG_NUM_COLS " \
                 + "< (WG_NUM_COLS*MICRO_TILE_NUM_COLS*NUM_UNROLL_ITER) ) {" + endLine;
     kStr = kStr + "      lB[ GET_LOCAL_INDEX_B(localBRow, localBCol) + " + toString(numBLoads) + "*localBStride ] = ";
-    if (gemmKernel->isColKernel())
+    if (gemmKernel->isColKernel(kernelType))
       kStr = kStr + "(globalBCol(" + toString(numBLoads) + ") >= N) ?" + zeroString + " : ";
     kStr = kStr + "B[ BinitOffset + GET_GLOBAL_INDEX_B( globalBRow(" + toString(numBLoads) + \
                 "), globalBCol(" + toString(numBLoads) + ") ) ];" + endLine;
@@ -389,16 +389,16 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr
 
    for (int a = 0; a < gemmKernel->microtileNumRows; a++) {
     for (int b = 0; b < gemmKernel->microtileNumCols; b++) {
-      if (gemmKernel->isRowKernel())
+      if (gemmKernel->isRowKernel(kernelType))
         kStr = kStr + "  if (globalCRow+" + toString(a) + "*WG_NUM_ROWS < M)";
-      if (gemmKernel->isColKernel())
+      if (gemmKernel->isColKernel(kernelType))
         kStr = kStr + "  if (globalCCol+" + toString(b) + "*WG_NUM_COLS < N)";
-      if (gemmKernel->isRowKernel() || gemmKernel->isColKernel())
+      if (gemmKernel->isRowKernel(kernelType) || gemmKernel->isColKernel(kernelType))
         kStr = kStr + "{";
       kStr = kStr + "  TYPE_MAD_WRITE( C[ GET_GLOBAL_INDEX_C( globalCRow+" + \
                     toString(a) + "*WG_NUM_ROWS, globalCCol+" + toString(b) + \
                     "*WG_NUM_COLS) ], alpha, rC[" + toString(a) + "][" + toString(b) + "], beta )";
-      if (gemmKernel->isRowKernel() || gemmKernel->isColKernel())
+      if (gemmKernel->isRowKernel(kernelType) || gemmKernel->isColKernel(kernelType))
         kStr = kStr + "}";
       kStr = kStr + endLine;
     }

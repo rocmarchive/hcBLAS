@@ -37,9 +37,15 @@ int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
 
 class AutogemmKernel {
 
+
    private:
 
-       /* Tile Parameters */
+       typedef struct {
+         uint macrotileNumRows;
+         uint macrotileNumCols;
+       }kernTypes;
+
+     /* Tile Parameters */
        uint tileNumRows;
        uint tileNumCols;
        uint microtileNumRows;
@@ -60,13 +66,18 @@ class AutogemmKernel {
        const char* nameFormatCol = "MX%03d_NL%03d_KX%02d";
        const char* nameFormatCorner = "ML%03d_NL%03d_KX%02d";
 
-       std::string kernelName;
        std::string fileName;
        std::string kernelLib;
 
-       bool isRowKernel();
-       bool isColKernel();
-       std::string getKernelName();
+       kernTypes *rowKernel;
+       kernTypes *colKernel;
+       kernTypes *cornerKernel;
+       kernTypes *tileKernel;
+
+       bool isRowKernel(kernTypes* kernelInst);
+       bool isColKernel(kernTypes* kernelInst);
+       void setFileName();
+       std::string getKernelName(kernTypes* kernelInst);
        std::string getFileName();
        std::string getKernelLib();
 
@@ -80,7 +91,7 @@ class AutogemmKernel {
                                 hcblasTranspose typeA, hcblasTranspose typeB,
                                 uint M, uint N, uint K, float beta);
        void writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uint K);
-       int makeGemmKernel(AutogemmKernel* gemmKernel, std::string& kStr);
+       int makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernelType, std::string& kStr);
        int compileKernel(AutogemmKernel* gemmKernel);
        int invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
                         const uint M, const uint N, const uint K, const float &alpha,
