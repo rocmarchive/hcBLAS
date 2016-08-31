@@ -39,7 +39,6 @@ class AutogemmKernel {
 
 
    private:
-
        typedef struct {
          uint macrotileNumRows;
          uint macrotileNumCols;
@@ -68,6 +67,11 @@ class AutogemmKernel {
 
        std::string fileName;
        std::string kernelLib;
+
+       bool needTileKernel;
+       bool needRowKernel;
+       bool needColKernel;
+       bool needCornerKernel;
 
        kernTypes *rowKernel;
        kernTypes *colKernel;
