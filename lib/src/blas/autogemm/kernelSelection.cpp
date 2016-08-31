@@ -38,6 +38,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
   if (M*N >= 3072*3072) {
 
+    cerr << "Inside 3072" <<endl;
     // Valid Tiles
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -47,6 +48,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 16;
+      return SUCCESS;
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -56,6 +58,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 8;
+      return SUCCESS;
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -65,6 +68,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 1;
+      return SUCCESS;
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -74,6 +78,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 16;
+      return SUCCESS;
    }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -83,6 +88,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
@@ -93,6 +99,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
@@ -103,6 +110,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
@@ -113,6 +121,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
@@ -123,6 +132,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -135,6 +145,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -145,6 +156,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -155,11 +167,13 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 2240*2240) {
 
+    cerr << "Inside 2240 " <<endl;
     // Valid Tiles
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -169,6 +183,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
@@ -179,6 +194,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
@@ -189,6 +205,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
@@ -199,6 +216,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
@@ -209,6 +227,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
@@ -219,6 +238,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
@@ -229,6 +249,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
@@ -239,6 +260,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
@@ -249,6 +271,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
@@ -259,6 +282,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
@@ -269,6 +293,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
@@ -279,6 +304,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -291,6 +317,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -301,6 +328,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -311,11 +339,13 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 1760*1760) {
 
+     cerr << "Inside 1760" << endl;
      // Valid Tiles
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -325,6 +355,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
@@ -335,6 +366,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
@@ -345,6 +377,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
@@ -355,6 +388,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
@@ -365,6 +399,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
@@ -375,6 +410,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
@@ -385,6 +421,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
@@ -395,6 +432,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
@@ -405,6 +443,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
@@ -415,6 +454,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
@@ -425,6 +465,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
@@ -435,6 +476,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -447,6 +489,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -457,6 +500,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -467,11 +511,13 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 1600*1600) {
 
+ cerr << "Inside 1600" <<endl;
       // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -481,6 +527,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
@@ -491,6 +538,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
@@ -501,6 +549,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
@@ -511,6 +560,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
@@ -521,6 +571,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
@@ -531,6 +582,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
@@ -541,6 +593,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
@@ -551,6 +604,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
@@ -561,6 +615,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
@@ -571,6 +626,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
@@ -581,6 +637,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
@@ -591,6 +648,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -603,6 +661,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -613,6 +672,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -623,11 +683,13 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 1056*1056) {
 
+    cerr << "Inside 1056" << endl;
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -637,6 +699,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
@@ -647,6 +710,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
@@ -657,6 +721,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
@@ -667,6 +732,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%8 == 0) {
@@ -677,6 +743,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%96 == 0 && N%96 == 0 && K%1 == 0) {
@@ -687,6 +754,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 96;
       gemmKernel->macrotileNumCols = 96;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
@@ -697,6 +765,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
@@ -707,6 +776,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
@@ -717,6 +787,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
@@ -727,6 +798,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
@@ -737,6 +809,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
@@ -747,6 +820,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
@@ -757,6 +831,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
@@ -767,6 +842,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
@@ -777,6 +853,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -789,6 +866,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -799,6 +877,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -809,11 +888,13 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 960*960) {
 
+cerr << "Inside 960" << endl;
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -823,6 +904,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
@@ -833,6 +915,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
@@ -843,6 +926,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
@@ -853,6 +937,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
@@ -863,6 +948,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
@@ -873,6 +959,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
@@ -883,6 +970,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
@@ -893,6 +981,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
@@ -903,6 +992,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
@@ -913,6 +1003,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
@@ -923,6 +1014,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
@@ -933,6 +1025,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -945,6 +1038,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -955,6 +1049,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -965,11 +1060,13 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 736*736) {
 
+cerr << "Inside 736"<<endl;
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -979,6 +1076,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
@@ -989,6 +1087,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
@@ -999,6 +1098,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
@@ -1009,6 +1109,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
@@ -1019,6 +1120,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
@@ -1029,6 +1131,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%16 == 0) {
@@ -1039,6 +1142,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%8 == 0) {
@@ -1049,6 +1153,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%80 == 0 && N%80 == 0 && K%1 == 0) {
@@ -1059,6 +1164,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 80;
       gemmKernel->macrotileNumCols = 80;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
@@ -1069,6 +1175,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
@@ -1079,6 +1186,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
@@ -1089,6 +1197,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -1101,6 +1210,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -1111,6 +1221,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -1121,11 +1232,13 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 528*528) {
 
+cerr <<"Inside 528" <<endl;
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -1135,6 +1248,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%8 == 0) {
@@ -1145,6 +1259,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%64 == 0 && N%64 == 0 && K%1 == 0) {
@@ -1155,6 +1270,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 64;
       gemmKernel->macrotileNumCols = 64;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
@@ -1165,6 +1281,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
@@ -1175,6 +1292,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
@@ -1185,6 +1303,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
@@ -1195,6 +1314,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
@@ -1205,6 +1325,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
@@ -1215,6 +1336,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
@@ -1225,6 +1347,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
@@ -1235,6 +1358,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
@@ -1245,6 +1369,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -1257,6 +1382,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -1267,6 +1393,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -1277,11 +1404,12 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 432*432) {
-
+cerr << "Inside 432" << endl;
     // Valid Tiles
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -1291,6 +1419,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%8 == 0) {
@@ -1301,6 +1430,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%48 == 0 && N%48 == 0 && K%1 == 0) {
@@ -1311,6 +1441,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 48;
       gemmKernel->macrotileNumCols = 48;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
@@ -1321,6 +1452,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
@@ -1331,6 +1463,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
@@ -1341,6 +1474,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
@@ -1351,6 +1485,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
@@ -1361,6 +1496,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
@@ -1371,6 +1507,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -1383,6 +1520,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -1393,6 +1531,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -1403,11 +1542,12 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 320*320) {
-
+cerr << "Inside 320" << endl;
     // Valid Tiles
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -1417,6 +1557,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%8 == 0) {
@@ -1427,6 +1568,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%32 == 0 && N%32 == 0 && K%1 == 0) {
@@ -1437,6 +1579,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
@@ -1447,6 +1590,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
@@ -1457,6 +1601,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
@@ -1467,6 +1612,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -1479,6 +1625,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -1489,6 +1636,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -1499,11 +1647,12 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 32;
       gemmKernel->macrotileNumCols = 32;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
   if (M*N >= 1*1) {
-
+cerr <<"Inside 1"<<endl;
     // Valid Tiles
     if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -1513,6 +1662,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%8 == 0) {
@@ -1523,6 +1673,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (M%16 == 0 && N%16 == 0 && K%1 == 0) {
@@ -1533,6 +1684,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
 
@@ -1545,6 +1697,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 16;
+      return SUCCESS;
 
     }
     if (K%8 == 0) {
@@ -1555,6 +1708,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 8;
+      return SUCCESS;
 
     }
     if (K%1 == 0) {
@@ -1565,6 +1719,7 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
       gemmKernel->macrotileNumRows = 16;
       gemmKernel->macrotileNumCols = 16;
       gemmKernel->unroll = 1;
+      return SUCCESS;
 
     }
   }
