@@ -77,7 +77,7 @@ class AutogemmKernel {
        const char* nameFormatCorner = "ML%03d_NL%03d_KX%02d";
 
        std::string fileName;
-       std::string kernelLib;
+       std::string kernelLibName;
 
        bool needTileKernel;
        bool needRowKernel;
@@ -92,9 +92,11 @@ class AutogemmKernel {
        bool isRowKernel(kernTypes* kernelInst);
        bool isColKernel(kernTypes* kernelInst);
        void setFileName();
+       void setKernelLibName();
        std::string getKernelName(kernTypes* kernelInst);
        std::string getFileName();
-       std::string getKernelLib();
+       std::string getKernelLibName();
+       std::string getKernelCachePath();
 
    public:
 

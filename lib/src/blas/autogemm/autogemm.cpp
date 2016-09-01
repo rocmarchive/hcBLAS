@@ -107,6 +107,26 @@ void AutogemmKernel::setFileName() {
     this->fileName = fName;
 }
 
+/* setKernelLibName():  Set the Compiled kernel library name
+ *                      using the kernel parameters
+ *
+ */
+void AutogemmKernel::setKernelLibName() {
+
+    std::string libName = "libblaskern";
+
+    /* Append the kernel function and extension */
+    char* lName = new char[512];
+
+    /* Tile Parameters construct */
+    sprintf(lName, "%02dX%02d", this->microtileNumRows , this->microtileNumCols);
+
+    std::string str(lName);
+    libName = libName + str + ".so";
+    this->kernelLibName = libName;
+}
+
+
 /* getFileName(): Returns the file name
  *
  */
@@ -117,11 +137,22 @@ std::string AutogemmKernel::getFileName() {
 }
 
 /*
- * getKernelLib():  Return Kernellib name 
+ * getKernelLibName():  Return Kernellib name
  */
-std::string AutogemmKernel::getKernelLib() {
+std::string AutogemmKernel::getKernelLibName() {
+
+  return this->kernelLibName;
+
+}
+
+/*
+ * getKernelCachePath():  Return the directory path where the source & shared library
+ *                        files are saved.
+ */
+std::string AutogemmKernel::getKernelCachePath() {
  
-  return this->kernelLib;
+  std::string kernPath = getHomeDir() + "/kernSources/";
+  return kernPath;
 
 }
 
@@ -152,8 +183,6 @@ void AutogemmKernel::initKernParam(AutogemmKernel* gemmKernel, hcblasOrder order
    gemmKernel->macrotileNumRows = gemmKernel->tileNumRows * gemmKernel->microtileNumRows;
    gemmKernel->macrotileNumCols = gemmKernel->tileNumCols * gemmKernel->microtileNumCols;
 
-   // Always the generate "libblasKernel.so" file
-   gemmKernel->kernelLib = "libblaskernel.so";
 }
 
 /* ValidateKernParam():   Return CRIT_ERR if following
@@ -206,6 +235,7 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
 
    // Set filename for the given size
    gemmKernel->setFileName();
+   gemmKernel->setKernelLibName();
 
   // Temporarily access the microtile elements
   uint macrotileNumRows = gemmKernel->macrotileNumRows;
@@ -266,15 +296,16 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
     gemmKernel->makeGemmKernel(gemmKernel, gemmKernel->cornerKernel, kStr);
   }
 
-  std::string pwd = getHomeDir();
-  std::string dirPath = pwd + "/kernSources/";
-  std::string cmd = "mkdir -p " + dirPath;
-  cerr << cmd << endl;
-  std::string fileAbs = dirPath + gemmKernel->getFileName();
-  system(cmd.c_str());
+  std::string dirPath = gemmKernel->getKernelCachePath();
+  std::string mkdirCmd = "mkdir -p " + dirPath;
+
+  // Create directory only if it doesn't exists
+  system(mkdirCmd.c_str());
+  cerr << mkdirCmd << endl;
   cerr << "FileName : " << gemmKernel->getFileName() << endl;
   
   ofstream kFile;
+  std::string fileAbs = dirPath + gemmKernel->getFileName();
   kFile.open(fileAbs);
   if (kFile.is_open())
   {
@@ -301,7 +332,7 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
     // Check if the default compiler path exists
     std::string execCmd; 
     std::string hcblasIncPath;
-    std::string autogemmSourcePath;
+    std::string autogemmSourcePath = gemmKernel->getKernelCachePath();
     char fname[256] = "/opt/rocm/hcc/bin/clang++";
     char cwd[1024];
 
@@ -311,7 +342,6 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
     }
 
     hcblasIncPath = hcblasIncPath + cwd + "/./../../lib/include/";
-    autogemmSourcePath = autogemmSourcePath + getHomeDir()  + "/kernSources/";
 
     if ( access ( getenv ("MCWHCCBUILD"), F_OK ) != -1) {
       // TODO: This path shall be removed. User shall build from default path
@@ -320,13 +350,13 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
       // build_mode = true;
       char* compilerPath = getenv ("MCWHCCBUILD");
       string Path(compilerPath);
-      execCmd = Path + "/compiler/bin/clang++ `" + Path + "/bin/hcc-config --build --cxxflags --ldflags --shared` -lhc_am -I" + hcblasIncPath + " " + autogemmSourcePath + gemmKernel->getFileName() + " -o " + autogemmSourcePath + gemmKernel->getKernelLib() ;
+      execCmd = Path + "/compiler/bin/clang++ `" + Path + "/bin/hcc-config --build --cxxflags --ldflags --shared` -lhc_am -I" + hcblasIncPath + " " + autogemmSourcePath + gemmKernel->getFileName() + " -o " + autogemmSourcePath + gemmKernel->getKernelLibName();
     }
     else if( access( fname, F_OK ) != -1 ) {
       // compiler exists
       // install_mode = true;
       string Path = "/opt/rocm/hcc/bin/";
-      execCmd = Path + "/clang++ `" + Path + "/hcc-config --install --cxxflags --ldflags --shared` -I" + hcblasIncPath + " " + autogemmSourcePath + gemmKernel->getFileName() + " -o " + autogemmSourcePath + gemmKernel->getKernelLib();
+      execCmd = Path + "/clang++ `" + Path + "/hcc-config --install --cxxflags --ldflags --shared` -I" + hcblasIncPath + " " + autogemmSourcePath + gemmKernel->getFileName() + " -o " + autogemmSourcePath + gemmKernel->getKernelLibName();
     }
     else {
       // No compiler found
@@ -353,13 +383,12 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
                                  float *C, const uint ldc, const uint aOffset, const uint bOffset, 
                                  const uint cOffset) {
 
-   std::string libPath = getHomeDir();
-   libPath = libPath + "/kernSources/libblaskernel.so";
+   std::string libPath = gemmKernel->getKernelCachePath() + gemmKernel->getKernelLibName();
 
   // loads the module specified by FilePath into the executing process's address space 
   void* kernelHandle = dlopen(libPath.c_str(), RTLD_NOW);
   if(!kernelHandle) {
-    std::cout << "Failed to load Kernel: " << gemmKernel->getKernelLib().c_str() << std::endl;
+    std::cout << "Failed to load Kernel: " << gemmKernel->getKernelLibName().c_str() << std::endl;
     return CRIT_ERR;
   }
 
