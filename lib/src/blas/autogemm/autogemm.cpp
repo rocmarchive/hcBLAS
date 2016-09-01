@@ -266,15 +266,16 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
     gemmKernel->makeGemmKernel(gemmKernel, gemmKernel->cornerKernel, kStr);
   }
 
-//  std::string pwd = getHomeDir();
-//  std::string dirPath = pwd + "/KernSources";
-//  std::string cmd = "mkdir -p" + dirPath;
-  //system(cmd);
-  system("mkdir -p /home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources");
+  std::string pwd = getHomeDir();
+  std::string dirPath = pwd + "/kernSources/";
+  std::string cmd = "mkdir -p " + dirPath;
+  cerr << cmd << endl;
+  std::string fileAbs = dirPath + gemmKernel->getFileName();
+  system(cmd.c_str());
   cerr << "FileName : " << gemmKernel->getFileName() << endl;
   
   ofstream kFile;
-  kFile.open(gemmKernel->getFileName());
+  kFile.open(fileAbs);
   if (kFile.is_open())
   {
     kFile << kStr;
@@ -310,7 +311,7 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
     }
 
     hcblasIncPath = hcblasIncPath + cwd + "/./../../lib/include/";
-    autogemmSourcePath = autogemmSourcePath + cwd + "/./../../lib/src/blas/autogemm/sources/";
+    autogemmSourcePath = autogemmSourcePath + getHomeDir()  + "/kernSources/";
 
     if ( access ( getenv ("MCWHCCBUILD"), F_OK ) != -1) {
       // TODO: This path shall be removed. User shall build from default path
@@ -333,7 +334,7 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
       return CRIT_ERR;
     }
 
-    cout << execCmd << endl;
+   cerr<< execCmd << endl;
    system(execCmd.c_str());
 
    return SUCCESS;
@@ -352,8 +353,11 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
                                  float *C, const uint ldc, const uint aOffset, const uint bOffset, 
                                  const uint cOffset) {
 
+   std::string libPath = getHomeDir();
+   libPath = libPath + "/kernSources/libblaskernel.so";
+
   // loads the module specified by FilePath into the executing process's address space 
-  void* kernelHandle = dlopen("/home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources/libblaskernel.so", RTLD_NOW);
+  void* kernelHandle = dlopen(libPath.c_str(), RTLD_NOW);
   if(!kernelHandle) {
     std::cout << "Failed to load Kernel: " << gemmKernel->getKernelLib().c_str() << std::endl;
     return CRIT_ERR;
