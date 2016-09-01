@@ -4,9 +4,9 @@
 using namespace std;
 
 /* isRowKernel():  Return true if
-  *                     - macroTileNumRows = 1
-  *                     - guards around gA -> lA
-  *                     - guards around gC[gRow,:] = rC[row,:]
+ *                     - macroTileNumRows = 1
+ *                     - guards around gA -> lA
+ *                     - guards around gC[gRow,:] = rC[row,:]
  */
  bool AutogemmKernel::isRowKernel(kernTypes* kernelType) {
 
@@ -23,9 +23,9 @@ using namespace std;
 }
 
 /* isColKernel():  Return true if
-  *                    - macroTileNumCols = 1
-  *                    - guards around gB -> lB
-  *                    - guards around gC[:,gCol] = rC[:,Col]
+ *                    - macroTileNumCols = 1
+ *                    - guards around gB -> lB
+ *                    - guards around gC[:,gCol] = rC[:,Col]
  */
  bool AutogemmKernel::isColKernel(kernTypes* kernelType) {
 
@@ -204,18 +204,22 @@ int AutogemmKernel::validateKernParam(AutogemmKernel* gemmKernel) {
 void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uint K) {
 
 
+   // Set filename for the given size
+   gemmKernel->setFileName();
+
   // Temporarily access the microtile elements
   uint macrotileNumRows = gemmKernel->macrotileNumRows;
   uint macrotileNumCols = gemmKernel->macrotileNumCols;
 
-  bool needTileKernel = M/macrotileNumRows > 0 && N/macrotileNumCols > 0;
-  bool needRowKernel = M%macrotileNumRows > 0 && N/macrotileNumCols > 0;
-  bool needColKernel = N%macrotileNumCols > 0 && M/macrotileNumRows > 0;
-  bool needCornerKernel = M%macrotileNumRows > 0 && N%macrotileNumCols > 0;
+  gemmKernel->needTileKernel = M/macrotileNumRows > 0 && N/macrotileNumCols > 0;
+  gemmKernel->needRowKernel = M%macrotileNumRows > 0 && N/macrotileNumCols > 0;
+  gemmKernel->needColKernel = N%macrotileNumCols > 0 && M/macrotileNumRows > 0;
+  gemmKernel->needCornerKernel = M%macrotileNumRows > 0 && N%macrotileNumCols > 0;
 
   std::string kStr;
 
-  if (needTileKernel) {
+  if (gemmKernel->needTileKernel) {
+    cerr << "Need tile" << endl;
     if (gemmKernel->tileKernel == NULL)
       gemmKernel->tileKernel = (kernTypes *)malloc(sizeof(kernTypes));
     gemmKernel->tileKernel->macrotileNumRows = gemmKernel->macrotileNumRows;
@@ -223,11 +227,12 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
     gemmKernel->makeGemmKernel(gemmKernel, gemmKernel->tileKernel, kStr);
   }
 
-  if (needRowKernel) {
+  if (gemmKernel->needRowKernel) {
 
+    cerr << "needRowKernel" << endl;
     // Set macrotile value for Row Kernel generation
     if (gemmKernel->rowKernel == NULL)
-      gemmKernel->rowKernel = (kernTypes *)malloc(sizeof(kernTypes));
+	gemmKernel->rowKernel = (kernTypes *)malloc(sizeof(kernTypes));
     gemmKernel->rowKernel->macrotileNumRows = 1;
     gemmKernel->rowKernel->macrotileNumCols = gemmKernel->macrotileNumCols;
 
@@ -235,8 +240,9 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
     gemmKernel->makeGemmKernel(gemmKernel, gemmKernel->rowKernel, kStr);
   }
 
-  if (needColKernel) {
+  if (gemmKernel->needColKernel) {
 
+    cerr << "needColKernel" <<endl; 
     // Set macrotile value for Row Kernel generation
     if (gemmKernel->colKernel == NULL)
       gemmKernel->colKernel = (kernTypes *)malloc(sizeof(kernTypes));
@@ -247,8 +253,9 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
     gemmKernel->makeGemmKernel(gemmKernel, gemmKernel->colKernel, kStr);
   }
 
-  if (needCornerKernel) {
+  if (gemmKernel->needCornerKernel) {
 
+    cerr << "needCornerKernel" << endl;
     // Set macrotile value for Corner Kernel generation
     if (gemmKernel->cornerKernel == NULL)
       gemmKernel->cornerKernel = (kernTypes *)malloc(sizeof(kernTypes));
@@ -259,12 +266,27 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
     gemmKernel->makeGemmKernel(gemmKernel, gemmKernel->cornerKernel, kStr);
   }
 
+//  std::string pwd = getHomeDir();
+//  std::string dirPath = pwd + "/KernSources";
+//  std::string cmd = "mkdir -p" + dirPath;
+  //system(cmd);
   system("mkdir -p /home/sujitha/Documents/hcblas/lib/src/blas/autogemm/sources");
+  cerr << "FileName : " << gemmKernel->getFileName() << endl;
+  
   ofstream kFile;
   kFile.open(gemmKernel->getFileName());
-  kFile << kStr;
-  kFile.close();
+  if (kFile.is_open())
+  {
+    kFile << kStr;
+    kFile.close();
+  }
+  else
+  {
+    std::cout << "Error opening file";
+//    return CRIT_ERR;
+  }
 
+//  return SUCCESS;
 }
 /* compileKernel():  This function 
  *                    1) picks either COMPILER default path or user path  
@@ -311,6 +333,7 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
       return CRIT_ERR;
     }
 
+    cout << execCmd << endl;
    system(execCmd.c_str());
 
    return SUCCESS;
@@ -342,25 +365,94 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
                                      uint const N, uint const K, uint const lda, uint const ldb, \
                                      uint const ldc, uint const aOffset, uint const bOffset,\
                                      uint const cOffset);
-  hcblas_sgemm_fn_ptr* hcblas_sgemm_call = NULL;
 
-  std::string funcName = gemmKernel->getKernelName(gemmKernel->tileKernel);
-  // obtain the address of a symbol defined within an object made accessible through a dlopen() cal
-  hcblas_sgemm_call = (hcblas_sgemm_fn_ptr*) dlsym(kernelHandle, funcName.c_str());
+  if (gemmKernel->needTileKernel) {
+    hcblas_sgemm_fn_ptr* hcblas_sgemm_call = NULL;
 
-  // Catch the symbol load error with dlerror for user 
-  if (!hcblas_sgemm_call) {
-     cout << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->tileKernel) << "Failed" << endl;
-  }
-  char *err = dlerror();
-  if (err) {
-    std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->tileKernel) << " kernel : " << err << endl;
-    return CRIT_ERR;
-  }
-  free(err);
+    std::string funcName = gemmKernel->getKernelName(gemmKernel->tileKernel);
+    // obtain the address of a symbol defined within an object made accessible through a dlopen() cal
+    hcblas_sgemm_call = (hcblas_sgemm_fn_ptr*) dlsym(kernelHandle, funcName.c_str());
+
+    // Catch the symbol load error with dlerror for user 
+    if (!hcblas_sgemm_call) {
+       cout << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->tileKernel) << "Failed" << endl;
+    }
+    char *err = dlerror();
+    if (err) {
+      std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->tileKernel) << " kernel : " << err << endl;
+      return CRIT_ERR;
+    }
+    free(err);
  
-  // If no errors, invoke the function with arguments
-  hcblas_sgemm_call(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+    // If no errors, invoke the function with arguments
+    hcblas_sgemm_call(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+  }
+
+  if (gemmKernel->needRowKernel) {
+    hcblas_sgemm_fn_ptr* hcblas_sgemm_call_row = NULL;
+
+    std::string funcName = gemmKernel->getKernelName(gemmKernel->rowKernel);
+    // obtain the address of a symbol defined within an object made accessible through a dlopen() cal
+    hcblas_sgemm_call_row = (hcblas_sgemm_fn_ptr*) dlsym(kernelHandle, funcName.c_str());
+
+    // Catch the symbol load error with dlerror for user 
+    if (!hcblas_sgemm_call_row) {
+       cout << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->rowKernel) << "Failed" << endl;
+    }
+    char *err = dlerror();
+    if (err) {
+      std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->rowKernel) << " kernel : " << err << endl;
+      return CRIT_ERR;
+    }
+    free(err);
+ 
+    // If no errors, invoke the function with arguments
+    hcblas_sgemm_call_row(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+  } 
+
+  if (gemmKernel->needColKernel) {
+    hcblas_sgemm_fn_ptr* hcblas_sgemm_call_col = NULL;
+
+    std::string funcName = gemmKernel->getKernelName(gemmKernel->colKernel);
+    // obtain the address of a symbol defined within an object made accessible through a dlopen() cal
+    hcblas_sgemm_call_col = (hcblas_sgemm_fn_ptr*) dlsym(kernelHandle, funcName.c_str());
+
+    // Catch the symbol load error with dlerror for user 
+    if (!hcblas_sgemm_call_col) {
+       cout << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->colKernel) << "Failed" << endl;
+    }
+    char *err = dlerror();
+    if (err) {
+      std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->colKernel) << " kernel : " << err << endl;
+      return CRIT_ERR;
+    }
+    free(err);
+ 
+    // If no errors, invoke the function with arguments
+    hcblas_sgemm_call_col(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+  }
+
+  if (gemmKernel->needCornerKernel) {
+    hcblas_sgemm_fn_ptr* hcblas_sgemm_call_corner = NULL;
+
+    std::string funcName = gemmKernel->getKernelName(gemmKernel->cornerKernel);
+    // obtain the address of a symbol defined within an object made accessible through a dlopen() cal
+    hcblas_sgemm_call_corner = (hcblas_sgemm_fn_ptr*) dlsym(kernelHandle, funcName.c_str());
+
+    // Catch the symbol load error with dlerror for user 
+    if (!hcblas_sgemm_call_corner) {
+       cout << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->cornerKernel) << "Failed" << endl;
+    }
+    char *err = dlerror();
+    if (err) {
+      std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->cornerKernel) << " kernel : " << err << endl;
+      return CRIT_ERR;
+    }
+    free(err);
+ 
+    // If no errors, invoke the function with arguments
+    hcblas_sgemm_call_corner(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+  }
   return SUCCESS;
 }
 
@@ -391,20 +483,20 @@ int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
     // TODO: Move the init function into constructor
     // TODO: Remove the validate function call here
     gemmKernel->initKernParam(gemmKernel, order, typeA, typeB, beta);
+    cerr << "Init Kernel - Done "<<endl;
     gemmKernel->validateKernParam(gemmKernel);
+    cerr << "validate Kernel - Done "<<endl;
 
     gemmKernel->selectMicrotileLogic(gemmKernel, order, typeA, typeB, M, N, K, beta);
+    //cerr << "Select Microtile - Done "<<endl << gemmKernel->tileNumRows << endl << gemmKernel->microtileNumRows << endl;
     gemmKernel->writeKernel(gemmKernel, M, N, K);
+    cerr << "write Kernel"<<endl;
 
     // Compile and invoke the Autogemm Kernel 
     gemmKernel->compileKernel(gemmKernel);
+    cerr << "Compil Kerenl Done "<<endl;
     gemmKernel->invokeKernel(gemmKernel, accl_view, M, N, K, alpha, A, lda, B, ldb, beta,
                              C, ldc, aOffset, bOffset, cOffset);
+    cerr << "Invoke Kernel Done "<<endl;
     return 0;
-}
-
-int main() {
-
-  return 0;
-
 }
