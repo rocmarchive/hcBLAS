@@ -3,6 +3,20 @@
 
 #include "autogemm.h"
 
+/* writeHEader():  Write the header files to the kernel file once
+ *
+ */
+void AutogemmKernel::writeHeader(std::string& kStr) {
+
+  // Add header files
+  kStr = kStr + "#include \"hc.hpp\"" + endLine;
+  kStr = kStr + "#include \"hc_math.hpp\"" + endLine;
+  kStr = kStr + "#include \"hcblaslib.h\"" + endLine;
+  kStr = kStr + "#include <cmath>" + endLine;
+  kStr = kStr + "#include <iostream>" + endLine + "using namespace std;" + endLine;
+
+}
+
 /* makeGemmKernel():   Generates gemm Kernel String and write onto
  *                                         the file
  */
@@ -17,13 +31,6 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
   // initializations
   kStr += "/* " + gemmKernel->getKernelName(kernelType)  +  " */" + endLine;
-
-  // Add header files
-  kStr = kStr + "#include \"hc.hpp\"" + endLine;
-  kStr = kStr + "#include \"hc_math.hpp\"" + endLine;
-  kStr = kStr + "#include \"hcblaslib.h\"" + endLine;
-  kStr = kStr + "#include <cmath>" + endLine;
-  kStr = kStr + "#include <iostream>" + endLine + "using namespace std;" + endLine;
 
   // Add header guards
   kStr = kStr + "#ifndef " + gemmKernel->getKernelName(kernelType) + "_H" + endLine;

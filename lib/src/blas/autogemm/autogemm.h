@@ -107,6 +107,7 @@ class AutogemmKernel {
        int selectMicrotileLogic(AutogemmKernel* gemmKernel, hcblasOrder order,
                                 hcblasTranspose typeA, hcblasTranspose typeB,
                                 uint M, uint N, uint K, float beta);
+       void writeHeader(std::string& kStr);
        void writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uint K);
        int makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernelType, std::string& kStr);
        int compileKernel(AutogemmKernel* gemmKernel);
