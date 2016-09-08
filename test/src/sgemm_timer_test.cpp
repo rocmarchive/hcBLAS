@@ -121,23 +121,14 @@ int main(int argc,char* argv[])
 
 #if 1
         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A + aOffset, lda, B + bOffset, ldb, beta, C_cblas + cOffset, ldc);
-        bool result = sgemmCompareL2fe(C, C_cblas, M*N, 1.0e-6f);
+        bool result = sgemmCompareL2fe(C, C_cblas, M*N, 1.0e-5f);
         if (result == 0) {
           std::cout << "Precison Error limit exceeded" << std::endl;
           printDiff(C_cblas, C, M, N, 100, 1.0e-5f);
           return -1;
         }
 
-        for(int i = 0 ; i < M * N ; i++) { 
-            if( C_cblas[i + cOffset] != (C[i + cOffset])) {
-                 ispassed = 0;
-                 cout << " HCSGEMM["<<i<<"] = "<<C[i + cOffset]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i + cOffset] << endl;
-                 break;
-            }
-            else
-                 continue;
-        } 
-        if(!ispassed) cout << "TEST FAILED" << endl; 
+        if(!result) cout << "TEST FAILED" << endl; 
 #endif
         if(status) cout << "TEST FAILED" << status<<  endl; 
     }
