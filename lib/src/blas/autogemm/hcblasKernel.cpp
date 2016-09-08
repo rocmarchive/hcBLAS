@@ -39,13 +39,13 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
   // kernel parameters
   kStr += endLine;
   kStr = kStr + "/* kernel parameters */" + endLine;
-  kStr = kStr + "#define WG_NUM_ROWS          " + toString<int>(gemmKernel->tileNumRows) + endLine;
-  kStr = kStr + "#define WG_NUM_COLS          " + toString<int>(gemmKernel->tileNumCols) + endLine;
-  kStr = kStr + "#define MICRO_TILE_NUM_ROWS  " + toString<int>(gemmKernel->microtileNumRows) + endLine;
-  kStr = kStr + "#define MICRO_TILE_NUM_COLS  " + toString<int>(gemmKernel->microtileNumCols) + endLine;
-  kStr = kStr + "#define MACRO_TILE_NUM_ROWS  " + toString<int>(gemmKernel->tileNumRows*gemmKernel->microtileNumCols) + endLine;
-  kStr = kStr + "#define MACRO_TILE_NUM_COLS  " + toString<int>(gemmKernel->tileNumCols*gemmKernel->microtileNumCols) + endLine;
-  kStr = kStr + "#define NUM_UNROLL_ITER      " + toString<int>(gemmKernel->unroll) + endLine;
+  kStr = kStr + "#define WG_NUM_ROWS          " + to_string(gemmKernel->tileNumRows) + endLine;
+  kStr = kStr + "#define WG_NUM_COLS          " + to_string(gemmKernel->tileNumCols) + endLine;
+  kStr = kStr + "#define MICRO_TILE_NUM_ROWS  " + to_string(gemmKernel->microtileNumRows) + endLine;
+  kStr = kStr + "#define MICRO_TILE_NUM_COLS  " + to_string(gemmKernel->microtileNumCols) + endLine;
+  kStr = kStr + "#define MACRO_TILE_NUM_ROWS  " + to_string(gemmKernel->tileNumRows*gemmKernel->microtileNumCols) + endLine;
+  kStr = kStr + "#define MACRO_TILE_NUM_COLS  " + to_string(gemmKernel->tileNumCols*gemmKernel->microtileNumCols) + endLine;
+  kStr = kStr + "#define NUM_UNROLL_ITER      " + to_string(gemmKernel->unroll) + endLine;
   kStr += endLine;
   kStr = kStr + "#define LOCAL_ROW_PAD        0"  + endLine;
   kStr = kStr + "#define LOCAL_COL_PAD        0" + endLine;
@@ -157,19 +157,19 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
   //micro-tile
   kStr += endLine;
-  kStr = kStr + "/* " + toString<int>(gemmKernel->microtileNumRows) + "x" + \
-             toString<int>(gemmKernel->microtileNumCols) + " micro-tile */"  + endLine;
+  kStr = kStr + "/* " + to_string(gemmKernel->microtileNumRows) + "x" + \
+             to_string(gemmKernel->microtileNumCols) + " micro-tile */"  + endLine;
   kStr = kStr + "#define MICRO_TILE \\" + endLine;
   for (int a = 0; a < gemmKernel->microtileNumRows; a++)
-    kStr = kStr + "  rA[" + toString(a) +"] = lA[offA + " + toString(a) +"*WG_NUM_ROWS]; \\" + endLine;
+    kStr = kStr + "  rA[" + to_string(a) +"] = lA[offA + " + to_string(a) +"*WG_NUM_ROWS]; \\" + endLine;
   for (int b = 0; b < gemmKernel->microtileNumCols; b++)
-    kStr = kStr + "  rB[" + toString(b) + "] = lB[offB + " + toString(b) + "*WG_NUM_COLS]; \\" + endLine;
+    kStr = kStr + "  rB[" + to_string(b) + "] = lB[offB + " + to_string(b) + "*WG_NUM_COLS]; \\" + endLine;
   kStr = kStr + "  offA += (MACRO_TILE_NUM_ROWS+LOCAL_COL_PAD); \\" + endLine;
   kStr = kStr + "  offB += (MACRO_TILE_NUM_COLS+LOCAL_ROW_PAD); \\" + endLine;
   for (int a = 0; a < gemmKernel->microtileNumRows; a++)
     for (int b = 0; b < gemmKernel->microtileNumCols; b++)
-      kStr = kStr + "  TYPE_MAD(rA[" + toString(a) +"],rB[" + toString(b) \
-                    + "],rC[" + toString(a) + "][" + toString(b) + "]); \\" + endLine;
+      kStr = kStr + "  TYPE_MAD(rA[" + to_string(a) +"],rB[" + to_string(b) \
+                    + "],rC[" + to_string(a) + "][" + to_string(b) + "]); \\" + endLine;
   kStr += endLine;
 
   //function signature
@@ -228,11 +228,11 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
   kStr += endLine;
   kStr = kStr + "  /* work item indices */" + endLine;
   if (gemmKernel->isRowKernel(kernelType))
-    kStr = kStr + "  uint gidx = M / " + toString(gemmKernel->tileNumRows*gemmKernel->microtileNumRows) + "; // last row" + endLine;
+    kStr = kStr + "  uint gidx = M / " + to_string(gemmKernel->tileNumRows*gemmKernel->microtileNumRows) + "; // last row" + endLine;
   else
     kStr = kStr + "  uint gidx = tidx.tile[1];" + endLine;
   if (gemmKernel->isColKernel(kernelType))
-    kStr = kStr + "  uint gidy = N / " + toString(gemmKernel->tileNumCols*gemmKernel->microtileNumCols) + "; // last column" + endLine;
+    kStr = kStr + "  uint gidy = N / " + to_string(gemmKernel->tileNumCols*gemmKernel->microtileNumCols) + "; // last column" + endLine;
   else
     kStr = kStr + "  uint gidy = tidx.tile[0];" + endLine;
 
@@ -319,37 +319,37 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
   std::string zeroString = "0.0";
 
   for ( int a = 0; a < numALoads; a++) {
-    kStr = kStr + "    lA[ GET_LOCAL_INDEX_A(localARow, localACol) + " + toString(a) + "*localAStride ] = ";
+    kStr = kStr + "    lA[ GET_LOCAL_INDEX_A(localARow, localACol) + " + to_string(a) + "*localAStride ] = ";
     if (gemmKernel->isRowKernel(kernelType))
-      kStr = kStr + "( globalARow(" + toString(a) + ") >= M) ? " + zeroString + " : ";
-    kStr = kStr + "A[ AinitOffset + GET_GLOBAL_INDEX_A( globalARow(" + toString(a) + \
-                "), globalACol(" + toString(a) + ") ) ];" + endLine;
+      kStr = kStr + "( globalARow(" + to_string(a) + ") >= M) ? " + zeroString + " : ";
+    kStr = kStr + "A[ AinitOffset + GET_GLOBAL_INDEX_A( globalARow(" + to_string(a) + \
+                "), globalACol(" + to_string(a) + ") ) ];" + endLine;
   }
   if (numALoadsR) {
-    kStr = kStr + "    if ( lIndex + " + toString(numALoads) + "*WG_NUM_ROWS*WG_NUM_COLS < (WG_NUM_ROWS*MICRO_TILE_NUM_ROWS*NUM_UNROLL_ITER) ) {" + endLine;
-    kStr = kStr + "      lA[GET_LOCAL_INDEX_A(localARow, localACol)+ " + toString(numALoads) + "*localAStride ] = ";
+    kStr = kStr + "    if ( lIndex + " + to_string(numALoads) + "*WG_NUM_ROWS*WG_NUM_COLS < (WG_NUM_ROWS*MICRO_TILE_NUM_ROWS*NUM_UNROLL_ITER) ) {" + endLine;
+    kStr = kStr + "      lA[GET_LOCAL_INDEX_A(localARow, localACol)+ " + to_string(numALoads) + "*localAStride ] = ";
     if (gemmKernel->isRowKernel(kernelType))
-      kStr = kStr + "( globalARow(" + toString(numALoads) + ") >= M) ? " + zeroString + " : ";
-    kStr = kStr + "A[ AinitOffset + GET_GLOBAL_INDEX_A( globalARow(" + toString(numALoads) + \
-                "), globalACol(" + toString(numALoads) + ") ) ];" + endLine;
+      kStr = kStr + "( globalARow(" + to_string(numALoads) + ") >= M) ? " + zeroString + " : ";
+    kStr = kStr + "A[ AinitOffset + GET_GLOBAL_INDEX_A( globalARow(" + to_string(numALoads) + \
+                "), globalACol(" + to_string(numALoads) + ") ) ];" + endLine;
     kStr = kStr + "    }" + endLine;
   }
 
    for ( int b = 0 ; b < numBLoads; b++) {
-    kStr = kStr + "    lB[ GET_LOCAL_INDEX_B(localBRow, localBCol) + "  + toString(b) + "*localBStride ] = ";
+    kStr = kStr + "    lB[ GET_LOCAL_INDEX_B(localBRow, localBCol) + "  + to_string(b) + "*localBStride ] = ";
     if (gemmKernel->isColKernel(kernelType))
-      kStr = kStr + "( globalBCol(" + toString(b) + ") >= N) ? " + zeroString + " : ";
-    kStr = kStr + "B[ BinitOffset + GET_GLOBAL_INDEX_B( globalBRow(" + toString(b) + \
-                "), globalBCol(" + toString(b) + ") ) ];" + endLine;
+      kStr = kStr + "( globalBCol(" + to_string(b) + ") >= N) ? " + zeroString + " : ";
+    kStr = kStr + "B[ BinitOffset + GET_GLOBAL_INDEX_B( globalBRow(" + to_string(b) + \
+                "), globalBCol(" + to_string(b) + ") ) ];" + endLine;
    }
   if (numBLoadsR) {
-    kStr = kStr + "    if ( lIndex + " + toString(numBLoads) + "*WG_NUM_ROWS*WG_NUM_COLS " \
+    kStr = kStr + "    if ( lIndex + " + to_string(numBLoads) + "*WG_NUM_ROWS*WG_NUM_COLS " \
                 + "< (WG_NUM_COLS*MICRO_TILE_NUM_COLS*NUM_UNROLL_ITER) ) {" + endLine;
-    kStr = kStr + "      lB[ GET_LOCAL_INDEX_B(localBRow, localBCol) + " + toString(numBLoads) + "*localBStride ] = ";
+    kStr = kStr + "      lB[ GET_LOCAL_INDEX_B(localBRow, localBCol) + " + to_string(numBLoads) + "*localBStride ] = ";
     if (gemmKernel->isColKernel(kernelType))
-      kStr = kStr + "(globalBCol(" + toString(numBLoads) + ") >= N) ?" + zeroString + " : ";
-    kStr = kStr + "B[ BinitOffset + GET_GLOBAL_INDEX_B( globalBRow(" + toString(numBLoads) + \
-                "), globalBCol(" + toString(numBLoads) + ") ) ];" + endLine;
+      kStr = kStr + "(globalBCol(" + to_string(numBLoads) + ") >= N) ?" + zeroString + " : ";
+    kStr = kStr + "B[ BinitOffset + GET_GLOBAL_INDEX_B( globalBRow(" + to_string(numBLoads) + \
+                "), globalBCol(" + to_string(numBLoads) + ") ) ];" + endLine;
     kStr = kStr + "    }" + endLine;
   }
   kStr = kStr +
@@ -397,14 +397,14 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
    for (int a = 0; a < gemmKernel->microtileNumRows; a++) {
     for (int b = 0; b < gemmKernel->microtileNumCols; b++) {
       if (gemmKernel->isRowKernel(kernelType))
-        kStr = kStr + "  if (globalCRow+" + toString(a) + "*WG_NUM_ROWS < M)";
+        kStr = kStr + "  if (globalCRow+" + to_string(a) + "*WG_NUM_ROWS < M)";
       if (gemmKernel->isColKernel(kernelType))
-        kStr = kStr + "  if (globalCCol+" + toString(b) + "*WG_NUM_COLS < N)";
+        kStr = kStr + "  if (globalCCol+" + to_string(b) + "*WG_NUM_COLS < N)";
       if (gemmKernel->isRowKernel(kernelType) || gemmKernel->isColKernel(kernelType))
         kStr = kStr + "{";
       kStr = kStr + "  TYPE_MAD_WRITE( C[ GET_GLOBAL_INDEX_C( globalCRow+" + \
-                    toString(a) + "*WG_NUM_ROWS, globalCCol+" + toString(b) + \
-                    "*WG_NUM_COLS) ], alpha, rC[" + toString(a) + "][" + toString(b) + "], beta )";
+                    to_string(a) + "*WG_NUM_ROWS, globalCCol+" + to_string(b) + \
+                    "*WG_NUM_COLS) ], alpha, rC[" + to_string(a) + "][" + to_string(b) + "], beta )";
       if (gemmKernel->isRowKernel(kernelType) || gemmKernel->isColKernel(kernelType))
         kStr = kStr + "}";
       kStr = kStr + endLine;

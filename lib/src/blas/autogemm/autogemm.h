@@ -3,14 +3,11 @@
 
 #include <iostream>
 #include <string.h>
-#include <sstream>
 #include <cstdio>
 #include <map>
 #include <fstream>
 #include <unistd.h>
 #include <sys/types.h>
-#include <pwd.h>
-#include <dlfcn.h>
 
 #include "hcblaslib.h"
 
@@ -19,24 +16,7 @@
 #define CRIT_ERR -1
 #define endLine "\n"
 
-template <typename T>
-std::string toString(T val) {
 
-    std::stringstream txt;
-    txt << val;
-    return txt.str();
-
-}
-
-std::string getHomeDir(void) {
-
-   std::string homeDir;
-   struct passwd *pw = getpwuid(getuid());
-   const char *homedir = pw->pw_dir;
-   homeDir = homedir;
-   return homeDir;
-
-}
 static std::map<char, std::string> dataTypes = {{'s', "float"}, {'d', "double"}, {'c', "float"}, {'z', "double"}};
 
 int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,

@@ -1,6 +1,6 @@
 #include <unistd.h>
 #include "autogemm.h"
-
+#include "helper_func.h"
 using namespace std;
 
 /* isRowKernel():  Return true if
@@ -58,7 +58,7 @@ using namespace std;
                     (this->isColMajor ? "Col_" : "Row_") + \
                     (this->isTransA ? 'T' : 'N') + \
                     (this->isTransB ? 'T' : 'N') + "_B" + \
-                    toString(this->isBeta_nonZero) + "_" ;
+                    to_string(this->isBeta_nonZero) + "_" ;
 
     /* Tile Parameters construct */
     // Using defaultTile format TODO : Add Row, Col, Corner formats
@@ -97,7 +97,7 @@ void AutogemmKernel::setFileName() {
                     (this->isColMajor ? "Col_" : "Row_") + \
 		    (this->isTransA ? 'T' : 'N') + \
 		    (this->isTransB ? 'T' : 'N') + "_B" + \
-		    toString(this->isBeta_nonZero) + "_" ;
+		    to_string(this->isBeta_nonZero) + "_" ;
 
     /* Tile Parameters construct */
     sprintf(kName, "MX%03d_NX%03d", this->macrotileNumRows , this->macrotileNumCols);
