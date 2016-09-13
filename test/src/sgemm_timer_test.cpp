@@ -120,15 +120,18 @@ int main(int argc,char* argv[])
         hc::am_copy(C, devC,  (M * N + cOffset) * sizeof(float));
 
 #if 1
+        bool result = 0;
+        float epsilon = 1.0e-5f;
         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A + aOffset, lda, B + bOffset, ldb, beta, C_cblas + cOffset, ldc);
-        bool result = sgemmCompareL2fe(C, C_cblas, M*N, 1.0e-5f);
-        if (result == 0) {
+        float err = sgemmCompareL2fe(C, C_cblas, M*N, epsilon);
+        if (err > epsilon) {
+          result = 1;
           std::cout << "Precison Error limit exceeded" << std::endl;
           printDiff(C_cblas, C, M, N, 100, 1.0e-5f);
           return -1;
         }
 
-        if(!result) cout << "TEST FAILED" << endl; 
+        if(result) cout << "TEST FAILED" << endl; 
 #endif
         if(status) cout << "TEST FAILED" << status<<  endl; 
     }
