@@ -6,7 +6,7 @@
 /* writeHEader():  Write the header files to the kernel file once
  *
  */
-void AutogemmKernel::writeHeader(std::string& kStr) {
+void AutogemmKernel::writeHeader(AutogemmKernel* gemmKernel, std::string& kStr) {
 
   // Add header files
   kStr = kStr + "#include \"hc.hpp\"" + endLine;
@@ -15,6 +15,11 @@ void AutogemmKernel::writeHeader(std::string& kStr) {
   kStr = kStr + "#include <cmath>" + endLine;
   kStr = kStr + "#include <iostream>" + endLine + "using namespace std;" + endLine;
 
+ // data types
+  kStr += endLine;
+  kStr = kStr + "/* data types */" + endLine;
+  kStr = kStr + "#define uint unsigned int" + endLine;
+  kStr = kStr + "#define DATA_TYPE_STR " + dataTypes[gemmKernel->precision] + endLine;
 }
 
 /* makeGemmKernel():   Generates gemm Kernel String and write onto
@@ -79,11 +84,6 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
   kStr = kStr + "#define GET_LOCAL_INDEX_B(ROW,COL) " + \
   "((COL) + (ROW)*((MACRO_TILE_NUM_COLS)+(LOCAL_ROW_PAD)) )" + endLine;
 
- // data types
-  kStr += endLine;
-  kStr = kStr + "/* data types */" + endLine;
-  kStr = kStr + "#define uint unsigned int" + endLine;
-  kStr = kStr + "#define DATA_TYPE_STR " + dataTypes[gemmKernel->precision] + endLine;
   if (gemmKernel->precision=='s' || gemmKernel->precision=='d') {
      //real arithmetic
     kStr = kStr + "#define mad(a, b ,c) a*b+c" + endLine;

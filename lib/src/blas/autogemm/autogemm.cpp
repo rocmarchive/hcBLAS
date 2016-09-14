@@ -247,7 +247,7 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
   gemmKernel->needCornerKernel = M%macrotileNumRows > 0 && N%macrotileNumCols > 0;
 
   std::string kStr;
-  gemmKernel->writeHeader(kStr);
+  gemmKernel->writeHeader(gemmKernel, kStr);
 
   if (gemmKernel->needTileKernel) {
     cerr << "Need tile" << endl;
