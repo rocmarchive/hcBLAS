@@ -41,6 +41,31 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
   kStr = kStr + "#ifndef " + gemmKernel->getKernelName(kernelType) + "_H" + endLine;
   kStr = kStr + "#define " + gemmKernel->getKernelName(kernelType) + "_H" + endLine;
 
+  kStr += endLine;
+  //function signature
+
+  kStr = kStr + "extern \"C\" {" + endLine;
+  kStr = kStr + "hcblasStatus " + gemmKernel->getKernelName(kernelType);
+  kStr = kStr + "(" + endLine;
+  // arguments
+  kStr = kStr +
+    "  hc::accelerator_view accl_view, " + endLine +
+    "  DATA_TYPE_STR const * A," + endLine +
+    "  DATA_TYPE_STR const * B," + endLine +
+    "  DATA_TYPE_STR * C," + endLine +
+    "  DATA_TYPE_STR const alpha," + endLine +
+    "  DATA_TYPE_STR const beta," + endLine +
+    "  uint const M," + endLine +
+    "  uint const N," + endLine +
+    "  uint const K," + endLine +
+    "  uint const lda," + endLine +
+    "  uint const ldb," + endLine +
+    "  uint const ldc," + endLine +
+    "  uint const offsetA," + endLine +
+    "  uint const offsetB," + endLine +
+    "  uint const offsetC" + endLine +
+    ") {" + endLine;
+
   // kernel parameters
   kStr += endLine;
   kStr = kStr + "/* kernel parameters */" + endLine;
@@ -171,30 +196,6 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
       kStr = kStr + "  TYPE_MAD(rA[" + to_string(a) +"],rB[" + to_string(b) \
                     + "],rC[" + to_string(a) + "][" + to_string(b) + "]); \\" + endLine;
   kStr += endLine;
-
-  //function signature
-
-  kStr = kStr + "extern \"C\" {" + endLine;
-  kStr = kStr + "hcblasStatus " + gemmKernel->getKernelName(kernelType);
-  kStr = kStr + "(" + endLine;
-  // arguments
-  kStr = kStr +
-    "  hc::accelerator_view accl_view, " + endLine +
-    "  DATA_TYPE_STR const * A," + endLine +
-    "  DATA_TYPE_STR const * B," + endLine +
-    "  DATA_TYPE_STR * C," + endLine +
-    "  DATA_TYPE_STR const alpha," + endLine +
-    "  DATA_TYPE_STR const beta," + endLine +
-    "  uint const M," + endLine +
-    "  uint const N," + endLine +
-    "  uint const K," + endLine +
-    "  uint const lda," + endLine +
-    "  uint const ldb," + endLine +
-    "  uint const ldc," + endLine +
-    "  uint const offsetA," + endLine +
-    "  uint const offsetB," + endLine +
-    "  uint const offsetC" + endLine +
-    ") {" + endLine;
 
   // launch the thread grids
   kStr += endLine;
@@ -413,8 +414,46 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
   // end parallel for each
   kStr += endLine;
-  kStr = kStr + "  }).wait();" + endLine
-            + "  return HCBLAS_SUCCEEDS;" + endLine ;
+  kStr = kStr + "  }).wait();" + endLine;
+
+  // Undefs all the macros for future use
+  // kernel parameters
+  kStr += endLine;
+  kStr = kStr + "#undef WG_NUM_ROWS          " + endLine;
+  kStr = kStr + "#undef WG_NUM_COLS          " + endLine;
+  kStr = kStr + "#undef MICRO_TILE_NUM_ROWS  " + endLine;
+  kStr = kStr + "#undef MICRO_TILE_NUM_COLS  " + endLine;
+  kStr = kStr + "#undef MACRO_TILE_NUM_ROWS  " + endLine;
+  kStr = kStr + "#undef MACRO_TILE_NUM_COLS  " + endLine;
+  kStr = kStr + "#undef NUM_UNROLL_ITER      " + endLine;
+  kStr = kStr + "#undef LOCAL_ROW_PAD        " + endLine;
+  kStr = kStr + "#undef LOCAL_COL_PAD        " + endLine;
+
+  // global memory indices
+  // A
+  kStr += endLine;
+  kStr = kStr +"#undef GET_GLOBAL_INDEX_A " + endLine;
+  // B
+  kStr = kStr +"#undef GET_GLOBAL_INDEX_B " + endLine;
+  // C
+  kStr = kStr +"#undef GET_GLOBAL_INDEX_C " + endLine;
+
+  //local memory indices
+  // A
+  kStr += endLine;
+  kStr = kStr + "#undef GET_LOCAL_INDEX_A " + endLine;
+  // B
+  kStr = kStr + "#undef GET_LOCAL_INDEX_B " + endLine;
+
+  //real arithmetic
+  kStr = kStr + "#undef mad " + endLine;
+  kStr = kStr + "#undef TYPE_MAD " + endLine;
+  kStr = kStr + "#undef TYPE_MAD_WRITE " + endLine;
+
+  kStr += endLine;
+  kStr = kStr + "#undef MICRO_TILE " + endLine;
+  
+  kStr = kStr + "  return HCBLAS_SUCCEEDS;" + endLine ;
 
   // end kernel
   kStr = kStr + endLine + "}" + endLine;
