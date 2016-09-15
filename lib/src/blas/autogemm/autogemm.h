@@ -19,7 +19,7 @@
 
 static std::map<char, std::string> dataTypes = {{'s', "float"}, {'d', "double"}, {'c', "float"}, {'z', "double"}};
 
-int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
+hcblasStatus hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
                        hcblasTranspose typeA, hcblasTranspose typeB, const int M,
                        const uint N, const uint K, const float &alpha, float *A,
                        const uint lda, float *B, const uint ldb, const float &beta,
@@ -91,7 +91,7 @@ class AutogemmKernel {
        void writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uint K);
        int makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernelType, std::string& kStr);
        int compileKernel(AutogemmKernel* gemmKernel);
-       int invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
+       hcblasStatus invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
                         const uint M, const uint N, const uint K, const float &alpha,
                         float *A, const uint lda, float *B, const uint ldb, const float &beta,
                         float *C, const uint ldc, const uint aOffset, const uint bOffset,

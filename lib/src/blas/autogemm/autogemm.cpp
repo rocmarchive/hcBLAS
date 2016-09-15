@@ -378,19 +378,20 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
  *                     - invoke the kernel by calling the func pointer with arguments
  *                     - Close the symbol
  */
-int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
+hcblasStatus AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_view &accl_view,
                                  const uint M, const uint N, const uint K, const float &alpha,
                                  float *A, const uint lda, float *B, const uint ldb, const float &beta,
                                  float *C, const uint ldc, const uint aOffset, const uint bOffset, 
                                  const uint cOffset) {
 
-   std::string libPath = gemmKernel->getKernelCachePath() + gemmKernel->getKernelLibName();
+  hcblasStatus status = HCBLAS_SUCCEEDS;
+  std::string libPath = gemmKernel->getKernelCachePath() + gemmKernel->getKernelLibName();
 
   // loads the module specified by FilePath into the executing process's address space 
   void* kernelHandle = dlopen(libPath.c_str(), RTLD_NOW);
   if(!kernelHandle) {
     std::cout << "Failed to load Kernel: " << gemmKernel->getKernelLibName().c_str() << std::endl;
-    return CRIT_ERR;
+    return HCBLAS_INVALID;
   }
 
   // Define the function pointer to access the autogemm kernel
@@ -414,12 +415,12 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
     char *err = dlerror();
     if (err) {
       std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->tileKernel) << " kernel : " << err << endl;
-      return CRIT_ERR;
+      return HCBLAS_INVALID;
     }
     free(err);
  
     // If no errors, invoke the function with arguments
-    hcblas_sgemm_call(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+    status = hcblas_sgemm_call(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
   }
 
   if (gemmKernel->needRowKernel) {
@@ -436,12 +437,12 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
     char *err = dlerror();
     if (err) {
       std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->rowKernel) << " kernel : " << err << endl;
-      return CRIT_ERR;
+      return HCBLAS_INVALID;
     }
     free(err);
  
     // If no errors, invoke the function with arguments
-    hcblas_sgemm_call_row(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+    status = hcblas_sgemm_call_row(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
   } 
 
   if (gemmKernel->needColKernel) {
@@ -458,12 +459,12 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
     char *err = dlerror();
     if (err) {
       std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->colKernel) << " kernel : " << err << endl;
-      return CRIT_ERR;
+      return HCBLAS_INVALID;
     }
     free(err);
  
     // If no errors, invoke the function with arguments
-    hcblas_sgemm_call_col(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+    status = hcblas_sgemm_call_col(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
   }
 
   if (gemmKernel->needCornerKernel) {
@@ -480,14 +481,14 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
     char *err = dlerror();
     if (err) {
       std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->cornerKernel) << " kernel : " << err << endl;
-      return CRIT_ERR;
+      return HCBLAS_INVALID;
     }
     free(err);
  
     // If no errors, invoke the function with arguments
-    hcblas_sgemm_call_corner(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+    status = hcblas_sgemm_call_corner(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
   }
-  return SUCCESS;
+  return status;
 }
 
 /* hcblasAutogemmCall():  Top level function called by the sgemm wrapper to
@@ -502,13 +503,14 @@ int AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accelerator_vie
  *                                invoke the Autogemm kernel
  */
 //TODO : Add templates to this function
-int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
+hcblasStatus hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
                        hcblasTranspose typeA, hcblasTranspose typeB, const int M,
                        const uint N, const uint K, const float &alpha, float *A,
                        const uint lda, float *B, const uint ldb, const float &beta,
                        float *C, const uint ldc, const uint aOffset, const uint bOffset,
                        const uint cOffset) 
 {
+    hcblasStatus status = HCBLAS_SUCCEEDS;
 
     // Instantiate the autogemm kernel
     AutogemmKernel* gemmKernel = new AutogemmKernel();
@@ -529,8 +531,8 @@ int hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder order,
     // Compile and invoke the Autogemm Kernel 
     gemmKernel->compileKernel(gemmKernel);
     cerr << "Compil Kerenl Done "<<endl;
-    gemmKernel->invokeKernel(gemmKernel, accl_view, M, N, K, alpha, A, lda, B, ldb, beta,
-                             C, ldc, aOffset, bOffset, cOffset);
+    status = gemmKernel->invokeKernel(gemmKernel, accl_view, M, N, K, alpha,
+                                      A, lda, B, ldb, beta, C, ldc, aOffset, bOffset, cOffset);
     cerr << "Invoke Kernel Done "<<endl;
-    return 0;
+    return status;
 }
