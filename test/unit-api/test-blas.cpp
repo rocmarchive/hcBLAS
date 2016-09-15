@@ -7,7 +7,7 @@
 TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -29,7 +29,7 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   EXPECT_EQ(result, asumcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSasum(handle, n, devX, incx, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -40,7 +40,7 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
 TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -67,7 +67,7 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
   EXPECT_EQ(result, asumcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSasumBatched(handle, n, devX, incx, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -78,7 +78,7 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
 TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -100,7 +100,7 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
   EXPECT_EQ(result, asumcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasDasum(handle, n, devX, incx, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -111,7 +111,7 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
 TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -139,7 +139,7 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
 
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasDasumBatched(handle, n, devX, incx, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -150,7 +150,7 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
 TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -174,7 +174,7 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSscal(handle, n, &alpha, devX, incx);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -186,7 +186,7 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
 TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -213,7 +213,7 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSscalBatched(handle, n, &alpha, devX, incx, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -225,7 +225,7 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
 TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -249,7 +249,7 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasDscal(handle, n, &alpha, devX, incx);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -261,7 +261,7 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
 TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
@@ -288,7 +288,7 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasDscalBatched(handle, n, &alpha, devX, incx, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
@@ -300,7 +300,7 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
 TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -332,7 +332,7 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasScopy(handle, n, devX, incx, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -346,7 +346,7 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
 TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -380,7 +380,7 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasScopyBatched(handle, n, devX, incx, devY, incy, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -394,7 +394,7 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
 TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -426,7 +426,7 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-   hcblasDestroy(handle);
+   hcblasDestroy(&handle);
   status = hcblasDcopy(handle, n, devX, incx, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -440,7 +440,7 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
 TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -474,7 +474,7 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasDcopyBatched(handle, n, devX, incx, devY, incy, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -488,7 +488,7 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
 TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -516,7 +516,7 @@ TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
   EXPECT_EQ(result, dotcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSdot(handle, n, devX, incx, devY, incy, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -529,7 +529,7 @@ TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
 TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -562,7 +562,7 @@ TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
   EXPECT_EQ(result, dotcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSdotBatched(handle, n, devX, incx, devY, incy, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -575,7 +575,7 @@ TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
 TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status= hcblasCreate(handle);
+  status= hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -603,7 +603,7 @@ TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
   EXPECT_EQ(result, dotcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasDdot(handle, n, devX, incx, devY, incy, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -616,7 +616,7 @@ TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
 TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -649,7 +649,7 @@ TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
   EXPECT_EQ(result, dotcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasDdotBatched(handle, n, devX, incx, devY, incy, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -662,7 +662,7 @@ TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
 TEST(hcblaswrapper_saxpy, func_return_correct_saxpy) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -694,7 +694,7 @@ TEST(hcblaswrapper_saxpy, func_return_correct_saxpy) {
   }
   
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSaxpy(handle, n, &alpha, devX, incx, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -708,7 +708,7 @@ TEST(hcblaswrapper_saxpy, func_return_correct_saxpy) {
 TEST(hcblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int n = 123;
   int incx = 1;
   int incy = 1;
@@ -742,7 +742,7 @@ TEST(hcblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSaxpyBatched(handle, n, &alpha, devX, incx, devY, incy, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -756,7 +756,7 @@ TEST(hcblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
 TEST(hcblaswrapper_sger, func_return_correct_sger) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int m = 123;
   int n = 78;
   int incx = 1;
@@ -799,7 +799,7 @@ TEST(hcblaswrapper_sger, func_return_correct_sger) {
   }
   
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSger(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -813,7 +813,7 @@ TEST(hcblaswrapper_sger, func_return_correct_sger) {
 TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int m = 123;
   int n = 67;
   int incx = 1;
@@ -858,7 +858,7 @@ TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSgerBatched(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -875,7 +875,7 @@ TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
 TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int m = 123;
   int n = 78;
   int incx = 1;
@@ -934,7 +934,7 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
       EXPECT_EQ(Y[i], Ycblas[i]);
   }
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSgemv(handle, trans, m, n, &alpha, devA, lda, devX, incx, &beta, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -951,7 +951,7 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
 TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int m = 123;
   int n = 67;
   int incx = 1;
@@ -1013,7 +1013,7 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSgemvBatched(handle, trans, m, n, &alpha, devA, lda, devX, incx, &beta, devY, incy, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -1029,7 +1029,7 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
 TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int M = 123;
   int N = 78;
   int K = 23;
@@ -1088,7 +1088,7 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
     EXPECT_EQ(C_hcblas[i], C_cblas[i]);
 
    // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -1105,7 +1105,7 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
 TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int M = 123;
   int N = 78;
   int K = 23;
@@ -1166,7 +1166,7 @@ TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
     EXPECT_EQ(C_hcblas[i], C_cblas[i]);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -1184,7 +1184,7 @@ TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
 TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int M = 123;
   int N = 78;
   int K = 23;
@@ -1265,7 +1265,7 @@ TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
   }
 
    // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasCgemm(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -1283,7 +1283,7 @@ TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
 TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   hcblasStatus_t status;
   hcblasHandle_t *handle = NULL;
-  status = hcblasCreate(handle);
+  status = hcblasCreate(&handle);
   int M = 123;
   int N = 78;
   int K = 23;
@@ -1367,7 +1367,7 @@ TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   }
 
    // HCBLAS_STATUS_NOT_INITIALIZED
-  hcblasDestroy(handle);
+  hcblasDestroy(&handle);
   status = hcblasCgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 

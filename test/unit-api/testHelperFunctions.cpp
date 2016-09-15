@@ -6,7 +6,7 @@ TEST(hcblasCreateTest, return_Check_hcblasCreate) {
  // Case I: Input to the API is null handle
  hcblasHandle_t *handle = NULL;
  // Passing a Null handle to the API
- hcblasStatus_t status = hcblasCreate(handle); 
+ hcblasStatus_t status = hcblasCreate(&handle); 
  // Assert if the handle is still NULL after allocation
  EXPECT_TRUE(handle != NULL);
  // If allocation succeeds we must expect a success status
@@ -19,12 +19,12 @@ TEST(hcblasCreateTest, return_Check_hcblasCreate) {
 TEST(hcblasDestroyTest, return_Check_hcblasDestroy) {
  hcblasHandle_t *handle = NULL;
  // Passing a Null handle to the API
- hcblasStatus_t status = hcblasCreate(handle);
+ hcblasStatus_t status = hcblasCreate(&handle);
  //hcblasDestroy
- status = hcblasDestroy(handle);
+ status = hcblasDestroy(&handle);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  // Destory again
- status = hcblasDestroy(handle);
+ status = hcblasDestroy(&handle);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 }
 
@@ -35,7 +35,7 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  double *x2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t *handle = NULL;
- status= hcblasCreate(handle);
+ status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *y1 = (float*)am_alloc(n, accs[handle->deviceId], 0);
  double *y2 = (double*)am_alloc(n, accs[handle->deviceId], 0);
@@ -64,7 +64,7 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
 
  // HCBLAS_STATUS_NOT_INITIALIZED  
- hcblasDestroy(handle);
+ hcblasDestroy(&handle);
  status = hcblasSetVector(handle, n, sizeof(x1), x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -81,7 +81,7 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  double *y2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t *handle = NULL;
- status= hcblasCreate(handle);
+ status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *x1 = (float*)am_alloc(n, accs[handle->deviceId], 0);
  double *x2 = (double*)am_alloc(n, accs[handle->deviceId], 0);
@@ -111,7 +111,7 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
 
  // HCBLAS_STATUS_NOT_INITIALIZED
- hcblasDestroy(handle);
+ hcblasDestroy(&handle);
  status = hcblasSetVector(handle, n, sizeof(y1), x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -129,7 +129,7 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  double *x2 = (double*) calloc(rows * cols, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t *handle = NULL;
- status= hcblasCreate(handle);
+ status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *y1 = (float*)am_alloc(rows * cols, accs[handle->deviceId], 0);
  double *y2 = (double*)am_alloc(rows * cols, accs[handle->deviceId], 0);
@@ -151,7 +151,7 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
 
  // HCBLAS_STATUS_NOT_INITIALIZED  
- hcblasDestroy(handle);
+ hcblasDestroy(&handle);
  status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -169,7 +169,7 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  double *y2 = (double*) calloc(cols * rows, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t *handle = NULL;
- status= hcblasCreate(handle);
+ status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *x1 = (float*)am_alloc(rows * cols, accs[handle->deviceId], 0);
  double *x2 = (double*)am_alloc(rows * cols, accs[handle->deviceId], 0);
@@ -191,7 +191,7 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
 
  // HCBLAS_STATUS_NOT_INITIALIZED
- hcblasDestroy(handle);
+ hcblasDestroy(&handle);
  status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
@@ -203,7 +203,7 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
 
 TEST(hcblasDeviceOrderselect, func_return_Check_hcblasDeviceOrderselect) {
  hcblasHandle_t *handle = NULL;
- hcblasStatus_t status= hcblasCreate(handle);
+ hcblasStatus_t status= hcblasCreate(&handle);
  hcblasOrder order = ColMajor;
 
  //device CPU
