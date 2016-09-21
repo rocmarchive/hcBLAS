@@ -15,14 +15,14 @@ Implementation type I
 
  .. note:: **Inputs and Outputs are HCC device pointers.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSdot** (hcblasHandle_t* handle, int n, const float* x, int incx, const float* y, int incy, float* result)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSdot** (hcblasHandle_t handle, int n, const float* x, int incx, const float* y, int incy, float* result)
 
 Implementation type II
 -----------------------
 
  .. note:: **Inputs and Outputs are HCC device pointers with batch processing.**
 
-`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSdotBatched** (hcblasHandle_t* handle, int n, const float* x, int incx, const float* y, int incy, float* result, int batchCount)
+`hcblasStatus_t <HCBLAS_TYPES.html#hcblas-status-hcblasstatus-t>`_ **hcblasSdotBatched** (hcblasHandle_t handle, int n, const float* x, int incx, const float* y, int incy, float* result, int batchCount)
 
 Detailed Description
 ^^^^^^^^^^^^^^^^^^^^
@@ -32,7 +32,7 @@ Function Documentation
 
 ::
 
-                hcblasStatus_t hcblasSdot (hcblasHandle_t* handle, int n,
+                hcblasStatus_t hcblasSdot (hcblasHandle_t handle, int n,
                                            const float           *x, int incx,
                                            const float           *y, int incy,
                                            float                 *result)

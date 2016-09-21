@@ -30,7 +30,7 @@ THE SOFTWARE.
 extern "C" {
 #endif
 
-typedef hcblasHandle_t* hipblasHandle_t;
+typedef hcblasHandle_t hipblasHandle_t;
 typedef hcComplex hipComplex ;
 
 static hipblasHandle_t dummyGlobal;

@@ -28,7 +28,7 @@ int main() {
 
   // Create hcBlas handle object. 
   // Sets default target accelerator (id =1) and data layout as column major 
-  hcblasHandle_t *handle = NULL;
+  hcblasHandle_t handle = NULL;
   status = hcblasCreate(&handle);
 
   // Enumerate the list of accelerators
@@ -102,7 +102,7 @@ int main() {
   // Deallocate the resources
   
   // Destroy the handle
-  status = hcblasDestroy(&handle);
+  status = hcblasDestroy(handle);
   if(status != HCBLAS_STATUS_SUCCESS) {
      printf("Handle deallocation failure\n");
      exit(1);
