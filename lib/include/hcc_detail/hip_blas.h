@@ -107,8 +107,7 @@ inline static hipblasStatus_t hipHCBLASStatusToHIPStatus(hcblasStatus_t hcStatus
 
 
 inline static hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
-	hipblasStatus_t retVal = hipHCBLASStatusToHIPStatus(hcblasCreate(*handle));
-	dummyGlobal = *handle;
+    hipblasStatus_t retVal = hipHCBLASStatusToHIPStatus(hcblasCreate(&*handle));
     return retVal;
 }
 
