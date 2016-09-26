@@ -1,6 +1,7 @@
-#include "hcblas.h"
 #include "gtest/gtest.h"
 #include <hc_am.hpp>
+#include "hcblaslib.h"
+#include "hcblas.h"
 
 TEST(hcblasCreateTest, return_Check_hcblasCreate) {
  // Case I: Input to the API is null handle

@@ -1,8 +1,9 @@
 #ifndef HCBLAS_H
 #define HCBLAS_H
 
-#include "hcblaslib.h"
-
+#ifdef __cplusplus
+extern "C" {
+#endif //(__cplusplus)
 //2.2.1. hcblasHandle_t
 
 // The hcblasHandle_t type is a pointer to an opaque structure holding the hcBLAS library context. 
@@ -10,7 +11,10 @@
 // passed to all subsequent library function calls. The context should be destroyed at the end using 
 // hcblasDestroy().
 
-typedef Hcblaslibrary* hcblasHandle_t;
+
+enum hcblasOrder;
+
+typedef struct  Hcblaslibrary* hcblasHandle_t;
 
 // 2.2.2. hcblasStatus_t
 
@@ -611,6 +615,7 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
                                   hcDoubleComplex       *Barray, int ldb,
                                   const hcDoubleComplex       *beta,
                                   hcDoubleComplex       *Carray, int ldc, int batchCount);
-
-
-#endif
+#ifdef __cplusplus
+}
+#endif //(__cplusplus)
+#endif //(HCBLAS_H)

@@ -1,6 +1,5 @@
-#include "hcblas.h"
-#include "hc_am.hpp"
 #include "hcblaslib.h"
+#include "hcblas.h"
 // hcblas Helper functions 
 
 // 1. hcblasCreate()

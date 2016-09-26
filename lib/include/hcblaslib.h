@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "hc.hpp"
+#include "hc_am.hpp"
 #include "hc_short_vector.hpp"
 
 using namespace hc;
