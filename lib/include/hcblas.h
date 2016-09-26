@@ -12,7 +12,7 @@ extern "C" {
 // hcblasDestroy().
 
 
-enum hcblasOrder;
+enum hcblasOrder: unsigned short;
 
 typedef struct  Hcblaslibrary* hcblasHandle_t;
 

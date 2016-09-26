@@ -26,7 +26,7 @@ enum hcblasStatus {
 };
 
 /* enumerator to define the layout of  input matrix for blas operation */
-enum hcblasOrder {
+enum hcblasOrder: unsigned short {
     RowMajor ,
     ColMajor
 };
