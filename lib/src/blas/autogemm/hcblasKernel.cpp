@@ -325,7 +325,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
       "  long BinitOffset = 0;" + endLine +
       "  long CinitOffset = 0;" + endLine +
       "  uint alIndex = (idy * (WG_NUM_COLS * MICRO_TILE_NUM_COLS * 2 + 1) + idx * 2);" + endLine +
-      "  uint blIndex = (idx * (WG_NUM_ROWS * MICRO_TILE_NUM_ROWS * 2 + 1) + idx * 2);" + endLine +
+      "  uint blIndex = (idx * (WG_NUM_ROWS * MICRO_TILE_NUM_ROWS * 2 + 1) + idy * 2);" + endLine +
       "  uint AIndex = offsetA + (gidx * WG_NUM_ROWS * MICRO_TILE_NUM_ROWS * 2) + idx * 2 + (idy * lda);" + endLine +
       "  uint BIndex = offsetB + ((gidy * WG_NUM_COLS * MICRO_TILE_NUM_ROWS * 2) + idy * 2) * ldb + idx;" + endLine +
       "  uint CIndex = offsetC + ((gidx * WG_NUM_ROWS * MICRO_TILE_NUM_ROWS * 2) + idx * 2) + ( ((gidy * WG_NUM_COLS * MICRO_TILE_NUM_ROWS * 2) + idy * 2) * ldc);" + endLine;
