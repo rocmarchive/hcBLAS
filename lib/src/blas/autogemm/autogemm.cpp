@@ -236,7 +236,6 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
    // Set filename for the given size
    gemmKernel->setFileName();
    gemmKernel->setKernelLibName();
-
   // Temporarily access the microtile elements
   uint macrotileNumRows = gemmKernel->macrotileNumRows;
   uint macrotileNumCols = gemmKernel->macrotileNumCols;
@@ -386,11 +385,11 @@ hcblasStatus AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accele
 
   hcblasStatus status = HCBLAS_SUCCEEDS;
   std::string libPath = gemmKernel->getKernelCachePath() + gemmKernel->getKernelLibName();
-
+ 
   // loads the module specified by FilePath into the executing process's address space 
   void* kernelHandle = dlopen(libPath.c_str(), RTLD_NOW);
   if(!kernelHandle) {
-    std::cout << "Failed to load Kernel: " << gemmKernel->getKernelLibName().c_str() << std::endl;
+    std::cerr << "Failed to load Kernel: " << gemmKernel->getKernelLibName().c_str() << std::endl;
     return HCBLAS_INVALID;
   }
 
@@ -408,13 +407,14 @@ hcblasStatus AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accele
     // obtain the address of a symbol defined within an object made accessible through a dlopen() cal
     hcblas_sgemm_call = (hcblas_sgemm_fn_ptr*) dlsym(kernelHandle, funcName.c_str());
 
+    cerr << "In Tile" << endl;
     // Catch the symbol load error with dlerror for user 
     if (!hcblas_sgemm_call) {
-       cout << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->tileKernel) << "Failed" << endl;
+       cerr << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->tileKernel) << "Failed" << endl;
     }
     char *err = dlerror();
     if (err) {
-      std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->tileKernel) << " kernel : " << err << endl;
+      std::cerr << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->tileKernel) << " kernel : " << err << endl;
       return HCBLAS_INVALID;
     }
     free(err);
@@ -432,11 +432,11 @@ hcblasStatus AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accele
 
     // Catch the symbol load error with dlerror for user 
     if (!hcblas_sgemm_call_row) {
-       cout << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->rowKernel) << "Failed" << endl;
+       cerr << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->rowKernel) << "Failed" << endl;
     }
     char *err = dlerror();
     if (err) {
-      std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->rowKernel) << " kernel : " << err << endl;
+      std::cerr << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->rowKernel) << " kernel : " << err << endl;
       return HCBLAS_INVALID;
     }
     free(err);
@@ -454,11 +454,11 @@ hcblasStatus AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accele
 
     // Catch the symbol load error with dlerror for user 
     if (!hcblas_sgemm_call_col) {
-       cout << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->colKernel) << "Failed" << endl;
+       cerr << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->colKernel) << "Failed" << endl;
     }
     char *err = dlerror();
     if (err) {
-      std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->colKernel) << " kernel : " << err << endl;
+      std::cerr << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->colKernel) << " kernel : " << err << endl;
       return HCBLAS_INVALID;
     }
     free(err);
@@ -476,11 +476,11 @@ hcblasStatus AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accele
 
     // Catch the symbol load error with dlerror for user 
     if (!hcblas_sgemm_call_corner) {
-       cout << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->cornerKernel) << "Failed" << endl;
+       cerr << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->cornerKernel) << "Failed" << endl;
     }
     char *err = dlerror();
     if (err) {
-      std::cout << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->cornerKernel) << " kernel : " << err << endl;
+      std::cerr << "Failed to locate " << gemmKernel->getKernelName(gemmKernel->cornerKernel) << " kernel : " << err << endl;
       return HCBLAS_INVALID;
     }
     free(err);
