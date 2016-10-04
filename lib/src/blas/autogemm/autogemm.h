@@ -50,6 +50,7 @@ class AutogemmKernel {
        bool isTransA;
        bool isTransB;
        bool isBeta_nonZero;
+       bool isMinibatch;
 
        const char* nameFormatTile = "MX%03d_NX%03d_KX%02d";
        const char* nameFormatRow  = "ML%03d_NX%03d_KX%02d";

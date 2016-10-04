@@ -27,7 +27,6 @@ void AutogemmKernel::writeHeader(AutogemmKernel* gemmKernel, std::string& kStr) 
  */
 int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernelType, std::string& kStr) {
 
-  bool isMinibatch = true;
   // Check whether the kernel parameters are valid
   if (gemmKernel->validateKernParam(gemmKernel) != SUCCESS) {
         return CRIT_ERR;
@@ -77,7 +76,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
   kStr = kStr + "#define MACRO_TILE_NUM_ROWS  " + to_string(gemmKernel->tileNumRows*gemmKernel->microtileNumCols) + endLine;
   kStr = kStr + "#define MACRO_TILE_NUM_COLS  " + to_string(gemmKernel->tileNumCols*gemmKernel->microtileNumCols) + endLine;
   kStr = kStr + "#define NUM_UNROLL_ITER      " + to_string(gemmKernel->unroll) + endLine;
-  if (isMinibatch) {
+  if (gemmKernel->isMinibatch) {
     kStr = kStr + "#define MINIBATCH_SIZE       2" +  + endLine;
   }
   kStr += endLine;
@@ -188,7 +187,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
   kStr += endLine;
   kStr = kStr + "/* " + to_string(gemmKernel->microtileNumRows) + "x" + \
              to_string(gemmKernel->microtileNumCols) + " micro-tile */"  + endLine;
-  if (isMinibatch) {
+  if (gemmKernel->isMinibatch) {
     kStr = kStr + "#define MICRO_TILE \\" + endLine;
     for (int a = 0; a < gemmKernel->microtileNumRows; a++)
       for (int c = 0; c < 2; c++) 
@@ -220,7 +219,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
   // launch the thread grids
   kStr += endLine;
-  if (isMinibatch) {
+  if (gemmKernel->isMinibatch) {
     kStr = kStr +
       "  /* Launch the Grid */" + endLine +
       "  int M_ = (M - 1)/ (MICRO_TILE_NUM_ROWS * MINIBATCH_SIZE) + 1;" + endLine +
@@ -242,7 +241,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
   // allocate registers
   kStr += endLine;
-  if (isMinibatch) {
+  if (gemmKernel->isMinibatch) {
     kStr = kStr +
       "  /* allocate registers */" + endLine +
       "  DATA_TYPE_STR rC[(MICRO_TILE_NUM_ROWS*MINIBATCH_SIZE)][(MICRO_TILE_NUM_COLS*MINIBATCH_SIZE)] = { {0} };" + endLine +
@@ -258,7 +257,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
   // allocate local memory
   kStr += endLine;
-  if (!isMinibatch) {
+  if (!gemmKernel->isMinibatch) {
     kStr = kStr +
       "  /* allocate local memory */" + endLine +
       "  tile_static DATA_TYPE_STR lA[NUM_UNROLL_ITER*(MACRO_TILE_NUM_ROWS+LOCAL_COL_PAD)+WG_NUM_ROWS];" + endLine +
@@ -272,7 +271,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
   // work item indices : TODO: CHANGE THE ORDER OF ACCESS
   kStr += endLine;
-  if (isMinibatch) {
+  if (gemmKernel->isMinibatch) {
     kStr = kStr + "  /* work item indices */" + endLine;
     kStr = kStr + "  uint gidx = tidx.tile[1];" + endLine;
     kStr = kStr + "  uint gidy = tidx.tile[0];" + endLine;
@@ -288,7 +287,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
       kStr = kStr + "  uint gidy = tidx.tile[0];" + endLine;
   }
 
-  if (!isMinibatch) {
+  if (!gemmKernel->isMinibatch) {
     kStr = kStr +
       "  uint idx = tidx.local[1];" + endLine  +
       "  uint idy = tidx.local[0];" + endLine +
@@ -340,7 +339,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
   // local indices being written
   kStr += endLine;
-  if (!isMinibatch) {
+  if (!gemmKernel->isMinibatch) {
     kStr = kStr + "    /* local indices being written */" + endLine;
     if ((gemmKernel->isColMajor) && (!gemmKernel->isTransA))
       kStr = kStr +
@@ -386,7 +385,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
  // TODO - zeroString for real and complex
   std::string zeroString = "0.0";
 
-  if (isMinibatch) {
+  if (gemmKernel->isMinibatch) {
 
     for ( int a = 0; a < numALoads; a++) 
       for (int b = 0; b < 2; b++) { 
@@ -440,7 +439,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
     }
   }
 
-  if (!isMinibatch) {
+  if (!gemmKernel->isMinibatch) {
     kStr = kStr +
       "    tidx.barrier.wait();" + endLine +
       "    uint offA = idx;" + endLine +
@@ -476,7 +475,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
   kStr += endLine;
 
   // which global Cij index
-  if (!isMinibatch) {
+  if (!gemmKernel->isMinibatch) {
 
     kStr = kStr + endLine
               + "  /* which global Cij index */" + endLine
