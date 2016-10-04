@@ -35,11 +35,47 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
    gemmKernel->isTransA = (typeA == NoTrans) ? 0 : 1;
    gemmKernel->isTransB = (typeB == NoTrans) ? 0 : 1;
    gemmKernel->isBeta_nonZero = (beta == 0) ? 0 : 1;
+   gemmKernel->isMinibatch = 0;
 
   if (M*N >= 3072*3072) {
 
     cerr << "Inside 3072" <<endl;
     // Valid Tiles
+    // Call minibatch logic for specific size
+    // TODO : Tune the parameters based on the results.
+     if (M%128 == 0 && N%128 == 0 && K%128 == 0) {
+      if ( M > 6700) {
+        gemmKernel->tileNumRows = 16;
+        gemmKernel->tileNumCols = 16;
+        gemmKernel->microtileNumRows = 6;
+        gemmKernel->microtileNumCols = 6;
+        gemmKernel->macrotileNumRows = 96;
+        gemmKernel->macrotileNumCols = 96;
+        gemmKernel->unroll = 16;
+        gemmKernel->isMinibatch = 1;
+        return SUCCESS;
+     } else if (M <= 6700){
+        gemmKernel->tileNumRows = 16;
+        gemmKernel->tileNumCols = 16;
+        gemmKernel->microtileNumRows = 4;
+        gemmKernel->microtileNumCols = 4;
+        gemmKernel->macrotileNumRows = 64;
+        gemmKernel->macrotileNumCols = 64;
+        gemmKernel->unroll = 16;
+        gemmKernel->isMinibatch = 1;
+        return SUCCESS;
+     } else if (M <= 2560) {
+        gemmKernel->tileNumRows = 16;
+        gemmKernel->tileNumCols = 16;
+        gemmKernel->microtileNumRows = 2;
+        gemmKernel->microtileNumCols = 2;
+        gemmKernel->macrotileNumRows = 32;
+        gemmKernel->macrotileNumCols = 32;
+        gemmKernel->unroll = 16;
+        gemmKernel->isMinibatch = 1;
+        return SUCCESS;
+     }
+    }
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
       gemmKernel->tileNumCols = 16;
@@ -175,6 +211,39 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
     cerr << "Inside 2240 " <<endl;
     // Valid Tiles
+      if (M%128 == 0 && N%128 == 0 && K%128 == 0) {
+      if ( M > 6700) {
+        gemmKernel->tileNumRows = 16;
+        gemmKernel->tileNumCols = 16;
+        gemmKernel->microtileNumRows = 6;
+        gemmKernel->microtileNumCols = 6;
+        gemmKernel->macrotileNumRows = 96;
+        gemmKernel->macrotileNumCols = 96;
+        gemmKernel->unroll = 16;
+        gemmKernel->isMinibatch = 1;
+        return SUCCESS;
+     } else if (M <= 6700){
+        gemmKernel->tileNumRows = 16;
+        gemmKernel->tileNumCols = 16;
+        gemmKernel->microtileNumRows = 4;
+        gemmKernel->microtileNumCols = 4;
+        gemmKernel->macrotileNumRows = 64;
+        gemmKernel->macrotileNumCols = 64;
+        gemmKernel->unroll = 16;
+        gemmKernel->isMinibatch = 1;
+        return SUCCESS;
+     } else if (M <= 2560) {
+        gemmKernel->tileNumRows = 16;
+        gemmKernel->tileNumCols = 16;
+        gemmKernel->microtileNumRows = 2;
+        gemmKernel->microtileNumCols = 2;
+        gemmKernel->macrotileNumRows = 32;
+        gemmKernel->macrotileNumCols = 32;
+        gemmKernel->unroll = 16;
+        gemmKernel->isMinibatch = 1;
+        return SUCCESS;
+     }
+    }
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
       gemmKernel->tileNumCols = 16;
@@ -347,6 +416,17 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
      cerr << "Inside 1760" << endl;
      // Valid Tiles
+      if (M%128 == 0 && N%128 == 0 && K%128 == 0) {
+        gemmKernel->tileNumRows = 16;
+        gemmKernel->tileNumCols = 16;
+        gemmKernel->microtileNumRows = 2;
+        gemmKernel->microtileNumCols = 2;
+        gemmKernel->macrotileNumRows = 32;
+        gemmKernel->macrotileNumCols = 32;
+        gemmKernel->unroll = 16;
+        gemmKernel->isMinibatch = 1;
+        return SUCCESS;
+    }
     if (M%96 == 0 && N%96 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
       gemmKernel->tileNumCols = 16;
