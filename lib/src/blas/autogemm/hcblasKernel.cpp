@@ -100,8 +100,8 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
       kStr = kStr + "  rA[" + to_string(a) +"] = lA[offA + " + to_string(a) +"*TILE_SIZE]; \\" + endLine;
     for (int b = 0; b < gemmKernel->microtileNumCols; b++)
       kStr = kStr + "  rB[" + to_string(b) + "] = lB[offB + " + to_string(b) + "*TILE_SIZE]; \\" + endLine;
-    kStr = kStr + "  offA += (MACRO_TILE_SIZE); \\" + endLine;
-    kStr = kStr + "  offB += (MACRO_TILE_SIZE); \\" + endLine;
+    kStr = kStr + "  offA += (MACRO_TILE_SIZE + 1); \\" + endLine;
+    kStr = kStr + "  offB += (MACRO_TILE_SIZE + 1); \\" + endLine;
     for (int a = 0; a < gemmKernel->microtileNumRows; a++)
       for (int b = 0; b < gemmKernel->microtileNumCols; b++)
         kStr = kStr + "  TYPE_MAD(rA[" + to_string(a) +"],rB[" + to_string(b) \
@@ -114,6 +114,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
       "  /* Launch the Grid */" + endLine +
       "  int M_ = (M - 1)/ MICRO_TILE_SIZE + 1;" + endLine +
       "  int N_ = (N - 1)/ MICRO_TILE_SIZE + 1;" + endLine +
+      "  int K_ = ((K + (TILE_SIZE -1)) & ~(TILE_SIZE - 1));" + endLine +
       "  hc::extent<2> grdExt((N_ + (TILE_SIZE - 1)) & ~(TILE_SIZE - 1), (M_ + (TILE_SIZE - 1)) & ~(TILE_SIZE - 1));" + endLine +
       "  hc::tiled_extent<2> t_ext = grdExt.tile(TILE_SIZE, TILE_SIZE);" + endLine;
 
@@ -133,8 +134,8 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
     kStr += endLine;
     kStr = kStr +
       "  /* allocate local memory */" + endLine +
-      "  tile_static DATA_TYPE_STR lA[NUM_UNROLL_ITER*MACRO_TILE_SIZE];" + endLine +
-      "  tile_static DATA_TYPE_STR lB[NUM_UNROLL_ITER*MACRO_TILE_SIZE];" + endLine ;
+      "  tile_static DATA_TYPE_STR lA[NUM_UNROLL_ITER*MACRO_TILE_SIZE + TILE_SIZE];" + endLine +
+      "  tile_static DATA_TYPE_STR lB[NUM_UNROLL_ITER*MACRO_TILE_SIZE + TILE_SIZE];" + endLine ;
 
    kStr = kStr + endLine +
       "  uint gidx = tidx.tile[1];" + endLine +
@@ -151,13 +152,13 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
       "  uint CIndex = offsetC + ((gidx * TILE_SIZE * MICRO_TILE_SIZE) + idx) + (((gidy * TILE_SIZE * MICRO_TILE_SIZE) + idy) * ldc);" + endLine +
       "  int N_block = N_ >> 4;" + endLine +
       "  int M_block = M_ >> 4;" + endLine +
-      "  int K_block = (K + (TILE_SIZE -1)) & ~(TILE_SIZE - 1);" + endLine;
+      "  int K_block = K_ >> 4;" + endLine;
 
     // loop over k
     kStr += endLine;
     kStr = kStr +
       "  /* loop over k */" + endLine +
-      "  uint block_k = K / NUM_UNROLL_ITER;" + endLine +
+      "  uint block_k = 0;" + endLine +
       "  do {" + endLine;
 
     kStr += endLine;
@@ -219,7 +220,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
     // end loop
     kStr += endLine;
-    kStr = kStr + "  } while (--block_k > 0);" + endLine;
+    kStr = kStr + "  } while (++block_k < (K_ >> 4));" + endLine;
     kStr += endLine;
 
     kStr = kStr + endLine
@@ -234,22 +235,21 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
 
      for (int a = 0; a < gemmKernel->microtileNumRows; a++) {
       for (int b = 0; b < gemmKernel->microtileNumCols; b++) {
-          kStr = kStr + "  if ((globalCRow + CinitOffset < M) && ";
+          kStr = kStr + "    if ((globalCRow + CinitOffset < M) && ";
           kStr = kStr + "  (globalCCol + " + to_string(b) + " * TILE_SIZE < N)) {" + endLine; 
-          kStr = kStr + "    TYPE_MAD_WRITE( C[CIndex + CinitOffset + "  
-                      + to_string(b) + " * TILE_SIZE], alpha, rC[" + to_string(a) + "][" + to_string(b) + "], beta )";
+          kStr = kStr + "      TYPE_MAD_WRITE( C[CIndex + CinitOffset + "
+                      + to_string(b) + " * TILE_SIZE * ldc], alpha, rC[" + to_string(a) + "][" + to_string(b) + "], beta )";
           kStr = kStr + "  }" + endLine;
       }
-      kStr = kStr + "  CinitOffset+= TILE_SIZE;" + endLine;
+      kStr = kStr + "    CinitOffset+= TILE_SIZE;" + endLine;
      }
      kStr = kStr + "  } else {" + endLine;
       for (int a = 0; a < gemmKernel->microtileNumRows; a++) {
       for (int b = 0; b < gemmKernel->microtileNumCols; b++) {
           kStr = kStr + "    TYPE_MAD_WRITE( C[CIndex + CinitOffset + "
-                      + to_string(b) + " * TILE_SIZE], alpha, rC[" + to_string(a) + "][" + to_string(b) + "], beta )";
-          kStr = kStr + "  }" + endLine;
+                      + to_string(b) + " * TILE_SIZE * ldc], alpha, rC[" + to_string(a) + "][" + to_string(b) + "], beta )" + endLine;
       }
-      kStr = kStr + "  CinitOffset+= TILE_SIZE;" + endLine;
+      kStr = kStr + "    CinitOffset+= TILE_SIZE;" + endLine;
      }
     kStr = kStr + "  }" + endLine;
 
