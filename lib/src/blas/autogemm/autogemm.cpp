@@ -297,7 +297,6 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
 
   // Create directory only if it doesn't exists
   system(mkdirCmd.c_str());
-  cerr << mkdirCmd << endl;
   
   ofstream kFile;
   std::string fileAbs = dirPath + gemmKernel->getFileName();
