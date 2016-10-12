@@ -39,7 +39,6 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
 
   if (M*N >= 3072*3072) {
 
-    cerr << "Inside 3072" <<endl;
     // Valid Tiles
     // Call minibatch logic for specific size
     // TODO : Tune the parameters based on the results.
@@ -209,7 +208,6 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
   }
   if (M*N >= 2240*2240) {
 
-    cerr << "Inside 2240 " <<endl;
     // Valid Tiles
       if (M%128 == 0 && N%128 == 0 && K%128 == 0) {
       if ( M > 6700) {
@@ -414,7 +412,6 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
   }
   if (M*N >= 1760*1760) {
 
-     cerr << "Inside 1760" << endl;
      // Valid Tiles
       if (M%128 == 0 && N%128 == 0 && K%128 == 0) {
         gemmKernel->tileNumRows = 16;
@@ -597,7 +594,6 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
   }
   if (M*N >= 1600*1600) {
 
- cerr << "Inside 1600" <<endl;
       // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -769,7 +765,6 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
   }
   if (M*N >= 1056*1056) {
 
-    cerr << "Inside 1056" << endl;
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -974,7 +969,6 @@ int AutogemmKernel::selectMicrotileLogic(AutogemmKernel* gemmKernel,
   }
   if (M*N >= 960*960) {
 
-cerr << "Inside 960" << endl;
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -1146,7 +1140,6 @@ cerr << "Inside 960" << endl;
   }
   if (M*N >= 736*736) {
 
-cerr << "Inside 736"<<endl;
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -1318,7 +1311,6 @@ cerr << "Inside 736"<<endl;
   }
   if (M*N >= 528*528) {
 
-cerr <<"Inside 528" <<endl;
     // Valid Tiles
     if (M%64 == 0 && N%64 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -1489,7 +1481,6 @@ cerr <<"Inside 528" <<endl;
     }
   }
   if (M*N >= 432*432) {
-cerr << "Inside 432" << endl;
     // Valid Tiles
     if (M%48 == 0 && N%48 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -1627,7 +1618,6 @@ cerr << "Inside 432" << endl;
     }
   }
   if (M*N >= 320*320) {
-cerr << "Inside 320" << endl;
     // Valid Tiles
     if (M%32 == 0 && N%32 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;
@@ -1732,7 +1722,6 @@ cerr << "Inside 320" << endl;
     }
   }
   if (M*N >= 1*1) {
-cerr <<"Inside 1"<<endl;
     // Valid Tiles
     if (M%16 == 0 && N%16 == 0 && K%16 == 0) {
       gemmKernel->tileNumRows = 16;

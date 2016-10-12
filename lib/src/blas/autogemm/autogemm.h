@@ -81,6 +81,7 @@ class AutogemmKernel {
 
    public:
 
+       bool isUserKernel;
        void initKernParam(AutogemmKernel* gemmKernel, hcblasOrder order,
                           hcblasTranspose typeA, hcblasTranspose typeB,
                           const float &beta);

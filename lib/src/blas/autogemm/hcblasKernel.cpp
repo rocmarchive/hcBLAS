@@ -33,7 +33,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
   }
 
 
-  bool isFourKernel = false;
+  bool isFourKernel = true;
 
   if (!isFourKernel) {
 
@@ -224,6 +224,7 @@ int AutogemmKernel::makeGemmKernel(AutogemmKernel* gemmKernel, kernTypes* kernel
     kStr += endLine;
 
     kStr = kStr + endLine
+              + "    tidx.barrier.wait();" + endLine +
               + "  /* which global Cij index */" + endLine
               + "  uint globalCRow = gidx * MACRO_TILE_SIZE + idx;" + endLine
               + "  uint globalCCol = gidy * MACRO_TILE_SIZE + idy;" + endLine;

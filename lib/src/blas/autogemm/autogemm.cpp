@@ -176,8 +176,8 @@ void AutogemmKernel::initKernParam(AutogemmKernel* gemmKernel, hcblasOrder order
    // These elements will be changed in the kernelSelection function
    gemmKernel->tileNumRows = 16;
    gemmKernel->tileNumCols = 16;
-   gemmKernel->microtileNumRows = 6;
-   gemmKernel->microtileNumCols = 6;
+   gemmKernel->microtileNumRows = 4;
+   gemmKernel->microtileNumCols = 4;
    gemmKernel->unroll = 16;
 
    gemmKernel->macrotileNumRows = gemmKernel->tileNumRows * gemmKernel->microtileNumRows;
@@ -249,7 +249,6 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
   gemmKernel->writeHeader(gemmKernel, kStr);
 
   if (gemmKernel->needTileKernel) {
-    cerr << "Need tile" << endl;
     if (gemmKernel->tileKernel == NULL)
       gemmKernel->tileKernel = (kernTypes *)malloc(sizeof(kernTypes));
     gemmKernel->tileKernel->macrotileNumRows = gemmKernel->macrotileNumRows;
@@ -259,7 +258,6 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
 
   if (gemmKernel->needRowKernel) {
 
-    cerr << "needRowKernel" << endl;
     // Set macrotile value for Row Kernel generation
     if (gemmKernel->rowKernel == NULL)
 	gemmKernel->rowKernel = (kernTypes *)malloc(sizeof(kernTypes));
@@ -272,7 +270,6 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
 
   if (gemmKernel->needColKernel) {
 
-    cerr << "needColKernel" <<endl; 
     // Set macrotile value for Row Kernel generation
     if (gemmKernel->colKernel == NULL)
       gemmKernel->colKernel = (kernTypes *)malloc(sizeof(kernTypes));
@@ -285,7 +282,6 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
 
   if (gemmKernel->needCornerKernel) {
 
-    cerr << "needCornerKernel" << endl;
     // Set macrotile value for Corner Kernel generation
     if (gemmKernel->cornerKernel == NULL)
       gemmKernel->cornerKernel = (kernTypes *)malloc(sizeof(kernTypes));
@@ -302,7 +298,6 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
   // Create directory only if it doesn't exists
   system(mkdirCmd.c_str());
   cerr << mkdirCmd << endl;
-  cerr << "FileName : " << gemmKernel->getFileName() << endl;
   
   ofstream kFile;
   std::string fileAbs = dirPath + gemmKernel->getFileName();
@@ -317,7 +312,6 @@ void AutogemmKernel::writeKernel(AutogemmKernel* gemmKernel, uint M, uint N, uin
     std::cout << "Error opening file";
 //    return CRIT_ERR;
   }
-
 //  return SUCCESS;
 }
 /* compileKernel():  This function 
@@ -350,21 +344,28 @@ int AutogemmKernel::compileKernel(AutogemmKernel* gemmKernel) {
       // build_mode = true;
       char* compilerPath = getenv ("MCWHCCBUILD");
       string Path(compilerPath);
+      if (gemmKernel->isUserKernel) {
+        execCmd = Path + "/compiler/bin/clang++ `" + Path + "/bin/hcc-config --build --cxxflags --ldflags --shared` -lhc_am -I" + hcblasIncPath + " " + hcblasIncPath + "/./../src/blas/autogemm/userKernel.cpp" + " -o " + autogemmSourcePath + "libuser.so";
+      } else { 
       execCmd = Path + "/compiler/bin/clang++ `" + Path + "/bin/hcc-config --build --cxxflags --ldflags --shared` -lhc_am -I" + hcblasIncPath + " " + autogemmSourcePath + gemmKernel->getFileName() + " -o " + autogemmSourcePath + gemmKernel->getKernelLibName();
+      }
     }
     else if( access( fname, F_OK ) != -1 ) {
       // compiler exists
       // install_mode = true;
       string Path = "/opt/rocm/hcc/bin/";
+      if (gemmKernel->isUserKernel) {
+        execCmd = Path + "/clang++ `" + Path + "/hcc-config --install --cxxflags --ldflags --shared` -I" + hcblasIncPath + " " + hcblasIncPath + "/./../src/blas/autogemm/userKernel.cpp" + " -o " + autogemmSourcePath + "libuser.so";
+      } else {
       execCmd = Path + "/clang++ `" + Path + "/hcc-config --install --cxxflags --ldflags --shared` -I" + hcblasIncPath + " " + autogemmSourcePath + gemmKernel->getFileName() + " -o " + autogemmSourcePath + gemmKernel->getKernelLibName();
-    }
+      }
+     }
     else {
       // No compiler found
       std::cout << "HCC compiler not found" << std::endl;
       return CRIT_ERR;
     }
 
-   cerr<< execCmd << endl;
    system(execCmd.c_str());
 
    return SUCCESS;
@@ -384,6 +385,45 @@ hcblasStatus AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accele
                                  const uint cOffset) {
 
   hcblasStatus status = HCBLAS_SUCCEEDS;
+
+  if (gemmKernel->isUserKernel) {
+    std::string libPath = gemmKernel->getKernelCachePath() + "libuser.so";
+
+    // loads the module specified by FilePath into the executing process's address space
+    void* kernelHandle = dlopen(libPath.c_str(), RTLD_NOW);
+    if(!kernelHandle) {
+      std::cerr << "Failed to load Kernel: " << gemmKernel->getKernelLibName().c_str() << std::endl;
+      return HCBLAS_INVALID;
+    }
+
+    // Define the function pointer to access the autogemm kernel
+    typedef hcblasStatus (hcblas_sgemm_fn_ptr)(hc::accelerator_view accl_view, float const * A, float const * B, \
+                                     float * C, float const alpha, float const beta, uint const M,\
+                                     uint const N, uint const K, uint const lda, uint const ldb, \
+                                     uint const ldc, uint const aOffset, uint const bOffset,\
+                                     uint const cOffset);
+
+    hcblas_sgemm_fn_ptr* hcblas_sgemm_call = NULL;
+
+    std::string funcName = "sgemm_Col_NN_B1_M_N_K";
+    // obtain the address of a symbol defined within an object made accessible through a dlopen() cal
+    hcblas_sgemm_call = (hcblas_sgemm_fn_ptr*) dlsym(kernelHandle, funcName.c_str());
+
+    // Catch the symbol load error with dlerror for user
+    if (!hcblas_sgemm_call) {
+       cerr << "Loading the Autogemm Call sgemm_Col_NN_B1_M_N_K Failed" << endl;
+    }
+    char *err = dlerror();
+    if (err) {
+      std::cerr << "Failed to locate sgemm_Col_NN_B1_M_N_K kernel : " << err << endl;
+      return HCBLAS_INVALID;
+    }
+    free(err);
+
+    // If no errors, invoke the function with arguments
+    status = hcblas_sgemm_call(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
+
+  } else {
   std::string libPath = gemmKernel->getKernelCachePath() + gemmKernel->getKernelLibName();
  
   // loads the module specified by FilePath into the executing process's address space 
@@ -407,7 +447,6 @@ hcblasStatus AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accele
     // obtain the address of a symbol defined within an object made accessible through a dlopen() cal
     hcblas_sgemm_call = (hcblas_sgemm_fn_ptr*) dlsym(kernelHandle, funcName.c_str());
 
-    cerr << "In Tile" << endl;
     // Catch the symbol load error with dlerror for user 
     if (!hcblas_sgemm_call) {
        cerr << "Loading the Autogemm Call " << gemmKernel->getKernelName(gemmKernel->tileKernel) << "Failed" << endl;
@@ -488,6 +527,7 @@ hcblasStatus AutogemmKernel::invokeKernel(AutogemmKernel* gemmKernel, hc::accele
     // If no errors, invoke the function with arguments
     status = hcblas_sgemm_call_corner(accl_view, A, B, C, alpha, beta, M, N, K, lda, ldb, ldc, aOffset, bOffset, cOffset);
   }
+  }
   return status;
 }
 
@@ -519,20 +559,22 @@ hcblasStatus hcblasAutogemmCall(hc::accelerator_view &accl_view, hcblasOrder ord
     // TODO: Move the init function into constructor
     // TODO: Remove the validate function call here
     gemmKernel->initKernParam(gemmKernel, order, typeA, typeB, beta);
-    cerr << "Init Kernel - Done "<<endl;
     gemmKernel->validateKernParam(gemmKernel);
-    cerr << "validate Kernel - Done "<<endl;
 
-    gemmKernel->selectMicrotileLogic(gemmKernel, order, typeA, typeB, M, N, K, beta);
-    //cerr << "Select Microtile - Done "<<endl << gemmKernel->tileNumRows << endl << gemmKernel->microtileNumRows << endl;
-    gemmKernel->writeKernel(gemmKernel, M, N, K);
-    cerr << "write Kernel"<<endl;
+
+    if (M%16 != 0 || N%16 != 0 || K%16 != 0) {
+       gemmKernel->isUserKernel = true;
+    }
+
+    if (!gemmKernel->isUserKernel) {
+      gemmKernel->selectMicrotileLogic(gemmKernel, order, typeA, typeB, M, N, K, beta);
+      gemmKernel->writeKernel(gemmKernel, M, N, K);
+    }
 
     // Compile and invoke the Autogemm Kernel 
     gemmKernel->compileKernel(gemmKernel);
-    cerr << "Compil Kerenl Done "<<endl;
     status = gemmKernel->invokeKernel(gemmKernel, accl_view, M, N, K, alpha,
                                       A, lda, B, ldb, beta, C, ldc, aOffset, bOffset, cOffset);
-    cerr << "Invoke Kernel Done "<<endl;
+
     return status;
 }
