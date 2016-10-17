@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include "cblas.h"
 #include "hc_am.hpp"
+#include "helper_functions.h"
 #include <chrono>
 #include <vector>
 #include <thread>
@@ -117,18 +118,19 @@ int main(int argc,char* argv[])
         std::chrono::duration<double> dur = end - start;
         elapsed_pfe.push_back(dur);
         accl_view.copy(devC, C,  (M * N + cOffset) * sizeof(float));
-#if 0
+#if 1
+        bool result = 0;
+        float epsilon = 1.0e-5f;
         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A + aOffset, lda, B + bOffset, ldb, beta, C_cblas + cOffset, ldc);
-        for(int i = 0 ; i < M * N ; i++) { 
-            if( C_cblas[i + cOffset] != (C[i + cOffset])) {
-                 ispassed = 0;
-                 cout << " HCSGEMM["<<i<<"] = "<<C[i + cOffset]<<" doesnot match with CBLASSGEMM["<<i<<"] =" << C_cblas[i + cOffset] << endl;
-                 break;
-            }
-            else
-                 continue;
-        } 
-        if(!ispassed) cout << "TEST FAILED" << endl; 
+        float err = sgemmCompareL2fe(C, C_cblas, M*N, epsilon);
+        if (err > epsilon) {
+          result = 1;
+          std::cout << "Precison Error limit exceeded" << std::endl;
+          printDiff(C_cblas, C, M, N, 100, 1.0e-5f);
+          return -1;
+        }
+
+        if(result) cout << "TEST FAILED" << endl; 
 #endif
         if(status) cout << "TEST FAILED" << status<<  endl; 
     }

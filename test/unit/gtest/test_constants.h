@@ -16,42 +16,42 @@
 
 // Generates numbers from 1 to 10
 inline long gen_vvsmall() {
-  srand(time(NULL));
+  srand(1);
   long vvsmall = rand() % 10 + 1;
   return vvsmall;
 }
 
 // Generates numbers from 11 to 100
 inline long gen_vsmall() {
-  srand(time(NULL));
+  srand(1);
   long vsmall = rand() % 89 + 11;
   return vsmall;
 }
 
 // Generates numbers from 101 to 1024
 inline long gen_small() {
-  srand(time(NULL));
+  srand(1);
   long small = rand() % 923 + 101;
   return small;
 }
 
 // Generates numbers from 1025 to 4096
 inline long gen_regular() {
-  srand(time(NULL));
+  srand(1);
   long regular = rand() % 3071 + 1025;
   return regular;
 }
 
 // Generates numbers from 4097 to 10240
 inline long gen_large() {
-  srand(time(NULL));
+  srand(1);
   long large = rand() % 6143 + 4097;
   return large;
 }
 
 // Generates numbers from 10241 to 16384
 inline long gen_vlarge() {
-  srand(time(NULL));
+  srand(1);
   long vlarge = rand() % 6143 + 10241;
   return vlarge;
 }
@@ -59,7 +59,7 @@ inline long gen_vlarge() {
 
 // Generates numbers from 16385 to 131072
 inline long gen_vvlarge() {
-  srand(time(NULL));
+  srand(1);
   long vvlarge = rand() % 114687 + 16385;
   return vvlarge;
 }
