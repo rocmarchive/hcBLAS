@@ -31,10 +31,10 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
   else
       (*handle)->deviceId = 0;
 
-  handle->currentAccl = accs[handle->deviceId];
+  (*handle)->currentAccl = accs[(*handle)->deviceId];
 
-  if (!handle->Order)
-      handle->Order = ColMajor;
+  if (!(*handle)->Order)
+      (*handle)->Order = ColMajor;
   return HCBLAS_STATUS_SUCCESS;  
 }
 
