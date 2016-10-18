@@ -49,8 +49,8 @@ int main(int argc, char** argv)
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
         if(status) cout << "TEST FAILED" << endl;
-        free(X);
-        hc::am_free(devX); 
+//        free(X);
+//        hc::am_free(devX); 
      }
 
 /* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
@@ -73,8 +73,8 @@ int main(int argc, char** argv)
         }
         if(!ispassed) cout << "TEST FAILED" << endl; 
         if(status) cout << "TEST FAILED" << endl; 
-        free(Xbatch);
-        hc::am_free(devXbatch);
+//        free(Xbatch);
+//        hc::am_free(devXbatch);
     }
     return 0;
 }
