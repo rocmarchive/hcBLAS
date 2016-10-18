@@ -11,13 +11,13 @@
 
 #include <iostream>
 #include "hc.hpp"
+#include "hc_am.hpp"
 #include "hc_short_vector.hpp"
 
 using namespace hc;
 using namespace hc::short_vector;
 using namespace std;
 
-#define uint unsigned int 
 
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {
@@ -26,7 +26,7 @@ enum hcblasStatus {
 };
 
 /* enumerator to define the layout of  input matrix for blas operation */
-enum hcblasOrder {
+enum hcblasOrder: unsigned short {
     RowMajor ,
     ColMajor
 };
@@ -72,6 +72,23 @@ class Hcblaslibrary
                               const int N, const float &alpha,
                               const float *X, const int incX, const long X_batchOffset,
                               float *Y, const int incY, const long Y_batchOffset,
+                              const long xOffset, const long yOffset, const int batchSize);
+							  
+/* DAXPY - Y = alpha * X + Y                                    */
+/* DAXPY - Overloaded function with arguments of type hc::array */
+
+    hcblasStatus hcblas_daxpy(hc::accelerator_view &accl_view,
+			      const int N, const double &alpha,
+			      const double *X, const int incX,
+                              double *Y, const int incY, 
+			      const long xOffset, const long yOffset);
+
+/* DAXPY - Overloaded function with arguments related to batch processing */
+
+    hcblasStatus hcblas_daxpy(hc::accelerator_view &accl_view,
+                              const int N, const double &alpha,
+                              const double *X, const int incX, const long X_batchOffset,
+                              double *Y, const int incY, const long Y_batchOffset,
                               const long xOffset, const long yOffset, const int batchSize);
 							  
 /* SGER - A = alpha * X * Y' + A                               */

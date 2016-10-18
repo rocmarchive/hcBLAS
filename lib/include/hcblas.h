@@ -1,16 +1,20 @@
 #ifndef HCBLAS_H
 #define HCBLAS_H
 
-#include "hcblaslib.h"
-
+#ifdef __cplusplus
+extern "C" {
+#endif //(__cplusplus)
 //2.2.1. hcblasHandle_t
 
-// The hcblasHandle_t type is a pointer type to an opaque structure holding the hcBLAS library context. 
+// The hcblasHandle_t type is a pointer to an opaque structure holding the hcBLAS library context. 
 // The hcBLAS library context must be initialized using hcblasCreate() and the returned handle must be 
 // passed to all subsequent library function calls. The context should be destroyed at the end using 
 // hcblasDestroy().
 
-typedef Hcblaslibrary hcblasHandle_t;
+
+enum hcblasOrder: unsigned short;
+
+typedef struct  Hcblaslibrary* hcblasHandle_t;
 
 // 2.2.2. hcblasStatus_t
 
@@ -63,7 +67,7 @@ typedef hcDoubleComplex hcDoubleComplex;
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
-hcblasStatus_t hcblasCreate(hcblasHandle_t* &handle);
+hcblasStatus_t hcblasCreate(hcblasHandle_t *handle);
 
 // 2. hcblasDestory()
 
@@ -75,7 +79,7 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t* &handle);
 // HCBLAS_STATUS_SUCCESS            the shut down succeeded
 // HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
 
-hcblasStatus_t hcblasDestroy(hcblasHandle_t* &handle);
+hcblasStatus_t hcblasDestroy(hcblasHandle_t handle);
 
 // 3. hcblasSetVector()
 
@@ -90,7 +94,7 @@ hcblasStatus_t hcblasDestroy(hcblasHandle_t* &handle);
 // HCBLAS_STATUS_INVALID_VALUE      the parameters incx, incy, elemSize<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasSetVector(hcblasHandle_t* handle, int n, int elemSize, const void *x, int incx, void *y, int incy);
+hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const void *x, int incx, void *y, int incy);
 
 // 4. hcblasGetVector()
 
@@ -105,7 +109,7 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t* handle, int n, int elemSize, cons
 // HCBLAS_STATUS_INVALID_VALUE      the parameters incx, incy, elemSize<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasGetVector(hcblasHandle_t* handle, int n, int elemSize, const void *x, int incx, void *y, int incy);
+hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const void *x, int incx, void *y, int incy);
 
 // 5. hcblasSetMatrix()
 
@@ -121,7 +125,7 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t* handle, int n, int elemSize, cons
 // HCBLAS_STATUS_INVALID_VALUE      the parameters rows, cols<0 or elemSize, lda, ldb<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasSetMatrix(hcblasHandle_t *handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
+hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
 
 // 6. hcblasGetMatrix()
 
@@ -137,7 +141,7 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t *handle, int rows, int cols, int e
 // HCBLAS_STATUS_INVALID_VALUE      the parameters rows, cols<0 or elemSize, lda, ldb<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
  
-hcblasStatus_t hcblasGetMatrix(hcblasHandle_t *handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
+hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
 
 // 7. hcblasDeviceSelect()
 
@@ -149,7 +153,7 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t *handle, int rows, int cols, int e
 // HCBLAS_STATUS_INVALID_VALUE      Access to at least one of the device could not be done or a hcBLAS context could not be created on at least one of the device
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
-hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t *handle, int deviceId, hcblasOrder order);
+hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t handle, int deviceId, hcblasOrder order);
 
 // HCBLAS Level-1 function reference
 
@@ -185,13 +189,13 @@ hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t *handle, int deviceId, hcb
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t  hcblasSasum(hcblasHandle_t *handle, int n,
+hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, int n,
                             float           *x, int incx, float  *result);
-hcblasStatus_t  hcblasDasum(hcblasHandle_t *handle, int n,
+hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, int n,
                             double          *x, int incx, double *result);
-hcblasStatus_t  hcblasSasumBatched(hcblasHandle_t *handle, int n,
+hcblasStatus_t  hcblasSasumBatched(hcblasHandle_t handle, int n,
                             float           *x, int incx, float  *result, int batchCount);
-hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t *handle, int n,
+hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t handle, int n,
                             double          *x, int incx, double *result, int batchCount);
 
 // 2. hcblas<t>axpy() and hcblas<t>axpyBatched()
@@ -216,11 +220,15 @@ hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t *handle, int n,
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSaxpy(hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            float                 *y, int incy);
-hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasDaxpy(hcblasHandle_t handle, int n,
+                           const double           *alpha,
+                           const double           *x, int incx,
+                           double                 *y, int incy);
+hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            float                 *y, int incy, int batchCount);
@@ -246,16 +254,16 @@ hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t *handle, int n,
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasScopy(hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
                            const float           *x, int incx,
                            float                 *y, int incy);
-hcblasStatus_t hcblasDcopy(hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            double                *y, int incy);
-hcblasStatus_t hcblasScopyBatched(hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasScopyBatched(hcblasHandle_t handle, int n,
                            const float           *x, int incx,
                            float                 *y, int incy, int batchCount);
-hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            double                *y, int incy, int batchCount);
 
@@ -281,19 +289,19 @@ hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t *handle, int n,
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSdot (hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasSdot (hcblasHandle_t handle, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *result);
-hcblasStatus_t hcblasDdot (hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            const double          *y, int incy,
                            double          *result);
-hcblasStatus_t hcblasSdotBatched (hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasSdotBatched (hcblasHandle_t handle, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *result, int batchCount);
-hcblasStatus_t hcblasDdotBatched (hcblasHandle_t *handle, int n,
+hcblasStatus_t hcblasDdotBatched (hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            const double          *y, int incy,
                            double          *result, int batchCount);
@@ -318,16 +326,16 @@ hcblasStatus_t hcblasDdotBatched (hcblasHandle_t *handle, int n,
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t  hcblasSscal(hcblasHandle_t *handle, int n,
+hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
                             const float           *alpha,
                             float           *x, int incx);
-hcblasStatus_t  hcblasDscal(hcblasHandle_t *handle, int n,
+hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
                             const double          *alpha,
                             double          *x, int incx);
-hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t *handle, int n,
+hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t handle, int n,
                             const float           *alpha,
                             float           *x, int incx, int batchCount);
-hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t *handle, int n,
+hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
                             const double          *alpha,
                             double          *x, int incx, int batchCount);
 
@@ -377,14 +385,14 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t *handle, int n,
 // HCBLAS_STATUS_INVALID_VALUE     the parameters m,n<0 or incx,incy=0
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSgemv(hcblasHandle_t *handle, hcblasOperation_t trans,
+hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
                            int m, int n,
                            const float           *alpha,
                            float           *A, int lda,
                            float           *x, int incx,
                            const float           *beta,
                            float           *y, int incy);
-hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t *handle, hcblasOperation_t trans,
+hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans,
                            int m, int n,
                            const float           *alpha,
                            float           *A, int lda,
@@ -392,14 +400,14 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t *handle, hcblasOperation_t tran
                            const float           *beta,
                            float           *y, int incy, int batchCount);
 
-hcblasStatus_t hcblasDgemv(hcblasHandle_t *handle, hcblasOperation_t trans,
+hcblasStatus_t hcblasDgemv(hcblasHandle_t handle, hcblasOperation_t trans,
                            int m, int n,
                            const double           *alpha,
                            double           *A, int lda,
                            double           *x, int incx,
                            const double           *beta,
                            double           *y, int incy);
-hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t *handle, hcblasOperation_t trans,
+hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans,
                            int m, int n,
                            const double           *alpha,
                            double           *A, int lda,
@@ -436,12 +444,12 @@ hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t *handle, hcblasOperation_t tran
 // HCBLAS_STATUS_INVALID_VALUE     the parameters m,n<0 or incx,incy=0
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t  hcblasSger(hcblasHandle_t *handle, int m, int n,
+hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *A, int lda);
-hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t *handle, int m, int n,
+hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            const float           *y, int incy,
@@ -495,7 +503,7 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t *handle, int m, int n,
 // HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k<0 
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSgemm(hcblasHandle_t *handle,
+hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const float           *alpha,
@@ -504,7 +512,7 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t *handle,
                            const float           *beta,
                            float           *C, int ldc);
 
-hcblasStatus_t hcblasDgemm(hcblasHandle_t *handle,
+hcblasStatus_t hcblasDgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const double          *alpha,
@@ -513,7 +521,7 @@ hcblasStatus_t hcblasDgemm(hcblasHandle_t *handle,
                            const double           *beta,
                            double           *C, int ldc);
 
-hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
+hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const hcComplex       *alpha,
@@ -522,7 +530,7 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t *handle,
                            const hcComplex       *beta,
                            hcComplex       *C, int ldc);
 
-hcblasStatus_t hcblasZgemm(hcblasHandle_t *handle,
+hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
                            const hcDoubleComplex       *alpha,
@@ -572,7 +580,7 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t *handle,
 // HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k,batchCount<0
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
-hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t *handle,
+hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const float           *alpha,
@@ -581,7 +589,7 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t *handle,
                                   const float           *beta,
                                   float           *Carray, int ldc, int batchCount);
 
-hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t *handle,
+hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcComplex       *alpha,
@@ -590,16 +598,16 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t *handle,
                                   const hcComplex       *beta,
                                   hcComplex       *Carray, int ldc, int batchCount);
 
-hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t *handle,
+hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
-                                  const float           *alpha,
-                                  float           *Aarray, int lda,
-                                  float           *Barray, int ldb,
-                                  const float           *beta,
+                                  const double           *alpha,
+                                  double           *Aarray, int lda,
+                                  double           *Barray, int ldb,
+                                  const double           *beta,
                                   double           *Carray, int ldc, int batchCount);
 
-hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t *handle,
+hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcDoubleComplex       *alpha,
@@ -607,6 +615,7 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t *handle,
                                   hcDoubleComplex       *Barray, int ldb,
                                   const hcDoubleComplex       *beta,
                                   hcDoubleComplex       *Carray, int ldc, int batchCount);
-
-
-#endif
+#ifdef __cplusplus
+}
+#endif //(__cplusplus)
+#endif //(HCBLAS_H)

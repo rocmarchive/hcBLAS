@@ -84,7 +84,7 @@ int main() {
 
   // Create hcBlas handle object. 
   // Sets default target accelerator (id =1) and data layout as column major 
-  hcblasHandle_t* handle = hcblasCreate();
+  hcblasHandle_t handle = hcblasCreate();
 
   // Enumerate the list of accelerators
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();

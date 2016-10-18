@@ -48,4 +48,9 @@ SET (SRCS ${BLASSRC} hcblas.cpp)
     ARCHIVE DESTINATION lib
   )
 
-  INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcblaslib.h" "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcblas.h" DESTINATION include)
+  file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/../include/*.h")
+  file(GLOB hcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/*.h")
+  file(GLOB nvcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/nvcc_detail/*.h")
+  INSTALL(FILES ${headers} DESTINATION include)
+  INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
+  INSTALL(FILES ${nvcc_detail} DESTINATION include/nvcc_detail)

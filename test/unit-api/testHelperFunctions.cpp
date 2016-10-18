@@ -1,12 +1,13 @@
-#include "hcblas.h"
 #include "gtest/gtest.h"
 #include <hc_am.hpp>
+#include "hcblaslib.h"
+#include "hcblas.h"
 
 TEST(hcblasCreateTest, return_Check_hcblasCreate) {
  // Case I: Input to the API is null handle
- hcblasHandle_t *handle = NULL;
+ hcblasHandle_t handle = NULL;
  // Passing a Null handle to the API
- hcblasStatus_t status = hcblasCreate(handle); 
+ hcblasStatus_t status = hcblasCreate(&handle); 
  // Assert if the handle is still NULL after allocation
  EXPECT_TRUE(handle != NULL);
  // If allocation succeeds we must expect a success status
@@ -17,9 +18,9 @@ TEST(hcblasCreateTest, return_Check_hcblasCreate) {
 }
 
 TEST(hcblasDestroyTest, return_Check_hcblasDestroy) {
- hcblasHandle_t *handle = NULL;
+ hcblasHandle_t handle = NULL;
  // Passing a Null handle to the API
- hcblasStatus_t status = hcblasCreate(handle);
+ hcblasStatus_t status = hcblasCreate(&handle);
  //hcblasDestroy
  status = hcblasDestroy(handle);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
@@ -34,8 +35,8 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  float *x1 = (float*) calloc(n, sizeof(float));
  double *x2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
- hcblasHandle_t *handle = NULL;
- status= hcblasCreate(handle);
+ hcblasHandle_t handle = NULL;
+ status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *y1 = (float*)am_alloc(n, accs[handle->deviceId], 0);
  double *y2 = (double*)am_alloc(n, accs[handle->deviceId], 0);
@@ -80,8 +81,8 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  float *y1 = (float*) calloc(n, sizeof(float));
  double *y2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
- hcblasHandle_t *handle = NULL;
- status= hcblasCreate(handle);
+ hcblasHandle_t handle = NULL;
+ status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *x1 = (float*)am_alloc(n, accs[handle->deviceId], 0);
  double *x2 = (double*)am_alloc(n, accs[handle->deviceId], 0);
@@ -128,8 +129,8 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  float *x1 = (float*) calloc(rows * cols, sizeof(float));
  double *x2 = (double*) calloc(rows * cols, sizeof(double));
  hcblasStatus_t status;
- hcblasHandle_t *handle = NULL;
- status= hcblasCreate(handle);
+ hcblasHandle_t handle = NULL;
+ status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *y1 = (float*)am_alloc(rows * cols, accs[handle->deviceId], 0);
  double *y2 = (double*)am_alloc(rows * cols, accs[handle->deviceId], 0);
@@ -168,8 +169,8 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  float *y1 = (float*) calloc(cols * rows, sizeof(float));
  double *y2 = (double*) calloc(cols * rows, sizeof(double));
  hcblasStatus_t status;
- hcblasHandle_t *handle = NULL;
- status= hcblasCreate(handle);
+ hcblasHandle_t handle = NULL;
+ status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *x1 = (float*)am_alloc(rows * cols, accs[handle->deviceId], 0);
  double *x2 = (double*)am_alloc(rows * cols, accs[handle->deviceId], 0);
@@ -202,8 +203,8 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
 }
 
 TEST(hcblasDeviceOrderselect, func_return_Check_hcblasDeviceOrderselect) {
- hcblasHandle_t *handle = NULL;
- hcblasStatus_t status= hcblasCreate(handle);
+ hcblasHandle_t handle = NULL;
+ hcblasStatus_t status= hcblasCreate(&handle);
  hcblasOrder order = ColMajor;
 
  //device CPU
