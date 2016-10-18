@@ -1056,7 +1056,7 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_cgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, aOffset, lda, B, bOffset, ldb, *beta, C, cOffset, ldc);
+  status = handle->hcblas_cgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const float2*>(alpha)), reinterpret_cast<float2*>(A), aOffset, lda, reinterpret_cast<float2*>(B), bOffset, ldb, *(reinterpret_cast<const float2*>(beta)), reinterpret_cast<float2*>(C), cOffset, ldc);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
@@ -1117,7 +1117,7 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_zgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, aOffset, lda, B, bOffset, ldb, *beta, C, cOffset, ldc);
+  status = handle->hcblas_zgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const double2*>(alpha)), reinterpret_cast<double2*>(A), aOffset, lda, reinterpret_cast<double2*>(B), bOffset, ldb, *(reinterpret_cast<const double2*>(beta)), reinterpret_cast<double2*>(C), cOffset, ldc);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
@@ -1226,7 +1226,7 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_cgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, Aarray, aOffset, A_batchOffset, lda, Barray, bOffset, B_batchOffset, ldb, *beta, Carray, cOffset, C_batchOffset, ldc, batchCount);
+  status = handle->hcblas_cgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const float2*>(alpha)), reinterpret_cast<float2*>(Aarray), aOffset, A_batchOffset, lda, reinterpret_cast<float2*>(Barray), bOffset, B_batchOffset, ldb, *(reinterpret_cast<const float2*>(beta)), reinterpret_cast<float2*>(Carray), cOffset, C_batchOffset, ldc, batchCount);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
@@ -1296,7 +1296,7 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_zgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, Aarray, aOffset, A_batchOffset, lda, Barray, bOffset, B_batchOffset, ldb, *beta, Carray, cOffset, C_batchOffset, ldc, batchCount);
+  status = handle->hcblas_zgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const double2*>(alpha)), reinterpret_cast<double2*>(Aarray), aOffset, A_batchOffset, lda, reinterpret_cast<double2*>(Barray), bOffset, B_batchOffset, ldb, *(reinterpret_cast<const double2*>(beta)), reinterpret_cast<double2*>(Carray), cOffset, C_batchOffset, ldc, batchCount);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
