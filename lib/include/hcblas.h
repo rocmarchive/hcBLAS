@@ -49,10 +49,19 @@ enum hcblasOperation_t {
 // 2.2.4. hcComplex
 
 // hcComplex is used in Complex-precision functions
+struct float_2_ {
+  float x;
+  float y;
+};
 
-typedef float2 hcFloatComplex;
+struct double_2_ {
+  double x;
+  double y;
+};
+
+typedef float_2_ hcFloatComplex;
 typedef hcFloatComplex hcComplex;
-typedef double2 hcDoubleComplex;
+typedef double_2_ hcDoubleComplex;
 typedef hcDoubleComplex hcDoubleComplex;
 
 // hcblas Helper functions 
