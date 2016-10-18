@@ -33,8 +33,8 @@ void func_check_ddot_with_input(long N) {
     Y[i] =  rand() % 15;
   }
 
-  hc::am_copy(devX, X, lenx * sizeof(double));
-  hc::am_copy(devY, Y, leny * sizeof(double));
+  accl_view.copy(X, devX, lenx * sizeof(double));
+  accl_view.copy(Y, devY, leny * sizeof(double));
   /* Proper call */
   status = hc.hcblas_ddot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -73,8 +73,8 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_1) {
     Y[i] =  rand() % 15;
   }
 
-  hc::am_copy(devX, X, lenx * sizeof(double));
-  hc::am_copy(devY, Y, leny * sizeof(double));
+  accl_view.copy(X, devX, lenx * sizeof(double));
+  accl_view.copy(Y, devY, leny * sizeof(double));
   /* Proper call */
   status = hc.hcblas_ddot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -134,8 +134,8 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_2) {
     Ybatch[i] =  rand() % 15;
   }
 
-  hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
-  hc::am_copy(devYbatch, Ybatch, leny * batchSize * sizeof(double));
+  accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
+  accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
   /* Proper call */
   status = hc.hcblas_ddot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -239,8 +239,8 @@ void func_check_ddot_batch_with_input(long N) {
     Ybatch[i] =  rand() % 15;
   }
 
-  hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
-  hc::am_copy(devYbatch, Ybatch, leny * batchSize * sizeof(double));
+  accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
+  accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
   /* Proper call */
   status = hc.hcblas_ddot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);

@@ -20,7 +20,7 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
-  hc::am_copy(devX, X, lenx * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(float));
   status = hcblasSasum(handle, n, devX, incx, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
@@ -54,7 +54,7 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
   }
-  hc::am_copy(devX, X, lenx * batchSize * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * batchSize * sizeof(float));
   status = hcblasSasumBatched(handle, n, devX, incx, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
@@ -91,7 +91,7 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
-  hc::am_copy(devX, X, lenx * sizeof(double));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(double));
   status = hcblasDasum(handle, n, devX, incx, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
@@ -125,7 +125,7 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
    }
-  hc::am_copy(devX, X, lenx * batchSize * sizeof(double));
+  handle->currentAcclView.copy(X, devX, lenx * batchSize * sizeof(double));
   status = hcblasDasumBatched(handle, n, devX, incx, &result, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
@@ -165,9 +165,9 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
             X[i] = rand() % 10;
             Xcblas[i] = X[i];
   }
-  hc::am_copy(devX, X, lenx * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(float));
   status = hcblasSscal(handle, n, &alpha, devX, incx);
-  hc::am_copy(X, devX, lenx * sizeof(float));
+  handle->currentAcclView.copy(devX, X, lenx * sizeof(float));
   cblas_sscal( n, alpha, Xcblas, incx );
   for(int i = 0; i < lenx ; i++){
         EXPECT_EQ(X[i], Xcblas[i]);
@@ -202,9 +202,9 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
             X[i] = rand() % 10;
             Xcblas[i] =  X[i];
   }
-  hc::am_copy(devX, X, lenx * batchSize * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * batchSize * sizeof(float));
   status = hcblasSscalBatched(handle, n, &alpha, devX, incx, batchSize);
-  hc::am_copy(X, devX, lenx * batchSize * sizeof(float));
+  handle->currentAcclView.copy(devX, X, lenx * batchSize * sizeof(float));
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   for(int i = 0; i < batchSize; i++)
           cblas_sscal( n, alpha, Xcblas + i * n, incx);
@@ -240,9 +240,9 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
             X[i] = rand() % 10;
             Xcblas[i] = X[i];
   }
-  hc::am_copy(devX, X, lenx * sizeof(double));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(double));
   status = hcblasDscal(handle, n, &alpha, devX, incx);
-  hc::am_copy(X, devX, lenx * sizeof(double));
+  handle->currentAcclView.copy(devX, X, lenx * sizeof(double));
   cblas_dscal( n, alpha, Xcblas, incx );
   for(int i = 0; i < lenx ; i++){
         EXPECT_EQ(X[i], Xcblas[i]);
@@ -277,9 +277,9 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
             X[i] = rand() % 10;
             Xcblas[i] =  X[i];
   }
-  hc::am_copy(devX, X, lenx * batchSize * sizeof(double));
+  handle->currentAcclView.copy(X, devX, lenx * batchSize * sizeof(double));
   status = hcblasDscalBatched(handle, n, &alpha, devX, incx, batchSize);
-  hc::am_copy(X, devX, lenx * batchSize * sizeof(double));
+  handle->currentAcclView.copy(devX, X, lenx * batchSize * sizeof(double));
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   for(int i = 0; i < batchSize; i++)
           cblas_dscal( n, alpha, Xcblas + i * n, incx);
@@ -322,10 +322,10 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
             Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
   }
-  hc::am_copy(devX, X, lenx * sizeof(float));
-  hc::am_copy(devY, Y, leny * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(float));
+  handle->currentAcclView.copy(Y, devY, leny * sizeof(float));
   status = hcblasScopy(handle, n, devX, incx, devY, incy);
-  hc::am_copy(Y, devY, leny * sizeof(float));
+  handle->currentAcclView.copy(devY, Y, leny * sizeof(float));
   cblas_scopy( n, X, incx, Ycblas, incy );
   for(int i = 0; i < leny; i++){
         EXPECT_EQ(Y[i], Ycblas[i]);
@@ -369,10 +369,10 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
             Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
   }
-  hc::am_copy(devX, X, lenx *  batchSize * sizeof(float));
-  hc::am_copy(devY, Y, leny *  batchSize * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx *  batchSize * sizeof(float));
+  handle->currentAcclView.copy(Y, devY, leny *  batchSize * sizeof(float));
   status = hcblasScopyBatched(handle, n, devX, incx, devY, incy, batchSize);
-  hc::am_copy(Y, devY, leny * batchSize * sizeof(float));
+  handle->currentAcclView.copy(devY, Y, leny * batchSize * sizeof(float));
   for(int i = 0; i < batchSize; i++)
       cblas_scopy( n, X + i * n, incx, Ycblas + i * n, incy );
   for(int i = 0; i < leny * batchSize; i++){
@@ -416,10 +416,10 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
             Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
   }
-  hc::am_copy(devX, X, lenx * sizeof(double));
-  hc::am_copy(devY, Y, leny * sizeof(double));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(double));
+  handle->currentAcclView.copy(Y, devY, leny * sizeof(double));
   status = hcblasDcopy(handle, n, devX, incx, devY, incy);
-  hc::am_copy(Y, devY, leny * sizeof(double));
+  handle->currentAcclView.copy(devY, Y, leny * sizeof(double));
   cblas_dcopy( n, X, incx, Ycblas, incy );
   for(int i = 0; i < leny; i++){
         EXPECT_EQ(Y[i], Ycblas[i]);
@@ -463,10 +463,10 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
             Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
   }
-  hc::am_copy(devX, X, lenx *  batchSize * sizeof(double));
-  hc::am_copy(devY, Y, leny *  batchSize * sizeof(double));
+  handle->currentAcclView.copy(X, devX, lenx *  batchSize * sizeof(double));
+  handle->currentAcclView.copy(Y, devY, leny *  batchSize * sizeof(double));
   status = hcblasDcopyBatched(handle, n, devX, incx, devY, incy, batchSize);
-  hc::am_copy(Y, devY, leny * batchSize * sizeof(double));
+  handle->currentAcclView.copy(devY, Y, leny * batchSize * sizeof(double));
   for(int i = 0; i < batchSize; i++)
       cblas_dcopy( n, X + i * n, incx, Ycblas + i * n, incy );
   for(int i = 0; i < leny * batchSize; i++){
@@ -508,8 +508,8 @@ TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
   for(int i = 0;i < leny;i++){
             Y[i] =  rand() % 15;
   }
-  hc::am_copy(devX, X, lenx * sizeof(float));
-  hc::am_copy(devY, Y, leny * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(float));
+  handle->currentAcclView.copy(Y, devY, leny * sizeof(float));
   status = hcblasSdot(handle, n, devX, incx, devY, incy, &result);
   float  dotcblas = 0.0;
   dotcblas = cblas_sdot( n, X, incx, Y, incy);
@@ -551,8 +551,8 @@ TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
   for(int i = 0;i < leny * batchSize;i++){
             Y[i] =  rand() % 15;
   }
-  hc::am_copy(devX, X, lenx * batchSize * sizeof(float));
-  hc::am_copy(devY, Y, leny * batchSize * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * batchSize * sizeof(float));
+  handle->currentAcclView.copy(Y, devY, leny * batchSize * sizeof(float));
   status = hcblasSdotBatched(handle, n, devX, incx, devY, incy, &result, batchSize);
   float  dotcblas = 0.0;
   for(int i = 0; i < batchSize; i++){
@@ -595,8 +595,8 @@ TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
   for(int i = 0;i < leny;i++){
             Y[i] =  rand() % 15;
   }
-  hc::am_copy(devX, X, lenx * sizeof(double));
-  hc::am_copy(devY, Y, leny * sizeof(double));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(double));
+  handle->currentAcclView.copy(Y, devY, leny * sizeof(double));
   status = hcblasDdot(handle, n, devX, incx, devY, incy, &result);
   double  dotcblas = 0.0;
   dotcblas = cblas_ddot( n, X, incx, Y, incy);
@@ -638,8 +638,8 @@ TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
   for(int i = 0;i < leny * batchSize;i++){
             Y[i] =  rand() % 15;
   }
-  hc::am_copy(devX, X, lenx * batchSize * sizeof(double));
-  hc::am_copy(devY, Y, leny * batchSize * sizeof(double));
+  handle->currentAcclView.copy(X, devX, lenx * batchSize * sizeof(double));
+  handle->currentAcclView.copy(Y, devY, leny * batchSize * sizeof(double));
   status = hcblasDdotBatched(handle, n, devX, incx, devY, incy, &result, batchSize);
   double  dotcblas = 0.0;
   for(int i = 0; i < batchSize; i++){
@@ -684,10 +684,10 @@ TEST(hcblaswrapper_saxpy, func_return_correct_saxpy) {
             Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
   }
-  hc::am_copy(devX, X, lenx * sizeof(float));
-  hc::am_copy(devY, Y, leny * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(float));
+  handle->currentAcclView.copy(Y, devY, leny * sizeof(float));
   status = hcblasSaxpy(handle, n, &alpha, devX, incx, devY, incy);
-  hc::am_copy(Y, devY, leny * sizeof(float));
+  handle->currentAcclView.copy(devY, Y, leny * sizeof(float));
   cblas_saxpy( n, alpha, X, incx, Ycblas, incy );
   for(int i = 0; i < leny ; i++){
      EXPECT_EQ(Y[i], Ycblas[i]);
@@ -731,10 +731,10 @@ TEST(hcblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
             Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
   }
-  hc::am_copy(devX, X, lenx * batchSize * sizeof(float));
-  hc::am_copy(devY, Y, leny * batchSize * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * batchSize * sizeof(float));
+  handle->currentAcclView.copy(Y, devY, leny * batchSize * sizeof(float));
   status = hcblasSaxpyBatched(handle, n, &alpha, devX, incx, devY, incy, batchSize);
-  hc::am_copy(Y, devY, leny * batchSize * sizeof(float));
+  handle->currentAcclView.copy(devY, Y, leny * batchSize * sizeof(float));
   for(int i = 0; i < batchSize; i++)
        cblas_saxpy( n, alpha, X + i * n, incx, Ycblas + i * n, incy );
   for(int i =0; i < leny * batchSize; i ++){
@@ -788,11 +788,11 @@ TEST(hcblaswrapper_sger, func_return_correct_sger) {
             A[i] = rand() % 25;
             Acblas[i] = A[i];
   }
-  hc::am_copy(devA, A, lenx * leny * sizeof(float));
-  hc::am_copy(devX, X, lenx * sizeof(float));
-  hc::am_copy(devY, Y, leny * sizeof(float));
+  handle->currentAcclView.copy(A, devA, lenx * leny * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(float));
+  handle->currentAcclView.copy(Y, devY, leny * sizeof(float));
   status = hcblasSger(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda);
-  hc::am_copy(A, devA, lenx * leny * sizeof(float));
+  handle->currentAcclView.copy(devA, A, lenx * leny * sizeof(float));
   cblas_sger( order, m, n, alpha, X, incx, Y, incy, Acblas, lda);
   for(int i =0; i < lenx * leny ; i++){
       EXPECT_EQ(A[i], Acblas[i]);
@@ -846,11 +846,11 @@ TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
             A[i] = rand() % 25;
             Acblas[i] = A[i];
   }
-  hc::am_copy(devA, A, lenx * leny * batchSize * sizeof(float));
-  hc::am_copy(devX, X, lenx * batchSize * sizeof(float));
-  hc::am_copy(devY, Y, leny * batchSize * sizeof(float));
+  handle->currentAcclView.copy(A, devA, lenx * leny * batchSize * sizeof(float));
+  handle->currentAcclView.copy(X, devX, lenx * batchSize * sizeof(float));
+  handle->currentAcclView.copy(Y, devY, leny * batchSize * sizeof(float));
   status = hcblasSgerBatched(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda, batchSize);
-  hc::am_copy(A, devA, lenx * leny * batchSize* sizeof(float));
+  handle->currentAcclView.copy(devA, A, lenx * leny * batchSize* sizeof(float));
   for(int i = 0; i < batchSize; i++)
       cblas_sger( order, m, n, alpha, X + i * m, incx, Y + i * n, incy, Acblas + i * m * n, lda);
   for(int i =0; i < lenx * leny * batchSize; i++){

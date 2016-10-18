@@ -31,8 +31,10 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
   else
       (*handle)->deviceId = 0;
 
-  if (!(*handle)->Order)
-      (*handle)->Order = ColMajor;
+  handle->currentAccl = accs[handle->deviceId];
+
+  if (!handle->Order)
+      handle->Order = ColMajor;
   return HCBLAS_STATUS_SUCCESS;  
 }
 
@@ -92,7 +94,7 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const
     return HCBLAS_STATUS_INVALID_VALUE;
   }
  
-  hc::am_copy(y, x, elemSize * n);   
+  handle->currentAcclView.copy(x, y, elemSize * n);   
   return HCBLAS_STATUS_SUCCESS;
 }
 
@@ -130,7 +132,7 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const
     return HCBLAS_STATUS_INVALID_VALUE;
   }
 
-  hc::am_copy(y, x, elemSize * n);
+  handle->currentAcclView.copy(x, y, elemSize * n);
   return HCBLAS_STATUS_SUCCESS;
 }
 
@@ -169,7 +171,7 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int el
     return HCBLAS_STATUS_INVALID_VALUE;
   }
 
-  hc::am_copy(B, A, elemSize * rows * cols);
+  handle->currentAcclView.copy(A, B, elemSize * rows * cols);
  
   return HCBLAS_STATUS_SUCCESS;
 }
@@ -209,7 +211,7 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int el
     return HCBLAS_STATUS_INVALID_VALUE;
   }
 
-  hc::am_copy(B, A, elemSize * rows * cols);
+  handle->currentAcclView.copy(A, B, elemSize * rows * cols);
 
   return HCBLAS_STATUS_SUCCESS;
 }
@@ -280,11 +282,9 @@ hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, const int n,
                             float           *x, const int incx, float  *result) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_sasum(accl_view, n, x, incx, xOffset, result);
+  status = handle->hcblas_sasum(handle->currentAcclView, n, x, incx, xOffset, result);
   if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -296,12 +296,10 @@ hcblasStatus_t  hcblasSasumBatched(hcblasHandle_t handle, const int n,
 
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long X_batchOffset = n;
   hcblasStatus status;
-  status= handle->hcblas_sasum(accl_view, n, x, incx, xOffset, result, X_batchOffset, batchCount);
+  status= handle->hcblas_sasum(handle->currentAcclView, n, x, incx, xOffset, result, X_batchOffset, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -312,11 +310,9 @@ hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, const int n,
                             double          *x, const int incx, double *result) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());  
   long xOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_dasum(accl_view, n, x, incx, xOffset, result);
+  status = handle->hcblas_dasum(handle->currentAcclView, n, x, incx, xOffset, result);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -327,12 +323,10 @@ hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t handle, const int n,
                                    double          *x, const int incx, double *result, int batchCount) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long X_batchOffset = n;
   hcblasStatus status;
-  status = handle->hcblas_dasum(accl_view, n, x, incx, xOffset, result, X_batchOffset, batchCount);
+  status = handle->hcblas_dasum(handle->currentAcclView, n, x, incx, xOffset, result, X_batchOffset, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -367,12 +361,10 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
                            float                 *y, int incy) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_saxpy(accl_view, n, *alpha, x, incx, y, incy , xOffset, yOffset);
+  status = handle->hcblas_saxpy(handle->currentAcclView, n, *alpha, x, incx, y, incy , xOffset, yOffset);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -403,14 +395,12 @@ hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t handle, int n,
                                   float                 *y, int incy, int batchCount) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
   long Y_batchOffset = n;
   hcblasStatus status;
-  status= handle->hcblas_saxpy(accl_view, n, *alpha, x, incx, X_batchOffset, y, incy, Y_batchOffset, xOffset, yOffset, batchCount);
+  status= handle->hcblas_saxpy(handle->currentAcclView, n, *alpha, x, incx, X_batchOffset, y, incy, Y_batchOffset, xOffset, yOffset, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -442,12 +432,10 @@ hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
                            float                 *y, int incy) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_scopy(accl_view, n, x, incx, xOffset, y, incy, yOffset);
+  status = handle->hcblas_scopy(handle->currentAcclView, n, x, incx, xOffset, y, incy, yOffset);
   if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -459,14 +447,12 @@ hcblasStatus_t hcblasScopyBatched(hcblasHandle_t handle, int n,
                                   float                 *y, int incy, int batchCount) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
   long Y_batchOffset = n;
   hcblasStatus status;
-  status = handle->hcblas_scopy(accl_view, n, x, incx, xOffset, y, incy, yOffset, X_batchOffset, Y_batchOffset, batchCount);
+  status = handle->hcblas_scopy(handle->currentAcclView, n, x, incx, xOffset, y, incy, yOffset, X_batchOffset, Y_batchOffset, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -478,12 +464,10 @@ hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
                            double                *y, int incy) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_dcopy(accl_view, n, x, incx, xOffset, y, incy, yOffset);
+  status = handle->hcblas_dcopy(handle->currentAcclView, n, x, incx, xOffset, y, incy, yOffset);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -495,14 +479,12 @@ hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t handle, int n,
                                   double                *y, int incy, int batchCount) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
   long Y_batchOffset = n;
   hcblasStatus status;
-  status = handle->hcblas_dcopy(accl_view, n, x, incx, xOffset, y, incy, yOffset, X_batchOffset, Y_batchOffset, batchCount);
+  status = handle->hcblas_dcopy(handle->currentAcclView, n, x, incx, xOffset, y, incy, yOffset, X_batchOffset, Y_batchOffset, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -536,12 +518,10 @@ hcblasStatus_t hcblasSdot (hcblasHandle_t handle, int n,
                            float           *result) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_sdot(accl_view, n, x, incx, xOffset, y, incy, yOffset, *result);
+  status = handle->hcblas_sdot(handle->currentAcclView, n, x, incx, xOffset, y, incy, yOffset, *result);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -554,14 +534,12 @@ hcblasStatus_t hcblasSdotBatched (hcblasHandle_t handle, int n,
                                   float           *result, int batchCount) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
   long Y_batchOffset = n;
   hcblasStatus status;
-  status = handle->hcblas_sdot(accl_view, n, x, incx, xOffset, y, incy, yOffset, *result, X_batchOffset, Y_batchOffset, batchCount);
+  status = handle->hcblas_sdot(handle->currentAcclView, n, x, incx, xOffset, y, incy, yOffset, *result, X_batchOffset, Y_batchOffset, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -574,12 +552,10 @@ hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
                            double          *result) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_ddot(accl_view, n, x, incx, xOffset, y, incy, yOffset, *result);
+  status = handle->hcblas_ddot(handle->currentAcclView, n, x, incx, xOffset, y, incy, yOffset, *result);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -592,14 +568,12 @@ hcblasStatus_t hcblasDdotBatched (hcblasHandle_t handle, int n,
                                   double          *result, int batchCount) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long X_batchOffset = n;
   long Y_batchOffset = n;
   hcblasStatus status;
-  status = handle->hcblas_ddot(accl_view, n, x, incx, xOffset, y, incy, yOffset, *result, X_batchOffset, Y_batchOffset, batchCount);
+  status = handle->hcblas_ddot(handle->currentAcclView, n, x, incx, xOffset, y, incy, yOffset, *result, X_batchOffset, Y_batchOffset, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -630,11 +604,9 @@ hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
                             float           *x, int incx) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_sscal(accl_view, n, *alpha, x, incx, xOffset);
+  status = handle->hcblas_sscal(handle->currentAcclView, n, *alpha, x, incx, xOffset);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -646,12 +618,10 @@ hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t handle, int n,
                                    float           *x, int incx, int batchCount) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long X_batchOffset = n;
   hcblasStatus status;
-  status = handle->hcblas_sscal(accl_view, n, *alpha, x, incx, xOffset, X_batchOffset, batchCount);
+  status = handle->hcblas_sscal(handle->currentAcclView, n, *alpha, x, incx, xOffset, X_batchOffset, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -663,11 +633,9 @@ hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
                             double          *x, int incx) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_dscal(accl_view, n, *alpha, x, incx, xOffset);
+  status = handle->hcblas_dscal(handle->currentAcclView, n, *alpha, x, incx, xOffset);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -679,12 +647,10 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
                                    double          *x, int incx, int batchCount) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long X_batchOffset = n;
   hcblasStatus status;
-  status = handle->hcblas_dscal(accl_view, n, *alpha, x, incx, xOffset, X_batchOffset, batchCount);
+  status = handle->hcblas_dscal(handle->currentAcclView, n, *alpha, x, incx, xOffset, X_batchOffset, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -749,15 +715,13 @@ hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
   hcblasTranspose transA;
   transA =  (trans == HCBLAS_OP_N)? NoTrans : Trans;
-  status =  handle->hcblas_sgemv(accl_view, handle->Order, transA, m, n, *alpha, A, aOffset, lda, x, xOffset, incx, *beta, y, yOffset, incy);
+  status =  handle->hcblas_sgemv(handle->currentAcclView, handle->Order, transA, m, n, *alpha, A, aOffset, lda, x, xOffset, incx, *beta, y, yOffset, incy);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -777,8 +741,6 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long xOffset = 0;
   long yOffset = 0;
@@ -797,7 +759,7 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans
   long X_batchOffset = row;
   long Y_batchOffset = col;
   long A_batchOffset = row * col;
-  status =  handle->hcblas_sgemv(accl_view, handle->Order, transA, m, n, *alpha, A, aOffset, A_batchOffset, lda, x, xOffset, X_batchOffset, incx, *beta, y, yOffset, Y_batchOffset, incy, batchCount);
+  status =  handle->hcblas_sgemv(handle->currentAcclView, handle->Order, transA, m, n, *alpha, A, aOffset, A_batchOffset, lda, x, xOffset, X_batchOffset, incx, *beta, y, yOffset, Y_batchOffset, incy, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -818,15 +780,13 @@ hcblasStatus_t hcblasDgemv(hcblasHandle_t handle, hcblasOperation_t trans,
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
   hcblasTranspose transA;
   transA =  (trans == HCBLAS_OP_N)? NoTrans : Trans;
-  status =  handle->hcblas_dgemv(accl_view, handle->Order, transA, m, n, *alpha, A, aOffset, lda, x, xOffset, incx, *beta, y, yOffset, incy);
+  status =  handle->hcblas_dgemv(handle->currentAcclView, handle->Order, transA, m, n, *alpha, A, aOffset, lda, x, xOffset, incx, *beta, y, yOffset, incy);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -846,8 +806,6 @@ hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long xOffset = 0;
   long yOffset = 0;
@@ -866,7 +824,7 @@ hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans
   long X_batchOffset = row;
   long Y_batchOffset = col;
   long A_batchOffset = row * col;
-  status =  handle->hcblas_dgemv(accl_view, handle->Order, transA, m, n, *alpha, A, aOffset, A_batchOffset, lda, x, xOffset, X_batchOffset, incx, *beta, y, yOffset, Y_batchOffset, incy, batchCount);
+  status =  handle->hcblas_dgemv(handle->currentAcclView, handle->Order, transA, m, n, *alpha, A, aOffset, A_batchOffset, lda, x, xOffset, X_batchOffset, incx, *beta, y, yOffset, Y_batchOffset, incy, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -912,13 +870,11 @@ hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long aOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_sger(accl_view, handle->Order, m, n, *alpha, x, xOffset, incx, y, yOffset, incy, A, aOffset, lda );
+  status = handle->hcblas_sger(handle->currentAcclView, handle->Order, m, n, *alpha, x, xOffset, incx, y, yOffset, incy, A, aOffset, lda );
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -936,8 +892,6 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long aOffset = 0;
@@ -945,7 +899,7 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
   long Y_batchOffset = n;
   long A_batchOffset = m * n;
   hcblasStatus status;
-  status = handle->hcblas_sger(accl_view, handle->Order, m, n, *alpha, x, xOffset, X_batchOffset, incx, y, yOffset, Y_batchOffset, incy, A, aOffset, A_batchOffset, lda, batchCount);
+  status = handle->hcblas_sger(handle->currentAcclView, handle->Order, m, n, *alpha, x, xOffset, X_batchOffset, incx, y, yOffset, Y_batchOffset, incy, A, aOffset, A_batchOffset, lda, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -964,13 +918,11 @@ hcblasStatus_t  hcblasDger(hcblasHandle_t handle, int m, int n,
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long aOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_dger(accl_view, handle->Order, m, n, *alpha, x, xOffset, incx, y, yOffset, incy, A, aOffset, lda );
+  status = handle->hcblas_dger(handle->currentAcclView, handle->Order, m, n, *alpha, x, xOffset, incx, y, yOffset, incy, A, aOffset, lda );
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -988,8 +940,6 @@ hcblasStatus_t  hcblasDgerBatched(hcblasHandle_t handle, int m, int n,
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   long aOffset = 0;
@@ -997,7 +947,7 @@ hcblasStatus_t  hcblasDgerBatched(hcblasHandle_t handle, int m, int n,
   long Y_batchOffset = n;
   long A_batchOffset = m * n;
   hcblasStatus status;
-  status = handle->hcblas_dger(accl_view, handle->Order, m, n, *alpha, x, xOffset, X_batchOffset, incx, y, yOffset, Y_batchOffset, incy, A, aOffset, A_batchOffset, lda, batchCount);
+  status = handle->hcblas_dger(handle->currentAcclView, handle->Order, m, n, *alpha, x, xOffset, X_batchOffset, incx, y, yOffset, Y_batchOffset, incy, A, aOffset, A_batchOffset, lda, batchCount);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -1067,8 +1017,6 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
   if(m < 0 || n < 0 || k < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long bOffset = 0;
   long cOffset = 0;
@@ -1076,7 +1024,7 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
   hcblasTranspose transA, transB;
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
-  status = handle->hcblas_sgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
+  status = handle->hcblas_sgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
   if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -1097,8 +1045,6 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
   if(m < 0 || n < 0 || k < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
 
   long aOffset = 0;
   long bOffset = 0;
@@ -1110,7 +1056,7 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_cgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, A, aOffset, lda, B, bOffset, ldb, *beta, C, cOffset, ldc);
+  status = handle->hcblas_cgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, aOffset, lda, B, bOffset, ldb, *beta, C, cOffset, ldc);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
@@ -1132,8 +1078,6 @@ hcblasStatus_t hcblasDgemm(hcblasHandle_t handle,
   if(m < 0 || n < 0 || k < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long bOffset = 0;
   long cOffset = 0;
@@ -1141,7 +1085,7 @@ hcblasStatus_t hcblasDgemm(hcblasHandle_t handle,
   hcblasTranspose transA, transB;
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
-  status = handle->hcblas_dgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
+  status = handle->hcblas_dgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
   if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -1162,8 +1106,6 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
   if(m < 0 || n < 0 || k < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
 
   long aOffset = 0;
   long bOffset = 0;
@@ -1175,7 +1117,7 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_zgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, A, aOffset, lda, B, bOffset, ldb, *beta, C, cOffset, ldc);
+  status = handle->hcblas_zgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, aOffset, lda, B, bOffset, ldb, *beta, C, cOffset, ldc);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
@@ -1237,8 +1179,6 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
 
   long aOffset = 0;
   long bOffset = 0;
@@ -1252,7 +1192,7 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_sgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, Aarray, lda, A_batchOffset, Barray, ldb, B_batchOffset, *beta, Carray, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchCount);
+  status = handle->hcblas_sgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, Aarray, lda, A_batchOffset, Barray, ldb, B_batchOffset, *beta, Carray, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchCount);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
@@ -1274,8 +1214,6 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long bOffset = 0;
   long cOffset = 0;
@@ -1288,7 +1226,7 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_cgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, Aarray, aOffset, A_batchOffset, lda, Barray, bOffset, B_batchOffset, ldb, *beta, Carray, cOffset, C_batchOffset, ldc, batchCount);
+  status = handle->hcblas_cgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, Aarray, aOffset, A_batchOffset, lda, Barray, bOffset, B_batchOffset, ldb, *beta, Carray, cOffset, C_batchOffset, ldc, batchCount);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
@@ -1311,8 +1249,6 @@ hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t handle,
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
 
   long aOffset = 0;
   long bOffset = 0;
@@ -1326,7 +1262,7 @@ hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_dgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, Aarray, lda, A_batchOffset, Barray, ldb, B_batchOffset, *beta, Carray, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchCount);
+  status = handle->hcblas_dgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, Aarray, lda, A_batchOffset, Barray, ldb, B_batchOffset, *beta, Carray, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchCount);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
@@ -1348,8 +1284,6 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long aOffset = 0;
   long bOffset = 0;
   long cOffset = 0;
@@ -1362,7 +1296,7 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_zgemm(accl_view, handle->Order, transA, transB, m, n, k, *alpha, Aarray, aOffset, A_batchOffset, lda, Barray, bOffset, B_batchOffset, ldb, *beta, Carray, cOffset, C_batchOffset, ldc, batchCount);
+  status = handle->hcblas_zgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, Aarray, aOffset, A_batchOffset, lda, Barray, bOffset, B_batchOffset, ldb, *beta, Carray, cOffset, C_batchOffset, ldc, batchCount);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
