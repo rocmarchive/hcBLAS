@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 #pragma once
 
-#include <hip_runtime_api.h>
+#include <hip/hip_runtime_api.h>
 #include <hcblas.h>
 
 //HGSOS for Kalmar leave it as C++, only cublas needs C linkage.
