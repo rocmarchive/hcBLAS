@@ -149,7 +149,7 @@ void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta,
   hcblasStatus status;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].get_default_view());
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
   float* B = (float*) calloc(K * N, sizeof(float));
@@ -223,7 +223,7 @@ void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta,
   hcblasStatus status;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].get_default_view());
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
   float* B = (float*) calloc(K * N, sizeof(float));
@@ -300,7 +300,7 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
   hcblasStatus status;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].get_default_view());
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
   float* B = (float*) calloc(K * N, sizeof(float));
@@ -413,7 +413,7 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
   hcblasStatus status;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].get_default_view());
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
   float* B = (float*) calloc(K * N, sizeof(float));
@@ -526,7 +526,7 @@ void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta,
   hcblasStatus status;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].get_default_view());
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
   float* B = (float*) calloc(K * N, sizeof(float));
@@ -602,7 +602,7 @@ void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta,
   hcblasStatus status;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].get_default_view());
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
   float* B = (float*) calloc(K * N, sizeof(float));
@@ -678,7 +678,7 @@ void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta,
   hcblasStatus status;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].get_default_view());
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
   float* B = (float*) calloc(K * N, sizeof(float));
@@ -755,7 +755,7 @@ void func_check_sgemmTT_Row_type_1(int M, int N, int K, float alpha, float beta,
   hcblasStatus status;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].get_default_view());
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
   float* B = (float*) calloc(K * N, sizeof(float));
@@ -1348,7 +1348,7 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   hcblasStatus status;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   accelerator_view accl_view = (acc[1].get_default_view());
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type II - Inputs and Outputs are HCC float array containers with batch processing
   float* Abatch = (float*) calloc(M * K, sizeof(float));
   float* Bbatch = (float*) calloc(K * N, sizeof(float));

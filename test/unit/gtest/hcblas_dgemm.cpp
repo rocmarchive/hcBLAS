@@ -136,7 +136,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     hcblasStatus status;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].get_default_view()); 
-    enum CBLAS_TRANSPOSE Transa, Transb;
+    CBLAS_TRANSPOSE Transa, Transb;
 // Implementation type I - Inputs and Outputs are HCC device pointers */
 
     double *A = (double*) calloc(M * K, sizeof(double));
@@ -443,7 +443,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     hcblasStatus status;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].get_default_view()); 
-    enum CBLAS_TRANSPOSE Transa, Transb;
+    CBLAS_TRANSPOSE Transa, Transb;
    // Implementation type II - Inputs and Outputs are HCC double array containers with batch processing 
         
    double *Abatch = (double*) calloc(M * K, sizeof(double));

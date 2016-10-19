@@ -154,7 +154,7 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     leny = 1 + (col - 1) * abs(incY);
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].get_default_view());
-    enum CBLAS_TRANSPOSE transa;
+    CBLAS_TRANSPOSE transa;
     transa = CblasTrans; 
 /* Implementation type I - Inputs and Outputs are HCC float array containers */
     float *x = (float*)calloc( lenx , sizeof(float));
@@ -433,7 +433,7 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     long A_batchOffset = row * col;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].get_default_view());
-    enum CBLAS_TRANSPOSE transa;
+    CBLAS_TRANSPOSE transa;
     transa = CblasTrans;
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
     float *ycblasbatch = (float *)calloc( leny * batchSize, sizeof(float));
