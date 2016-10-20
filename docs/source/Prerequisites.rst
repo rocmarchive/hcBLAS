@@ -52,3 +52,4 @@ This section lists the known set of hardware and software requirements to build 
 * libc6-dev-i386
 * liblapack-dev
 * graphicsmagick
+* libblas-dev
