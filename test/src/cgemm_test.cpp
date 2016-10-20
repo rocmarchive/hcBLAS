@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
     bool ispassed = 1;
     float alpha[2], beta[2];
     CBLAS_ORDER order = CblasColMajor;
-    enum CBLAS_TRANSPOSE Transa, Transb;
+    CBLAS_TRANSPOSE Transa, Transb;
     Transa = (typeA == NoTrans)? CblasNoTrans: CblasTrans;
     Transb = (typeB == NoTrans)? CblasNoTrans: CblasTrans;
     alpha[0] = cAlpha.x; 

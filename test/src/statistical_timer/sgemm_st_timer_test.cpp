@@ -63,8 +63,8 @@ int main(int argc,char* argv[])
 
     /* CBLAS implementation */
     bool ispassed = 1;
-    enum CBLAS_ORDER order;
-    enum CBLAS_TRANSPOSE Transa, Transb;
+    CBLAS_ORDER order;
+    CBLAS_TRANSPOSE Transa, Transb;
     order = CblasColMajor;
     Transa = (typeA == NoTrans)?CblasNoTrans:CblasTrans;
     Transb = (typeB == NoTrans)?CblasNoTrans:CblasTrans;

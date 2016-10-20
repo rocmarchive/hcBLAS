@@ -147,7 +147,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     hcblasStatus status;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].get_default_view()); 
-    enum CBLAS_TRANSPOSE Transa, Transb;
+    CBLAS_TRANSPOSE Transa, Transb;
     float alpha[2], beta[2];
 // Implementation type I - Inputs and Outputs are HCC device pointers */
     float_2 cAlpha, cBeta;
@@ -556,7 +556,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
    hcblasStatus status;
    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
    accelerator_view accl_view = (acc[1].get_default_view()); 
-   enum CBLAS_TRANSPOSE Transa, Transb;
+   CBLAS_TRANSPOSE Transa, Transb;
    // Implementation type II - Inputs and Outputs are HCC device pointers with batch processing 
    float alpha[2], beta[2];
    float_2 cAlpha, cBeta;     
