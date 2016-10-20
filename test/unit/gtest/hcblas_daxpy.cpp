@@ -28,8 +28,8 @@ TEST(hcblas_daxpy, return_correct_daxpy_Implementation_type_1) {
    for(int i = 0; i < leny; i++){
             Y[i] =  rand() % 15;
    }
-   hc::am_copy(devX, X, lenx * sizeof(double));
-   hc::am_copy(devY, Y, leny * sizeof(double));
+   accl_view.copy(X, devX, lenx * sizeof(double));
+   accl_view.copy(Y, devY, leny * sizeof(double));
    /* Proper call */
    status = hc.hcblas_daxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -88,8 +88,8 @@ TEST(hcblas_daxpy, func_correct_daxpy_Implementation_type_1) {
             Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
    }
-   hc::am_copy(devX, X, lenx * sizeof(double));
-   hc::am_copy(devY, Y, leny * sizeof(double));
+   accl_view.copy(X, devX, lenx * sizeof(double));
+   accl_view.copy(Y, devY, leny * sizeof(double));
    /* Proper call */
    status = hc.hcblas_daxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -131,8 +131,8 @@ TEST(hcblas_daxpy, return_correct_daxpy_Implementation_type_2) {
    for(int i = 0;i < leny * batchSize;i++){
             Ybatch[i] =  rand() % 15;
    }
-   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
-   hc::am_copy(devYbatch, Ybatch, leny * batchSize * sizeof(double));
+   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
+   accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
    /* Proper call */
    status= hc.hcblas_daxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -194,8 +194,8 @@ TEST(hcblas_daxpy, func_correct_daxpy_Implementation_type_2) {
             Ybatch[i] =  rand() % 15;
             Ycblasbatch[i] = Ybatch[i];
    }
-   hc::am_copy(devXbatch, Xbatch, lenx * batchSize * sizeof(double));
-   hc::am_copy(devYbatch, Ybatch, leny * batchSize * sizeof(double));
+   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
+   accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
    /* Proper call */
    status= hc.hcblas_daxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
