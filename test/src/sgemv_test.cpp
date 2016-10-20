@@ -47,8 +47,8 @@ int main(int argc, char** argv)
         typeA = Trans;
     }
     /* CBLAS Implementation */
-    enum CBLAS_ORDER order;
-    enum CBLAS_TRANSPOSE transa;
+    CBLAS_ORDER order;
+    CBLAS_TRANSPOSE transa;
     order = CblasColMajor;
     transa = (typeA == NoTrans)? CblasNoTrans : CblasTrans;
     lenx = 1 + (row - 1) * abs(incX);

@@ -766,7 +766,7 @@ TEST(hcblaswrapper_sger, func_return_correct_sger) {
   float alpha = 1;
   long lda;
   lda = (handle->Order)? m : n;
-  enum CBLAS_ORDER order;
+  CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
@@ -824,7 +824,7 @@ TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
   int batchSize = 32;
   long lda;
   lda = (handle->Order)? m : n;
-  enum CBLAS_ORDER order;
+  CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
@@ -885,13 +885,13 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   float alpha = 1;
   float beta = 1;
   long lda;
-  enum CBLAS_ORDER order;
+  CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   int row, col;
   row = n; col = m; lda = m; 
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t trans = HCBLAS_OP_N;
-  enum CBLAS_TRANSPOSE transa;
+  CBLAS_TRANSPOSE transa;
   transa = (trans == HCBLAS_OP_N)? CblasNoTrans : CblasTrans;
   lenx = 1 + (row - 1) * abs(incx);
   leny = 1 + (col - 1) * abs(incy);
@@ -962,13 +962,13 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   float beta = 1;
   int batchSize = 32;
   long lda;
-  enum CBLAS_ORDER order;
+  CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   int row, col;
   row = n; col = m; lda = m;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t trans = HCBLAS_OP_N;
-  enum CBLAS_TRANSPOSE transa;
+  CBLAS_TRANSPOSE transa;
   transa = (trans == HCBLAS_OP_N)? CblasNoTrans : CblasTrans;
   lenx = 1 + (row - 1) * abs(incx);
   leny = 1 + (col - 1) * abs(incy);
@@ -1039,11 +1039,11 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
   long lda;
   long ldb;
   long ldc;
-  enum CBLAS_ORDER order;
+  CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t typeA, typeB;
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   float *A = (float*) calloc(M * K, sizeof(float));
   float *B = (float*) calloc(K * N, sizeof(float));
   float *C = (float*) calloc(M * N, sizeof(float));
@@ -1116,11 +1116,11 @@ TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   long ldb;
   long ldc;
   int batchSize = 32;
-  enum CBLAS_ORDER order;
+  CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t typeA, typeB;
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
   float *A = (float*) calloc(M * K, sizeof(float));
   float *B = (float*) calloc(K * N, sizeof(float));
   float *C = (float*) calloc(M * N * batchSize, sizeof(float));
@@ -1192,11 +1192,11 @@ TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
   long lda;
   long ldb;
   long ldc;
-  enum CBLAS_ORDER order;
+  CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t typeA, typeB;
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
     float alpha[2], beta[2];
     hcComplex cAlpha, cBeta;
     cAlpha.x = 1;
@@ -1292,11 +1292,11 @@ TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   long ldb;
   long ldc;
   int batchSize = 64;
-  enum CBLAS_ORDER order;
+  CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t typeA, typeB;
-  enum CBLAS_TRANSPOSE Transa, Transb;
+  CBLAS_TRANSPOSE Transa, Transb;
     float alpha[2], beta[2];
     hcComplex cAlpha, cBeta;
     cAlpha.x = 1;

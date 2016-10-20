@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     leny =  1 + (N-1) * abs(incY);
     /* CBLAS implementation */
     bool ispassed = 1;
-    enum CBLAS_ORDER order;
+    CBLAS_ORDER order;
     order = CblasColMajor;
     std::vector<hc::accelerator>acc = hc::accelerator::get_all();
     accelerator_view accl_view = (acc[1].get_default_view());
