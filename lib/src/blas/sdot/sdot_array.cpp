@@ -143,7 +143,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
   hc::accelerator accl = accl_view.get_accelerator();
-  float* dev_global_buffer = (float *) hc::am_alloc(sizeof(float) * tile_count, accl, 0);
+  float* dev_global_buffer = (float *) hc::am_alloc(sizeof(float) * batchSize * tile_count, accl, 0);
   // configuration
   hc::extent<2> extent(batchSize, thread_count);
   hc::parallel_for_each(
@@ -230,9 +230,9 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   }).wait();
 
   // create host buffer
-  float* host_global_buffer = (float *)malloc(sizeof(float) * tile_count);
+  float* host_global_buffer = (float *)malloc(sizeof(float) * batchSize * tile_count);
   // Copy device contents back to host
-  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * tile_count);
+  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * batchSize * tile_count);
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
@@ -274,5 +274,3 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const
   dot = sdot_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot, X_batchOffset, Y_batchOffset, batchSize);
   return HCBLAS_SUCCEEDS;
 }
-
-

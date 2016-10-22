@@ -130,7 +130,7 @@ double ddot_HC(hc::accelerator_view &accl_view, long n,
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
   hc::accelerator accl = accl_view.get_accelerator();
-  double* dev_global_buffer = (double *) hc::am_alloc(sizeof(double) * tile_count, accl, 0);
+  double* dev_global_buffer = (double *) hc::am_alloc(sizeof(double) * batchSize * tile_count, accl, 0);
   // configuration
   hc::extent<2> extent(batchSize, thread_count);
   hc::parallel_for_each(
@@ -217,9 +217,9 @@ double ddot_HC(hc::accelerator_view &accl_view, long n,
   }).wait();
 
   // create host buffer
-  double* host_global_buffer = (double* )malloc(sizeof(double) * tile_count);
+  double* host_global_buffer = (double* )malloc(sizeof(double) * batchSize * tile_count);
   // Copy device contents back to host
-  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(double) * tile_count);
+  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(double) * batchSize * tile_count);
 
 // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
