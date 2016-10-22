@@ -18,7 +18,7 @@ double ddot_HC(hc::accelerator_view &accl_view, long n,
   double* dev_global_buffer = (double *) hc::am_alloc(sizeof(double) * tile_count, accl, 0);
   // configuration
   hc::extent<1> extent(thread_count);
-  hc::parallel_for_each(
+  hc::parallel_for_each(accl_view, 
     extent.tile(TILE_SIZE),
   [ = ] (hc::tiled_index<1>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
@@ -133,7 +133,7 @@ double ddot_HC(hc::accelerator_view &accl_view, long n,
   double* dev_global_buffer = (double *) hc::am_alloc(sizeof(double) * batchSize * tile_count, accl, 0);
   // configuration
   hc::extent<2> extent(batchSize, thread_count);
-  hc::parallel_for_each(
+  hc::parallel_for_each(accl_view, 
     extent.tile(1, TILE_SIZE),
   [ = ] (hc::tiled_index<2>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
