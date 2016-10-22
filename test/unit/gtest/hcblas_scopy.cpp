@@ -28,8 +28,8 @@ TEST(hcblas_scopy, return_correct_scopy_Implementation_type_1) {
    for(int i = 0; i < leny; i++){
             Y[i] =  rand() % 15;
    }
-   accl_view.copy(X, devX, lenx * sizeof(float));
-   accl_view.copy(Y, devY, leny * sizeof(float));
+   accl_view.copy_async(X, devX, lenx * sizeof(float));
+   accl_view.copy_async(Y, devY, leny * sizeof(float));
    /* Proper call */
    status = hc.hcblas_scopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -79,11 +79,11 @@ TEST(hcblas_scopy, func_correct_scopy_Implementation_type_1) {
              Y[i] =  rand() % 15;
 	     Ycblas[i] = Y[i];
    }
-   accl_view.copy(X, devX, lenx * sizeof(float));
-   accl_view.copy(Y, devY, leny * sizeof(float));
+   accl_view.copy_async(X, devX, lenx * sizeof(float));
+   accl_view.copy_async(Y, devY, leny * sizeof(float));
    status = hc.hcblas_scopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-   accl_view.copy(devY, Y, leny * sizeof(float));
+   accl_view.copy_async(devY, Y, leny * sizeof(float));
    cblas_scopy( N, X, incX, Ycblas, incY );
    for(int i = 0; i < leny; i++){
            EXPECT_EQ(Y[i], Ycblas[i]);
@@ -123,8 +123,8 @@ TEST(hcblas_scopy, return_correct_scopy_Implementation_type_2) {
    for(int i = 0;i < leny * batchSize;i++){
             Ybatch[i] =  rand() % 15;
    }
-   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
-   accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(float));
+   accl_view.copy_async(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
+   accl_view.copy_async(Ybatch, devYbatch, leny * batchSize * sizeof(float));
    /* Proper call */
    status= hc.hcblas_scopy(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -177,11 +177,11 @@ TEST(hcblas_scopy, func_correct_scopy_Implementation_type_2) {
              Ybatch[i] =  rand() % 15;
 	     Ycblasbatch[i] = Ybatch[i];
    }
-   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
-   accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(float));
+   accl_view.copy_async(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
+   accl_view.copy_async(Ybatch, devYbatch, leny * batchSize * sizeof(float));
    status= hc.hcblas_scopy(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-   accl_view.copy(devYbatch, Ybatch, leny * batchSize * sizeof(float));
+   accl_view.copy_async(devYbatch, Ybatch, leny * batchSize * sizeof(float));
    for(int i = 0; i < batchSize; i++)
              cblas_scopy( N, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
    for(int i =0; i < leny * batchSize; i++){

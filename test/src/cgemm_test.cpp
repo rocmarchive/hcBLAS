@@ -117,11 +117,11 @@ int main(int argc, char* argv[])
             cblas[k++] = c[i].x;
             cblas[k++] = c[i].y;
         }
-        accl_view.copy(a, devA, M * K * sizeof(float_2));
-        accl_view.copy(b, devB, K * N * sizeof(float_2));
-        accl_view.copy(c, devC, M * N * sizeof(float_2));
+        accl_view.copy_async(a, devA, M * K * sizeof(float_2));
+        accl_view.copy_async(b, devB, K * N * sizeof(float_2));
+        accl_view.copy_async(c, devC, M * N * sizeof(float_2));
     	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
-        accl_view.copy(devC, c,  M * N * sizeof(float_2));
+        accl_view.copy_async(devC, c,  M * N * sizeof(float_2));
         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
         for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2){
             if ((c[i].x != cblas[k]) || (c[i].y != cblas[k+1])){
@@ -187,11 +187,11 @@ int main(int argc, char* argv[])
            cbatch[k++] = Cbatch[i].x ;
            cbatch[k++] = Cbatch[i].y;
         } 
-        accl_view.copy(Abatch, devAbatch, M * K * sizeof(float_2));
-        accl_view.copy(Bbatch, devBbatch, K * N * sizeof(float_2));
-        accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(float_2));
+        accl_view.copy_async(Abatch, devAbatch, M * K * sizeof(float_2));
+        accl_view.copy_async(Bbatch, devBbatch, K * N * sizeof(float_2));
+        accl_view.copy_async(Cbatch, devCbatch, M * N * batchSize * sizeof(float_2));
     	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-        accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2)); 
+        accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2)); 
         for(int i = 0; i < batchSize;i++)
 	     cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
         for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){

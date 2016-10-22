@@ -108,16 +108,16 @@ int main(int argc,char* argv[])
             C[i  + cOffset] = rand() % 25;
             C_cblas[i + cOffset] = C[i + cOffset];
         }
-        accl_view.copy(A, devA, (M * K + aOffset)* sizeof(float));
-        accl_view.copy(B, devB, (K * N + bOffset)* sizeof(float));
-        accl_view.copy(C, devC, (M * N + cOffset)* sizeof(float));
+        accl_view.copy_async(A, devA, (M * K + aOffset)* sizeof(float));
+        accl_view.copy_async(B, devB, (K * N + bOffset)* sizeof(float));
+        accl_view.copy_async(C, devC, (M * N + cOffset)* sizeof(float));
         start = std::chrono::high_resolution_clock::now();
         status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
         //accl_view.wait();
         end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> dur = end - start;
         elapsed_pfe.push_back(dur);
-        accl_view.copy(devC, C,  (M * N + cOffset) * sizeof(float));
+        accl_view.copy_async(devC, C,  (M * N + cOffset) * sizeof(float));
 #if 1
         bool result = 0;
         float epsilon = 1.0e-5f;

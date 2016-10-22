@@ -47,9 +47,9 @@ TEST(hcblas_cgemm, return_correct_cgemm_Implementation_type_1) {
                 C[i].y = rand() % 28;
                 C[i] = rand() % 25;
     }
-    accl_view.copy(A, devA, M * K * sizeof(float_2));
-    accl_view.copy(B, devB, K * N * sizeof(float_2));
-    accl_view.copy(C, devC, M * N * sizeof(float_2));
+    accl_view.copy_async(A, devA, M * K * sizeof(float_2));
+    accl_view.copy_async(B, devB, K * N * sizeof(float_2));
+    accl_view.copy_async(C, devC, M * N * sizeof(float_2));
 // NoTransA and NoTransB */           
     typeA = NoTrans;
     typeB = NoTrans;
@@ -189,9 +189,9 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
                 cblas[k++] = C[i].x;
                 cblas[k++] = C[i].y;
     }
-    accl_view.copy(A, devA, M * K * sizeof(float_2));
-    accl_view.copy(B, devB, K * N * sizeof(float_2));
-    accl_view.copy(C, devC, M * N * sizeof(float_2));
+    accl_view.copy_async(A, devA, M * K * sizeof(float_2));
+    accl_view.copy_async(B, devB, K * N * sizeof(float_2));
+    accl_view.copy_async(C, devC, M * N * sizeof(float_2));
 
 // NoTransA and NoTransB */           
     typeA = NoTrans;
@@ -203,7 +203,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0, k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -214,7 +214,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     lda = K; ldb = N ; ldc = N;     
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -231,7 +231,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -250,7 +250,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     beta[1] = cBeta.y;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -267,7 +267,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     beta[1] = cBeta.y;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -286,7 +286,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -305,7 +305,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     beta[1] = cBeta.y;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -323,7 +323,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     beta[1] = cBeta.y;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -348,7 +348,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -359,7 +359,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -376,7 +376,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -388,7 +388,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC, cOffset, ldc);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy(devC, C, M * N * sizeof(float_2));
+    accl_view.copy_async(devC, C, M * N * sizeof(float_2));
     cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
     for(int i = 0,k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
             EXPECT_EQ(C[i].x, cblas[k]);
@@ -452,9 +452,9 @@ TEST(hcblas_cgemm, return_correct_cgemm_Implementation_type_2) {
              Cbatch[i].y = rand() % 28;
    } 
 
-   accl_view.copy(Abatch, devAbatch, M * K * sizeof(float_2));
-   accl_view.copy(Bbatch, devBbatch, K * N * sizeof(float_2));
-   accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(float_2));
+   accl_view.copy_async(Abatch, devAbatch, M * K * sizeof(float_2));
+   accl_view.copy_async(Bbatch, devBbatch, K * N * sizeof(float_2));
+   accl_view.copy_async(Cbatch, devCbatch, M * N * batchSize * sizeof(float_2));
 
    // NoTransA and NoTransB            
     typeA = NoTrans;
@@ -590,9 +590,9 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
         cbatch[k++] = Cbatch[i].x ;
         cbatch[k++] = Cbatch[i].y;
     }
-    accl_view.copy(Abatch,devAbatch, M * K * sizeof(float_2));
-    accl_view.copy(Bbatch, devBbatch, K * N * sizeof(float_2));
-    accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(Abatch,devAbatch, M * K * sizeof(float_2));
+    accl_view.copy_async(Bbatch, devBbatch, K * N * sizeof(float_2));
+    accl_view.copy_async(Cbatch, devCbatch, M * N * batchSize * sizeof(float_2));
     cAlpha.x = 1;
     cAlpha.y = 1;
     cBeta.x = 1;
@@ -611,7 +611,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     // Column major 
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -630,7 +630,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     beta[0] = cBeta.x;
     beta[1] = cBeta.y;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -648,7 +648,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     beta[0] = cBeta.x;
     beta[1] = cBeta.y;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -667,7 +667,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     beta[0] = cBeta.x;
     beta[1] = cBeta.y;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -686,7 +686,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     beta[0] = cBeta.x;
     beta[1] = cBeta.y; 
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -705,7 +705,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     beta[0] = cBeta.x;
     beta[1] = cBeta.y;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -730,7 +730,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     beta[1] = cBeta.y;
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -741,7 +741,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     // Row Major  
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -758,7 +758,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     // Column major
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -769,7 +769,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     // Row Major 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -786,7 +786,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     // Column major 
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_cgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
@@ -797,7 +797,7 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
     // Row Major 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_cgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
+    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2));
     for(int i = 0; i < batchSize;i++)
          cblas_cgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
     for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){

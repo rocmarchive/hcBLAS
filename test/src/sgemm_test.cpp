@@ -100,11 +100,11 @@ int main(int argc,char* argv[])
             C[i] = rand() % 25;
             C_cblas[i] = C[i];
             }
-	    accl_view.copy(A, devA, M * K * sizeof(float));
-	    accl_view.copy(B, devB, K * N * sizeof(float));
-	    accl_view.copy(C, devC, M * N * sizeof(float));
+	    accl_view.copy_async(A, devA, M * K * sizeof(float));
+	    accl_view.copy_async(B, devB, K * N * sizeof(float));
+	    accl_view.copy_async(C, devC, M * N * sizeof(float));
             status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
-	    accl_view.copy(devC, C,  M * N * sizeof(float));
+	    accl_view.copy_async(devC, C,  M * N * sizeof(float));
             cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
             for(int i = 0 ; i < M * N ; i++) { 
                 if( C_cblas[i] != (C[i])) {
@@ -152,11 +152,11 @@ int main(int argc,char* argv[])
                 Cbatch[i] = rand() % 25;
                 CCblasbatch[i] = Cbatch[i];
             }
-	    accl_view.copy(Abatch, devAbatch, M * K * sizeof(float));
-	    accl_view.copy(Bbatch, devBbatch, K * N * sizeof(float));
-	    accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(float));
+	    accl_view.copy_async(Abatch, devAbatch, M * K * sizeof(float));
+	    accl_view.copy_async(Bbatch, devBbatch, K * N * sizeof(float));
+	    accl_view.copy_async(Cbatch, devCbatch, M * N * batchSize * sizeof(float));
             status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);   
-	    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float));
+	    accl_view.copy_async(devCbatch, Cbatch,  M * N * batchSize * sizeof(float));
             for(int i = 0; i < batchSize; i++)
                 cblas_sgemm( order, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N ,ldc );
 

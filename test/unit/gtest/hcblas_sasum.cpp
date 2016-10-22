@@ -20,7 +20,7 @@ TEST(hcblas_sasum, return_correct_sasum_Implementation_type_1) {
    for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
-   accl_view.copy(X, devX, lenx * sizeof(float));
+   accl_view.copy_async(X, devX, lenx * sizeof(float));
    /* Proper call */
    status = hc.hcblas_sasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -57,7 +57,7 @@ TEST(hcblas_sasum, func_correct_sasum_Implementation_type_1) {
    for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
-   accl_view.copy(X, devX, lenx * sizeof(float));
+   accl_view.copy_async(X, devX, lenx * sizeof(float));
    /* Proper call */
    status = hc.hcblas_sasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -85,7 +85,7 @@ TEST(hcblas_sasum, return_correct_sasum_Implementation_type_2) {
    for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;
    }
-   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
+   accl_view.copy_async(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
    /* Proper call */
    status= hc.hcblas_sasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -125,7 +125,7 @@ TEST(hcblas_sasum, func_correct_sasum_Implementation_type_2) {
    for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;
    }
-   accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
+   accl_view.copy_async(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
    /* Proper call */
    status= hc.hcblas_sasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas, X_batchOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);

@@ -49,8 +49,8 @@ int main(int argc, char** argv)
         for(int i = 0;i < leny;i++){
              Y[i] = rand() % 15;
         }
-        accl_view.copy(X, devX, lenx * sizeof(float));
-        accl_view.copy(Y, devY, leny * sizeof(float));
+        accl_view.copy_async(X, devX, lenx * sizeof(float));
+        accl_view.copy_async(Y, devY, leny * sizeof(float));
         status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
         dotcblas = cblas_sdot( N, X, incX, Y, incY);
         if (dothcblas != dotcblas){
@@ -78,8 +78,8 @@ int main(int argc, char** argv)
         for(int i = 0;i < leny * batchSize;i++){
             Ybatch[i] =  rand() % 15;
         }
-        accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
-        accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(float));
+        accl_view.copy_async(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
+        accl_view.copy_async(Ybatch, devYbatch, leny * batchSize * sizeof(float));
         status= hc.hcblas_sdot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
         for(int i = 0; i < batchSize; i++){
         	dotcblastemp[i] = cblas_sdot( N, Xbatch + i * N, incX, Ybatch + i * N, incY);
