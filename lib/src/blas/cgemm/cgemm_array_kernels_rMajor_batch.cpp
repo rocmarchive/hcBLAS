@@ -1,7 +1,7 @@
 #include "cgemm_array_kernels.h"
 #include "hc_math.hpp"
 using namespace hc::fast_math;
-hcblasStatus cgemm_TransAB_rMajor_batch_loopunroll(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_TransAB_rMajor_batch_loopunroll(hc::accelerator_view accl_view,
 					           float_2 *A, long aOffset, long A_batchOffset,
 					           float_2 *B, long bOffset, long B_batchOffset,
 					           float_2 *C, long cOffset, long C_batchOffset,
@@ -96,7 +96,7 @@ hcblasStatus cgemm_TransAB_rMajor_batch_loopunroll(hc::accelerator_view &accl_vi
 }
 
 
-hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 						        float_2 *A, long aOffset, long A_batchOffset,
 						        float_2 *B, long bOffset, long B_batchOffset,
 						        float_2 *C, long cOffset, long C_batchOffset,
@@ -194,7 +194,7 @@ hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &ac
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_TransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_TransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 						     float_2 *A, long aOffset, long A_batchOffset,
 						     float_2 *B, long bOffset, long B_batchOffset,
 						     float_2 *C, long cOffset, long C_batchOffset,
@@ -291,7 +291,7 @@ hcblasStatus cgemm_TransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl_
 
 
 
-hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS8XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS8XMTS2(hc::accelerator_view accl_view,
 						       float_2 *A, long aOffset, long A_batchOffset,
 						       float_2 *B, long bOffset, long B_batchOffset,
 						       float_2 *C, long cOffset, long C_batchOffset,
@@ -389,7 +389,7 @@ hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS8XMTS2(hc::accelerator_view &acc
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 						         float_2 *A, long aOffset, long A_batchOffset,
 						         float_2 *B, long bOffset, long B_batchOffset,
 						         float_2 *C, long cOffset, long C_batchOffset,
@@ -487,7 +487,7 @@ hcblasStatus cgemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &a
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_NoTransA_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransA_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 						      float_2 *A, long aOffset, long A_batchOffset,
 						      float_2 *B, long bOffset, long B_batchOffset,
 						      float_2 *C, long cOffset, long C_batchOffset,
@@ -577,7 +577,7 @@ hcblasStatus cgemm_NoTransA_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 						         float_2 *A, long aOffset, long A_batchOffset,
 						         float_2 *B, long bOffset, long B_batchOffset,
 						         float_2 *C, long cOffset, long C_batchOffset,
@@ -676,7 +676,7 @@ hcblasStatus cgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &a
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_NoTransA_rMajor_batch_loopunroll(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransA_rMajor_batch_loopunroll(hc::accelerator_view accl_view,
 						    float_2 *A, long aOffset, long A_batchOffset,
 						    float_2 *B, long bOffset, long B_batchOffset,
 						    float_2 *C, long cOffset, long C_batchOffset,
@@ -770,7 +770,7 @@ hcblasStatus cgemm_NoTransA_rMajor_batch_loopunroll(hc::accelerator_view &accl_v
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 						       float_2 *A, long aOffset, long A_batchOffset,
 						       float_2 *B, long bOffset, long B_batchOffset,
 						       float_2 *C, long cOffset, long C_batchOffset,
@@ -857,7 +857,7 @@ hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &acc
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS16XSS16(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS16XSS16(hc::accelerator_view accl_view,
 						         float_2 *A, long aOffset, long A_batchOffset,
 						         float_2 *B, long bOffset, long B_batchOffset,
 						         float_2 *C, long cOffset, long C_batchOffset,
@@ -944,7 +944,7 @@ hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS16XSS16(hc::accelerator_view &a
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 						          float_2 *A, long aOffset, long A_batchOffset,
 						          float_2 *B, long bOffset, long B_batchOffset,
 						          float_2 *C, long cOffset, long C_batchOffset,
@@ -1042,7 +1042,7 @@ hcblasStatus cgemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_TransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_TransAB_rMajor(hc::accelerator_view accl_view,
                                   float_2 *A, long aOffset, long A_batchOffset,
                                   float_2 *B, long bOffset, long B_batchOffset,
                                   float_2 *C, long cOffset, long C_batchOffset,
@@ -1061,7 +1061,7 @@ hcblasStatus cgemm_TransAB_rMajor(hc::accelerator_view &accl_view,
   }
 }
 
-hcblasStatus cgemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransB_rMajor(hc::accelerator_view accl_view,
                                    float_2 *A, long aOffset, long A_batchOffset,
                                    float_2 *B, long bOffset, long B_batchOffset,
                                    float_2 *C, long cOffset, long C_batchOffset,
@@ -1073,7 +1073,7 @@ hcblasStatus cgemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
   //}
 }
 
-hcblasStatus cgemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransA_rMajor(hc::accelerator_view accl_view,
                                    float_2 *A, long aOffset, long A_batchOffset,
                                    float_2 *B, long bOffset, long B_batchOffset,
                                    float_2 *C, long cOffset, long C_batchOffset,
@@ -1090,7 +1090,7 @@ hcblasStatus cgemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
   }
 }
 
-hcblasStatus cgemm_NoTransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransAB_rMajor(hc::accelerator_view accl_view,
                                     float_2 *A, long aOffset, long A_batchOffset,
                                     float_2 *B, long bOffset, long B_batchOffset,
                                     float_2 *C, long cOffset, long C_batchOffset,

@@ -1,6 +1,6 @@
 #include "zgemm_array_kernels.h"
 
-hcblasStatus zgemm_alpha0_col(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_alpha0_col(hc::accelerator_view accl_view,
                               double_2 *A, long aOffset,
                               double_2 *B, long bOffset,
                               double_2 *C, long cOffset,
@@ -37,7 +37,7 @@ hcblasStatus zgemm_alpha0_col(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_alpha0_colbatch(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_alpha0_colbatch(hc::accelerator_view accl_view,
                                    double_2 *A, long aOffset, long A_batchOffset,
                                    double_2 *B, long bOffset, long B_batchOffset,
                                    double_2 *C, long cOffset, long C_batchOffset,
@@ -75,7 +75,7 @@ hcblasStatus zgemm_alpha0_colbatch(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_alpha0_row(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_alpha0_row(hc::accelerator_view accl_view,
                               double_2 *A, long aOffset,
                               double_2 *B, long bOffset,
                               double_2 *C, long cOffset,
@@ -112,7 +112,7 @@ hcblasStatus zgemm_alpha0_row(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_alpha0_rowbatch(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_alpha0_rowbatch(hc::accelerator_view accl_view,
                                    double_2 *A, long aOffset, long A_batchOffset,
                                    double_2 *B, long bOffset, long B_batchOffset,
                                    double_2 *C, long cOffset, long C_batchOffset,
@@ -151,7 +151,7 @@ hcblasStatus zgemm_alpha0_rowbatch(hc::accelerator_view &accl_view,
 }
 
 // ZGEMM Call Type I: Inputs and outputs are C++ HC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_zgemm(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_zgemm(hc::accelerator_view accl_view,
 				           hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,
@@ -206,7 +206,7 @@ hcblasStatus Hcblaslibrary :: hcblas_zgemm(hc::accelerator_view &accl_view,
 }
 
 /* ZGEMM Call Type II - Overloaded function with arguments related to batch processing */
-hcblasStatus Hcblaslibrary :: hcblas_zgemm(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_zgemm(hc::accelerator_view accl_view,
 					   hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,

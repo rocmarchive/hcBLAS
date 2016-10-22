@@ -1,6 +1,6 @@
 #include "cgemm_array_kernels.h"
 
-hcblasStatus cgemm_alpha0_col(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_alpha0_col(hc::accelerator_view accl_view,
                               float_2 *A, long aOffset,
                               float_2 *B, long bOffset,
                               float_2 *C, long cOffset,
@@ -37,7 +37,7 @@ hcblasStatus cgemm_alpha0_col(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_alpha0_colbatch(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_alpha0_colbatch(hc::accelerator_view accl_view,
                                    float_2 *A, long aOffset, long A_batchOffset,
                                    float_2 *B, long bOffset, long B_batchOffset,
                                    float_2 *C, long cOffset, long C_batchOffset,
@@ -75,7 +75,7 @@ hcblasStatus cgemm_alpha0_colbatch(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_alpha0_row(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_alpha0_row(hc::accelerator_view accl_view,
                               float_2 *A, long aOffset,
                               float_2 *B, long bOffset,
                               float_2 *C, long cOffset,
@@ -112,7 +112,7 @@ hcblasStatus cgemm_alpha0_row(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus cgemm_alpha0_rowbatch(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_alpha0_rowbatch(hc::accelerator_view accl_view,
                                    float_2 *A, long aOffset, long A_batchOffset,
                                    float_2 *B, long bOffset, long B_batchOffset,
                                    float_2 *C, long cOffset, long C_batchOffset,
@@ -151,7 +151,7 @@ hcblasStatus cgemm_alpha0_rowbatch(hc::accelerator_view &accl_view,
 }
 
 // CGEMM Call Type I: Inputs and outputs are C++ HC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view accl_view,
 				           hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,
@@ -206,7 +206,7 @@ hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
 }
 
 /* CGEMM Call Type II - Overloaded function with arguments related to batch processing */
-hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_cgemm(hc::accelerator_view accl_view,
 					   hcblasOrder order, hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K,

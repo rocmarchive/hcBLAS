@@ -64,28 +64,28 @@ using namespace hc::short_vector;
 /* 
 *  CGEMM kernels - column major Order
 */
-hcblasStatus cgemm_NoTransAB(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransAB(hc::accelerator_view accl_view,
 		             float_2 *A, long aOffset,
                              float_2 *B, long bOffset,
                              float_2 *C, long cOffset,
                              int M, int N, int K, int lda, int ldb, int ldc,
                              float_2 alpha, float_2 beta);
 
-hcblasStatus cgemm_NoTransA(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransA(hc::accelerator_view accl_view,
 		            float_2 *A, long aOffset,
                             float_2 *B, long bOffset,
                             float_2 *C, long cOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float_2 alpha, float_2 beta);
 
-hcblasStatus cgemm_NoTransB(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransB(hc::accelerator_view accl_view,
 		            float_2 *A, long aOffset,
                             float_2 *B, long bOffset,
                             float_2 *C, long cOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float_2 alpha, float_2 beta);
 
-hcblasStatus cgemm_TransAB(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_TransAB(hc::accelerator_view accl_view,
 		           float_2 *A, long aOffset,
                            float_2 *B, long bOffset,
                            float_2 *C, long cOffset,
@@ -97,28 +97,28 @@ hcblasStatus cgemm_TransAB(hc::accelerator_view &accl_view,
 * CGEMM Kernels for Batch processing in column major order
 */
 
-hcblasStatus cgemm_NoTransAB(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransAB(hc::accelerator_view accl_view,
 		             float_2 *A, long aOffset, long A_batchOffset,
                              float_2 *B, long bOffset, long B_batchOffset,
                              float_2 *C, long cOffset, long C_batchOffset,
                              int M, int N, int K, int lda, int ldb, int ldc,
                              float_2 alpha, float_2 beta, int batchSize);
 
-hcblasStatus cgemm_NoTransA(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransA(hc::accelerator_view accl_view,
 		            float_2 *A, long aOffset, long A_batchOffset,
                             float_2 *B, long bOffset, long B_batchOffset,
                             float_2 *C, long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float_2 alpha, float_2 beta, int batchSize);
 
-hcblasStatus cgemm_NoTransB(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransB(hc::accelerator_view accl_view,
 		            float_2 *A, long aOffset, long A_batchOffset,
                             float_2 *B, long bOffset, long B_batchOffset,
                             float_2 *C, long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float_2 alpha, float_2 beta, int batchSize);
 
-hcblasStatus cgemm_TransAB(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_TransAB(hc::accelerator_view accl_view,
 		           float_2 *A, long aOffset, long A_batchOffset,
                            float_2 *B, long bOffset, long B_batchOffset,
                            float_2 *C, long cOffset, long C_batchOffset,
@@ -130,28 +130,28 @@ hcblasStatus cgemm_TransAB(hc::accelerator_view &accl_view,
 * CGEMM Kernels - Row major order
 */
 
-hcblasStatus cgemm_NoTransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransAB_rMajor(hc::accelerator_view accl_view,
                                     float_2 *A, long aOffset,
                                     float_2 *B, long bOffset,
                                     float_2 *C, long cOffset,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float_2 alpha, float_2 beta);
 
-hcblasStatus cgemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransA_rMajor(hc::accelerator_view accl_view,
                                    float_2 *A, long aOffset,
                                    float_2 *B, long bOffset,
                                    float_2 *C, long cOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float_2 alpha, float_2 beta);
 
-hcblasStatus cgemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransB_rMajor(hc::accelerator_view accl_view,
                                    float_2 *A, long aOffset,
                                    float_2 *B, long bOffset,
                                    float_2 *C, long cOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float_2 alpha, float_2 beta);
 
-hcblasStatus cgemm_TransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_TransAB_rMajor(hc::accelerator_view accl_view,
                                   float_2 *A, long aOffset,
                                   float_2 *B, long bOffset,
                                   float_2 *C, long cOffset,
@@ -163,28 +163,28 @@ hcblasStatus cgemm_TransAB_rMajor(hc::accelerator_view &accl_view,
 * CGEMM Kernels for Batch-processing in Row major order
 */
 
-hcblasStatus cgemm_NoTransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransAB_rMajor(hc::accelerator_view accl_view,
                                     float_2 *A, long aOffset, long A_batchOffset,
                                     float_2 *B, long bOffset, long B_batchOffset,
                                     float_2 *C, long cOffset, long C_batchOffset,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     float_2 alpha, float_2 beta, int batchSize);
 
-hcblasStatus cgemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransA_rMajor(hc::accelerator_view accl_view,
                                    float_2 *A, long aOffset, long A_batchOffset,
                                    float_2 *B, long bOffset, long B_batchOffset,
                                    float_2 *C, long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float_2 alpha, float_2 beta, int batchSize);
 
-hcblasStatus cgemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_NoTransB_rMajor(hc::accelerator_view accl_view,
                                    float_2 *A, long aOffset, long A_batchOffset,
                                    float_2 *B, long bOffset, long B_batchOffset,
                                    float_2 *C, long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float_2 alpha, float_2 beta, int batchSize);
 
-hcblasStatus cgemm_TransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus cgemm_TransAB_rMajor(hc::accelerator_view accl_view,
                                   float_2 *A, long aOffset, long A_batchOffset,
                                   float_2 *B, long bOffset, long B_batchOffset,
                                   float_2 *C, long cOffset, long C_batchOffset,

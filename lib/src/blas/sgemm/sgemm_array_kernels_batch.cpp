@@ -2,7 +2,7 @@
 #include "hc_math.hpp"
 using namespace hc::fast_math;
 
-hcblasStatus gemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					       float *A, long aOffset, long A_batchOffset,
 					       float *B, long bOffset, long B_batchOffset,
 					       float *C, long cOffset, long C_batchOffset,
@@ -76,7 +76,7 @@ hcblasStatus gemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransAB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
         					   float *A, long aOffset, long A_batchOffset,
 					           float *B, long bOffset, long B_batchOffset,
 					           float *C, long cOffset, long C_batchOffset,
@@ -148,7 +148,7 @@ hcblasStatus gemm_NoTransAB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &accl_vi
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransAB_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_view,
 						      float *A, long aOffset, long A_batchOffset,
 						      float *B, long bOffset, long B_batchOffset,
 						      float *C, long cOffset, long C_batchOffset,
@@ -230,7 +230,7 @@ hcblasStatus gemm_NoTransAB_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view &accl
 }
 
 
-hcblasStatus gemm_NoTransAB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
 						     float *A, long aOffset, long A_batchOffset,
 						     float *B, long bOffset, long B_batchOffset,
 						     float *C, long cOffset, long C_batchOffset,
@@ -302,7 +302,7 @@ hcblasStatus gemm_NoTransAB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view &accl_
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					          float *A, long aOffset, long A_batchOffset,
 					          float *B, long bOffset, long B_batchOffset,
 					          float *C, long cOffset, long C_batchOffset,
@@ -376,7 +376,7 @@ hcblasStatus gemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_vie
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_batch_STEP_NBK_TS16XSS16(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_batch_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
 						    float *A, long aOffset, long A_batchOffset,
 						    float *B, long bOffset, long B_batchOffset,
 						    float *C, long cOffset, long C_batchOffset,
@@ -456,7 +456,7 @@ hcblasStatus gemm_NoTransA_batch_STEP_NBK_TS16XSS16(hc::accelerator_view &accl_v
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					      float *A, long aOffset, long A_batchOffset,
 					      float *B, long bOffset, long B_batchOffset,
 					      float *C, long cOffset, long C_batchOffset,
@@ -526,7 +526,7 @@ hcblasStatus gemm_NoTransA_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_batch_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
 					          float *A, long aOffset, long A_batchOffset,
 					          float *B, long bOffset, long B_batchOffset,
 				                  float *C, long cOffset, long C_batchOffset,
@@ -606,7 +606,7 @@ hcblasStatus gemm_NoTransA_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &accl_vie
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_batch_STEP_TS16XSS16(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_batch_STEP_TS16XSS16(hc::accelerator_view accl_view,
 					        float *A, long aOffset, long A_batchOffset,
 					        float *B, long bOffset, long B_batchOffset,
 				                float *C, long cOffset, long C_batchOffset,
@@ -676,7 +676,7 @@ hcblasStatus gemm_NoTransA_batch_STEP_TS16XSS16(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_view,
 						     float *A, long aOffset, long A_batchOffset,
 						     float *B, long bOffset, long B_batchOffset,
 						     float *C, long cOffset, long C_batchOffset,
@@ -757,7 +757,7 @@ hcblasStatus gemm_NoTransA_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view &accl_
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					         float *A, long aOffset, long A_batchOffset,
 					         float *B, long bOffset, long B_batchOffset,
 					         float *C, long cOffset, long C_batchOffset,
@@ -831,7 +831,7 @@ hcblasStatus gemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
 					          float *A, long aOffset, long A_batchOffset,
 					          float *B, long bOffset, long B_batchOffset,
 					          float *C, long cOffset, long C_batchOffset,
@@ -912,7 +912,7 @@ hcblasStatus gemm_NoTransB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &accl_vie
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					      float *A, long aOffset, long A_batchOffset,
 					      float *B, long bOffset, long B_batchOffset,
 					      float *C, long cOffset, long C_batchOffset,
@@ -982,7 +982,7 @@ hcblasStatus gemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
 						    float *A, long aOffset, long A_batchOffset,
 						    float *B, long bOffset, long B_batchOffset,
 						    float *C, long cOffset, long C_batchOffset,
@@ -1063,7 +1063,7 @@ hcblasStatus gemm_NoTransB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view &accl_v
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransB_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_view,
 						     float *A, long aOffset, long A_batchOffset,
 						     float *B, long bOffset, long B_batchOffset,
 						     float *C, long cOffset, long C_batchOffset,
@@ -1145,7 +1145,7 @@ hcblasStatus gemm_NoTransB_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view &accl_
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					         float *A, long aOffset, long A_batchOffset,
 					         float *B, long bOffset, long B_batchOffset,
 					         float *C, long cOffset, long C_batchOffset,
@@ -1219,7 +1219,7 @@ hcblasStatus gemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_TransAB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
 					         float *A, long aOffset, long A_batchOffset,
 					         float *B, long bOffset, long B_batchOffset,
 					         float *C, long cOffset, long C_batchOffset,
@@ -1288,7 +1288,7 @@ hcblasStatus gemm_TransAB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view &accl_view
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_TransAB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
 					           float *A, long aOffset, long A_batchOffset,
 					           float *B, long bOffset, long B_batchOffset,
 					           float *C, long cOffset, long C_batchOffset,
@@ -1357,7 +1357,7 @@ hcblasStatus gemm_TransAB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view &accl_vi
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					        float *A, long aOffset, long A_batchOffset,
 					        float *B, long bOffset, long B_batchOffset,
 						float *C, long cOffset, long C_batchOffset,
@@ -1431,7 +1431,7 @@ hcblasStatus gemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransAB_batch_largeM(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_batch_largeM(hc::accelerator_view accl_view,
 				         float *A, long aOffset, long A_batchOffset,
 				         float *B, long bOffset, long B_batchOffset,
 				         float *C, long cOffset, long C_batchOffset,
@@ -1511,7 +1511,7 @@ hcblasStatus gemm_NoTransAB_batch_largeM(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_batch_largeM(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_batch_largeM(hc::accelerator_view accl_view,
                                         float *A, long aOffset, long A_batchOffset,
                                         float *B, long bOffset, long B_batchOffset,
                                         float *C, long cOffset, long C_batchOffset,
@@ -1595,7 +1595,7 @@ hcblasStatus gemm_NoTransA_batch_largeM(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransB_batch_largeM(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_batch_largeM(hc::accelerator_view accl_view,
                                         float *A, long aOffset, long A_batchOffset,
                                         float *B, long bOffset, long B_batchOffset,
                                         float *C, long cOffset, long C_batchOffset,
@@ -1675,7 +1675,7 @@ hcblasStatus gemm_NoTransB_batch_largeM(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransAB(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB(hc::accelerator_view accl_view,
                             float *A, long aOffset, long A_batchOffset,
                             float *B, long bOffset, long B_batchOffset,
                             float *C, long cOffset, long C_batchOffset,
@@ -1701,7 +1701,7 @@ hcblasStatus gemm_NoTransAB(hc::accelerator_view &accl_view,
 
 
 
-hcblasStatus gemm_NoTransA(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA(hc::accelerator_view accl_view,
                            float *A, long aOffset, long A_batchOffset,
                            float *B, long bOffset, long B_batchOffset,
                            float *C, long cOffset, long C_batchOffset,
@@ -1728,7 +1728,7 @@ hcblasStatus gemm_NoTransA(hc::accelerator_view &accl_view,
 
 
 
-hcblasStatus gemm_NoTransB(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB(hc::accelerator_view accl_view,
                            float *A, long aOffset, long A_batchOffset,
                            float *B, long bOffset, long B_batchOffset,
                            float *C, long cOffset, long C_batchOffset,
@@ -1749,7 +1749,7 @@ hcblasStatus gemm_NoTransB(hc::accelerator_view &accl_view,
   }
 }
 
-hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB(hc::accelerator_view accl_view,
                           float *A, long aOffset, long A_batchOffset,
                           float *B, long bOffset, long B_batchOffset,
                           float *C, long cOffset, long C_batchOffset,

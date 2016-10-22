@@ -6,7 +6,7 @@
 using namespace hc::fast_math;
 using namespace hc;
 
-void dasum_HC(hc::accelerator_view &accl_view,
+void dasum_HC(hc::accelerator_view accl_view,
                 long n, double *xView, long incx, long xOffset, double *Y) {
   *Y = 0.0;
   // runtime sizes
@@ -117,7 +117,7 @@ void dasum_HC(hc::accelerator_view &accl_view,
 
 }
 
-void dasum_HC(hc::accelerator_view &accl_view,
+void dasum_HC(hc::accelerator_view accl_view,
                 long n, double *xView, long incx, long xOffset, double *Y,
                 long X_batchOffset, int batchSize) {
   *Y = 0.0;
@@ -229,7 +229,7 @@ void dasum_HC(hc::accelerator_view &accl_view,
 }
 
 // DASUM Call Type I: Inputs and outputs are HCC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_dasum(hc::accelerator_view &accl_view, const int N,
+hcblasStatus Hcblaslibrary :: hcblas_dasum(hc::accelerator_view accl_view, const int N,
 				           double *X, const int incX,
 				           const long xOffset, double *Y) {
   /*Check the conditions*/
@@ -242,7 +242,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dasum(hc::accelerator_view &accl_view, cons
 }
 
 // DASUM Type II - Overloaded function with arguments related to batch processing
-hcblasStatus Hcblaslibrary :: hcblas_dasum(hc::accelerator_view &accl_view, const int N,
+hcblasStatus Hcblaslibrary :: hcblas_dasum(hc::accelerator_view accl_view, const int N,
 				           double *X, const int incX,
 				           const long xOffset, double *Y, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/

@@ -2,7 +2,7 @@
 #include <cmath>
 #include "hc_math.hpp"
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
@@ -78,7 +78,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
@@ -679,7 +679,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS4_MB2(hc::accelera
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
@@ -770,7 +770,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_vi
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_view accl_view,
                                                const float *A, long aOffset,
                                                const float *B, long bOffset,
                                                float *C, long cOffset,
@@ -887,7 +887,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_vi
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
@@ -999,7 +999,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view &accl_
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
@@ -1156,7 +1156,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view &accl_
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_view,
                                                const float *A, long aOffset,
                                                const float *B, long bOffset,
                                                float *C, long cOffset,

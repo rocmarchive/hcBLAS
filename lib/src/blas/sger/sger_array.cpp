@@ -4,7 +4,7 @@
 using namespace hc::fast_math;
 using namespace hc;
 
-void ger_HC(hc::accelerator_view &accl_view,
+void ger_HC(hc::accelerator_view accl_view,
             long m, long n, float alpha,
             const float *x, long xOffset, long incx,
             const float *y, long yOffset, long incy,
@@ -24,7 +24,7 @@ void ger_HC(hc::accelerator_view &accl_view,
   });
 }
 
-void ger_HC(hc::accelerator_view &accl_view,
+void ger_HC(hc::accelerator_view accl_view,
             long m, long n, float alpha,
             const float *x,
             long xOffset, long X_batchOffset, long incx,
@@ -48,7 +48,7 @@ void ger_HC(hc::accelerator_view &accl_view,
   });
 }
 
-void ger_HC_rMajor(hc::accelerator_view &accl_view,
+void ger_HC_rMajor(hc::accelerator_view accl_view,
                    long m, long n, float alpha,
                    const float *x, long xOffset, long incx,
                    const float *y, long yOffset, long incy,
@@ -68,7 +68,7 @@ void ger_HC_rMajor(hc::accelerator_view &accl_view,
   });
 }
 
-void ger_HC_rMajor(hc::accelerator_view &accl_view,
+void ger_HC_rMajor(hc::accelerator_view accl_view,
                    long m, long n, float alpha,
                    const float *x,
                    long xOffset, long X_batchOffset, long incx,
@@ -93,7 +93,7 @@ void ger_HC_rMajor(hc::accelerator_view &accl_view,
 }
 
 /* SGER - Type I : Inputs and outputs are float array containers */
-hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
+hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view accl_view, hcblasOrder order,
 				         const int M, const int N, const float &alpha,
 				         const float *X, const long xOffset, const int incX,
 				         const float *Y, const long yOffset, const int incY,
@@ -117,7 +117,7 @@ hcblasStatus Hcblaslibrary ::hcblas_sger(hc::accelerator_view &accl_view, hcblas
 }
 
 /* SGER - Type II : Inputs and outputs are float array containers with batch processing */
-hcblasStatus Hcblaslibrary :: hcblas_sger(hc::accelerator_view &accl_view, hcblasOrder order,
+hcblasStatus Hcblaslibrary :: hcblas_sger(hc::accelerator_view accl_view, hcblasOrder order,
 				          const int M, const int N, const float &alpha,
 				          const float *X,
 				          const long xOffset, const long X_batchOffset, const int incX,

@@ -1,7 +1,7 @@
 #include "zgemm_array_kernels.h"
 #include "hc_math.hpp"
 using namespace hc::fast_math;
-hcblasStatus zgemm_NoTransAB_loopunroll(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransAB_loopunroll(hc::accelerator_view accl_view,
                                         double_2 *A, long aOffset,
                                         double_2 *B, long bOffset,
                                         double_2 *C, long cOffset,
@@ -95,7 +95,7 @@ hcblasStatus zgemm_NoTransAB_loopunroll(hc::accelerator_view &accl_view,
 }
 
 
-hcblasStatus zgemm_NoTransAB_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransAB_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					     double_2 *A, long aOffset,
 					     double_2 *B, long bOffset,
 					     double_2 *C, long cOffset,
@@ -193,7 +193,7 @@ hcblasStatus zgemm_NoTransAB_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransAB_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransAB_STEP_TS8XSS8(hc::accelerator_view accl_view,
 				          double_2 *A, long aOffset,
 				          double_2 *B, long bOffset,
 				          double_2 *C, long cOffset,
@@ -288,7 +288,7 @@ hcblasStatus zgemm_NoTransAB_STEP_TS8XSS8(hc::accelerator_view &accl_view,
 }
 
 
-hcblasStatus zgemm_NoTransAB_MICRO_TS8XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransAB_MICRO_TS8XMTS2(hc::accelerator_view accl_view,
 					    double_2 *A, long aOffset,
 					    double_2 *B, long bOffset,
 					    double_2 *C, long cOffset,
@@ -387,7 +387,7 @@ hcblasStatus zgemm_NoTransAB_MICRO_TS8XMTS2(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransA_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransA_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					    double_2 *A, long aOffset,
 					    double_2 *B, long bOffset,
 					    double_2 *C, long cOffset,
@@ -486,7 +486,7 @@ hcblasStatus zgemm_NoTransA_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransB_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransB_STEP_TS8XSS8(hc::accelerator_view accl_view,
 				         double_2 *A, long aOffset,
 				         double_2 *B, long bOffset,
 				         double_2 *C, long cOffset,
@@ -575,7 +575,7 @@ hcblasStatus zgemm_NoTransB_STEP_TS8XSS8(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransB_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransB_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 				            double_2 *A, long aOffset,
 				            double_2 *B, long bOffset,
 					    double_2 *C, long cOffset,
@@ -675,7 +675,7 @@ hcblasStatus zgemm_NoTransB_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransB_loopunroll(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransB_loopunroll(hc::accelerator_view accl_view,
                                        double_2 *A, long aOffset,
                                        double_2 *B, long bOffset,
                                        double_2 *C, long cOffset,
@@ -768,7 +768,7 @@ hcblasStatus zgemm_NoTransB_loopunroll(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_TransAB_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_TransAB_STEP_TS8XSS8(hc::accelerator_view accl_view,
                                         double_2 *A, long aOffset,
                                         double_2 *B, long bOffset,
                                         double_2 *C, long cOffset,
@@ -854,7 +854,7 @@ hcblasStatus zgemm_TransAB_STEP_TS8XSS8(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_TransAB_STEP_TS16XSS16(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_TransAB_STEP_TS16XSS16(hc::accelerator_view accl_view,
 				          double_2 *A, long aOffset,
 				          double_2 *B, long bOffset,
 				          double_2 *C, long cOffset,
@@ -940,7 +940,7 @@ hcblasStatus zgemm_TransAB_STEP_TS16XSS16(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_TransAB_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_TransAB_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 				           double_2 *A, long aOffset,
 				           double_2 *B, long bOffset,
 				           double_2 *C, long cOffset,
@@ -1039,7 +1039,7 @@ hcblasStatus zgemm_TransAB_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransAB(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransAB(hc::accelerator_view accl_view,
                              double_2 *A, long aOffset,
                              double_2 *B, long bOffset,
                              double_2 *C, long cOffset,
@@ -1058,7 +1058,7 @@ hcblasStatus zgemm_NoTransAB(hc::accelerator_view &accl_view,
   }
 }
 
-hcblasStatus zgemm_NoTransA(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransA(hc::accelerator_view accl_view,
                             double_2 *A, long aOffset,
                             double_2 *B, long bOffset,
                             double_2 *C, long cOffset,
@@ -1070,7 +1070,7 @@ hcblasStatus zgemm_NoTransA(hc::accelerator_view &accl_view,
   //}
 }
 
-hcblasStatus zgemm_NoTransB(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransB(hc::accelerator_view accl_view,
                             double_2 *A, long aOffset,
                             double_2 *B, long bOffset,
                             double_2 *C, long cOffset,
@@ -1087,7 +1087,7 @@ hcblasStatus zgemm_NoTransB(hc::accelerator_view &accl_view,
   }
 }
 
-hcblasStatus zgemm_TransAB(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_TransAB(hc::accelerator_view accl_view,
                            double_2 *A, long aOffset,
                            double_2 *B, long bOffset,
                            double_2 *C, long cOffset,

@@ -2,7 +2,7 @@
 #include <cmath>
 #include "hc_math.hpp"
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_view accl_view,
 					       const double *A, long aOffset,
 					       const double *B, long bOffset,
 					       double *C, long cOffset,
@@ -93,7 +93,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_vi
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_view accl_view,
                                                const double *A, long aOffset,
                                                const double *B, long bOffset,
                                                double *C, long cOffset,
@@ -210,7 +210,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_vi
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_view,
 					       const double *A, long aOffset,
 					       const double *B, long bOffset,
 					       double *C, long cOffset,
@@ -322,7 +322,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view &accl_
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_view,
 					       const double *A, long aOffset,
 					       const double *B, long bOffset,
 					       double *C, long cOffset,
@@ -479,7 +479,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view &accl_
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_view,
                                                const double *A, long aOffset,
                                                const double *B, long bOffset,
                                                double *C, long cOffset,
