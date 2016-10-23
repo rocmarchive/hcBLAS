@@ -23,7 +23,7 @@ float sgemmCompareL2fe(const float *reference, const float *data,
     // Compute the difference vector with respect to reference data
     std::transform(refVec.begin(), refVec.end(), dataVec.begin(), diffVec.begin(), std::minus<float>());
     // Compute the square of the difference element wise
-    std::transform(diffVec.begin(), diffVec.end(), diffVec.begin(), diffVec.begin(), multiplies<float>());
+    std::transform(diffVec.begin(), diffVec.end(), diffVec.begin(), diffVec.begin(), std::multiplies<float>());
     error = std::inner_product(diffVec.begin(), diffVec.end(), diffVec.begin(), error);
     ref = std::inner_product(refVec.begin(), refVec.end(), refVec.begin(), ref);
     float normRef = sqrtf(ref);

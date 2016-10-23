@@ -1,9 +1,9 @@
 #include <iostream>
+#include "../include/helper_functions.h"
 #include "hcblaslib.h"
 #include <cstdlib>
 #include "cblas.h"
 #include "hc_am.hpp"
-#include "helper_functions.h"
 #include <chrono>
 #include <vector>
 #include <thread>
