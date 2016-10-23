@@ -1,6 +1,6 @@
 #include "hcblaslib.h"
 #include <cstdlib>
-#include "../../src/helper_functions.h"
+#include "../src/helper_functions.h"
 #include "gtest/gtest.h"
 #include "hc_am.hpp"
 #include "cblas.h"
