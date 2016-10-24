@@ -17,10 +17,10 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
   hc::accelerator accl = accl_view.get_accelerator();
-  float* dev_global_buffer = (float *) hc::am_alloc(sizeof(float) * tile_count, accl, 1);
+  float* dev_global_buffer = (float *) hc::am_alloc(sizeof(float) * tile_count, accl, 0);
   // configuration
   hc::extent<1> extent(thread_count);
-  hc::parallel_for_each(
+  hc::parallel_for_each(accl_view, 
     extent.tile(TILE_SIZE),
   [ = ] (hc::tiled_index<1>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
@@ -106,19 +106,27 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
     }
   }).wait();
 
+  // create host buffer
+  float* host_global_buffer = (float *)malloc(sizeof(float) * tile_count);
+  // Copy device contents back to host
+  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * tile_count);
+
   // 2nd pass reduction
   // Check if the residual is capable of occupying 50% of compute units
   // Assumption : The target architecture has 40 compute units
   if (tile_count < TILE_SIZE * 20) {
     for(int i = 0; i < tile_count; i++) {
       out = (isnan(out) || isinf(out)) ? 0 : out;
-      out += dev_global_buffer[ i ] ;
+      out += host_global_buffer[ i ] ;
     }
   } else
   {
     out = sdot_HC(accl_view, tile_count, dev_global_buffer, 1, 0, NULL, 0, 0, out); 
   }
 
+  //free up resources
+  free(host_global_buffer);
+  hc::am_free(dev_global_buffer);
   return out;
 }
 
@@ -135,10 +143,10 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   const unsigned int thread_count = tile_count * TILE_SIZE;
   // global buffer (return type)
   hc::accelerator accl = accl_view.get_accelerator();
-  float* dev_global_buffer = (float *) hc::am_alloc(sizeof(float) * tile_count, accl, 1);
+  float* dev_global_buffer = (float *) hc::am_alloc(sizeof(float) * batchSize * tile_count, accl, 0);
   // configuration
   hc::extent<2> extent(batchSize, thread_count);
-  hc::parallel_for_each(
+  hc::parallel_for_each(accl_view, 
     extent.tile(1, TILE_SIZE),
   [ = ] (hc::tiled_index<2>& tid) __attribute__((hc, cpu)) {
     // shared tile buffer
@@ -221,12 +229,20 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
     }
   }).wait();
 
+  // create host buffer
+  float* host_global_buffer = (float *)malloc(sizeof(float) * batchSize * tile_count);
+  // Copy device contents back to host
+  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * batchSize * tile_count);
+
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
     out = (isnan(out) || isinf(out)) ? 0 : out;
-    out += dev_global_buffer[ i ] ;
+    out += host_global_buffer[ i ] ;
   }
 
+  //free up resources
+  free(host_global_buffer);
+  hc::am_free(dev_global_buffer);
   return out;
 }
 
@@ -258,5 +274,3 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const
   dot = sdot_HC(accl_view, N, X, incX, xOffset, Y, incY, yOffset, dot, X_batchOffset, Y_batchOffset, batchSize);
   return HCBLAS_SUCCEEDS;
 }
-
-
