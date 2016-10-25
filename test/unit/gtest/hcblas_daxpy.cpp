@@ -199,7 +199,7 @@ TEST(hcblas_daxpy, func_correct_daxpy_Implementation_type_2) {
    /* Proper call */
    status= hc.hcblas_daxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-   accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
+   accl_view.copy(devYbatch, Ybatch, leny * batchSize * sizeof(double));
    for(int i = 0; i < batchSize; i++)
           cblas_daxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
    for(int i =0; i < leny * batchSize; i ++)
