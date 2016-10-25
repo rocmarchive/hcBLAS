@@ -87,6 +87,7 @@ int main(int argc, char** argv)
         accl_view.copy(x, devX, lenx * sizeof(float));
         accl_view.copy(y, devY, leny * sizeof(float));
         status =  hc.hcblas_sgemv(accl_view, hcOrder, typeA, M, N, alpha, devA, aOffset, lda, devX, xOffset, incX, beta, devY, yOffset, incY);
+        accl_view.wait();
         accl_view.copy(devY, y, leny * sizeof(float));
         lda = (hcOrder)? M: N;
         cblas_sgemv( order, transa, M, N, alpha, A, lda , x, incX, beta, ycblas, incY );

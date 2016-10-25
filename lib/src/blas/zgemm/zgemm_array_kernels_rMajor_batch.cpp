@@ -89,7 +89,7 @@ hcblasStatus zgemm_TransAB_rMajor_batch_loopunroll(hc::accelerator_view &accl_vi
       C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
       C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
-  }).wait();
+  });
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -188,7 +188,7 @@ hcblasStatus zgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &ac
         }
       }
     }
-  }).wait();
+  });
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -283,7 +283,7 @@ hcblasStatus zgemm_TransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl_
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  }).wait();
+  });
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -383,7 +383,7 @@ hcblasStatus zgemm_TransAB_rMajor_batch_MICRO_TS8XMTS2(hc::accelerator_view &acc
         }
       }
     }
-  }).wait();
+  });
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -481,7 +481,7 @@ hcblasStatus zgemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &a
         }
       }
     }
-  }).wait();
+  });
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -571,7 +571,7 @@ hcblasStatus zgemm_NoTransA_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &accl
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  }).wait();
+  });
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -670,7 +670,7 @@ hcblasStatus zgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &a
         }
       }
     }
-  }).wait();
+  });
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -764,7 +764,7 @@ hcblasStatus zgemm_NoTransA_rMajor_batch_loopunroll(hc::accelerator_view &accl_v
       C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
       C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
-  }).wait();
+  });
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -851,7 +851,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view &acc
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  }).wait();
+  });
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -938,7 +938,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_batch_STEP_TS16XSS16(hc::accelerator_view &a
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  }).wait();
+  });
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -1036,7 +1036,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view &
         }
       }
     }
-  }).wait();
+  });
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;

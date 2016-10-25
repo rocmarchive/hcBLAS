@@ -24,17 +24,21 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_1) {
    accl_view.copy(X, devX, lenx * sizeof(float));
    /* devX1 is NULL */
    status = hc.hcblas_sscal(accl_view, N, alpha, devX1, incX, xOffset);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* alpha is some scalar */
    status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
    status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID); 
 }
 
@@ -58,6 +62,7 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_1) {
    }
    accl_view.copy(X, devX, lenx * sizeof(float));
    status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    accl_view.copy(devX, X, lenx * sizeof(float));
    cblas_sscal( N, alpha, Xcblas, incX );
@@ -68,6 +73,7 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_1) {
    alpha = 0;
    accl_view.copy(X, devX, lenx * sizeof(float));
    status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    accl_view.copy(devX, X, lenx * sizeof(float));
    cblas_sscal( N, alpha, Xcblas, incX );
@@ -98,17 +104,21 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_2) {
    accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
    /* x1 is NULL */
    status= hc.hcblas_sscal(accl_view, N, alpha, devX1batch, incX, xOffset, X_batchOffset, batchSize);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* alpha is some scalar */
    status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
    status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
 }
 
@@ -134,6 +144,7 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_2) {
    }
    accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
    status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    accl_view.copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
    for(int i = 0; i < batchSize; i++)
@@ -145,6 +156,7 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_2) {
    alpha = 0;
    accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
    status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
+   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    accl_view.copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
    for(int i = 0; i < batchSize; i++)

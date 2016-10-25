@@ -45,11 +45,13 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
     // Column major */
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // NoTransA TransB */  
@@ -58,11 +60,13 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
     // Column major */
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
 // TransA NoTransB */
@@ -71,11 +75,13 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
     // Column major */
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
 // TransA TransB */
@@ -84,11 +90,13 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
     // Column major */
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major */ 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset); 
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     
     typeA = NoTrans;
@@ -100,19 +108,25 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
     double *devC1 = NULL;
     /* A, B, C device pointers are not allocated properly */
     status = hc.hcblas_dgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA1, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     status = hc.hcblas_dgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA, lda, devB1, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     status = hc.hcblas_dgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC1, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     // M is 0 */ 
     status = hc.hcblas_dgemm(accl_view, hcOrder, typeA, typeB, 0, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     // N is 0 */
     status = hc.hcblas_dgemm(accl_view, hcOrder, typeA, typeB, M, 0, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     // K is 0 */
     status = hc.hcblas_dgemm(accl_view, hcOrder, typeA, typeB, M, N, 0, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     free(A);
     free(B);
@@ -169,6 +183,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     // Column major */
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas,  M * N * sizeof(double));
     cblas_dgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -178,6 +193,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     // Row Major */
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas,  M * N * sizeof(double));
     cblas_dgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -193,6 +209,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     // Column major */
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -203,6 +220,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     /* alpha = 0*/
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm( CblasColMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -211,6 +229,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     /* alpha = 0, beta = 0*/
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, 0, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm( CblasColMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, 0, C_cblas, ldc);
@@ -220,6 +239,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     // Row Major */ 
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm(CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -230,6 +250,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     /* alpha = 0*/
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm(CblasRowMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -238,6 +259,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     /* alpha = 0, beta = 0*/
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, 0, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm(CblasRowMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, 0, C_cblas, ldc);
@@ -253,6 +275,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     // Column major */
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -262,6 +285,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     // Row Major */ 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -277,6 +301,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     // Column major */
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -286,6 +311,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     // Row Major */ 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset); 
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     accl_view.copy(devC, C_hcblas, M * N * sizeof(double));
     cblas_dgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
@@ -349,11 +375,13 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_2) {
     // Column major 
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major 
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     // NoTransA TransB   
@@ -362,11 +390,13 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_2) {
     // Column major 
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major  
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     // TransA NoTransB 
@@ -375,11 +405,13 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_2) {
     // Column major
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
 
     // TransA TransB 
@@ -388,11 +420,13 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_2) {
     // Column major 
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     // Row Major 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
     typeA = NoTrans;
@@ -403,19 +437,25 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_2) {
     double *devC1 = NULL;
     /* A, B, C device pointers are not allocated properly */
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA1, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID); 
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devB1, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devC1, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     // M is 0
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, 0, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     // N is 0
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, 0, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     // K is 0
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, 0, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);            
     free(Abatch);
     free(Bbatch);
@@ -479,6 +519,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     // Column major 
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -489,6 +530,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     /* alpha = 0 */
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -498,6 +540,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     /* alpha = 0, beta = 0*/
     lda = M; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, 0, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -508,6 +551,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     // Row Major 
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -518,6 +562,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     /* alpha = 0 */
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -527,6 +572,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     /* alpha = 0, beta = 0 */
     lda = K; ldb = N ; ldc = N;      
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, 0, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -543,6 +589,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     // Column major 
     lda = M; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -553,6 +600,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     // Row Major  
     lda = K; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -569,6 +617,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     // Column major
     lda = K; ldb = K ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -579,6 +628,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     // Row Major 
     lda = M; ldb = N ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);  
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -595,6 +645,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     // Column major 
     lda = K; ldb = N ; ldc = M;
     status = hc.hcblas_dgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
@@ -605,6 +656,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     // Row Major 
     lda = M; ldb = K ; ldc = N;
     status = hc.hcblas_dgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(double));
     for(int i = 0; i < batchSize; i++)
