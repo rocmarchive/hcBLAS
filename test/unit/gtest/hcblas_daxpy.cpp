@@ -93,7 +93,7 @@ TEST(hcblas_daxpy, func_correct_daxpy_Implementation_type_1) {
    /* Proper call */
    status = hc.hcblas_daxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-   hc::am_copy(Y, devY, leny * sizeof(double));
+   accl_view.copy(devY, Y, leny * sizeof(double));
    cblas_daxpy( N, alpha, X, incX, Ycblas, incY );
    for(int i = 0; i < leny ; i++)
       EXPECT_EQ(Y[i], Ycblas[i]);
@@ -199,7 +199,7 @@ TEST(hcblas_daxpy, func_correct_daxpy_Implementation_type_2) {
    /* Proper call */
    status= hc.hcblas_daxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-   hc::am_copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
+   accl_view.copy(devYbatch, Ybatch, leny * batchSize * sizeof(double));
    for(int i = 0; i < batchSize; i++)
           cblas_daxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
    for(int i =0; i < leny * batchSize; i ++)
