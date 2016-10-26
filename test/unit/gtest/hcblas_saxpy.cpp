@@ -32,36 +32,29 @@ TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_1) {
    accl_view.copy(Y, devY, leny * sizeof(float));
    /* Proper call */
    status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* X and Y are not properly allocated */
    float *devX1 = NULL;
    float *devY1 = NULL;
    status = hc.hcblas_saxpy(accl_view, N, alpha, devX1, incX, devY, incY , xOffset, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY1, incY , xOffset, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* alpha is 0 */
    alpha = 0;
    status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* N is 0 */
    N = 0;
    status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
    status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID); 
    /* incY is 0 */
    incX = 1; incY = 0;
    status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID); 
    free(X);
    free(Y);
@@ -99,7 +92,6 @@ TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_1) {
    accl_view.copy(Y, devY, leny * sizeof(float));
    /* Proper call */
    status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    accl_view.copy(devY, Y, leny * sizeof(float));
    cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
@@ -143,36 +135,29 @@ TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_2) {
    accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(float));
    /* Proper call */
    status= hc.hcblas_saxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* alpha is 0*/
    alpha = 0;
    status= hc.hcblas_saxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* X and Y are not properly allocated */
    float *devX1 = NULL;
    float *devY1 = NULL;
    status= hc.hcblas_saxpy(accl_view, N, alpha, devX1, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    status= hc.hcblas_saxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devY1, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* N is 0 */
    N = 0;
    status= hc.hcblas_saxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
    status= hc.hcblas_saxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incY is 0 */
    incX = 1; incY = 0;
    status= hc.hcblas_saxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    free(Xbatch);
    free(Ybatch);
@@ -213,7 +198,6 @@ TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_2) {
    accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(float));
    /* Proper call */
    status= hc.hcblas_saxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    accl_view.copy(devYbatch, Ybatch, leny * batchSize * sizeof(float));
    for(int i = 0; i < batchSize; i++)

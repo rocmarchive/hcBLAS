@@ -51,7 +51,6 @@ int main(int argc, char** argv)
         accl_view.copy(X, devX, lenx * sizeof(float));
         accl_view.copy(Y, devY, leny * sizeof(float));
         status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY, incY , xOffset, yOffset);
-        accl_view.wait();
         accl_view.copy(devY, Y, leny * sizeof(float));
         cblas_saxpy( N, alpha, X, incX, Ycblas, incY );
         for(int i = 0; i < leny ; i++){
@@ -96,7 +95,6 @@ int main(int argc, char** argv)
         accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
         accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(float));
         status= hc.hcblas_saxpy(accl_view, N, alpha, devXbatch, incX, X_batchOffset, devYbatch, incY, Y_batchOffset, xOffset, yOffset, batchSize);
-        accl_view.wait();
         accl_view.copy(devYbatch, Ybatch, leny * batchSize * sizeof(float));
         for(int i = 0; i < batchSize; i++)
         	cblas_saxpy( N, alpha, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );

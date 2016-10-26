@@ -94,7 +94,6 @@ int main(int argc,char* argv[])
         accl_view.copy(B, devB, (K * N + bOffset)* sizeof(float));
         accl_view.copy(C, devC, (M * N + cOffset)* sizeof(float));
         status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
-        accl_view.wait();
         accl_view.copy(devC, C,  (M * N + cOffset) * sizeof(float));
         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A + aOffset, lda, B + bOffset, ldb, beta, C_cblas + cOffset, ldc);
         for(int i = 0 ; i < M * N ; i++) { 

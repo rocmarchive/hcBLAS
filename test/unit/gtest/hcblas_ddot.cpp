@@ -77,32 +77,26 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_1) {
   accl_view.copy(Y, devY, leny * sizeof(double));
   /* Proper call */
   status = hc.hcblas_ddot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
   /* X and Y are not properly allocated */
   double* devX1 = NULL;
   double* devY1 = NULL;
   status = hc.hcblas_ddot(accl_view, N, devX1, incX, xOffset, devY, incY, yOffset, dothcblas);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   status = hc.hcblas_ddot(accl_view, N, devX, incX, xOffset, devY1, incY, yOffset, dothcblas);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   /* N is 0 */
   N = 0;
   status = hc.hcblas_ddot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   /* incX is 0 */
   incX = 0;
   status = hc.hcblas_ddot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   /* incY is 0 */
   incX = 1;
   incY = 0;
   status = hc.hcblas_ddot(accl_view, N, devX, incX, xOffset, devY, incY, yOffset, dothcblas);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   free(X);
   free(Y);
@@ -144,32 +138,26 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_2) {
   accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
   /* Proper call */
   status = hc.hcblas_ddot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
   /* X and Y are not properly allocated */
   double* devX1 = NULL;
   double* devY1 = NULL;
   status = hc.hcblas_ddot(accl_view, N, devX1, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   status = hc.hcblas_ddot(accl_view, N, devXbatch, incX, xOffset, devY1, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   /* N is 0 */
   N = 0;
   status = hc.hcblas_ddot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   /* incX is 0 */
   incX = 0;
   status = hc.hcblas_ddot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   /* incY is 0 */
   incX = 1;
   incY = 0;
   status = hc.hcblas_ddot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_INVALID);
   free(Xbatch);
   free(Ybatch);
@@ -255,7 +243,6 @@ void func_check_ddot_batch_with_input(long N) {
   accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
   /* Proper call */
   status = hc.hcblas_ddot(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, dothcblas, X_batchOffset, Y_batchOffset, batchSize);
-  accl_view.wait();
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
 
   for(int i = 0; i < batchSize; i++) {

@@ -45,47 +45,37 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_1) {
     accl_view.copy(y, devY, leny * sizeof(float));
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     
     hcOrder = RowMajor;
     lda = (hcOrder)? M : N;
     /* Proper call with row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , 0, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* x, y, A are not allocated properly*/
     float *devA1 = NULL;
     float *devX1 = NULL;
     float *devY1 = NULL;
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX1, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY1, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA1, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* M is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, 0 , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* N is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , 0 , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* incx is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, 0 , devY, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* incy is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, 0 , devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     free(x);
     free(y);
@@ -137,7 +127,6 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
     accl_view.copy(y, devY, leny * sizeof(float));
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devA, A, lenx * leny * sizeof(float));
     cblas_sger( CblasColMajor, M, N, alpha, x, incX, y, incY, Acblas, lda);
@@ -148,7 +137,6 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
     lda = (hcOrder)? M : N;
     /* Proper call with row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devA, A, lenx * leny * sizeof(float));
     cblas_sger( CblasRowMajor, M, N, alpha, x, incX, y, incY, Acblas, lda);
@@ -209,46 +197,36 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_2) {
     accl_view.copy(Abatch, devAbatch, lenx * leny * batchSize * sizeof(float));
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     hcOrder = RowMajor;
     lda = (hcOrder)? M : N;
     /* Proper call with row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* alpha is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , 0, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     /* x, y, A are not allocated properly*/
     float *devA1 = NULL;
     float *devX1 = NULL;
     float *devY1 = NULL;
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX1, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devY1, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devA1, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* M is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, 0 , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* N is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , 0 , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* incx is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, 0, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     /* incy is 0 */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, 0, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_INVALID);
     free(xbatch);
     free(ybatch);
@@ -305,7 +283,6 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_2) {
     accl_view.copy(Abatch, devAbatch, lenx * leny * batchSize * sizeof(float));
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
     for(int i = 0; i < batchSize; i++)
@@ -317,7 +294,6 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_2) {
     lda = (hcOrder)? M : N;
     /* Proper call with row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
-    accl_view.wait();
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
     accl_view.copy(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
     for(int i = 0; i < batchSize; i++)

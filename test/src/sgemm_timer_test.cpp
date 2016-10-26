@@ -112,7 +112,6 @@ int main(int argc,char* argv[])
         accl_view.copy(B, devB, (K * N + bOffset)* sizeof(float));
         accl_view.copy(C, devC, (M * N + cOffset)* sizeof(float));
         start = std::chrono::high_resolution_clock::now();
-        accl_view.wait();
         status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
         //accl_view.wait();
         end = std::chrono::high_resolution_clock::now();

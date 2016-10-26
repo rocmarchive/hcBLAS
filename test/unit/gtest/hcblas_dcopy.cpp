@@ -32,26 +32,21 @@ TEST(hcblas_dcopy, return_correct_dcopy_Implementation_type_1) {
    accl_view.copy(Y, devY, leny * sizeof(double));
    /* Proper call */
    status = hc.hcblas_dcopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* X and Y are null */
    status = hc.hcblas_dcopy(accl_view, N, devX1, incX, xOffset, devY1, incY, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* N is 0 */
    N = 0;
    status = hc.hcblas_dcopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
    status = hc.hcblas_dcopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID); 
    /* incY is 0 */
    incX = 1; incY = 0;
    status = hc.hcblas_dcopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    free(X);
    free(Y);
@@ -87,7 +82,6 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_1) {
    accl_view.copy(X, devX, lenx * sizeof(double));
    accl_view.copy(Y, devY, leny * sizeof(double));
    status = hc.hcblas_dcopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    accl_view.copy(devY, Y, leny * sizeof(double));
    cblas_dcopy( N, X, incX, Ycblas, incY );
@@ -133,26 +127,21 @@ TEST(hcblas_dcopy, return_correct_dcopy_Implementation_type_2) {
    accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
    /* Proper call */
    status= hc.hcblas_dcopy(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    /* x and y are null */
    status= hc.hcblas_dcopy(accl_view, N, devX1batch, incX, xOffset, devY1batch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* N is 0 */
    N = 0;
    status= hc.hcblas_dcopy(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incX is 0 */
    incX = 0;
    status= hc.hcblas_dcopy(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    /* incY is 0 */
    incX = 1; incY = 0;
    status= hc.hcblas_dcopy(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_INVALID);
    free(Xbatch);
    free(Ybatch);
@@ -191,7 +180,6 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_2) {
    accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
    accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
    status= hc.hcblas_dcopy(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-   accl_view.wait();
    EXPECT_EQ(status, HCBLAS_SUCCEEDS);
    accl_view.copy(devYbatch, Ybatch, leny * batchSize * sizeof(double));
    for(int i = 0; i < batchSize; i++)

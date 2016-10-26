@@ -48,7 +48,6 @@ int main(int argc, char** argv)
 	accl_view.copy(X, devX, lenx * sizeof(double));
 	accl_view.copy(Y, devY, leny * sizeof(double));
         status = hc.hcblas_dcopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
-        accl_view.wait();
 	accl_view.copy(devY, Y, leny * sizeof(double));
         cblas_dcopy( N, X, incX, Ycblas, incY );
         for(int i = 0; i < leny; i++){
@@ -87,7 +86,6 @@ int main(int argc, char** argv)
 	accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(double));
 	accl_view.copy(Ybatch, devYbatch, leny * batchSize * sizeof(double));
         status= hc.hcblas_dcopy(accl_view, N, devXbatch, incX, xOffset, devYbatch, incY, yOffset, X_batchOffset, Y_batchOffset, batchSize);
-        accl_view.wait();
 	accl_view.copy(devYbatch, Ybatch, leny * batchSize * sizeof(double));
         for(int i = 0; i < batchSize; i++)
         	cblas_dcopy( N, Xbatch + i * N, incX, Ycblasbatch + i * N, incY );
