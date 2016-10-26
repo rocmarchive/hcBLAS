@@ -20,7 +20,7 @@ void dscal_HC(hc::accelerator_view &accl_view,
     else
       X[X_index] = X[X_index] * alpha;
     }
-  });
+  }).wait();
 }
 
 void dscal_HC(hc::accelerator_view &accl_view,
@@ -40,7 +40,7 @@ void dscal_HC(hc::accelerator_view &accl_view,
     else
       X[X_index] = X[X_index] * alpha;
     }
-  });
+  }).wait();
 }
 
 // DSCAL Call Type I: Inputs and outputs are HCC float array containers

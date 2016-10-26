@@ -17,7 +17,7 @@ void dcopy_HC(hc::accelerator_view &accl_view, long n,
       Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
       Y[Y_index] = X[xOffset + tidx.global[0]];
     }
-  });
+  }).wait();
 }
 
 void dcopy_HC(hc::accelerator_view &accl_view, long n,
@@ -34,7 +34,7 @@ void dcopy_HC(hc::accelerator_view &accl_view, long n,
       Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
       Y[Y_index] = X[xOffset + X_batchOffset * elt + tidx.global[1]];
     }
-  });
+  }).wait();
 }
 
 // DCOPY Call Type I: Inputs and outputs are HCC float array containers

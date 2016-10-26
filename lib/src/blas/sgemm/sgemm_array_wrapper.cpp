@@ -98,7 +98,7 @@ hcblasStatus gemm_alpha0_col(hc::accelerator_view &accl_view,
 	  }
         }
     }
- });
+ }).wait();
 #undef GEMM_BLOCK
     return HCBLAS_SUCCEEDS;
 }
@@ -131,7 +131,7 @@ hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view &accl_view,
       }
     }
 }
-});
+}).wait();
 #undef GEMM_BLOCK
     return HCBLAS_SUCCEEDS;
 }
@@ -163,7 +163,7 @@ hcblasStatus gemm_alpha0_row(hc::accelerator_view &accl_view,
          }
        }
     }
-});
+}).wait();
 #undef GEMM_BLOCK
     return HCBLAS_SUCCEEDS;
 }
@@ -196,7 +196,7 @@ hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view &accl_view,
          }
        }
     }
-});
+}).wait();
 #undef GEMM_BLOCK
       return HCBLAS_SUCCEEDS;
 }
