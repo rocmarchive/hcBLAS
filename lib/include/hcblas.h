@@ -6,22 +6,22 @@ extern "C" {
 #endif //(__cplusplus)
 //2.2.1. hcblasHandle_t
 
-// The hcblasHandle_t type is a pointer to an opaque structure holding the hcBLAS library context. 
-// The hcBLAS library context must be initialized using hcblasCreate() and the returned handle must be 
-// passed to all subsequent library function calls. The context should be destroyed at the end using 
+// The hcblasHandle_t type is a pointer to an opaque structure holding the hcBLAS library context.
+// The hcBLAS library context must be initialized using hcblasCreate() and the returned handle must be
+// passed to all subsequent library function calls. The context should be destroyed at the end using
 // hcblasDestroy().
 
 
-enum hcblasOrder: unsigned short;
+enum hcblasOrder: unsigned short {};
 
 typedef struct  Hcblaslibrary* hcblasHandle_t;
 
 // 2.2.2. hcblasStatus_t
 
-// The type  hcblasStatus  is used for function status returns. HCBLAS 
-// helper functions return status directly, while the status of HCBLAS 
-// core functions can be retrieved via  hcblasGetError() . Currently, the 
-// following values are defined: 
+// The type  hcblasStatus  is used for function status returns. HCBLAS
+// helper functions return status directly, while the status of HCBLAS
+// core functions can be retrieved via  hcblasGetError() . Currently, the
+// following values are defined:
 
 enum hcblasStatus_t {
   HCBLAS_STATUS_SUCCESS,          // Function succeeds
@@ -35,9 +35,9 @@ enum hcblasStatus_t {
 
 // 2.2.3. hcblasOperation_t
 
-// The hcblasOperation_t type indicates which operation needs to be performed with 
+// The hcblasOperation_t type indicates which operation needs to be performed with
 // the dense matrix. Its values correspond to Fortran characters ‘N’ or ‘n’ (non-transpose),
-// ‘T’ or ‘t’ (transpose) and ‘C’ or ‘c’ (conjugate transpose) that are often used as parameters 
+// ‘T’ or ‘t’ (transpose) and ‘C’ or ‘c’ (conjugate transpose) that are often used as parameters
 // to legacy BLAS implementations.
 
 enum hcblasOperation_t {
@@ -45,7 +45,7 @@ enum hcblasOperation_t {
   HCBLAS_OP_T,  // Transpose operation is selected
   HCBLAS_OP_C   // Conjugate transpose operation is selected
 };
-  
+
 // 2.2.4. hcComplex
 
 // hcComplex is used in Complex-precision functions
@@ -64,7 +64,7 @@ typedef hcFloatComplex hcComplex;
 typedef double_2_ hcDoubleComplex;
 typedef hcDoubleComplex hcDoubleComplex;
 
-// hcblas Helper functions 
+// hcblas Helper functions
 
 // 1. hcblasCreate()
 
@@ -74,13 +74,13 @@ typedef hcDoubleComplex hcDoubleComplex;
 // Return Values
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
-// HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
+// HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle);
 
 // 2. hcblasDestory()
 
-// This function releases hardware resources used by the HCBLAS library. 
+// This function releases hardware resources used by the HCBLAS library.
 // This function is usually the last call with a particular handle to the HCBLAS library.
 
 // Return Values
@@ -92,8 +92,8 @@ hcblasStatus_t hcblasDestroy(hcblasHandle_t handle);
 
 // 3. hcblasSetVector()
 
-// This function copies n elements from a vector x in host memory space to a vector y in GPU memory space. 
-// Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between 
+// This function copies n elements from a vector x in host memory space to a vector y in GPU memory space.
+// Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between
 // consecutive elements is given by incx for the source vector x and by incy for the destination vector y.
 
 // Return Values
@@ -107,8 +107,8 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const
 
 // 4. hcblasGetVector()
 
-// This function copies n elements from a vector x in GPU memory space to a vector y in host memory space. 
-// Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between 
+// This function copies n elements from a vector x in GPU memory space to a vector y in host memory space.
+// Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between
 // consecutive elements is given by incx for the source vector and incy for the destination vector y.
 
 // Return Values
@@ -122,9 +122,9 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const
 
 // 5. hcblasSetMatrix()
 
-// This function copies a tile of rows x cols elements from a matrix A in host memory space to a 
-// matrix B in GPU memory space. It is assumed that each element requires storage of elemSize bytes 
-// and that both matrices are stored in column-major format, with the leading dimension of the source 
+// This function copies a tile of rows x cols elements from a matrix A in host memory space to a
+// matrix B in GPU memory space. It is assumed that each element requires storage of elemSize bytes
+// and that both matrices are stored in column-major format, with the leading dimension of the source
 // matrix A and destination matrix B given in lda and ldb, respectively.
 
 // Return Values
@@ -138,9 +138,9 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int el
 
 // 6. hcblasGetMatrix()
 
-// This function copies a tile of rows x cols elements from a matrix A in GPU memory space to 
-// a matrix B in host memory space. It is assumed that each element requires storage of elemSize 
-// bytes and that both matrices are stored in column-major format, with the leading dimension of 
+// This function copies a tile of rows x cols elements from a matrix A in GPU memory space to
+// a matrix B in host memory space. It is assumed that each element requires storage of elemSize
+// bytes and that both matrices are stored in column-major format, with the leading dimension of
 // the source matrix A and destination matrix B given in lda and ldb, respectively.
 
 // Return Values
@@ -149,7 +149,7 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int el
 // HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
 // HCBLAS_STATUS_INVALID_VALUE      the parameters rows, cols<0 or elemSize, lda, ldb<=0
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
- 
+
 hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
 
 // 7. hcblasDeviceSelect()
@@ -166,9 +166,9 @@ hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t handle, int deviceId, hcbl
 
 // HCBLAS Level-1 function reference
 
-// Level-1 Basic Linear Algebra Subprograms (BLAS1) functions perform scalar and vector based operations. 
-// We will use abbreviations <type> for type and <t> for the corresponding short type to make a more concise 
-// and clear presentation of the implemented functions. 
+// Level-1 Basic Linear Algebra Subprograms (BLAS1) functions perform scalar and vector based operations.
+// We will use abbreviations <type> for type and <t> for the corresponding short type to make a more concise
+// and clear presentation of the implemented functions.
 // Unless otherwise specified <type> and <t> have the following meanings:
 
 // <type> 	<t> 	     Meaning
@@ -209,7 +209,7 @@ hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t handle, int n,
 
 // 2. hcblas<t>axpy() and hcblas<t>axpyBatched()
 
-// This function multiplies the vector x by the scalar α and adds it to the vector y overwriting 
+// This function multiplies the vector x by the scalar α and adds it to the vector y overwriting
 // the latest vector with the result.
 
 // Param. 	Memory 	         In/out 	Meaning
@@ -348,7 +348,7 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
                             const double          *alpha,
                             double          *x, int incx, int batchCount);
 
- 
+
 // HCBLAS Level-2 Function Reference
 
 // The Level-2 Basic Linear Algebra Subprograms (BLAS2) functions perform matrix-vector operations.
@@ -365,8 +365,8 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
 // This function performs the matrix-vector multiplication
 // y = α op ( A ) x + β y
 // where A is a m × n matrix stored in column-major format, x and y are vectors, and α and β are scalars. Also, for matrix A
-// op ( A ) = A             if transa == HCBLAS_OP_N 
-//            A^T           if transa == HCBLAS_OP_T   
+// op ( A ) = A             if transa == HCBLAS_OP_N
+//            A^T           if transa == HCBLAS_OP_T
 //            A^H           if transa == HCBLAS_OP_C
 
 // Param.       Memory           In/out         Meaning
@@ -381,7 +381,7 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
 // lda          host             input          leading dimension of two-dimensional array used to store matrix A.
 // x            device           input          <type> vector with n elements if transa==HCBLAS_OP_N and m elements otherwise.
 // incx         host             input          stride between consecutive elements of x.
-// beta         host or device   input          <type> scalar used for multiplication, if beta==0 
+// beta         host or device   input          <type> scalar used for multiplication, if beta==0
 //                                              then y does not have to be a valid input.
 // y            device           in/out         <type> vector with m elements if transa==HCBLAS_OP_N and n elements otherwise.
 // incy         host             input          stride between consecutive elements of y.
@@ -428,7 +428,7 @@ hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans
 // 2. hcblas<t>ger() and hcblas<t>gerBatched()
 
 // This function performs the rank-1 update
-// A = α x y T + A if ger(),geru() is called 
+// A = α x y T + A if ger(),geru() is called
 //     α x y H + A if gerc() is called
 // where A is a m × n matrix stored in column-major format, x and y are vectors, and α is a scalar.
 
@@ -479,10 +479,10 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
 
 // This function performs the matrix-matrix multiplication
 // C = α op ( A ) op ( B ) + β C
-// where α and β are scalars, and A , B and C are matrices stored in column-major format with dimensions 
+// where α and β are scalars, and A , B and C are matrices stored in column-major format with dimensions
 // op ( A ) m × k , op ( B ) k × n and C m × n , respectively. Also, for matrix A
-// op ( A ) = A   if  transa == HCBLAS_OP_N 
-//            A^T if  transa == HCBLAS_OP_T 
+// op ( A ) = A   if  transa == HCBLAS_OP_N
+//            A^T if  transa == HCBLAS_OP_T
 //            A^H if  transa == HCBLAS_OP_C
 // and op ( B ) is defined similarly for matrix B .
 
@@ -495,10 +495,10 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
 // n            host             input          number of rows of matrix op(B) and C.
 // k            host             input          number of columns of op(A) and rows of op(B).
 // alpha        host or device   input          <type> scalar used for multiplication.
-// A            device           input          <type> array of dimensions lda x k with lda>=max(1,m) 
+// A            device           input          <type> array of dimensions lda x k with lda>=max(1,m)
 //                                              if transa == HCBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.
 // lda          host             input          leading dimension of two-dimensional array used to store the matrix A.
-// B            device           input          <type> array of dimension ldb x n with ldb>=max(1,k) 
+// B            device           input          <type> array of dimension ldb x n with ldb>=max(1,k)
 //                                              if transa == HCBLAS_OP_N and ldb x k with ldb>=max(1,n) otherwise.
 // ldb          host             input          leading dimension of two-dimensional array used to store matrix B.
 // beta         host or device   input          <type> scalar used for multiplication. If beta==0, C does not have to be a valid input.
@@ -509,7 +509,7 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
-// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k<0 
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k<0
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
@@ -552,11 +552,11 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
 
 // This function performs the matrix-matrix multiplications of an array of matrices.
 // C [ i ] = α op ( A [ i ] ) op ( B [ i ] ) + β C [ i ] ,  for i  ∈ [ 0 , batchCount − 1 ]
-// where α and β are scalars, and A , B and C are arrays of pointers to matrices stored in 
-// column-major format with dimensions op ( A [ i ] ) m × k , op ( B [ i ] ) k × n and C [ i ] m × n , 
+// where α and β are scalars, and A , B and C are arrays of pointers to matrices stored in
+// column-major format with dimensions op ( A [ i ] ) m × k , op ( B [ i ] ) k × n and C [ i ] m × n ,
 // respectively. Also, for matrix A
-// op ( A ) = A   if  transa == HCBLAS_OP_N 
-//            A^T if  transa == HCBLAS_OP_T 
+// op ( A ) = A   if  transa == HCBLAS_OP_N
+//            A^T if  transa == HCBLAS_OP_T
 //            A^H if  transa == HCBLAS_OP_C
 // and op ( B [ i ] ) is defined similarly for matrix B [ i ] .
 
