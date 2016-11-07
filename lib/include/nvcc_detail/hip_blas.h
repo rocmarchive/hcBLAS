@@ -248,8 +248,8 @@ inline static hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOpera
 inline static hipblasStatus_t hipblasSgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const float *alpha, float *A, int lda, float *B, int ldb, const float *beta, float *C, int ldc, int batchCount){
 	//TODO incompatible API
-	return HIPBLAS_STATUS_NOT_SUPPORTED;
-	//return hipCUBLASStatusToHIPStatus(cublasSgemmBatched( handle, hipOperationToCudaOperation(transa),  hipOperationToCudaOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
+	//return HIPBLAS_STATUS_NOT_SUPPORTED;
+	return hipCUBLASStatusToHIPStatus(cublasSgemmBatched( handle, hipOperationToCudaOperation(transa),  hipOperationToCudaOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
 }
 
 
@@ -257,8 +257,8 @@ inline static hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipbl
                            int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc, int batchCount){
 
 	//TODO incompatible API
-	return HIPBLAS_STATUS_NOT_SUPPORTED;
-	//return hipCUBLASStatusToHIPStatus(cublasCgemmBatched( handle, hipOperationToCudaOperation(transa),  hipOperationToCudaOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
+	//return HIPBLAS_STATUS_NOT_SUPPORTED;
+	return hipCUBLASStatusToHIPStatus(cublasCgemmBatched( handle, hipOperationToCudaOperation(transa),  hipOperationToCudaOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
 }
 
 inline static hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
