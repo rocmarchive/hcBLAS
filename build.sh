@@ -31,6 +31,8 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$current_work_dir/build/lib/src
 red=`tput setaf 1`
 green=`tput setaf 2`
 reset=`tput sgr0`
+copt="-O3"
+verbose=""
 
 # Help menu
 print_help() {
@@ -41,6 +43,8 @@ This script is invoked to build hcblas library and test sources. Please provide 
   1) ${green}--test${reset}    Test to enable the library testing. 
   2) ${green}--profile${reset} Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.(CodeXL)
   3) ${green}--bench${reset}   Profile benchmark using chrono timer.
+  4) ${green}--debug${reset}   Compile with debug info (-g)
+  4) ${green}--verbose${reset} Run make with VERBOSE=1
 
 NOTE: export CODEXL_PATH=/path/to/profiler before enabling profile variable.
 =============================================================================================================================
@@ -55,6 +59,12 @@ while [ $# -gt 0 ]; do
       ;;
     --profile=*)
       profiling="${1#*=}"
+      ;;
+    --debug)
+      copt="-g"
+      ;;
+    --verbose)
+      verbose="VERBOSE=1"
       ;;
     --bench=*)
       bench="${1#*=}"
@@ -89,9 +99,9 @@ build_dir=$current_work_dir/build
 cd $build_dir
 
 # Cmake and make libhcblas: Install hcblas under install_path
-cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir
-make -j$working_threads package
-make -j$working_threads
+cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" $current_work_dir
+make -j$working_threads package $verbose
+make -j$working_threads $verbose
  
 # Various possibilities of test and profile arguments
 # Test=OFF and Profile=OFF (Build library and tests)
