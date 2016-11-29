@@ -15,11 +15,11 @@ TEST(hcblas_scopy, return_correct_scopy_Implementation_type_1) {
     long leny = 1 + (N-1) * abs(incY);
     float *X = (float*)calloc(lenx, sizeof(float));
     float *Y = (float*)calloc(leny, sizeof(float));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 /* Implementation type I - Inputs and Outputs are HCC device pointers*/
-   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc, 0);
    float* devX1 = NULL;
    float* devY1 = NULL;
    for(int i = 0; i < lenx; i++){
@@ -67,11 +67,11 @@ TEST(hcblas_scopy, func_correct_scopy_Implementation_type_1) {
    float *X = (float*)calloc(lenx, sizeof(float));
    float *Y = (float*)calloc(leny, sizeof(float));
    float *Ycblas = (float*)calloc(leny, sizeof(float));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
    /* Implementation type I - Inputs and Outputs are HCC device pointers*/
-   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-   float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+   float* devY = hc::am_alloc(sizeof(float) * leny, acc, 0);
    for(int i = 0; i < lenx; i++){
              X[i] = rand() % 10;
    }
@@ -110,10 +110,10 @@ TEST(hcblas_scopy, return_correct_scopy_Implementation_type_2) {
     long leny = 1 + (N-1) * abs(incY);
     float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
     float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
-    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0); 
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
+    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0); 
     float* devX1batch = NULL;
     float* devY1batch = NULL;
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
@@ -165,10 +165,10 @@ TEST(hcblas_scopy, func_correct_scopy_Implementation_type_2) {
    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
    float *Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
    float *Ycblasbatch = (float*)calloc(leny * batchSize, sizeof(float));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
-   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-   float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
+   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+   float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0);
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
              Xbatch[i] = rand() % 10;

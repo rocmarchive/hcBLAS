@@ -19,11 +19,11 @@ void func_check_sdot_with_input(long N) {
   long leny = 1 + (N - 1) * abs(incY);
   float* X = (float*)calloc(lenx, sizeof(float));
   float* Y = (float*)calloc(leny, sizeof(float));
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   /*Implementation type I - Inputs and Outputs are HCC float array containers */
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, acc, 0);
 
   for(int i = 0; i < lenx; i++) {
     X[i] = rand() % 10;
@@ -59,11 +59,11 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
   long leny = 1 + (N - 1) * abs(incY);
   float* X = (float*)calloc(lenx, sizeof(float));
   float* Y = (float*)calloc(leny, sizeof(float));
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   /* Implementation type I - Inputs and Outputs are HCC float array containers */
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, acc, 0);
 
   for(int i = 0; i < lenx; i++) {
     X[i] = rand() % 10;
@@ -120,10 +120,10 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_2) {
   long leny = 1 + (N - 1) * abs(incY);
   float* Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
   float* Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
-  float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-  float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
+  float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+  float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0);
 
   /* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
   for(int i = 0; i < lenx * batchSize; i++) {
@@ -225,10 +225,10 @@ void func_check_sdot_batch_with_input(long N) {
   long leny = 1 + (N - 1) * abs(incY);
   float* Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
   float* Ybatch = (float*)calloc(leny * batchSize, sizeof(float));
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
-  float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-  float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
+  float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+  float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0);
 
   /* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
   for(int i = 0; i < lenx * batchSize; i++) {

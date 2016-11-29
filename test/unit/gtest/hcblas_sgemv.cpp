@@ -28,16 +28,16 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_1) {
     row = M; col = N; lda = N; typeA = Trans;
     lenx = 1 + (row - 1) * abs(incX);
     leny = 1 + (col - 1) * abs(incY);
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 
 /* Implementation type I - Inputs and Outputs are HCC float array containers */
     float *x = (float*)calloc( lenx , sizeof(float));
     float *y = (float*)calloc( leny , sizeof(float));
     float *A = (float *)calloc( lenx * leny , sizeof(float));
-    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
-    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-    float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc, 0);
+    float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+    float* devY = hc::am_alloc(sizeof(float) * leny, acc, 0);
     for(int i = 0; i < lenx; i++) {
            x[i] = rand() % 10;
     }
@@ -95,9 +95,9 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_1) {
     float *x1 = (float*)calloc( lenx , sizeof(float));
     float *y1 = (float*)calloc( leny , sizeof(float));
     float *A1 = (float *)calloc( lenx * leny , sizeof(float));
-    float* devA1 = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
-    float* devX1 = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-    float* devY1 = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+    float* devA1 = hc::am_alloc(sizeof(float) * lenx * leny, acc, 0);
+    float* devX1 = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+    float* devY1 = hc::am_alloc(sizeof(float) * leny, acc, 0);
     for(int i = 0; i < lenx; i++) {
            x1[i] = rand() % 10;
     }
@@ -152,8 +152,8 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     row = M; col = N; lda = N; typeA = Trans;
     lenx = 1 + (row - 1) * abs(incX);
     leny = 1 + (col - 1) * abs(incY);
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
     CBLAS_TRANSPOSE transa;
     transa = CblasTrans; 
 /* Implementation type I - Inputs and Outputs are HCC float array containers */
@@ -161,9 +161,9 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     float *y = (float*)calloc( leny , sizeof(float));
     float *A = (float *)calloc( lenx * leny , sizeof(float));
     float *ycblas = (float *)calloc( leny , sizeof(float));
-    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
-    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-    float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc, 0);
+    float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+    float* devY = hc::am_alloc(sizeof(float) * leny, acc, 0);
     for(int i = 0; i < lenx; i++) {
            x[i] = rand() % 10;
     }
@@ -223,9 +223,9 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
     float *y1 = (float*)calloc( leny , sizeof(float));
     float *A1 = (float *)calloc( lenx * leny , sizeof(float));
     float *ycblas1 = (float *)calloc( leny , sizeof(float));
-    float* devA1 = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
-    float* devX1 = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-    float* devY1 = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+    float* devA1 = hc::am_alloc(sizeof(float) * lenx * leny, acc, 0);
+    float* devX1 = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+    float* devY1 = hc::am_alloc(sizeof(float) * leny, acc, 0);
     for(int i = 0; i < lenx; i++) {
            x1[i] = rand() % 10;
     }
@@ -299,17 +299,17 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_2) {
     long X_batchOffset = row;
     long Y_batchOffset = col;
     long A_batchOffset = row * col;
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
 
     float *xbatch = (float*)calloc( lenx * batchSize, sizeof(float));
     float *ybatch = (float*)calloc( leny * batchSize, sizeof(float));
     float *Abatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
-    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
+    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0);
+    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc, 0);
     for(int i = 0; i < lenx * batchSize; i++) {
             xbatch[i] = rand() % 10;
     }
@@ -367,9 +367,9 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_2) {
     float *xbatch1 = (float*)calloc( lenx * batchSize, sizeof(float));
     float *ybatch1 = (float*)calloc( leny * batchSize, sizeof(float));
     float *Abatch1 = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-    float* devXbatch1 = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-    float* devYbatch1 = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
-    float* devAbatch1 = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
+    float* devXbatch1 = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+    float* devYbatch1 = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0);
+    float* devAbatch1 = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc, 0);
     X_batchOffset = row;
     Y_batchOffset = col;
     A_batchOffset = row * col;
@@ -431,8 +431,8 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     long X_batchOffset = row;
     long Y_batchOffset = col;
     long A_batchOffset = row * col;
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
     CBLAS_TRANSPOSE transa;
     transa = CblasTrans;
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
@@ -440,9 +440,9 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     float *xbatch = (float*)calloc( lenx * batchSize, sizeof(float));
     float *ybatch = (float*)calloc( leny * batchSize, sizeof(float));
     float *Abatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
-    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
+    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0);
+    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc, 0);
     for(int i = 0; i < lenx * batchSize; i++) {
             xbatch[i] = rand() % 10;
     }
@@ -507,9 +507,9 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
     float *xbatch1 = (float*)calloc( lenx * batchSize, sizeof(float));
     float *ybatch1 = (float*)calloc( leny * batchSize, sizeof(float));
     float *Abatch1 = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-    float* devXbatch1 = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-    float* devYbatch1 = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
-    float* devAbatch1 = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
+    float* devXbatch1 = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+    float* devYbatch1 = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0);
+    float* devAbatch1 = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc, 0);
     X_batchOffset = row;
     Y_batchOffset = col;
     A_batchOffset = row * col;

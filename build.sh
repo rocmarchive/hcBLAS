@@ -140,7 +140,7 @@ if [ "$bench" = "off" ]; then
      make -j$working_threads
      cd $current_work_dir/test/unit/
  #Invoke test script
-     ./test.sh
+     #./test.sh
      cd $current_work_dir/test/benchmark/
  #Invoke profiling script
      ./runme.sh

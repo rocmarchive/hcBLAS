@@ -16,17 +16,17 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
     hcblasOrder hcOrder;
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view()); 
+    accelerator_view accl_view = hc.currentAcclView;
+    accelerator acc = hc.currentAccl;
     
 // Implementation type I - Inputs and Outputs are HCC device pointers */
 
     double *A = (double*) calloc(M * K, sizeof(double));
     double *B = (double*) calloc(K * N, sizeof(double));
     double *C = (double*) calloc(M * N, sizeof(double));
-    double* devA = hc::am_alloc(sizeof(double) * M * K, acc[1], 0);
-    double* devB = hc::am_alloc(sizeof(double) * K * N, acc[1], 0);
-    double* devC = hc::am_alloc(sizeof(double) * M * N, acc[1], 0);
+    double* devA = hc::am_alloc(sizeof(double) * M * K, acc, 0);
+    double* devB = hc::am_alloc(sizeof(double) * K * N, acc, 0);
+    double* devC = hc::am_alloc(sizeof(double) * M * N, acc, 0);
     for(int i = 0; i < M * K; i++) {
                 A[i] = rand()%100;
     }
@@ -134,8 +134,8 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     hcblasOrder hcOrder;
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view()); 
+    accelerator_view accl_view = hc.currentAcclView;
+    accelerator acc = hc.currentAccl;
     CBLAS_TRANSPOSE Transa, Transb;
 // Implementation type I - Inputs and Outputs are HCC device pointers */
 
@@ -144,9 +144,9 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
     double *C = (double*) calloc(M * N, sizeof(double));
     double *C_hcblas = (double*) calloc(M * N, sizeof(double));
     double *C_cblas = (double*) calloc(M * N, sizeof(double));
-    double* devA = hc::am_alloc(sizeof(double) * M * K, acc[1], 0);
-    double* devB = hc::am_alloc(sizeof(double) * K * N, acc[1], 0);
-    double* devC = hc::am_alloc(sizeof(double) * M * N, acc[1], 0);
+    double* devA = hc::am_alloc(sizeof(double) * M * K, acc, 0);
+    double* devB = hc::am_alloc(sizeof(double) * K * N, acc, 0);
+    double* devC = hc::am_alloc(sizeof(double) * M * N, acc, 0);
     for(int i = 0; i < M * K; i++) {
                 A[i] = rand()%100;
     }
@@ -317,17 +317,17 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_2) {
     hcblasOrder hcOrder;
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view()); 
+    accelerator_view accl_view = hc.currentAcclView;
+    accelerator acc = hc.currentAccl;
     
    // Implementation type II - Inputs and Outputs are HCC double array containers with batch processing 
         
    double *Abatch = (double*) calloc(M * K, sizeof(double));
    double *Bbatch = (double*) calloc(K * N, sizeof(double));
    double *Cbatch = (double*) calloc(M * N * batchSize, sizeof(double));          
-   double* devAbatch = hc::am_alloc(sizeof(double) * M * K, acc[1], 0);
-   double* devBbatch = hc::am_alloc(sizeof(double) * K * N, acc[1], 0);
-   double* devCbatch = hc::am_alloc(sizeof(double) * M * N * batchSize, acc[1], 0);
+   double* devAbatch = hc::am_alloc(sizeof(double) * M * K, acc, 0);
+   double* devBbatch = hc::am_alloc(sizeof(double) * K * N, acc, 0);
+   double* devCbatch = hc::am_alloc(sizeof(double) * M * N * batchSize, acc, 0);
 
    for(int i = 0; i < M * K; i++) {
                 Abatch[i] = rand()%100;
@@ -441,8 +441,8 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
     hcblasOrder hcOrder;
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view()); 
+    accelerator_view accl_view = hc.currentAcclView;
+    accelerator acc = hc.currentAccl;
     CBLAS_TRANSPOSE Transa, Transb;
    // Implementation type II - Inputs and Outputs are HCC double array containers with batch processing 
         
@@ -451,9 +451,9 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
    double *Cbatch = (double*) calloc(M * N * batchSize, sizeof(double));          
    double *CCblasbatch = (double*) calloc(M * N * batchSize, sizeof(double));
    double *Chcblasbatch = (double*) calloc(M * N * batchSize, sizeof(double));
-   double* devAbatch = hc::am_alloc(sizeof(double) * M * K, acc[1], 0);
-   double* devBbatch = hc::am_alloc(sizeof(double) * K * N, acc[1], 0);
-   double* devCbatch = hc::am_alloc(sizeof(double) * M * N * batchSize, acc[1], 0);
+   double* devAbatch = hc::am_alloc(sizeof(double) * M * K, acc, 0);
+   double* devBbatch = hc::am_alloc(sizeof(double) * K * N, acc, 0);
+   double* devCbatch = hc::am_alloc(sizeof(double) * M * N * batchSize, acc, 0);
 
    for(int i = 0; i < M * K; i++) {
                 Abatch[i] = rand()%100;
