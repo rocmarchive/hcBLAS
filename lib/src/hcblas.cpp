@@ -21,6 +21,7 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
   }
 
   if (acc == nullptr) { 
+      // TODO - remove this path, as it is not multi-GPU aware.
 	  std::vector<accelerator> accs = accelerator::get_all();
 	  assert(accs.size() && "Number of Accelerators == 0!");
 
@@ -42,10 +43,15 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
         }
       }
       assert(foundIt);
-	  (*handle)->currentAccl = accs[(*handle)->deviceId];
+	  (*handle)->currentAccl = *acc;
   }
 
 	(*handle)->currentAcclView = (*handle)->currentAccl.get_default_view();
+  //std::wcout <<  "createHandle=" << *handle 
+  //          <<  " with device=" << (*handle)->deviceId
+  //          <<  " " <<  (*handle)->currentAcclView.get_accelerator().get_description() 
+  //          <<  " " <<  (*handle)->currentAcclView.get_accelerator().get_device_path() 
+  //          <<  "\n";
 
   // Always initialize order, we are creating a new handle:
   (*handle)->Order = ColMajor;
@@ -1038,6 +1044,10 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
   hcblasTranspose transA, transB;
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+  //std::wcout << "dispatch sgemm to acc:" 
+  //           << handle->currentAcclView.get_accelerator().get_description() 
+  //           << " deviceId=" << handle->deviceId
+  //           << "\n";
   status = handle->hcblas_sgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
   if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
