@@ -53,6 +53,7 @@ class Hcblaslibrary
     hc::accelerator currentAccl;
 
     // Add current Accerator View field set with a default accelerator view of default accelerator
+    // TODO - change to pointer
     hc::accelerator_view currentAcclView = hc::accelerator().get_default_view();
 
     hcblasOrder Order;

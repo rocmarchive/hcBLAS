@@ -12,29 +12,49 @@
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
-hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
-  std::vector<accelerator> accs = accelerator::get_all();
-  assert(accs.size() && "Number of Accelerators == 0!");
+hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
+
   if(handle == NULL) {
     // create new handle
+    assert(0); // will crash if we get here.
     *handle = new Hcblaslibrary;
   } else {
     *handle = NULL;
     *handle = new Hcblaslibrary;
   }
-
-  if(*handle == NULL)
+  if(*handle == NULL) {
     return HCBLAS_STATUS_ALLOC_FAILED;
+  }
 
-  if(accs.size() >= 2)
-      (*handle)->deviceId = 1;
-  else
-      (*handle)->deviceId = 0;
+  if (acc == nullptr) { 
+	  std::vector<accelerator> accs = accelerator::get_all();
+	  assert(accs.size() && "Number of Accelerators == 0!");
 
-  (*handle)->currentAccl = accs[(*handle)->deviceId];
 
-  if (!(*handle)->Order)
-      (*handle)->Order = ColMajor;
+	  if(accs.size() >= 2)
+	      (*handle)->deviceId = 1;
+	  else
+	      (*handle)->deviceId = 0;
+
+	  (*handle)->currentAccl = accs[(*handle)->deviceId];
+  } else {
+	  std::vector<accelerator> accs = accelerator::get_all();
+      bool foundIt = false;
+      for (int i=0;i<accs.size();i++) {
+        if (accs[i] == *acc) {
+          (*handle)->deviceId = i;
+          foundIt = true;
+          break;
+        }
+      }
+      assert(foundIt);
+	  (*handle)->currentAccl = accs[(*handle)->deviceId];
+  }
+
+	(*handle)->currentAcclView = (*handle)->currentAccl.get_default_view();
+
+  // Always initialize order, we are creating a new handle:
+  (*handle)->Order = ColMajor;
   return HCBLAS_STATUS_SUCCESS;  
 }
 

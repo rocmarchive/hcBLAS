@@ -11,11 +11,13 @@ ADD_SUBDIRECTORY(blas)
 
 #Setting a Project name
 SET(PROJECT_NAME "libhcblas")
+SET(HIP_PATH "/opt/rocm/hip")
+SET(HIP_PATH "/home/rocm-user/hip")
 PROJECT (${PROJECT_NAME})
 MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
 #Setting a variable for source files
-SET (SRCS ${BLASSRC} hcblas.cpp)
+SET (SRCS ${BLASSRC} hcblas.cpp hipblas.cpp)
 
   # Choice to take compilation flags from source or package
   if(EXISTS ${MCWHCCBUILD})
@@ -32,8 +34,8 @@ SET (SRCS ${BLASSRC} hcblas.cpp)
  
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
-  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include")
-  set (HCC_LDFLAGS "${HCC_LDFLAGS}")
+  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc")
 
   FOREACH(src_file ${SRCS})
 	  SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
