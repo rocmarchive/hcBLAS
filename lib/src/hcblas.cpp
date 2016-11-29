@@ -14,14 +14,8 @@
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
 
-  if(handle == NULL) {
-    // create new handle
-    assert(0); // will crash if we get here.
-    *handle = new Hcblaslibrary;
-  } else {
-    *handle = NULL;
-    *handle = new Hcblaslibrary;
-  }
+  *handle = new Hcblaslibrary;
+
   if(*handle == NULL) {
     return HCBLAS_STATUS_ALLOC_FAILED;
   }
