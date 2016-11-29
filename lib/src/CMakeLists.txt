@@ -18,18 +18,10 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 #Setting a variable for source files
 SET (SRCS ${BLASSRC} hcblas.cpp hipblas.cpp)
 
-  # Choice to take compilation flags from source or package
-  if(EXISTS ${MCWHCCBUILD})
-    execute_process(COMMAND ${HCC_CONFIG} --build --cxxflags
+  execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
-    execute_process(COMMAND ${HCC_CONFIG} --build --ldflags --shared
+  execute_process(COMMAND ${HCC_CONFIG} --install --ldflags --shared
                             OUTPUT_VARIABLE HCC_LDFLAGS)
-  else(EXISTS ${MCWHCCBUILD})
-    execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
-                            OUTPUT_VARIABLE HCC_CXXFLAGS)
-    execute_process(COMMAND ${HCC_CONFIG} --install --ldflags --shared
-                            OUTPUT_VARIABLE HCC_LDFLAGS)
-  endif(EXISTS ${MCWHCCBUILD})
  
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)

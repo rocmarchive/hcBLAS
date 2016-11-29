@@ -15,13 +15,13 @@ if( MSVC OR APPLE)
   message(FATAL_ERROR "Unsupported platform.")
 endif()
 
-set(MCWHCCBUILD $ENV{MCWHCCBUILD}
+set(HCC_HOME $ENV{HCC_HOME}
 )
-if(EXISTS ${MCWHCCBUILD})
+if(EXISTS ${HCC_HOME})
   find_path(HC++_BIN_DIR clang++
-           HINTS ${MCWHCCBUILD}/compiler/bin)
+           HINTS ${HCC_HOME}/bin)
   find_path(HC++_CONFIGURE_DIR hcc-config
-           HINTS ${MCWHCCBUILD}/bin)
+           HINTS ${HCC_HOME}/bin)
   include(FindPackageHandleStandardArgs)
   # handle the QUIETLY and REQUIRED arguments and set HC++_FOUND to TRUE
   # if all listed variables are TRUE
@@ -39,11 +39,11 @@ if(EXISTS ${MCWHCCBUILD})
   # Build mode
   set (CLANG_AMP "${HC++_BIN_DIR}/clang++")
   set (HCC_CONFIG "${HC++_CONFIGURE_DIR}/hcc-config")
-  execute_process(COMMAND ${HCC_CONFIG} --build --cxxflags
+  execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                   OUTPUT_VARIABLE HCC_CXXFLAGS)
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS}")
-  execute_process(COMMAND ${HCC_CONFIG} --build --ldflags --shared
+  execute_process(COMMAND ${HCC_CONFIG} --install --ldflags --shared
                   OUTPUT_VARIABLE HCC_LDFLAGS)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -Wall -Wno-deprecated-register -Wno-deprecated-declarations")

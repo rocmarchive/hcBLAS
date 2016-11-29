@@ -6,12 +6,12 @@ working_threads=8
 
 # CHECK FOR COMPILER PATH
 
-if [ ! -z $MCWHCCBUILD ];
+if [ ! -z $HCC_HOME ];
 then
-  if [ -x "$MCWHCCBUILD/compiler/bin/clang++" ];
+  if [ -x "$HCC_HOME/compiler/bin/clang++" ];
   then
-    cmake_c_compiler="$MCWHCCBUILD/compiler/bin/clang"
-    cmake_cxx_compiler="$MCWHCCBUILD/compiler/bin/clang++"
+    cmake_c_compiler="$HCC_HOME/bin/clang"
+    cmake_cxx_compiler="$HCC_HOME/bin/clang++"
   fi
 
 elif [ -x "/opt/rocm/hcc/bin/clang++" ];

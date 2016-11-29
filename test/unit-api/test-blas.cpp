@@ -11,7 +11,7 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
-  float result;
+  float* result;
   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
@@ -25,16 +25,16 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
 //  handle->currentAcclView.copy(X, devX, lenx * sizeof(float));
-  status = hcblasSasum(handle, n, devX, incx, &result);
+  status = hcblasSasum(handle, n, devX, incx, result);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
   float asumcblas = 0.0;
   asumcblas = cblas_sasum( n, X, incx);
-  EXPECT_EQ(result, asumcblas);
+  EXPECT_EQ(*result, asumcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(handle);
-  status = hcblasSasum(handle, n, devX, incx, &result);
+  status = hcblasSasum(handle, n, devX, incx, result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
   free(X);
