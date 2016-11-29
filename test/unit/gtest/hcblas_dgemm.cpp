@@ -5,7 +5,8 @@
 #include "cblas.h"
 
 TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
-    Hcblaslibrary hc; 
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 189, N = 9, K = 19;
     double alpha = 1, beta = 1;
     long lda, ldb, ldc;
@@ -123,7 +124,8 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
 }
 
 TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
-    Hcblaslibrary hc; 
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 189, N = 9, K = 19;
     double alpha = 1, beta = 1;
     long lda, ldb, ldc;
@@ -302,7 +304,8 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
 }
 
 TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_2) {
-    Hcblaslibrary hc; 
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 189, N = 9, K = 19;
     double alpha = 1, beta = 1;
     long lda, ldb, ldc;
@@ -426,7 +429,8 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_2) {
 }   
   
 TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
-    Hcblaslibrary hc; 
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 189, N = 9, K = 19;
     double alpha = 1, beta = 1;
     long lda, ldb, ldc;

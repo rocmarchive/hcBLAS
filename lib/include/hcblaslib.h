@@ -48,13 +48,36 @@ struct hc_Complex
 class Hcblaslibrary
 {
     public:
+
+    // Constructor to initialize the library with the given accelerator
+    Hcblaslibrary(hc::accelerator *acc)
+    {
+      // Nullity check
+      assert(acc);
+      std::vector<accelerator> accs = accelerator::get_all();
+      bool foundIt = false;
+      for (int i=0;i<accs.size();i++) {
+        if (accs[i] == *acc) {
+          this->deviceId = i;
+          foundIt = true;
+          break;
+        }
+      }
+      assert(foundIt);
+      this->currentAccl = *acc;
+      auto accl_view = (*acc).get_default_view();
+      this->currentAcclView = accl_view;
+      // TODO: Add another constructor to accomodate row major setting
+      this->Order = ColMajor;
+    }
+
     int deviceId;
     // Add current Accerator field
     hc::accelerator currentAccl;
 
     // Add current Accerator View field set with a default accelerator view of default accelerator
     // TODO - change to pointer
-    hc::accelerator_view currentAcclView = hc::accelerator().get_default_view();
+    hc::accelerator_view currentAcclView = this->currentAccl.get_default_view();
 
     hcblasOrder Order;
         

@@ -7,7 +7,8 @@
 #include "test_constants.h"
 
 TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_1) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int M = 189, N = 9, K = 19;
   float alpha = 1, beta = 1;
   long lda, ldb, ldc;
@@ -138,7 +139,8 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_1) {
 
 // Function to check Sgemm NoTransAB Column Major
 void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -212,7 +214,8 @@ void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransAB row Major
 void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -289,7 +292,8 @@ void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransA Col Major
 void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -402,7 +406,8 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransA Row Major
 void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -515,7 +520,8 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransB Col Major
 void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -591,7 +597,8 @@ void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransB Row Major
 void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -667,7 +674,8 @@ void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm TransAB Col Major
 void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -744,7 +752,8 @@ void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm TransAB Row Major
 void func_check_sgemmTT_Row_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -1198,7 +1207,8 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_regularN_Implementation_type_1
 }
 
 TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int M = 189, N = 9, K = 19;
   float alpha = 1, beta = 1;
   long lda, ldb, ldc;
@@ -1331,7 +1341,8 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
 }
 
 TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int M = 189, N = 9, K = 19;
   float alpha = 1, beta = 1;
   long lda, ldb, ldc;

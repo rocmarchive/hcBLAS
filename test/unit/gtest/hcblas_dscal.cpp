@@ -5,7 +5,8 @@
 #include "cblas.h"
 
 TEST(hcblas_dscal, return_correct_dscal_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 23;
    int incX = 1;
    long xOffset = 0;
@@ -43,7 +44,8 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_1) {
 }
 
 TEST(hcblas_dscal, function_correct_dscal_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 23;
    int incX = 1;
    long xOffset = 0;
@@ -71,7 +73,8 @@ TEST(hcblas_dscal, function_correct_dscal_Implementation_type_1) {
 }
 
 TEST(hcblas_dscal, return_correct_dscal_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 19;
    int incX = 1;
    int batchSize = 32;
@@ -111,7 +114,8 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_2) {
 }
 
 TEST(hcblas_dscal, function_correct_dscal_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 19;
    int incX = 1;
    int batchSize = 32;

@@ -7,7 +7,8 @@
 
 // code to check input given n size N
 void func_check_ddot_with_input(long N) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int incX = 1;
   int incY = 1;
   long yOffset = 0;
@@ -47,7 +48,8 @@ void func_check_ddot_with_input(long N) {
 }
 
 TEST(hcblas_ddot, return_correct_ddot_Implementation_type_1) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long N = 189;
   int incX = 1;
   int incY = 1;
@@ -105,7 +107,8 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_1) {
 }
 
 TEST(hcblas_ddot, return_correct_ddot_Implementation_type_2) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long N = 189;
   int incX = 1;
   int incY = 1;
@@ -209,7 +212,8 @@ TEST(hcblas_ddot, func_correct_ddot_vvsmallN_Implementation_type_1) {
 
 // Func to check batch ddot gven inut size
 void func_check_ddot_batch_with_input(long N) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int incX = 1;
   int incY = 1;
   long yOffset = 0;

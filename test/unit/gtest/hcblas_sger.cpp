@@ -5,7 +5,8 @@
 #include "cblas.h"
 
 TEST(hcblas_sger, return_correct_sger_Implementation_type_1) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     float alpha = 1;
@@ -86,7 +87,8 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_1) {
 }
 
 TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     float alpha = 1;
@@ -152,7 +154,8 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
 }
 
 TEST(hcblas_sger, return_correct_sger_Implementation_type_2) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     float alpha = 1;
@@ -237,7 +240,8 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_2) {
 }
 
 TEST(hcblas_sger, func_correct_sger_Implementation_type_2) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     float alpha = 1;

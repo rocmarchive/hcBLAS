@@ -7,7 +7,8 @@
 #include "cblas.h"
 
 TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_1) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     int isTransA = 1;
@@ -131,7 +132,8 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_1) {
 }
 
 TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     int isTransA = 1;
@@ -275,7 +277,8 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
 
  
 TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_2) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     int isTransA = 1;
@@ -407,7 +410,8 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_2) {
 }
 
 TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     int isTransA = 1;

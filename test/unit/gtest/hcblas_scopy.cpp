@@ -4,7 +4,8 @@
 #include "hc_am.hpp"
 #include "cblas.h"
 TEST(hcblas_scopy, return_correct_scopy_Implementation_type_1) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int N = 23;
     int incX = 1;
     int incY = 1;
@@ -55,7 +56,8 @@ TEST(hcblas_scopy, return_correct_scopy_Implementation_type_1) {
 }
 
 TEST(hcblas_scopy, func_correct_scopy_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 23;
    int incX = 1;
    int incY = 1;
@@ -96,7 +98,8 @@ TEST(hcblas_scopy, func_correct_scopy_Implementation_type_1) {
 }
 
 TEST(hcblas_scopy, return_correct_scopy_Implementation_type_2) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int N = 23;
     int incX = 1;
     int incY = 1;
@@ -150,7 +153,8 @@ TEST(hcblas_scopy, return_correct_scopy_Implementation_type_2) {
 }
 
 TEST(hcblas_scopy, func_correct_scopy_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 23;
    int incX = 1;
    int incY = 1;

@@ -8,7 +8,8 @@
 using namespace hc::short_vector;
 
 TEST(hcblas_cgemm, return_correct_cgemm_Implementation_type_1) {
-    Hcblaslibrary hc; 
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 189, N = 9, K = 19;
     long lda, ldb, ldc;
     int incX = 1, incY = 1;
@@ -135,7 +136,8 @@ TEST(hcblas_cgemm, return_correct_cgemm_Implementation_type_1) {
 
 
 TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
-    Hcblaslibrary hc; 
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 189, N = 9, K = 19;
     long lda, ldb, ldc;
     int incX = 1, incY = 1;
@@ -408,7 +410,8 @@ TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_1) {
 
 
 TEST(hcblas_cgemm, return_correct_cgemm_Implementation_type_2) {
-    Hcblaslibrary hc; 
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 189, N = 9, K = 19;
     long lda, ldb, ldc;
     int incX = 1, incY = 1;
@@ -540,7 +543,8 @@ TEST(hcblas_cgemm, return_correct_cgemm_Implementation_type_2) {
  
  
 TEST(hcblas_cgemm, func_correct_cgemm_Implementation_type_2) {
-   Hcblaslibrary hc; 
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int M = 189, N = 9, K = 19;
    long lda, ldb, ldc;
    int incX = 1, incY = 1;

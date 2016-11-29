@@ -5,7 +5,8 @@
 #include "cblas.h"
 
 TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 279;
    int incX = 1;
    int incY = 1;
@@ -63,7 +64,8 @@ TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_1) {
 }
 
 TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 279;
    int incX = 1;
    int incY = 1;
@@ -105,7 +107,8 @@ TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_1) {
 }
 
 TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 279;
    int incX = 1;
    int incY = 1;
@@ -166,7 +169,8 @@ TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_2) {
 }
 
 TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 279;
    int incX = 1;
    int incY = 1;

@@ -5,7 +5,8 @@
 #include "cblas.h"
 
 TEST(hcblas_dasum, return_correct_dasum_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 119;
    int incX = 1;
    long xOffset = 0;
@@ -41,7 +42,8 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_1) {
 }
 
 TEST(hcblas_dasum, func_correct_dasum_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 119;
    int incX = 1;
    long xOffset = 0;
@@ -68,7 +70,8 @@ TEST(hcblas_dasum, func_correct_dasum_Implementation_type_1) {
 }
 
 TEST(hcblas_dasum, return_correct_dasum_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 119;
    int incX = 1;
    int batchSize = 128;
@@ -106,7 +109,8 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_2) {
 }
 
 TEST(hcblas_dasum, func_correct_dasum_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 119;
    int incX = 1;
    int batchSize = 128;

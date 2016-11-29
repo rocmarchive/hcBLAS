@@ -13,48 +13,11 @@
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
-
-  *handle = new Hcblaslibrary;
+  *handle = new Hcblaslibrary(acc);
 
   if(*handle == NULL) {
     return HCBLAS_STATUS_ALLOC_FAILED;
   }
-
-  if (acc == nullptr) { 
-      // TODO - remove this path, as it is not multi-GPU aware.
-	  std::vector<accelerator> accs = accelerator::get_all();
-	  assert(accs.size() && "Number of Accelerators == 0!");
-
-
-	  if(accs.size() >= 2)
-	      (*handle)->deviceId = 1;
-	  else
-	      (*handle)->deviceId = 0;
-
-	  (*handle)->currentAccl = accs[(*handle)->deviceId];
-  } else {
-	  std::vector<accelerator> accs = accelerator::get_all();
-      bool foundIt = false;
-      for (int i=0;i<accs.size();i++) {
-        if (accs[i] == *acc) {
-          (*handle)->deviceId = i;
-          foundIt = true;
-          break;
-        }
-      }
-      assert(foundIt);
-	  (*handle)->currentAccl = *acc;
-  }
-
-	(*handle)->currentAcclView = (*handle)->currentAccl.get_default_view();
-  //std::wcout <<  "createHandle=" << *handle 
-  //          <<  " with device=" << (*handle)->deviceId
-  //          <<  " " <<  (*handle)->currentAcclView.get_accelerator().get_description() 
-  //          <<  " " <<  (*handle)->currentAcclView.get_accelerator().get_device_path() 
-  //          <<  "\n";
-
-  // Always initialize order, we are creating a new handle:
-  (*handle)->Order = ColMajor;
   return HCBLAS_STATUS_SUCCESS;  
 }
 
