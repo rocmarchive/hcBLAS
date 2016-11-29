@@ -12,7 +12,6 @@ ADD_SUBDIRECTORY(blas)
 #Setting a Project name
 SET(PROJECT_NAME "libhcblas")
 SET(HIP_PATH "/opt/rocm/hip")
-SET(HIP_PATH "/home/rocm-user/hip")
 PROJECT (${PROJECT_NAME})
 MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
