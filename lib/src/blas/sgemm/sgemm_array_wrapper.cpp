@@ -1,7 +1,7 @@
 #include "sgemm_array_kernels.h"
 
 // Sgemm Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
-hcblasStatus gemm_HC(hc::accelerator_view &accl_view,
+hcblasStatus gemm_HC(hc::accelerator_view accl_view,
                      const int order, char TransA, char TransB,
                      const int M, const int N, const int K,
                      const float alpha, float *A_mat,
@@ -73,7 +73,7 @@ hcblasStatus gemm_HC(hc::accelerator_view &accl_view,
 
 // Type 1 -  alpha = 0 Kernel
 
-hcblasStatus gemm_alpha0_col(hc::accelerator_view &accl_view,
+hcblasStatus gemm_alpha0_col(hc::accelerator_view accl_view,
 		             float *A, long aOffset,
 			     float *B, long bOffset,
 			     float *C, long cOffset,
@@ -105,7 +105,7 @@ hcblasStatus gemm_alpha0_col(hc::accelerator_view &accl_view,
 
 // Type 2 - alpha = 0 kernel
 
-hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view &accl_view,
+hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view accl_view,
                                    float *A, long aOffset, long A_batchOffset,
                                    float *B, long bOffset, long B_batchOffset,
                                    float *C, long cOffset, long C_batchOffset,
@@ -138,7 +138,7 @@ hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view &accl_view,
 
 // Type 1 -  alpha = 0 Kernel
 
-hcblasStatus gemm_alpha0_row(hc::accelerator_view &accl_view,
+hcblasStatus gemm_alpha0_row(hc::accelerator_view accl_view,
                              float *A, long aOffset,
 			     float *B, long bOffset,
 			     float *C, long cOffset,
@@ -170,7 +170,7 @@ hcblasStatus gemm_alpha0_row(hc::accelerator_view &accl_view,
 
 // Type 2 - alpha = 0 kernel
 
-hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view &accl_view,
+hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view accl_view,
                                    float *A, long aOffset, long A_batchOffset,
                                    float *B, long bOffset, long B_batchOffset,
                                    float *C, long cOffset, long C_batchOffset,
@@ -202,7 +202,7 @@ hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view &accl_view,
 }
 
 // Sgemm Call Type I: Inputs and outputs are HCC device pointers
-hcblasStatus  Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
+hcblasStatus  Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view accl_view,
 					    hcblasOrder order,
 					    hcblasTranspose typeA,
 					    hcblasTranspose typeB, const int M,
@@ -238,7 +238,7 @@ hcblasStatus  Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
 }
 
 /* SGEMM- Overloaded function with arguments related to batch processing */
-hcblasStatus Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view accl_view,
 					   hcblasOrder order,
 					   hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,

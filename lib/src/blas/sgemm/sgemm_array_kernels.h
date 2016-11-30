@@ -336,28 +336,28 @@ using namespace hc;
            offA++;       			      \
            offB++;       			      
 
-hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_view accl_view,
 					     float *A, long aOffset,
 					     float *B, long bOffset,
 					     float *C, long cOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
 					     float alpha, float beta);
 
-hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view accl_view,
                                              float *A, long aOffset,
                                              float *B, long bOffset,
                                              float *C, long cOffset,
                                              int M, int N, int K, int lda, int ldb, int ldc,
                                              float alpha, float beta);
 
-hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_view accl_view,
 					     float *A, long aOffset,
 					     float *B, long bOffset,
 					     float *C, long cOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
 					     float alpha, float beta);
 
-hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view accl_view,
                                              float *A, long aOffset,
                                              float *B, long bOffset,
                                              float *C, long cOffset,
@@ -435,56 +435,56 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float alpha, float beta); 
 
-hcblasStatus gemm_NoTransAB(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB(hc::accelerator_view accl_view,
                             float *A, long aOffset,
                             float *B, long bOffset,
                             float *C, long cOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float alpha, float beta);
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
@@ -505,56 +505,56 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS4_MB2(hc::accelera
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float alpha, float beta); 
 
-hcblasStatus gemm_NoTransA(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA(hc::accelerator_view accl_view,
 	                   float *A, long aOffset,
                            float *B, long bOffset,
                            float *C, long cOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta);
 
-hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransB_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransB_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float alpha, float beta);
 
-hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(hc::accelerator_view accl_view,
 					       const float *A, long aOffset,
 					       const float *B, long bOffset,
 					       float *C, long cOffset,
@@ -575,14 +575,14 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS4_MB2(hc::accelera
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float alpha, float beta); 
 
-hcblasStatus gemm_NoTransB(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB(hc::accelerator_view accl_view,
           		   float *A, long aOffset,
                            float *B, long bOffset,
                            float *C, long cOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta);
 
-hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB(hc::accelerator_view accl_view,
                           float *A, long aOffset,
                           float *B, long bOffset,
                           float *C, long cOffset,
@@ -594,28 +594,28 @@ hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
 * SGEMM Kernels for Batch processing in column major order
 */
 
-hcblasStatus gemm_NoTransAB(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB(hc::accelerator_view accl_view,
                             float *A, long aOffset, long A_batchOffset,
                             float *B, long bOffset, long B_batchOffset,
                             float *C, long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float alpha, float beta, int batchSize);
 
-hcblasStatus gemm_NoTransA(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA(hc::accelerator_view accl_view,
 	                   float *A, long aOffset, long A_batchOffset,
                            float *B, long bOffset, long B_batchOffset,
                            float *C, long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta, int batchSize);
 
-hcblasStatus gemm_NoTransB(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB(hc::accelerator_view accl_view,
           		   float *A, long aOffset, long A_batchOffset,
                            float *B, long bOffset, long B_batchOffset,
                            float *C, long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta, int batchSize);
 
-hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB(hc::accelerator_view accl_view,
                           float *A, long aOffset, long A_batchOffset,
                           float *B, long bOffset, long B_batchOffset,
                           float *C, long cOffset, long C_batchOffset,
@@ -627,28 +627,28 @@ hcblasStatus gemm_TransAB(hc::accelerator_view &accl_view,
 * SGEMM Kernels - Row major order
 */
 
-hcblasStatus gemm_NoTransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_rMajor(hc::accelerator_view accl_view,
                                    float *A, long aOffset,
                                    float *B, long bOffset,
                                    float *C, long cOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float alpha, float beta);
 
-hcblasStatus gemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_rMajor(hc::accelerator_view accl_view,
                                   float *A, long aOffset,
                                   float *B, long bOffset,
                                   float *C, long cOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta);
 
-hcblasStatus gemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor(hc::accelerator_view accl_view,
                                   float *A, long aOffset,
                                   float *B, long bOffset,
                                   float *C, long cOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta);
 
-hcblasStatus gemm_TransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_rMajor(hc::accelerator_view accl_view,
                                  float *A, long aOffset,
                                  float *B, long bOffset,
                                  float *C, long cOffset,
@@ -661,28 +661,28 @@ hcblasStatus gemm_TransAB_rMajor(hc::accelerator_view &accl_view,
 * SGEMM Kernels for Batch-processing in Row major order
 */
 
-hcblasStatus gemm_NoTransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_rMajor(hc::accelerator_view accl_view,
                                    float *A, long aOffset, long A_batchOffset,
                                    float *B, long bOffset, long B_batchOffset,
                                    float *C, long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    float alpha, float beta, int batchSize);
 
-hcblasStatus gemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransA_rMajor(hc::accelerator_view accl_view,
                                   float *A, long aOffset, long A_batchOffset,
                                   float *B, long bOffset, long B_batchOffset,
                                   float *C, long cOffset, long C_batchOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta, int batchSize);
 
-hcblasStatus gemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransB_rMajor(hc::accelerator_view accl_view,
                                   float *A, long aOffset, long A_batchOffset,
                                   float *B, long bOffset, long B_batchOffset,
                                   float *C, long cOffset, long C_batchOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   float alpha, float beta, int batchSize);
 
-hcblasStatus gemm_TransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus gemm_TransAB_rMajor(hc::accelerator_view accl_view,
                                  float *A, long aOffset, long A_batchOffset,
                                  float *B, long bOffset, long B_batchOffset,
                                  float *C, long cOffset, long C_batchOffset,

@@ -6,7 +6,7 @@
 using namespace hc::fast_math;
 using namespace hc;
 
-void sasum_HC(hc::accelerator_view &accl_view,
+void sasum_HC(hc::accelerator_view accl_view,
                long n, float *xView, long incx, long xOffset, float *Y) {
   *Y = 0.0;
   // runtime sizes
@@ -103,7 +103,7 @@ void sasum_HC(hc::accelerator_view &accl_view,
   // create host buffer
   float* host_global_buffer = (float *)malloc(sizeof(float) * tile_count);
   // Copy device contents back to host
-  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * tile_count);
+  accl_view.copy_async(dev_global_buffer, host_global_buffer, sizeof(float) * tile_count);
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count; i++) {
@@ -117,7 +117,7 @@ void sasum_HC(hc::accelerator_view &accl_view,
 
 }
 
-void sasum_HC(hc::accelerator_view &accl_view,
+void sasum_HC(hc::accelerator_view accl_view,
                long n, float *xView, long incx, long xOffset, float *Y,
                long X_batchOffset, int batchSize) {
   *Y = 0.0;
@@ -216,7 +216,7 @@ void sasum_HC(hc::accelerator_view &accl_view,
   // create host buffer
   float* host_global_buffer = (float *) malloc(sizeof(float) * batchSize * tile_count);
   // Copy device contents back to host
-  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * batchSize * tile_count);
+  accl_view.copy_async(dev_global_buffer, host_global_buffer, sizeof(float) * batchSize * tile_count);
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
@@ -230,7 +230,7 @@ void sasum_HC(hc::accelerator_view &accl_view,
 }
 
 // SASUM Call Type I: Inputs and outputs are HCC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view &accl_view, const int N,
+hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view accl_view, const int N,
 				           float *X, const int incX,
 				           const long xOffset, float *Y) {
   /*Check the conditions*/
@@ -243,7 +243,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view &accl_view, cons
 }
 
 // SASUM Type II - Overloaded function with arguments related to batch processing
-hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view &accl_view, const int N,
+hcblasStatus Hcblaslibrary :: hcblas_sasum(hc::accelerator_view accl_view, const int N,
 				           float *X, const int incX,
 				           const long xOffset, float *Y, const long X_batchOffset, const int batchSize) {
   /*Check the conditions*/

@@ -1,7 +1,7 @@
 #include "zgemm_array_kernels.h"
 #include "hc_math.hpp"
 using namespace hc::fast_math;
-hcblasStatus zgemm_TransAB_rMajor_loopunroll(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_TransAB_rMajor_loopunroll(hc::accelerator_view accl_view,
 					     double_2 *A, long aOffset,
 					     double_2 *B, long bOffset,
 					     double_2 *C, long cOffset,
@@ -95,7 +95,7 @@ hcblasStatus zgemm_TransAB_rMajor_loopunroll(hc::accelerator_view &accl_view,
 }
 
 
-hcblasStatus zgemm_TransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_TransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					          double_2 *A, long aOffset,
 					          double_2 *B, long bOffset,
 					          double_2 *C, long cOffset,
@@ -192,7 +192,7 @@ hcblasStatus zgemm_TransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view &accl_vie
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_TransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_TransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					       double_2 *A, long aOffset,
 					       double_2 *B, long bOffset,
 				   	       double_2 *C, long cOffset,
@@ -288,7 +288,7 @@ hcblasStatus zgemm_TransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view &accl_view,
 
 
 
-hcblasStatus zgemm_TransAB_rMajor_MICRO_TS8XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_TransAB_rMajor_MICRO_TS8XMTS2(hc::accelerator_view accl_view,
 					         double_2 *A, long aOffset,
 					         double_2 *B, long bOffset,
 					         double_2 *C, long cOffset,
@@ -385,7 +385,7 @@ hcblasStatus zgemm_TransAB_rMajor_MICRO_TS8XMTS2(hc::accelerator_view &accl_view
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					           double_2 *A, long aOffset,
 					           double_2 *B, long bOffset,
 					           double_2 *C, long cOffset,
@@ -482,7 +482,7 @@ hcblasStatus zgemm_NoTransB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view &accl_vi
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransA_rMajor_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransA_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					        double_2 *A, long aOffset,
 					        double_2 *B, long bOffset,
 					        double_2 *C, long cOffset,
@@ -571,7 +571,7 @@ hcblasStatus zgemm_NoTransA_rMajor_STEP_TS8XSS8(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransA_rMajor_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransA_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					           double_2 *A, long aOffset,
 					           double_2 *B, long bOffset,
 					           double_2 *C, long cOffset,
@@ -669,7 +669,7 @@ hcblasStatus zgemm_NoTransA_rMajor_MICRO_TS16XMTS2(hc::accelerator_view &accl_vi
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransA_rMajor_loopunroll(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransA_rMajor_loopunroll(hc::accelerator_view accl_view,
 					      double_2 *A, long aOffset,
 					      double_2 *B, long bOffset,
 					      double_2 *C, long cOffset,
@@ -762,7 +762,7 @@ hcblasStatus zgemm_NoTransA_rMajor_loopunroll(hc::accelerator_view &accl_view,
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					         double_2 *A, long aOffset,
 					         double_2 *B, long bOffset,
 					         double_2 *C, long cOffset,
@@ -848,7 +848,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view &accl_view
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS16XSS16(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS16XSS16(hc::accelerator_view accl_view,
 					           double_2 *A, long aOffset,
 					           double_2 *B, long bOffset,
 					           double_2 *C, long cOffset,
@@ -934,7 +934,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS16XSS16(hc::accelerator_view &accl_vi
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 						    double_2 *A, long aOffset,
 						    double_2 *B, long bOffset,
 						    double_2 *C, long cOffset,
@@ -1031,7 +1031,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view &accl_v
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus zgemm_TransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_TransAB_rMajor(hc::accelerator_view accl_view,
                                   double_2 *A, long aOffset,
                                   double_2 *B, long bOffset,
                                   double_2 *C, long cOffset,
@@ -1050,7 +1050,7 @@ hcblasStatus zgemm_TransAB_rMajor(hc::accelerator_view &accl_view,
   }
 }
 
-hcblasStatus zgemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransB_rMajor(hc::accelerator_view accl_view,
                                    double_2 *A, long aOffset,
                                    double_2 *B, long bOffset,
                                    double_2 *C, long cOffset,
@@ -1062,7 +1062,7 @@ hcblasStatus zgemm_NoTransB_rMajor(hc::accelerator_view &accl_view,
   //}
 }
 
-hcblasStatus zgemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransA_rMajor(hc::accelerator_view accl_view,
                                    double_2 *A, long aOffset,
                                    double_2 *B, long bOffset,
                                    double_2 *C, long cOffset,
@@ -1079,7 +1079,7 @@ hcblasStatus zgemm_NoTransA_rMajor(hc::accelerator_view &accl_view,
   }
 }
 
-hcblasStatus zgemm_NoTransAB_rMajor(hc::accelerator_view &accl_view,
+hcblasStatus zgemm_NoTransAB_rMajor(hc::accelerator_view accl_view,
                                     double_2 *A, long aOffset,
                                     double_2 *B, long bOffset,
                                     double_2 *C, long cOffset,

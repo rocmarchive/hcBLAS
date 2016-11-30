@@ -104,19 +104,19 @@ if [ "$bench" = "off" ]; then
      cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
      set +e
      mkdir $current_work_dir/build/test/src/bin/
-     mkdir $current_work_dir/build/test/unit/gtest/bin/
+     mkdir $current_work_dir/build/test/unit/bin/
      
      make -j$working_threads
      cd $current_work_dir/test/unit/
  # Invoke test script 
-     ${current_work_dir}/build/test/unit/gtest/bin/unittest
+     ${current_work_dir}/build/test/unit/bin/unittest
 # Test=ON and Profile=ON (Build, test and profile the library)
   elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
  # Build Tests
      cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
      set +e
      mkdir $current_work_dir/build/test/src/bin/
-     mkdir $current_work_dir/build/test/unit/gtest/bin/
+     mkdir $current_work_dir/build/test/unit/bin/
      set -e
      make -j$working_threads
      cd $current_work_dir/test/unit/

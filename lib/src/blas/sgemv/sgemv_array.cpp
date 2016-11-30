@@ -6,7 +6,7 @@
 using namespace hc::fast_math;
 using namespace hc;
 
-static void gemv_TransA(hc::accelerator_view &accl_view,
+static void gemv_TransA(hc::accelerator_view accl_view,
                         float *A_mat, long aOffset,
                         float *X_vec, long xOffset,
                         float *Y_vec, long yOffset,
@@ -107,7 +107,7 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
   }
 }
 
-static void gemv_TransA(hc::accelerator_view &accl_view,
+static void gemv_TransA(hc::accelerator_view accl_view,
                         float *A_mat, long aOffset, long A_batchOffset,
                         float *X_vec, long xOffset, long X_batchOffset,
                         float *Y_vec, long yOffset, long Y_batchOffset,
@@ -210,7 +210,7 @@ static void gemv_TransA(hc::accelerator_view &accl_view,
   }
 }
 
-static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
+static void gemv_TransA_rMajor(hc::accelerator_view accl_view,
                                float *A_mat, long aOffset,
                                float *X_vec, long xOffset,
                                float *Y_vec, long yOffset,
@@ -311,7 +311,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
   }
 }
 
-static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
+static void gemv_TransA_rMajor(hc::accelerator_view accl_view,
                                float *A_mat, long aOffset, long A_batchOffset,
                                float *X_vec, long xOffset, long X_batchOffset,
                                float *Y_vec, long yOffset, long Y_batchOffset,
@@ -414,7 +414,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view &accl_view,
   }
 }
 
-static void gemv_NoTransA(hc::accelerator_view &accl_view,
+static void gemv_NoTransA(hc::accelerator_view accl_view,
                           float *A, long aOffset,
                           float *X, long xOffset,
                           float *Y, long yOffset,
@@ -456,7 +456,7 @@ static void gemv_NoTransA(hc::accelerator_view &accl_view,
   });
 }
 
-static void gemv_NoTransA(hc::accelerator_view &accl_view,
+static void gemv_NoTransA(hc::accelerator_view accl_view,
                           float *A, long aOffset, long A_batchOffset,
                           float *X, long xOffset, long X_batchOffset,
                           float *Y, long yOffset, long Y_batchOffset,
@@ -499,7 +499,7 @@ static void gemv_NoTransA(hc::accelerator_view &accl_view,
   });
 }
 
-static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
+static void gemv_NoTransA_rMajor(hc::accelerator_view accl_view,
                                  float *A, long aOffset,
                                  float *X, long xOffset,
                                  float *Y, long yOffset,
@@ -541,7 +541,7 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
   });
 }
 
-static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
+static void gemv_NoTransA_rMajor(hc::accelerator_view accl_view,
                                  float *A, long aOffset, long A_batchOffset,
                                  float *X, long xOffset, long X_batchOffset,
                                  float *Y, long yOffset, long Y_batchOffset,
@@ -584,7 +584,7 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view &accl_view,
   });
 }
 
-static void gemv_alpha0_col(hc::accelerator_view &accl_view,
+static void gemv_alpha0_col(hc::accelerator_view accl_view,
                             float *A, long aOffset,
                             float *X, long xOffset,
                             float *Y, long yOffset,
@@ -608,7 +608,7 @@ static void gemv_alpha0_col(hc::accelerator_view &accl_view,
   });
 }
 
-static void gemv_alpha0_colbatch(hc::accelerator_view &accl_view,
+static void gemv_alpha0_colbatch(hc::accelerator_view accl_view,
                                  float *A, long aOffset, long A_batchOffset,
                                  float *X, long xOffset, long X_batchOffset,
                                  float *Y, long yOffset, long Y_batchOffset,
@@ -633,7 +633,7 @@ static void gemv_alpha0_colbatch(hc::accelerator_view &accl_view,
   });
 }
 
-static void gemv_alpha0_row(hc::accelerator_view &accl_view,
+static void gemv_alpha0_row(hc::accelerator_view accl_view,
                             float *A, long aOffset,
                             float *X, long xOffset,
                             float *Y, long yOffset,
@@ -657,7 +657,7 @@ static void gemv_alpha0_row(hc::accelerator_view &accl_view,
   });
 }
 
-static void gemv_alpha0_rowbatch(hc::accelerator_view &accl_view,
+static void gemv_alpha0_rowbatch(hc::accelerator_view accl_view,
                                  float *A, long aOffset, long A_batchOffset,
                                  float *X, long xOffset, long X_batchOffset,
                                  float *Y, long yOffset, long Y_batchOffset,
@@ -683,7 +683,7 @@ static void gemv_alpha0_rowbatch(hc::accelerator_view &accl_view,
 }
 
 /* SGEMV - Type I : inputs and outputs are device pointers */
-hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view accl_view,
 				           hcblasOrder order, hcblasTranspose type, const int M,
 				           const int N, const float &alpha,
 				           float *A, const long aOffset, const int lda,
@@ -731,7 +731,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
 }
 
 /* SGEMV - Type II : Inputs and outputs are device pointers with batch processing */
-hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_sgemv(hc::accelerator_view accl_view,
 				           hcblasOrder order, hcblasTranspose type, const int M,
 				           const int N, const float &alpha, float *A,
 				           const long aOffset, const long A_batchOffset, const int lda,

@@ -1527,7 +1527,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view accl_view,
 					     double *A, long aOffset,
 					     double *B, long bOffset,
 					     double *C, long cOffset,
@@ -1618,7 +1618,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view &accl_v
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view accl_view,
 					     double *A, long aOffset,
 					     double *B, long bOffset,
 					     double *C, long cOffset,
@@ -1711,7 +1711,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view &accl_v
 
   return HCBLAS_SUCCEEDS;
 }
-hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_view accl_view,
 					     double *A, long aOffset,
 					     double *B, long bOffset,
 					     double *C, long cOffset,
@@ -1773,7 +1773,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_vie
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_view &accl_view,
+hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_view accl_view,
 					     double *A, long aOffset,
 					     double *B, long bOffset,
 					     double *C, long cOffset,

@@ -7,7 +7,7 @@
 
 using namespace hc;
 using namespace hc::fast_math;
-float sdot_HC(hc::accelerator_view &accl_view, long n,
+float sdot_HC(hc::accelerator_view accl_view, long n,
               const float *xView, long incx, long xOffset,
               const float *yView, long incy, long yOffset, float out) {
   out = 0.0;
@@ -109,7 +109,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   // create host buffer
   float* host_global_buffer = (float *)malloc(sizeof(float) * tile_count);
   // Copy device contents back to host
-  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * tile_count);
+  accl_view.copy_async(dev_global_buffer, host_global_buffer, sizeof(float) * tile_count);
 
   // 2nd pass reduction
   // Check if the residual is capable of occupying 50% of compute units
@@ -130,7 +130,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   return out;
 }
 
-float sdot_HC(hc::accelerator_view &accl_view, long n,
+float sdot_HC(hc::accelerator_view accl_view, long n,
               const float *xView, long incx, long xOffset,
               const float *yView, long incy, long yOffset, float out,
               const long X_batchOffset, const long Y_batchOffset, const int batchSize)
@@ -232,7 +232,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
   // create host buffer
   float* host_global_buffer = (float *)malloc(sizeof(float) * batchSize * tile_count);
   // Copy device contents back to host
-  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * batchSize * tile_count);
+  accl_view.copy_async(dev_global_buffer, host_global_buffer, sizeof(float) * batchSize * tile_count);
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
@@ -247,7 +247,7 @@ float sdot_HC(hc::accelerator_view &accl_view, long n,
 }
 
 // SDOT Call Type I: Inputs and outputs are HCC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const int N,
+hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view accl_view, const int N,
 				          const float *X, const int incX, const long xOffset,
 				          const float *Y, const int incY, const long yOffset, float &dot)
 
@@ -262,7 +262,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const
 }
 
 // SDOT Type II - Overloaded function with arguments related to batch processing
-hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view &accl_view, const int N,
+hcblasStatus Hcblaslibrary :: hcblas_sdot(hc::accelerator_view accl_view, const int N,
 				          const float *X, const int incX, const long xOffset,
 				          const float *Y, const int incY, const long yOffset, float &dot,
 				          const long X_batchOffset, const long Y_batchOffset, const int batchSize) {

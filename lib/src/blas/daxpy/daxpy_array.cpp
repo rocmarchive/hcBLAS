@@ -5,7 +5,7 @@ using namespace hc::fast_math;
 using namespace hc;
 #define BLOCK_SIZE 256
 
-void axpy_HC(hc::accelerator_view &accl_view,
+void axpy_HC(hc::accelerator_view accl_view,
              long n, double alpha,
              const double *X, long xOffset, long incx,
              double *Y, long yOffset, long incy) {
@@ -57,7 +57,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
   }
 }
 
-void axpy_HC(hc::accelerator_view &accl_view,
+void axpy_HC(hc::accelerator_view accl_view,
              long n, double alpha,
              const double *X, long xOffset, long incx,
              double *Y, long yOffset, long incy,
@@ -115,7 +115,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
 }
 
 /* SAXPY - Type I : Inputs and outputs are device pointers */
-hcblasStatus Hcblaslibrary :: hcblas_daxpy(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_daxpy(hc::accelerator_view accl_view,
 				           const int N, const double &alpha,
 				           const double *X, const int incX,
 				           double *Y, const int incY,
@@ -136,7 +136,7 @@ hcblasStatus Hcblaslibrary :: hcblas_daxpy(hc::accelerator_view &accl_view,
 }
 
 /* SAXPY - Type II : Inputs and outputs are device pointers with batch processing */
-hcblasStatus  Hcblaslibrary :: hcblas_daxpy(hc::accelerator_view &accl_view,
+hcblasStatus  Hcblaslibrary :: hcblas_daxpy(hc::accelerator_view accl_view,
 					    const int N, const double &alpha,
 					    const double *X, const int incX, const long X_batchOffset,
 					    double *Y, const int incY, const long Y_batchOffset,

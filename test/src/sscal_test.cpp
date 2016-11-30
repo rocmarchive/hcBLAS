@@ -35,9 +35,9 @@ int main(int argc, char** argv)
             X[i] = rand() % 10;
             Xcblas[i] = X[i];
         }
-	accl_view.copy(X, devX, lenx * sizeof(float));
+	accl_view.copy_async(X, devX, lenx * sizeof(float));
         status = hc.hcblas_sscal(accl_view, N, alpha, devX, incX, xOffset);
-	accl_view.copy(devX, X, lenx * sizeof(float));
+	accl_view.copy_async(devX, X, lenx * sizeof(float));
         cblas_sscal( N, alpha, Xcblas, incX );
         for(int i = 0; i < lenx ; i++){
             if (X[i] != Xcblas[i]){
@@ -65,9 +65,9 @@ int main(int argc, char** argv)
             Xbatch[i] = rand() % 10;
             Xcblasbatch[i] =  Xbatch[i];
          }
-	accl_view.copy(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
+	accl_view.copy_async(Xbatch, devXbatch, lenx * batchSize * sizeof(float));
         status= hc.hcblas_sscal(accl_view, N, alpha, devXbatch, incX, xOffset, X_batchOffset, batchSize);
-	accl_view.copy(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
+	accl_view.copy_async(devXbatch, Xbatch, lenx * batchSize * sizeof(float));
         for(int i = 0; i < batchSize; i++)
         	cblas_sscal( N, alpha, Xcblasbatch + i * N, incX);
         for(int i =0; i < lenx * batchSize; i ++){

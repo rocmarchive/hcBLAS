@@ -6,7 +6,7 @@ using namespace hc::fast_math;
 using namespace hc;
 #define BLOCK_SIZE 8
 
-void dscal_HC(hc::accelerator_view &accl_view,
+void dscal_HC(hc::accelerator_view accl_view,
               long n, double alpha,
               double *X, long incx, long xOffset) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
@@ -23,7 +23,7 @@ void dscal_HC(hc::accelerator_view &accl_view,
   });
 }
 
-void dscal_HC(hc::accelerator_view &accl_view,
+void dscal_HC(hc::accelerator_view accl_view,
               long n, double alpha,
               double *X, long incx, long xOffset,
               long X_batchOffset, int batchSize) {
@@ -44,7 +44,7 @@ void dscal_HC(hc::accelerator_view &accl_view,
 }
 
 // DSCAL Call Type I: Inputs and outputs are HCC float array containers
-hcblasStatus Hcblaslibrary :: hcblas_dscal(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_dscal(hc::accelerator_view accl_view,
 				           const int N, const double &alpha,
 				           double *X, const int incX,
 				           const long xOffset) {
@@ -58,7 +58,7 @@ hcblasStatus Hcblaslibrary :: hcblas_dscal(hc::accelerator_view &accl_view,
 }
 
 // DSCAL Type II - Overloaded function with arguments related to batch processing
-hcblasStatus Hcblaslibrary :: hcblas_dscal(hc::accelerator_view &accl_view,
+hcblasStatus Hcblaslibrary :: hcblas_dscal(hc::accelerator_view accl_view,
 				           const int N, const double &alpha,
 				           double *X, const int incX,
 				           const long xOffset, const long X_batchOffset, const int batchSize) {

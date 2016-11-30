@@ -90,11 +90,11 @@ int main(int argc,char* argv[])
             C[i  + cOffset] = rand() % 25;
             C_cblas[i + cOffset] = C[i + cOffset];
         }
-        accl_view.copy(A, devA, (M * K + aOffset)* sizeof(float));
-        accl_view.copy(B, devB, (K * N + bOffset)* sizeof(float));
-        accl_view.copy(C, devC, (M * N + cOffset)* sizeof(float));
+        accl_view.copy_async(A, devA, (M * K + aOffset)* sizeof(float));
+        accl_view.copy_async(B, devB, (K * N + bOffset)* sizeof(float));
+        accl_view.copy_async(C, devC, (M * N + cOffset)* sizeof(float));
         status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
-        accl_view.copy(devC, C,  (M * N + cOffset) * sizeof(float));
+        accl_view.copy_async(devC, C,  (M * N + cOffset) * sizeof(float));
         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A + aOffset, lda, B + bOffset, ldb, beta, C_cblas + cOffset, ldc);
         for(int i = 0 ; i < M * N ; i++) { 
             if( C_cblas[i + cOffset] != (C[i + cOffset])) {
