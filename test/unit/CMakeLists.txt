@@ -8,18 +8,10 @@ FIND_PACKAGE(HC++ 1.0 REQUIRED)
 
 file(GLOB SRCS *.cpp)
 
-# Choice to take compilation flags from source or package
-if(EXISTS ${MCWHCCBUILD})
-  execute_process(COMMAND ${HCC_CONFIG} --build --cxxflags
-                         OUTPUT_VARIABLE HCC_CXXFLAGS)
-  execute_process(COMMAND ${HCC_CONFIG} --build --ldflags  
-                            OUTPUT_VARIABLE HCC_LDFLAGS)
-else(EXISTS ${MCWHCCBUILD})
-  execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
+execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
-  execute_process(COMMAND ${HCC_CONFIG}  --install --ldflags
+execute_process(COMMAND ${HCC_CONFIG}  --install --ldflags
                             OUTPUT_VARIABLE HCC_LDFLAGS)
-endif(EXISTS ${MCWHCCBUILD})
 
 SET(HCBLAS_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/include/")
 SET(TEST_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../include/")

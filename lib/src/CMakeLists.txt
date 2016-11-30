@@ -11,29 +11,22 @@ ADD_SUBDIRECTORY(blas)
 
 #Setting a Project name
 SET(PROJECT_NAME "libhcblas")
+SET(HIP_PATH "/opt/rocm/hip")
 PROJECT (${PROJECT_NAME})
 MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
 #Setting a variable for source files
-SET (SRCS ${BLASSRC} hcblas.cpp)
+SET (SRCS ${BLASSRC} hcblas.cpp hipblas.cpp)
 
-  # Choice to take compilation flags from source or package
-  if(EXISTS ${MCWHCCBUILD})
-    execute_process(COMMAND ${HCC_CONFIG} --build --cxxflags
+  execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
-    execute_process(COMMAND ${HCC_CONFIG} --build --ldflags --shared
+  execute_process(COMMAND ${HCC_CONFIG} --install --ldflags --shared
                             OUTPUT_VARIABLE HCC_LDFLAGS)
-  else(EXISTS ${MCWHCCBUILD})
-    execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
-                            OUTPUT_VARIABLE HCC_CXXFLAGS)
-    execute_process(COMMAND ${HCC_CONFIG} --install --ldflags --shared
-                            OUTPUT_VARIABLE HCC_LDFLAGS)
-  endif(EXISTS ${MCWHCCBUILD})
  
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
-  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include")
-  set (HCC_LDFLAGS "${HCC_LDFLAGS}")
+  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc")
 
   FOREACH(src_file ${SRCS})
 	  SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")

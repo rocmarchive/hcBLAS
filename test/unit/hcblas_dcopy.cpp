@@ -4,7 +4,8 @@
 #include "hc_am.hpp"
 #include "cblas.h"
 TEST(hcblas_dcopy, return_correct_dcopy_Implementation_type_1) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int N = 23;
     int incX = 1;
     int incY = 1;
@@ -15,11 +16,11 @@ TEST(hcblas_dcopy, return_correct_dcopy_Implementation_type_1) {
     long leny = 1 + (N-1) * abs(incY);
     double *X = (double*)calloc(lenx, sizeof(double));
     double *Y = (double*)calloc(leny, sizeof(double));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 /* Implementation type I - Inputs and Outputs are HCC device pointers*/
-   double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
-   double* devY = hc::am_alloc(sizeof(double) * leny, acc[1], 0);
+   double* devX = hc::am_alloc(sizeof(double) * lenx, acc, 0);
+   double* devY = hc::am_alloc(sizeof(double) * leny, acc, 0);
    double* devX1 = NULL;
    double* devY1 = NULL;
    for(int i = 0; i < lenx; i++){
@@ -55,7 +56,8 @@ TEST(hcblas_dcopy, return_correct_dcopy_Implementation_type_1) {
 }
 
 TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 23;
    int incX = 1;
    int incY = 1;
@@ -67,11 +69,11 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_1) {
    double *X = (double*)calloc(lenx, sizeof(double));
    double *Y = (double*)calloc(leny, sizeof(double));
    double *Ycblas = (double*)calloc(leny, sizeof(double));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
    /* Implementation type I - Inputs and Outputs are HCC device pointers*/
-   double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
-   double* devY = hc::am_alloc(sizeof(double) * leny, acc[1], 0);
+   double* devX = hc::am_alloc(sizeof(double) * lenx, acc, 0);
+   double* devY = hc::am_alloc(sizeof(double) * leny, acc, 0);
    for(int i = 0; i < lenx; i++){
              X[i] = rand() % 10;
    }
@@ -96,7 +98,8 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_1) {
 }
 
 TEST(hcblas_dcopy, return_correct_dcopy_Implementation_type_2) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int N = 23;
     int incX = 1;
     int incY = 1;
@@ -110,10 +113,10 @@ TEST(hcblas_dcopy, return_correct_dcopy_Implementation_type_2) {
     long leny = 1 + (N-1) * abs(incY);
     double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
     double *Ybatch = (double*)calloc(leny * batchSize, sizeof(double));
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
-    double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
-    double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc[1], 0); 
+    accelerator_view accl_view = hc.currentAcclView;
+    accelerator acc = hc.currentAccl;
+    double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc, 0);
+    double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc, 0); 
     double* devX1batch = NULL;
     double* devY1batch = NULL;
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
@@ -150,7 +153,8 @@ TEST(hcblas_dcopy, return_correct_dcopy_Implementation_type_2) {
 }
 
 TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 23;
    int incX = 1;
    int incY = 1;
@@ -165,10 +169,10 @@ TEST(hcblas_dcopy, func_correct_dcopy_Implementation_type_2) {
    double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
    double *Ybatch = (double*)calloc(leny * batchSize, sizeof(double));
    double *Ycblasbatch = (double*)calloc(leny * batchSize, sizeof(double));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
-   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
-   double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc[1], 0);
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
+   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc, 0);
+   double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc, 0);
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
              Xbatch[i] = rand() % 10;

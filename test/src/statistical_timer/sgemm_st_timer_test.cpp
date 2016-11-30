@@ -15,7 +15,8 @@ using namespace std;
 int main(int argc,char* argv[])
 {  
     /* HCBLAS Implementation */
-    Hcblaslibrary hc; 
+    hc::accelerator accl;
+    Hcblaslibrary hc(&accl); 
     if (argc < 3) {
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;

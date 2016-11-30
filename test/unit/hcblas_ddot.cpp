@@ -7,7 +7,8 @@
 
 // code to check input given n size N
 void func_check_ddot_with_input(long N) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int incX = 1;
   int incY = 1;
   long yOffset = 0;
@@ -19,11 +20,11 @@ void func_check_ddot_with_input(long N) {
   long leny = 1 + (N - 1) * abs(incY);
   double* X = (double*)calloc(lenx, sizeof(double));
   double* Y = (double*)calloc(leny, sizeof(double));
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
   /*Implementation type I - Inputs and Outputs are HCC double array containers */
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny, acc[1], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, acc, 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny, acc, 0);
 
   for(int i = 0; i < lenx; i++) {
     X[i] = rand() % 10;
@@ -47,7 +48,8 @@ void func_check_ddot_with_input(long N) {
 }
 
 TEST(hcblas_ddot, return_correct_ddot_Implementation_type_1) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long N = 189;
   int incX = 1;
   int incY = 1;
@@ -59,11 +61,11 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_1) {
   long leny = 1 + (N - 1) * abs(incY);
   double* X = (double*)calloc(lenx, sizeof(double));
   double* Y = (double*)calloc(leny, sizeof(double));
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
   /* Implementation type I - Inputs and Outputs are HCC double array containers */
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny, acc[1], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, acc, 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny, acc, 0);
 
   for(int i = 0; i < lenx; i++) {
     X[i] = rand() % 10;
@@ -105,7 +107,8 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_1) {
 }
 
 TEST(hcblas_ddot, return_correct_ddot_Implementation_type_2) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long N = 189;
   int incX = 1;
   int incY = 1;
@@ -120,10 +123,10 @@ TEST(hcblas_ddot, return_correct_ddot_Implementation_type_2) {
   long leny = 1 + (N - 1) * abs(incY);
   double* Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
   double* Ybatch = (double*)calloc(leny * batchSize, sizeof(double));
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
-  double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
-  double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc[1], 0);
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
+  double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc, 0);
+  double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc, 0);
 
   /* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
   for(int i = 0; i < lenx * batchSize; i++) {
@@ -209,7 +212,8 @@ TEST(hcblas_ddot, func_correct_ddot_vvsmallN_Implementation_type_1) {
 
 // Func to check batch ddot gven inut size
 void func_check_ddot_batch_with_input(long N) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int incX = 1;
   int incY = 1;
   long yOffset = 0;
@@ -225,10 +229,10 @@ void func_check_ddot_batch_with_input(long N) {
   long leny = 1 + (N - 1) * abs(incY);
   double* Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));
   double* Ybatch = (double*)calloc(leny * batchSize, sizeof(double));
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
-  double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
-  double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc[1], 0);
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
+  double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc, 0);
+  double* devYbatch = hc::am_alloc(sizeof(double) * leny * batchSize, acc, 0);
 
   /* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
   for(int i = 0; i < lenx * batchSize; i++) {

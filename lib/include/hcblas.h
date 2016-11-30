@@ -11,6 +11,10 @@ extern "C" {
 // passed to all subsequent library function calls. The context should be destroyed at the end using 
 // hcblasDestroy().
 
+namespace hc {
+  class accelerator;
+};
+
 typedef struct  Hcblaslibrary* hcblasHandle_t;
 
 // 2.2.2. hcblasStatus_t
@@ -67,13 +71,14 @@ typedef hcDoubleComplex hcDoubleComplex;
 
 // This function initializes the HCBLAS library and creates a handle to an opaque structure
 // holding the HCBLAS library context.
+// Create the handle for use on the specified GPU.
 
 // Return Values
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
-hcblasStatus_t hcblasCreate(hcblasHandle_t *handle);
+hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc=nullptr);
 
 // 2. hcblasDestory()
 

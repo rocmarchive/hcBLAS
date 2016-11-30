@@ -33,8 +33,8 @@ extern "C" {
 typedef hcblasHandle_t hipblasHandle_t;
 typedef hcComplex hipComplex ;
 
-static hipblasHandle_t dummyGlobal;
 
+extern  hipblasHandle_t dummyGlobal;
 /* Unsupported types
 		"cublasFillMode_t",
 		"cublasDiagType_t",
@@ -104,13 +104,8 @@ inline static hipblasStatus_t hipHCBLASStatusToHIPStatus(hcblasStatus_t hcStatus
 	}
 }
 
+hipblasStatus_t hipblasCreate(hipblasHandle_t* handle);
 
-
-inline static hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
-    hipblasStatus_t retVal = hipHCBLASStatusToHIPStatus(hcblasCreate(&*handle));
-    dummyGlobal = *handle;
-    return retVal;
-}
 
 inline static hipblasStatus_t hipblasDestroy(hipblasHandle_t handle) {
     return hipHCBLASStatusToHIPStatus(hcblasDestroy(handle)); 

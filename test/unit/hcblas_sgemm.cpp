@@ -7,7 +7,8 @@
 #include "test_constants.h"
 
 TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_1) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int M = 189, N = 9, K = 19;
   float alpha = 1, beta = 1;
   long lda, ldb, ldc;
@@ -18,15 +19,15 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_1) {
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
   float* B = (float*) calloc(K * N, sizeof(float));
   float* C = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc, 0);
 
   for(int i = 0; i < M * K; i++) {
     A[i] = rand() % 100;
@@ -138,7 +139,8 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_1) {
 
 // Function to check Sgemm NoTransAB Column Major
 void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -147,8 +149,8 @@ void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta,
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
@@ -156,9 +158,9 @@ void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta,
   float* C = (float*) calloc(M * N, sizeof(float));
   float* C_hcblas = (float*) calloc(M * N, sizeof(float));
   float* C_cblas = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
@@ -212,7 +214,8 @@ void func_check_sgemmNN_Col_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransAB row Major
 void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -221,8 +224,8 @@ void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta,
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
@@ -230,9 +233,9 @@ void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta,
   float* C = (float*) calloc(M * N, sizeof(float));
   float* C_hcblas = (float*) calloc(M * N, sizeof(float));
   float* C_cblas = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
@@ -289,7 +292,8 @@ void func_check_sgemmNN_Row_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransA Col Major
 void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -298,8 +302,8 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
@@ -307,9 +311,9 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
   float* C = (float*) calloc(M * N, sizeof(float));
   float* C_hcblas = (float*) calloc(M * N, sizeof(float));
   float* C_cblas = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
@@ -402,7 +406,8 @@ void func_check_sgemmNT_Col_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransA Row Major
 void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -411,8 +416,8 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
@@ -420,9 +425,9 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
   float* C = (float*) calloc(M * N, sizeof(float));
   float* C_hcblas = (float*) calloc(M * N, sizeof(float));
   float* C_cblas = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
@@ -515,7 +520,8 @@ void func_check_sgemmNT_Row_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransB Col Major
 void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -524,8 +530,8 @@ void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta,
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
@@ -533,9 +539,9 @@ void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta,
   float* C = (float*) calloc(M * N, sizeof(float));
   float* C_hcblas = (float*) calloc(M * N, sizeof(float));
   float* C_cblas = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
@@ -591,7 +597,8 @@ void func_check_sgemmTN_Col_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm NoTransB Row Major
 void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -600,8 +607,8 @@ void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta,
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
@@ -609,9 +616,9 @@ void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta,
   float* C = (float*) calloc(M * N, sizeof(float));
   float* C_hcblas = (float*) calloc(M * N, sizeof(float));
   float* C_cblas = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
@@ -667,7 +674,8 @@ void func_check_sgemmTN_Row_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm TransAB Col Major
 void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -676,8 +684,8 @@ void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta,
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
@@ -685,9 +693,9 @@ void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta,
   float* C = (float*) calloc(M * N, sizeof(float));
   float* C_hcblas = (float*) calloc(M * N, sizeof(float));
   float* C_cblas = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
@@ -744,7 +752,8 @@ void func_check_sgemmTT_Col_type_1(int M, int N, int K, float alpha, float beta,
 
 // Function to check Sgemm TransAB Row Major
 void func_check_sgemmTT_Row_type_1(int M, int N, int K, float alpha, float beta, float tolerance) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -753,8 +762,8 @@ void func_check_sgemmTT_Row_type_1(int M, int N, int K, float alpha, float beta,
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
   float* A = (float*) calloc(M * K, sizeof(float));
@@ -762,9 +771,9 @@ void func_check_sgemmTT_Row_type_1(int M, int N, int K, float alpha, float beta,
   float* C = (float*) calloc(M * N, sizeof(float));
   float* C_hcblas = (float*) calloc(M * N, sizeof(float));
   float* C_cblas = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[1], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
@@ -1198,7 +1207,8 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_regularN_Implementation_type_1
 }
 
 TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int M = 189, N = 9, K = 19;
   float alpha = 1, beta = 1;
   long lda, ldb, ldc;
@@ -1213,15 +1223,15 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   // Implementation type II - Inputs and Outputs are HCC float array containers with batch processing
   float* Abatch = (float*) calloc(M * K, sizeof(float));
   float* Bbatch = (float*) calloc(K * N, sizeof(float));
   float* Cbatch = (float*) calloc(M * N * batchSize, sizeof(float));
-  float* devAbatch = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devBbatch = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devCbatch = hc::am_alloc(sizeof(float) * M * N * batchSize, acc[1], 0);
+  float* devAbatch = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devBbatch = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devCbatch = hc::am_alloc(sizeof(float) * M * N * batchSize, acc, 0);
 
   for(int i = 0; i < M * K; i++) {
     Abatch[i] = rand() % 100;
@@ -1331,7 +1341,8 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
 }
 
 TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
-  Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
   int M = 189, N = 9, K = 19;
   float alpha = 1, beta = 1;
   long lda, ldb, ldc;
@@ -1346,8 +1357,8 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
   hcblasStatus status;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[1].get_default_view());
+  accelerator_view accl_view = hc.currentAcclView;
+  accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type II - Inputs and Outputs are HCC float array containers with batch processing
   float* Abatch = (float*) calloc(M * K, sizeof(float));
@@ -1355,9 +1366,9 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   float* Cbatch = (float*) calloc(M * N * batchSize, sizeof(float));
   float* CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));
   float* Chcblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));
-  float* devAbatch = hc::am_alloc(sizeof(float) * M * K, acc[1], 0);
-  float* devBbatch = hc::am_alloc(sizeof(float) * K * N, acc[1], 0);
-  float* devCbatch = hc::am_alloc(sizeof(float) * M * N * batchSize, acc[1], 0);
+  float* devAbatch = hc::am_alloc(sizeof(float) * M * K, acc, 0);
+  float* devBbatch = hc::am_alloc(sizeof(float) * K * N, acc, 0);
+  float* devCbatch = hc::am_alloc(sizeof(float) * M * N * batchSize, acc, 0);
 
   for(int i = 0; i < M * K; i++) {
     Abatch[i] = rand() % 100;

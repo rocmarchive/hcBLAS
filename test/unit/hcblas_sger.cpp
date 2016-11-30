@@ -5,7 +5,8 @@
 #include "cblas.h"
 
 TEST(hcblas_sger, return_correct_sger_Implementation_type_1) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     float alpha = 1;
@@ -21,16 +22,16 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_1) {
     lda = (hcOrder)? M : N;
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
     float *x = (float*)calloc( lenx , sizeof(float));
     float *y = (float*)calloc( leny , sizeof(float));
     float *A = (float *)calloc( lenx * leny , sizeof(float));
-    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
-    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-    float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc, 0);
+    float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+    float* devY = hc::am_alloc(sizeof(float) * leny, acc, 0);
     for(int i = 0; i < lenx; i++) {
                 x[i] = rand() % 10;
     }
@@ -86,7 +87,8 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_1) {
 }
 
 TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     float alpha = 1;
@@ -102,16 +104,16 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
     lda = (hcOrder)? M : N;
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
     float *Acblas = (float *)calloc( lenx * leny , sizeof(float));
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
     float *x = (float*)calloc( lenx , sizeof(float));
     float *y = (float*)calloc( leny , sizeof(float));
     float *A = (float *)calloc( lenx * leny , sizeof(float));
-    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[1], 0);
-    float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
-    float* devY = hc::am_alloc(sizeof(float) * leny, acc[1], 0);
+    float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc, 0);
+    float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
+    float* devY = hc::am_alloc(sizeof(float) * leny, acc, 0);
     for(int i = 0; i < lenx; i++) {
                 x[i] = rand() % 10;
     }
@@ -152,7 +154,8 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
 }
 
 TEST(hcblas_sger, return_correct_sger_Implementation_type_2) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     float alpha = 1;
@@ -172,17 +175,17 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_2) {
     lda = (hcOrder)? M : N;
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
 
     float *xbatch = (float*)calloc( lenx * batchSize, sizeof(float));
     float *ybatch = (float*)calloc( leny * batchSize, sizeof(float));
     float *Abatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
-    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
+    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0);
+    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc, 0);
     for(int i = 0; i < lenx * batchSize; i++){
                 xbatch[i] = rand() % 10;
     }
@@ -237,7 +240,8 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_2) {
 }
 
 TEST(hcblas_sger, func_correct_sger_Implementation_type_2) {
-    Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
     int M = 179;
     int N = 19;
     float alpha = 1;
@@ -257,17 +261,17 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_2) {
     lda = (hcOrder)? M : N;
     lenx =  1 + (M-1) * abs(incX);
     leny =  1 + (N-1) * abs(incY);
-    std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-    accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
     float *Acblasbatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
     float *xbatch = (float*)calloc( lenx * batchSize, sizeof(float));
     float *ybatch = (float*)calloc( leny * batchSize, sizeof(float));
     float *Abatch = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
-    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc[1], 0);
-    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[1], 0);
+    float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
+    float* devYbatch = hc::am_alloc(sizeof(float) * leny * batchSize, acc, 0);
+    float* devAbatch = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc, 0);
     for(int i = 0; i < lenx * batchSize; i++){
                 xbatch[i] = rand() % 10;
     }

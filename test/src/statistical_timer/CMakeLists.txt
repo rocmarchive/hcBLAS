@@ -17,17 +17,10 @@ SET (STSRCS
    ADD_DEFINITIONS(-DPROFILE)
   ENDIF(PROFILE)
 
-  if(EXISTS ${MCWHCCBUILD})
-    execute_process(COMMAND ${HCC_CONFIG} --build --cxxflags
+  execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
-    execute_process(COMMAND ${HCC_CONFIG} --build --ldflags 
+  execute_process(COMMAND ${HCC_CONFIG} --install --ldflags 
                             OUTPUT_VARIABLE HCC_LDFLAGS)
-  else(EXISTS ${MCWHCCBUILD})
-    execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
-                            OUTPUT_VARIABLE HCC_CXXFLAGS)
-    execute_process(COMMAND ${HCC_CONFIG} --install --ldflags 
-                            OUTPUT_VARIABLE HCC_LDFLAGS)
-  endif(EXISTS ${MCWHCCBUILD})
   SET(HCBLAS_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../lib/include/")
   SET(HCBLAS_LIBRARY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../build/lib/src")
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)

@@ -5,7 +5,8 @@
 #include "cblas.h"
 
 TEST(hcblas_sasum, return_correct_sasum_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 119;
    int incX = 1;
    long xOffset = 0;
@@ -13,10 +14,10 @@ TEST(hcblas_sasum, return_correct_sasum_Implementation_type_1) {
    hcblasStatus status; 
    long lenx = 1 + (N-1) * abs(incX);
    float *X = (float*)calloc(lenx, sizeof(float));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
-   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
    for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
@@ -40,8 +41,9 @@ TEST(hcblas_sasum, return_correct_sasum_Implementation_type_1) {
    hc::am_free(devX);
 }
 
-TEST(hcblas_sasum, func_correct_sasum_Implementation_type_1) {
-   Hcblaslibrary hc;
+TEST(hcblas_sasum, func_correct_sasum_Implementation_type_1){ 
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 119;
    int incX = 1;
    long xOffset = 0;
@@ -50,10 +52,10 @@ TEST(hcblas_sasum, func_correct_sasum_Implementation_type_1) {
    hcblasStatus status;
    long lenx = 1 + (N-1) * abs(incX);
    float *X = (float*)calloc(lenx, sizeof(float));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 /* Implementation type I - Inputs and Outputs are HCC device pointers */
-   float* devX = hc::am_alloc(sizeof(float) * lenx, acc[1], 0);
+   float* devX = hc::am_alloc(sizeof(float) * lenx, acc, 0);
    for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
@@ -68,7 +70,8 @@ TEST(hcblas_sasum, func_correct_sasum_Implementation_type_1) {
 }
 
 TEST(hcblas_sasum, return_correct_sasum_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 119;
    int incX = 1;
    int batchSize = 128;
@@ -78,9 +81,9 @@ TEST(hcblas_sasum, return_correct_sasum_Implementation_type_2) {
    long X_batchOffset = N; 
    long lenx = 1 + (N-1) * abs(incX);
    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
-   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0); 
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
+   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0); 
 /* Implementation type II - Inputs and Outputs are HCC device pointers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;
@@ -106,7 +109,8 @@ TEST(hcblas_sasum, return_correct_sasum_Implementation_type_2) {
 }
 
 TEST(hcblas_sasum, func_correct_sasum_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 119;
    int incX = 1;
    int batchSize = 128;
@@ -118,9 +122,9 @@ TEST(hcblas_sasum, func_correct_sasum_Implementation_type_2) {
    long X_batchOffset = N;
    long lenx = 1 + (N-1) * abs(incX);
    float *Xbatch = (float*)calloc(lenx * batchSize, sizeof(float));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
-   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[1], 0);
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
+   float* devXbatch = hc::am_alloc(sizeof(float) * lenx * batchSize, acc, 0);
 /* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
             Xbatch[i] = rand() % 10;

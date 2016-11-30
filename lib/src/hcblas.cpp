@@ -12,29 +12,12 @@
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
-hcblasStatus_t hcblasCreate(hcblasHandle_t *handle) {
-  std::vector<accelerator> accs = accelerator::get_all();
-  assert(accs.size() && "Number of Accelerators == 0!");
-  if(handle == NULL) {
-    // create new handle
-    *handle = new Hcblaslibrary;
-  } else {
-    *handle = NULL;
-    *handle = new Hcblaslibrary;
-  }
+hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
+  *handle = new Hcblaslibrary(acc);
 
-  if(*handle == NULL)
+  if(*handle == NULL) {
     return HCBLAS_STATUS_ALLOC_FAILED;
-
-  if(accs.size() >= 2)
-      (*handle)->deviceId = 1;
-  else
-      (*handle)->deviceId = 0;
-
-  (*handle)->currentAccl = accs[(*handle)->deviceId];
-
-  if (!(*handle)->Order)
-      (*handle)->Order = ColMajor;
+  }
   return HCBLAS_STATUS_SUCCESS;  
 }
 
@@ -349,12 +332,10 @@ hcblasStatus_t hcblasDaxpy(hcblasHandle_t handle, int n,
                            double                 *y, int incy) {
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-  accelerator_view accl_view = (acc[handle->deviceId].get_default_view());
   long xOffset = 0;
   long yOffset = 0;
   hcblasStatus status;
-  status = handle->hcblas_daxpy(accl_view, n, *alpha, x, incx, y, incy , xOffset, yOffset);
+  status = handle->hcblas_daxpy(handle->currentAcclView, n, *alpha, x, incx, y, incy , xOffset, yOffset);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
@@ -996,6 +977,10 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
   hcblasTranspose transA, transB;
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+  //std::wcout << "dispatch sgemm to acc:" 
+  //           << handle->currentAcclView.get_accelerator().get_description() 
+  //           << " deviceId=" << handle->deviceId
+  //           << "\n";
   status = handle->hcblas_sgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
   if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;

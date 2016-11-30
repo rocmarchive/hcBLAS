@@ -5,7 +5,8 @@
 #include "cblas.h"
 
 TEST(hcblas_dscal, return_correct_dscal_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 23;
    int incX = 1;
    long xOffset = 0;
@@ -13,10 +14,10 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_1) {
    hcblasStatus status; 
    long lenx = 1 + (N-1) * abs(incX);
    double *X = (double*)calloc(lenx, sizeof(double));//host input
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
 /* Implementation type I - Inputs and Outputs are HCC double array containers */
-   double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
+   double* devX = hc::am_alloc(sizeof(double) * lenx, acc, 0);
    for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
@@ -43,7 +44,8 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_1) {
 }
 
 TEST(hcblas_dscal, function_correct_dscal_Implementation_type_1) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 23;
    int incX = 1;
    long xOffset = 0;
@@ -52,10 +54,10 @@ TEST(hcblas_dscal, function_correct_dscal_Implementation_type_1) {
    long lenx = 1 + (N-1) * abs(incX);
    double *X = (double*)calloc(lenx, sizeof(double));//host input
    double *Xcblas = (double*)calloc(lenx, sizeof(double));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
  /* Implementation type I - Inputs and Outputs are HCC double array containers */
-   double* devX = hc::am_alloc(sizeof(double) * lenx, acc[1], 0);
+   double* devX = hc::am_alloc(sizeof(double) * lenx, acc, 0);
    for(int i = 0; i < lenx; i++){
            X[i] = rand() % 10;
 	   Xcblas[i] = X[i];
@@ -71,7 +73,8 @@ TEST(hcblas_dscal, function_correct_dscal_Implementation_type_1) {
 }
 
 TEST(hcblas_dscal, return_correct_dscal_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 19;
    int incX = 1;
    int batchSize = 32;
@@ -81,9 +84,9 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_2) {
    long X_batchOffset = N; 
    long lenx = 1 + (N-1) * abs(incX);
    double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));//host input
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
-   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
+   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc, 0);
    double* devX1batch = NULL; 
 /* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
@@ -111,7 +114,8 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_2) {
 }
 
 TEST(hcblas_dscal, function_correct_dscal_Implementation_type_2) {
-   Hcblaslibrary hc;
+   hc::accelerator accl;
+   Hcblaslibrary hc(&accl);
    int N = 19;
    int incX = 1;
    int batchSize = 32;
@@ -122,9 +126,9 @@ TEST(hcblas_dscal, function_correct_dscal_Implementation_type_2) {
    long lenx = 1 + (N-1) * abs(incX);
    double *Xbatch = (double*)calloc(lenx * batchSize, sizeof(double));//host input
    double *Xcblasbatch = (double*)calloc(lenx * batchSize, sizeof(double));
-   std::vector<hc::accelerator>acc = hc::accelerator::get_all();
-   accelerator_view accl_view = (acc[1].get_default_view());
-   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[1], 0);
+   accelerator_view accl_view = hc.currentAcclView;
+   accelerator acc = hc.currentAccl;
+   double* devXbatch = hc::am_alloc(sizeof(double) * lenx * batchSize, acc, 0);
    /* Implementation type II - Inputs and Outputs are HCC double array containers with batch processing */
    for(int i = 0;i < lenx * batchSize;i++){
                Xbatch[i] = rand() % 10;
