@@ -52,8 +52,12 @@ class Hcblaslibrary
     // Constructor to initialize the library with the given accelerator
     Hcblaslibrary(hc::accelerator *acc)
     {
-      // Nullity check
-      assert(acc);
+      // When accelerator specified is null, use the default accelerator 
+      if (acc == nullptr) 
+      {
+        hc::accelerator default_acc;
+        acc = &default_acc;
+      }
       std::vector<accelerator> accs = accelerator::get_all();
       bool foundIt = false;
       for (int i=0;i<accs.size();i++) {
