@@ -21,7 +21,7 @@ void ger_HC(hc::accelerator_view &accl_view,
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
-  }).wait();
+  });
 }
 
 void ger_HC(hc::accelerator_view &accl_view,
@@ -45,7 +45,7 @@ void ger_HC(hc::accelerator_view &accl_view,
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
-  }).wait();
+  });
 }
 
 void ger_HC_rMajor(hc::accelerator_view &accl_view,
@@ -65,7 +65,7 @@ void ger_HC_rMajor(hc::accelerator_view &accl_view,
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
-  }).wait();
+  });
 }
 
 void ger_HC_rMajor(hc::accelerator_view &accl_view,
@@ -89,7 +89,7 @@ void ger_HC_rMajor(hc::accelerator_view &accl_view,
       a[a_index] = (isnan(a[a_index]) || isinf(a[a_index])) ? 0 : a[a_index];
       a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
-  }).wait();
+  });
 }
 
 /* DGER - Type I : Inputs and outputs are double array containers */

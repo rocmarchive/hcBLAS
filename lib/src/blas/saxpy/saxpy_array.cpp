@@ -18,7 +18,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
         Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
         Y[Y_index] += X[xOffset + tidx.global[0]] * alpha;
       }
-    }).wait();
+    });
   } else {
     int step_sz;
 
@@ -53,7 +53,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
           }
         }
       }
-    }).wait();
+    });
   }
 }
 
@@ -73,7 +73,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
         Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
         Y[Y_index] += X[xOffset + X_batchOffset * elt + tidx.global[1]] * alpha;
       }
-    }).wait();
+    });
   } else {
     int step_sz;
 
@@ -110,7 +110,7 @@ void axpy_HC(hc::accelerator_view &accl_view,
           }
         }
       }
-    }).wait();
+    });
   }
 }
 
