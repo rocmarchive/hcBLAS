@@ -40,9 +40,9 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_1) {
     for(int i = 0; i< lenx * leny; i++) {
                 A[i] = rand() % 25;
     }
-    accl_view.copy_async(A, devA, lenx * leny * sizeof(float));
-    accl_view.copy_async(x, devX, lenx * sizeof(float));
-    accl_view.copy_async(y, devY, leny * sizeof(float));
+    accl_view.copy(A, devA, lenx * leny * sizeof(float));
+    accl_view.copy(x, devX, lenx * sizeof(float));
+    accl_view.copy(y, devY, leny * sizeof(float));
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -122,13 +122,13 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
                 A[i] = rand() % 25;
                 Acblas[i] = A[i];
     }
-    accl_view.copy_async(A, devA, lenx * leny * sizeof(float));
-    accl_view.copy_async(x, devX, lenx * sizeof(float));
-    accl_view.copy_async(y, devY, leny * sizeof(float));
+    accl_view.copy(A, devA, lenx * leny * sizeof(float));
+    accl_view.copy(x, devX, lenx * sizeof(float));
+    accl_view.copy(y, devY, leny * sizeof(float));
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy_async(devA, A, lenx * leny * sizeof(float));
+    accl_view.copy(devA, A, lenx * leny * sizeof(float));
     cblas_sger( CblasColMajor, M, N, alpha, x, incX, y, incY, Acblas, lda);
     for(int i =0; i < lenx * leny ; i++)
          EXPECT_EQ(A[i], Acblas[i]);
@@ -138,7 +138,7 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_1) {
     /* Proper call with row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devX, xOffset, incX, devY, yOffset, incY, devA, aOffset, lda );
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy_async(devA, A, lenx * leny * sizeof(float));
+    accl_view.copy(devA, A, lenx * leny * sizeof(float));
     cblas_sger( CblasRowMajor, M, N, alpha, x, incX, y, incY, Acblas, lda);
     for(int i =0; i < lenx * leny ; i++)
          EXPECT_EQ(A[i], Acblas[i]);
@@ -192,9 +192,9 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_2) {
     for(int i = 0; i< lenx * leny * batchSize; i++){
                 Abatch[i] = rand() % 25;
     }
-    accl_view.copy_async(xbatch, devXbatch, lenx * batchSize * sizeof(float));
-    accl_view.copy_async(ybatch, devYbatch, leny * batchSize * sizeof(float));
-    accl_view.copy_async(Abatch, devAbatch, lenx * leny * batchSize * sizeof(float));
+    accl_view.copy(xbatch, devXbatch, lenx * batchSize * sizeof(float));
+    accl_view.copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+    accl_view.copy(Abatch, devAbatch, lenx * leny * batchSize * sizeof(float));
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
@@ -278,13 +278,13 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_2) {
                 Abatch[i] = rand() % 25;
                 Acblasbatch[i] = Abatch[i];
     }
-    accl_view.copy_async(xbatch, devXbatch, lenx * batchSize * sizeof(float));
-    accl_view.copy_async(ybatch, devYbatch, leny * batchSize * sizeof(float));
-    accl_view.copy_async(Abatch, devAbatch, lenx * leny * batchSize * sizeof(float));
+    accl_view.copy(xbatch, devXbatch, lenx * batchSize * sizeof(float));
+    accl_view.copy(ybatch, devYbatch, leny * batchSize * sizeof(float));
+    accl_view.copy(Abatch, devAbatch, lenx * leny * batchSize * sizeof(float));
     /* Proper call with column major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy_async(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
+    accl_view.copy(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
     for(int i = 0; i < batchSize; i++)
         cblas_sger( CblasColMajor, M, N, alpha, xbatch + i * M, incX, ybatch + i * N, incY, Acblasbatch + i * M * N, lda);
     for(int i =0; i < lenx * leny * batchSize; i++)
@@ -295,7 +295,7 @@ TEST(hcblas_sger, func_correct_sger_Implementation_type_2) {
     /* Proper call with row major */
     status = hc.hcblas_sger(accl_view, hcOrder, M , N , alpha, devXbatch, xOffset, X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, incY, devAbatch, aOffset, A_batchOffset, lda, batchSize );
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-    accl_view.copy_async(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
+    accl_view.copy(devAbatch, Abatch, lenx * leny * batchSize * sizeof(float));
     for(int i = 0; i < batchSize; i++)
         cblas_sger( CblasRowMajor, M, N, alpha, xbatch + i * M, incX, ybatch + i * N, incY, Acblasbatch + i * M * N, lda);
     for(int i =0; i < lenx * leny * batchSize; i++)

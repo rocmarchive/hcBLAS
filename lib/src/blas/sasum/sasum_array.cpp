@@ -103,7 +103,7 @@ void sasum_HC(hc::accelerator_view accl_view,
   // create host buffer
   float* host_global_buffer = (float *)malloc(sizeof(float) * tile_count);
   // Copy device contents back to host
-  accl_view.copy_async(dev_global_buffer, host_global_buffer, sizeof(float) * tile_count);
+  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * tile_count);
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count; i++) {
@@ -216,7 +216,7 @@ void sasum_HC(hc::accelerator_view accl_view,
   // create host buffer
   float* host_global_buffer = (float *) malloc(sizeof(float) * batchSize * tile_count);
   // Copy device contents back to host
-  accl_view.copy_async(dev_global_buffer, host_global_buffer, sizeof(float) * batchSize * tile_count);
+  accl_view.copy(dev_global_buffer, host_global_buffer, sizeof(float) * batchSize * tile_count);
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {

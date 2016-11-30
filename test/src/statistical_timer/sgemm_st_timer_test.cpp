@@ -97,9 +97,9 @@ int main(int argc,char* argv[])
         C_cblas[i + cOffset] = C[i + cOffset];
     }
  
-    accl_view.copy_async(devA, A, (M * K + aOffset)* sizeof(float));
-    accl_view.copy_async(devB, B, (K * N + bOffset)* sizeof(float));
-    accl_view.copy_async(devC, C, (M * N * 10 + cOffset)* sizeof(float));
+    accl_view.copy(devA, A, (M * K + aOffset)* sizeof(float));
+    accl_view.copy(devB, B, (K * N + bOffset)* sizeof(float));
+    accl_view.copy(devC, C, (M * N * 10 + cOffset)* sizeof(float));
 
     StatisticalTimer& timer = StatisticalTimer::getInstance( );
     StatisticalTimer::sTimerID timer_id;
@@ -114,7 +114,7 @@ int main(int argc,char* argv[])
        status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC + (iter * M * N), ldc, aOffset, bOffset, cOffset);
 
 #if 0
-       accl_view.copy_async(C + (iter * M * N), devC + (iter * M * N),  (M * N + cOffset) * sizeof(float));
+       accl_view.copy(C + (iter * M * N), devC + (iter * M * N),  (M * N + cOffset) * sizeof(float));
 
         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A + aOffset, lda, B + bOffset, ldb, beta, C_cblas + (iter * M * N)+ cOffset, ldc);
         for(int i = 0 ; i < M * N ; i++) { 
@@ -133,7 +133,7 @@ int main(int argc,char* argv[])
 
      timer.Stop(timer_id);
 
-    accl_view.copy_async(C, devC,  (M * N * 10 + cOffset) * sizeof(float));
+    accl_view.copy(C, devC,  (M * N * 10 + cOffset) * sizeof(float));
 
     double Avg_time = timer.getAverageTime(timer_id);
     double time_in_ns=Avg_time * 1e9;
