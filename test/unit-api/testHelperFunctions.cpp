@@ -22,11 +22,11 @@ TEST(hcblasDestroyTest, return_Check_hcblasDestroy) {
  // Passing a Null handle to the API
  hcblasStatus_t status = hcblasCreate(&handle);
  //hcblasDestroy
- status = hcblasDestroy(handle);
+ status = hcblasDestroy(&handle);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  // Destory again
- //status = hcblasDestroy(handle);
- //EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+ status = hcblasDestroy(&handle);
+ EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 }
 
 TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {

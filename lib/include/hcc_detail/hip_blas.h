@@ -108,7 +108,7 @@ hipblasStatus_t hipblasCreate(hipblasHandle_t* handle);
 
 
 inline static hipblasStatus_t hipblasDestroy(hipblasHandle_t handle) {
-    return hipHCBLASStatusToHIPStatus(hcblasDestroy(handle)); 
+    return hipHCBLASStatusToHIPStatus(hcblasDestroy(&handle)); 
 }
 
 //note: no handle
