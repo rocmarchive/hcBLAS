@@ -216,34 +216,6 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int el
   return HCBLAS_STATUS_SUCCESS;
 }
 
-// 7. hcblasDeviceOrderSelect()
-
-// This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls. User can select the order of operation in this function.
-
-// Return Values
-// --------------------------------------------------------------------
-// HCBLAS_STATUS_SUCCESS            user call was sucessful
-// HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
-// HCBLAS_STATUS_INVALID_VALUE      Access to at least one of the device could not be done or a hcBLAS context could not be created on at least one of the device
-
-hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t handle, int deviceid, hcblasOrder order) {
-  std::vector<accelerator> accs = accelerator::get_all();
-  if(accs.size() == 0) {
-    std::wcout << "There is no acclerator!\n";
-    // Since this case is to test on GPU device, skip if there is CPU only
-    return HCBLAS_STATUS_MAPPING_ERROR;
-  }
-  assert(accs.size() && "Number of Accelerators == 0!");
-
-  if(deviceid >= accs.size())
-    return HCBLAS_STATUS_INVALID_VALUE;
-
-  if(accs.size() && deviceid < accs.size() )
-     handle->deviceId = deviceid;
-  handle->Order = order;
-
-  return HCBLAS_STATUS_SUCCESS;
-}
 // HCBLAS Level-1 function reference
 
 // Level-1 Basic Linear Algebra Subprograms (BLAS1) functions perform scalar and vector based operations. 

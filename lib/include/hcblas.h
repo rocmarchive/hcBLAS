@@ -11,9 +11,6 @@ extern "C" {
 // passed to all subsequent library function calls. The context should be destroyed at the end using 
 // hcblasDestroy().
 
-
-enum hcblasOrder: unsigned short;
-
 typedef struct  Hcblaslibrary* hcblasHandle_t;
 
 // 2.2.2. hcblasStatus_t
@@ -152,17 +149,6 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int el
  
 hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb);
 
-// 7. hcblasDeviceSelect()
-
-// This function allows the user to provide the number of GPU devices and their respective Ids that will participate to the subsequent hcblas API Math function calls. User can select the order of operation in this function.
-
-// Return Values
-// --------------------------------------------------------------------
-// HCBLAS_STATUS_SUCCESS            user call was sucessful
-// HCBLAS_STATUS_INVALID_VALUE      Access to at least one of the device could not be done or a hcBLAS context could not be created on at least one of the device
-// HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
-
-hcblasStatus_t hcblasDeviceOrderSelect(hcblasHandle_t handle, int deviceId, hcblasOrder order);
 
 // HCBLAS Level-1 function reference
 
