@@ -11,12 +11,14 @@ ADD_SUBDIRECTORY(blas)
 
 #Setting a Project name
 SET(PROJECT_NAME "libhcblas")
+SET(PROJECT_NAME_EXT "libhipblas")
 SET(HIP_PATH "/opt/rocm/hip")
 PROJECT (${PROJECT_NAME})
 MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
 #Setting a variable for source files
-SET (SRCS ${BLASSRC} hcblas.cpp hipblas.cpp)
+SET (HCBLASSRCS ${BLASSRC} hcblas.cpp)
+SET (HIPBLASSRCS ${HCBLASSRCS} hipblas.cpp)
 
   execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
@@ -27,20 +29,38 @@ SET (SRCS ${BLASSRC} hcblas.cpp hipblas.cpp)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
   set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc")
-
-  FOREACH(src_file ${SRCS})
+  
+  # Setting header dependencies for hcblas library generation
+  FOREACH(src_file ${HCBLASSRCS})
 	  SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
   ENDFOREACH()
 
-  ADD_EXECUTABLE("${PROJECT_NAME}.so" ${SRCS})
+  # Setting header dependencies for hipblas library generation
+  FOREACH(src_file ${HIPBLASSRCS})
+	  SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
+  ENDFOREACH()
+
+  #Generating hcblas shared object
+  ADD_EXECUTABLE("${PROJECT_NAME}.so" ${HCBLASSRCS})
   SET_PROPERTY(TARGET "${PROJECT_NAME}.so" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
   TARGET_LINK_LIBRARIES("${PROJECT_NAME}.so" hc_am)
+
+  #Generating hipblas shared object
+  ADD_EXECUTABLE("${PROJECT_NAME_EXT}.so" ${HIPBLASSRCS})
+  SET_PROPERTY(TARGET "${PROJECT_NAME_EXT}.so" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
+  TARGET_LINK_LIBRARIES("${PROJECT_NAME_EXT}.so" hc_am)
+
   INSTALL(TARGETS "${PROJECT_NAME}.so" 
     RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
   )
 
+  INSTALL(TARGETS "${PROJECT_NAME_EXT}.so" 
+    RUNTIME DESTINATION lib
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+  )
   file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/../include/*.h")
   file(GLOB hcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/*.h")
   file(GLOB nvcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/nvcc_detail/*.h")
