@@ -98,7 +98,7 @@ void dasum_HC(hc::accelerator_view accl_view,
       // write to global buffer in this tiles
       dev_global_buffer[ tid.tile[0] ] = smem;
     }
-  } ).wait();
+  }).wait();
 
   // create host buffer
   double* host_global_buffer = (double* )malloc(sizeof(double) * tile_count);
@@ -211,7 +211,7 @@ void dasum_HC(hc::accelerator_view accl_view,
       // write to global buffer in this tiles
       dev_global_buffer[ tile_count * elt + tid.tile[1] ] = smem;
     }
-  } ).wait();
+  }).wait();
 
   // create host buffer
   double* host_global_buffer = (double* )malloc(sizeof(double) * batchSize * tile_count);

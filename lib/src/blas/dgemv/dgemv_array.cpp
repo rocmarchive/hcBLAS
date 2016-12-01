@@ -70,7 +70,7 @@ static void gemv_TransA(hc::accelerator_view accl_view,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    });
+    }).wait();
   } else {
     hc::extent<1> grdExt(lenY * BLOCK_SIZE);
     hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
@@ -172,7 +172,7 @@ static void gemv_TransA(hc::accelerator_view accl_view,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    });
+    }).wait();
   } else {
     hc::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
     hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
@@ -274,7 +274,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    });
+    }).wait();
   } else {
     hc::extent<1> grdExt(lenY * BLOCK_SIZE);
     hc::tiled_extent<1> t_ext = grdExt.tile(BLOCK_SIZE);
@@ -376,7 +376,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    });
+    }).wait();
   } else {
     hc::extent<2> grdExt(batchSize, lenY * BLOCK_SIZE);
     hc::tiled_extent<2> t_ext = grdExt.tile(1, BLOCK_SIZE);
