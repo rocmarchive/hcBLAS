@@ -54,9 +54,9 @@ int main() {
   }
  
   // Allocate device pointers
-  hcComplex* d_A = hc::am_alloc(sizeof(hcComplex) * M * K, acc[handle->deviceId], 0);
-  hcComplex* d_B = hc::am_alloc(sizeof(hcComplex) * K * N, acc[handle->deviceId], 0);
-  hcComplex* d_C = hc::am_alloc(sizeof(hcComplex) * M * N, acc[handle->deviceId], 0);
+  hcComplex* d_A = hc::am_alloc(sizeof(hcComplex) * M * K, handle->currentAccl, 0);
+  hcComplex* d_B = hc::am_alloc(sizeof(hcComplex) * K * N, handle->currentAccl, 0);
+  hcComplex* d_C = hc::am_alloc(sizeof(hcComplex) * M * N, handle->currentAccl, 0);
 
   
   // Initialze device pointers using hcblasSetMatrix utility

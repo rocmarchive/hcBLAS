@@ -62,7 +62,6 @@ class Hcblaslibrary
       bool foundIt = false;
       for (int i=0;i<accs.size();i++) {
         if (accs[i] == *acc) {
-          this->deviceId = i;
           foundIt = true;
           break;
         }
@@ -75,7 +74,6 @@ class Hcblaslibrary
       this->Order = ColMajor;
     }
 
-    int deviceId;
     // Add current Accerator field
     hc::accelerator currentAccl;
 

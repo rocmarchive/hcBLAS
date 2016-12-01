@@ -38,8 +38,8 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  hcblasHandle_t handle = NULL;
  status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
- float *y1 = (float*)am_alloc(n, accs[handle->deviceId], 0);
- double *y2 = (double*)am_alloc(n, accs[handle->deviceId], 0);
+ float *y1 = (float*)am_alloc(n, handle->currentAccl, 0);
+ double *y2 = (double*)am_alloc(n, handle->currentAccl, 0);
  // HCBLAS_STATUS_SUCCESS
  // float type memory transfer from host to device
 /* status = hcblasSetVector(handle, n, sizeof(x1), x1 , incx, y1, incy);
@@ -84,8 +84,8 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  hcblasHandle_t handle = NULL;
  status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
- float *x1 = (float*)am_alloc(n, accs[handle->deviceId], 0);
- double *x2 = (double*)am_alloc(n, accs[handle->deviceId], 0);
+ float *x1 = (float*)am_alloc(n, handle->currentAccl, 0);
+ double *x2 = (double*)am_alloc(n, handle->currentAccl, 0);
  // HCBLAS_STATUS_SUCCESS
  // float type memory transfer from host to device
 /*
@@ -132,8 +132,8 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  hcblasHandle_t handle = NULL;
  status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
- float *y1 = (float*)am_alloc(rows * cols, accs[handle->deviceId], 0);
- double *y2 = (double*)am_alloc(rows * cols, accs[handle->deviceId], 0);
+ float *y1 = (float*)am_alloc(rows * cols, handle->currentAccl, 0);
+ double *y2 = (double*)am_alloc(rows * cols, handle->currentAccl, 0);
 
  // HCBLAS_STATUS_INVALID_VALUE 
  // lda is 0
@@ -172,8 +172,8 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  hcblasHandle_t handle = NULL;
  status= hcblasCreate(&handle);
  std::vector<hc::accelerator>accs = hc::accelerator::get_all();
- float *x1 = (float*)am_alloc(rows * cols, accs[handle->deviceId], 0);
- double *x2 = (double*)am_alloc(rows * cols, accs[handle->deviceId], 0);
+ float *x1 = (float*)am_alloc(rows * cols, handle->currentAccl, 0);
+ double *x2 = (double*)am_alloc(rows * cols, handle->currentAccl, 0);
 
  // HCBLAS_STATUS_INVALID_VALUE
  // lda is 0
@@ -186,12 +186,11 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  status = hcblasSetMatrix(handle, rows, cols, 0, x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
 
- // HCBLAS_STATUS_MAPPING_ERROR
- handle->deviceId = 0;
+/* // HCBLAS_STATUS_MAPPING_ERROR
  status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x2 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
 
-/* // HCBLAS_STATUS_NOT_INITIALIZED
+ // HCBLAS_STATUS_NOT_INITIALIZED
  hcblasDestroy(handle);
  status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);*/

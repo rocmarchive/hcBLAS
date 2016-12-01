@@ -39,8 +39,8 @@ int main() {
   }
 
   // Allocate device pointers
-  double* d_X = hc::am_alloc(sizeof(double) * lenx, acc[handle->deviceId], 0);
-  double* d_Y = hc::am_alloc(sizeof(double) * leny, acc[handle->deviceId], 0);
+  double* d_X = hc::am_alloc(sizeof(double) * lenx, handle->currentAccl, 0);
+  double* d_Y = hc::am_alloc(sizeof(double) * leny, handle->currentAccl, 0);
 
   // Initialze device pointers using hcblasSetVector utility
   status = hcblasSetVector(handle, lenx, sizeof(double), h_X, 1, d_X, 1);

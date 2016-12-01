@@ -12,11 +12,10 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
   float* result;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx, sizeof(float));//host input
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -50,11 +49,10 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
   long lenx = 1 + (n-1) * abs(incx);
   float result;
   int batchSize = 128;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, handle->currentAccl, 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -88,11 +86,10 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
   double result;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx, sizeof(double));//host input
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle->deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
    }
@@ -123,11 +120,10 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
   long lenx = 1 + (n-1) * abs(incx);
   double result;
   int batchSize = 128;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx * batchSize, sizeof(double));//host input
-  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[handle->deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, handle->currentAccl, 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
    }
@@ -162,12 +158,11 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
   float alpha = 1;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *Xcblas = (float*)calloc(lenx, sizeof(float));
   float *X = (float*)calloc(lenx, sizeof(float));//host input
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
             Xcblas[i] = X[i];
@@ -202,12 +197,11 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
   long lenx = 1 + (n-1) * abs(incx);
   float alpha = 1;
   int batchSize = 128;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *Xcblas = (float*)calloc(lenx * batchSize , sizeof(float));
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, handle->currentAccl, 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
             Xcblas[i] =  X[i];
@@ -242,12 +236,11 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
   double alpha = 1;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *Xcblas = (double*)calloc(lenx, sizeof(double));
   double *X = (double*)calloc(lenx, sizeof(double));//host input
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle->deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
             Xcblas[i] = X[i];
@@ -282,12 +275,11 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
   long lenx = 1 + (n-1) * abs(incx);
   double alpha = 1;
   int batchSize = 128;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *Xcblas = (double*)calloc(lenx * batchSize , sizeof(double));
   double *X = (double*)calloc(lenx * batchSize, sizeof(double));//host input
-  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[handle->deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, handle->currentAccl, 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
             Xcblas[i] =  X[i];
@@ -324,14 +316,13 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
   long lenx = 1 + (n-1) * abs(incx);
   long leny = 1 + (n-1) * abs(incy);
   float alpha = 1;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx, sizeof(float));//host input
   float *Y = (float*)calloc(leny, sizeof(float));
   float *Ycblas = (float*)calloc(leny, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -375,14 +366,13 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
   long leny = 1 + (n-1) * abs(incy);
   float alpha = 1;
   int batchSize = 32; 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
   float *Y = (float*)calloc(leny * batchSize, sizeof(float));
   float *Ycblas = (float*)calloc(leny *  batchSize, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx *  batchSize, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny *  batchSize, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx *  batchSize, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny *  batchSize, handle->currentAccl, 0);
   for(int i = 0; i < lenx *  batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -426,14 +416,13 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
   long lenx = 1 + (n-1) * abs(incx);
   long leny = 1 + (n-1) * abs(incy);
   double alpha = 1;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx, sizeof(double));//host input
   double *Y = (double*)calloc(leny, sizeof(double));
   double *Ycblas = (double*)calloc(leny, sizeof(double));
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle->deviceId], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny, acc[handle->deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, handle->currentAccl, 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -477,14 +466,13 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
   long leny = 1 + (n-1) * abs(incy);
   double alpha = 1;
   int batchSize = 32;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx * batchSize, sizeof(double));//host input
   double *Y = (double*)calloc(leny * batchSize, sizeof(double));
   double *Ycblas = (double*)calloc(leny *  batchSize, sizeof(double));
-  double* devX = hc::am_alloc(sizeof(double) * lenx *  batchSize, acc[handle->deviceId], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny *  batchSize, acc[handle->deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx *  batchSize, handle->currentAccl, 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny *  batchSize, handle->currentAccl, 0);
   for(int i = 0; i < lenx *  batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -528,13 +516,12 @@ TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
   long lenx = 1 + (n-1) * abs(incx);
   long leny = 1 + (n-1) * abs(incy);
   float result;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx, sizeof(float));//host input
   float *Y = (float*)calloc(leny, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -572,13 +559,12 @@ TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
   long leny = 1 + (n-1) * abs(incy);
   float result;
   int batchSize = 32;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
   float *Y = (float*)calloc(leny * batchSize, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, handle->currentAccl, 0);
   float *dotcblastemp =(float*)calloc(batchSize, sizeof(float));
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
@@ -619,13 +605,12 @@ TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
   long lenx = 1 + (n-1) * abs(incx);
   long leny = 1 + (n-1) * abs(incy);
   double result;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx, sizeof(double));//host input
   double *Y = (double*)calloc(leny, sizeof(double));
-  double* devX = hc::am_alloc(sizeof(double) * lenx, acc[handle->deviceId], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny, acc[handle->deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, handle->currentAccl, 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -663,13 +648,12 @@ TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
   long leny = 1 + (n-1) * abs(incy);
   double result;
   int batchSize = 32;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   double *X = (double*)calloc(lenx * batchSize, sizeof(double));//host input
   double *Y = (double*)calloc(leny * batchSize, sizeof(double));
-  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, acc[handle->deviceId], 0);
-  double* devY = hc::am_alloc(sizeof(double) * leny * batchSize, acc[handle->deviceId], 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, handle->currentAccl, 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny * batchSize, handle->currentAccl, 0);
   double *dotcblastemp =(double*)calloc(batchSize, sizeof(double));
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
@@ -710,14 +694,13 @@ TEST(hcblaswrapper_saxpy, func_return_correct_saxpy) {
   long lenx = 1 + (n-1) * abs(incx);
   long leny = 1 + (n-1) * abs(incy);
   float alpha = 1;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx, sizeof(float));//host input
   float *Y = (float*)calloc(leny, sizeof(float));
   float *Ycblas = (float*)calloc(leny, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -760,14 +743,13 @@ TEST(hcblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
   long leny = 1 + (n-1) * abs(incy);
   float alpha = 1;
   int batchSize = 32;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
   float *Y = (float*)calloc(leny * batchSize, sizeof(float));
   float *Ycblas = (float*)calloc(leny * batchSize, sizeof(float));
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, acc[handle->deviceId], 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, handle->currentAccl, 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -816,16 +798,15 @@ TEST(hcblaswrapper_sger, func_return_correct_sger) {
   lda = (handle->Order)? m : n;
   CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *Acblas = (float *)calloc( lenx * leny , sizeof(float));
   float *X = (float*)calloc(lenx, sizeof(float));//host input
   float *Y = (float*)calloc(leny, sizeof(float));
   float *A = (float *)calloc( lenx * leny , sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[handle->deviceId], 0);
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle->deviceId], 0);
+  float* devA = hc::am_alloc(sizeof(float) * lenx * leny, handle->currentAccl, 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -878,16 +859,15 @@ TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
   lda = (handle->Order)? m : n;
   CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx * batchSize, sizeof(float));//host input
   float *Y = (float*)calloc(leny * batchSize, sizeof(float));
   float *Acblas = (float*)calloc(leny * lenx * batchSize, sizeof(float));
   float *A = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[handle->deviceId], 0);
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, acc[handle->deviceId], 0);
+  float* devA = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, handle->currentAccl, 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, handle->currentAccl, 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -945,7 +925,6 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   int row, col;
   row = n; col = m; lda = m; 
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t trans = HCBLAS_OP_N;
   CBLAS_TRANSPOSE transa;
   transa = (trans == HCBLAS_OP_N)? CblasNoTrans : CblasTrans;
@@ -958,9 +937,9 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   float *X = (float*)calloc(lenx, sizeof(float));//host input
   float *Y = (float*)calloc(leny, sizeof(float));
   float *A = (float *)calloc( lenx * leny , sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * lenx * leny, acc[handle->deviceId], 0);
-  float* devX = hc::am_alloc(sizeof(float) * lenx, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny, acc[handle->deviceId], 0);
+  float* devA = hc::am_alloc(sizeof(float) * lenx * leny, handle->currentAccl, 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny, handle->currentAccl, 0);
   for(int i = 0; i < lenx; i++){
             X[i] = rand() % 10;
   }
@@ -1022,7 +1001,6 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   int row, col;
   row = n; col = m; lda = m;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t trans = HCBLAS_OP_N;
   CBLAS_TRANSPOSE transa;
   transa = (trans == HCBLAS_OP_N)? CblasNoTrans : CblasTrans;
@@ -1034,9 +1012,9 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   float *Y = (float*)calloc(leny * batchSize, sizeof(float));
   float *Ycblas = (float*)calloc(leny * batchSize, sizeof(float));
   float *A = (float *)calloc( lenx * leny * batchSize, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, acc[handle->deviceId], 0);
-  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, acc[handle->deviceId], 0);
-  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, acc[handle->deviceId], 0);
+  float* devA = hc::am_alloc(sizeof(float) * lenx * leny * batchSize, handle->currentAccl, 0);
+  float* devX = hc::am_alloc(sizeof(float) * lenx * batchSize, handle->currentAccl, 0);
+  float* devY = hc::am_alloc(sizeof(float) * leny * batchSize, handle->currentAccl, 0);
   for(int i = 0; i < lenx * batchSize; i++){
             X[i] = rand() % 10;
   }
@@ -1097,7 +1075,6 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
   long ldc;
   CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
   float *A = (float*) calloc(M * K, sizeof(float));
@@ -1105,9 +1082,9 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
   float *C = (float*) calloc(M * N, sizeof(float));
   float *C_hcblas = (float*) calloc(M * N, sizeof(float));
   float *C_cblas = (float*) calloc(M * N, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[handle->deviceId], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[handle->deviceId], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N, acc[handle->deviceId], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, handle->currentAccl, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, handle->currentAccl, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N, handle->currentAccl, 0);
   for(int i = 0; i < M * K; i++) {
               A[i] = rand()%100;
   }
@@ -1174,7 +1151,6 @@ TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   int batchSize = 32;
   CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
   float *A = (float*) calloc(M * K, sizeof(float));
@@ -1182,9 +1158,9 @@ TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   float *C = (float*) calloc(M * N * batchSize, sizeof(float));
   float *C_hcblas = (float*) calloc(M * N * batchSize, sizeof(float));
   float *C_cblas = (float*) calloc(M * N * batchSize, sizeof(float));
-  float* devA = hc::am_alloc(sizeof(float) * M * K, acc[handle->deviceId], 0);
-  float* devB = hc::am_alloc(sizeof(float) * K * N, acc[handle->deviceId], 0);
-  float* devC = hc::am_alloc(sizeof(float) * M * N * batchSize, acc[handle->deviceId], 0);
+  float* devA = hc::am_alloc(sizeof(float) * M * K, handle->currentAccl, 0);
+  float* devB = hc::am_alloc(sizeof(float) * K * N, handle->currentAccl, 0);
+  float* devC = hc::am_alloc(sizeof(float) * M * N * batchSize, handle->currentAccl, 0);
   for(int i = 0; i < M * K; i++) {
               A[i] = rand()%100;
   }
@@ -1250,7 +1226,6 @@ TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
   long ldc;
   CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
     float alpha[2], beta[2];
@@ -1266,9 +1241,9 @@ TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
     hcComplex *A = (hcComplex*) calloc(M * K, sizeof(hcComplex));
     hcComplex *B = (hcComplex*) calloc(K * N, sizeof(hcComplex));
     hcComplex *C = (hcComplex*) calloc(M * N, sizeof(hcComplex));
-    hcComplex* devA = hc::am_alloc(sizeof(hcComplex) * M * K, acc[1], 0);
-    hcComplex* devB = hc::am_alloc(sizeof(hcComplex) * K * N, acc[1], 0);
-    hcComplex* devC = hc::am_alloc(sizeof(hcComplex) * M * N, acc[1], 0);
+    hcComplex* devA = hc::am_alloc(sizeof(hcComplex) * M * K, handle->currentAccl, 0);
+    hcComplex* devB = hc::am_alloc(sizeof(hcComplex) * K * N, handle->currentAccl, 0);
+    hcComplex* devC = hc::am_alloc(sizeof(hcComplex) * M * N, handle->currentAccl, 0);
     float* ablas = (float *)malloc(sizeof(float )* M * K * 2);
     float* bblas = (float *)malloc(sizeof(float )* K * N * 2);
     float* cblas = (float *)malloc(sizeof(float )* M * N * 2);
@@ -1350,7 +1325,6 @@ TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   int batchSize = 64;
   CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
   hcblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
     float alpha[2], beta[2];
@@ -1366,9 +1340,9 @@ TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
     hcComplex *A = (hcComplex*) calloc(M * K, sizeof(hcComplex));
     hcComplex *B = (hcComplex*) calloc(K * N, sizeof(hcComplex));
     hcComplex *C = (hcComplex*) calloc(M * N * batchSize, sizeof(hcComplex));
-    hcComplex* devA = hc::am_alloc(sizeof(hcComplex) * M * K, acc[1], 0);
-    hcComplex* devB = hc::am_alloc(sizeof(hcComplex) * K * N, acc[1], 0);
-    hcComplex* devC = hc::am_alloc(sizeof(hcComplex) * M * N * batchSize, acc[1], 0);
+    hcComplex* devA = hc::am_alloc(sizeof(hcComplex) * M * K, handle->currentAccl, 0);
+    hcComplex* devB = hc::am_alloc(sizeof(hcComplex) * K * N, handle->currentAccl, 0);
+    hcComplex* devC = hc::am_alloc(sizeof(hcComplex) * M * N * batchSize, handle->currentAccl, 0);
     float* ablas = (float *)malloc(sizeof(float )* M * K * 2);
     float* bblas = (float *)malloc(sizeof(float )* K * N * 2);
     float* cblas = (float *)malloc(sizeof(float )* M * N * batchSize * 2);

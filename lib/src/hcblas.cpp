@@ -69,11 +69,6 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
-  if(accs.size() == 1 || handle->deviceId == 0) {
-    // if only CPU is the accelerator
-    return HCBLAS_STATUS_MAPPING_ERROR;
-  }
-
   if( incx <= 0 || incy <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
   }
@@ -106,11 +101,6 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const
 
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-
-  if(accs.size() == 1 || handle->deviceId == 0) {
-    // if only CPU is the accelerator
-    return HCBLAS_STATUS_MAPPING_ERROR;
-  }
 
   if( incx <= 0 || incy <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
@@ -146,11 +136,6 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int el
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
-  if(accs.size() == 1 || handle->deviceId == 0) {
-    // if only CPU is the accelerator
-    return HCBLAS_STATUS_MAPPING_ERROR;
-  }
-
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
   }
@@ -185,11 +170,6 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int el
 
   if(handle == nullptr)
     return HCBLAS_STATUS_NOT_INITIALIZED;
-
-  if(accs.size() == 1 || handle->deviceId == 0) {
-    // if only CPU is the accelerator
-    return HCBLAS_STATUS_MAPPING_ERROR;
-  }
 
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
@@ -978,10 +958,6 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
   hcblasTranspose transA, transB;
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
-  //std::wcout << "dispatch sgemm to acc:" 
-  //           << handle->currentAcclView.get_accelerator().get_description() 
-  //           << " deviceId=" << handle->deviceId
-  //           << "\n";
   status = handle->hcblas_sgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
   if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
