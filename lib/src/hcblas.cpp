@@ -35,7 +35,7 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
 // HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
 
 hcblasStatus_t hcblasDestroy(hcblasHandle_t *handle){
-  if(handle == nullptr || *handle == nullptr)
+  if(handle == nullptr || *handle == nullptr || (*handle)->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   delete *handle;
   *handle = nullptr;
@@ -66,7 +66,7 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const
   }
   assert(accs.size() && "Number of Accelerators == 0!");
 
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if( incx <= 0 || incy <=0 || elemSize <=0 ) {
@@ -99,7 +99,7 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const
   }
   assert(accs.size() && "Number of Accelerators == 0!");
 
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if( incx <= 0 || incy <=0 || elemSize <=0 ) {
@@ -133,7 +133,7 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int el
   }
   assert(accs.size() && "Number of Accelerators == 0!");
 
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
@@ -168,7 +168,7 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int el
   }
   assert(accs.size() && "Number of Accelerators == 0!");
 
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
@@ -216,7 +216,7 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int el
 
 hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, const int n,
                             float           *x, const int incx, float  *result) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   hcblasStatus status;
@@ -230,7 +230,7 @@ hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, const int n,
 hcblasStatus_t  hcblasSasumBatched(hcblasHandle_t handle, const int n,
                                    float           *x, const int incx, float  *result, int batchCount) {
 
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long X_batchOffset = n;
@@ -244,7 +244,7 @@ hcblasStatus_t  hcblasSasumBatched(hcblasHandle_t handle, const int n,
 
 hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, const int n,
                             double          *x, const int incx, double *result) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   hcblasStatus status;
@@ -257,7 +257,7 @@ hcblasStatus_t  hcblasDasum(hcblasHandle_t handle, const int n,
 
 hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t handle, const int n,
                                    double          *x, const int incx, double *result, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long X_batchOffset = n;
@@ -295,7 +295,7 @@ hcblasStatus_t hcblasSaxpy(hcblasHandle_t handle, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            float                 *y, int incy) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -311,7 +311,7 @@ hcblasStatus_t hcblasDaxpy(hcblasHandle_t handle, int n,
                            const double           *alpha,
                            const double           *x, int incx,
                            double                 *y, int incy) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -327,7 +327,7 @@ hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t handle, int n,
                                   const float           *alpha,
                                   const float           *x, int incx,
                                   float                 *y, int incy, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr  || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -364,7 +364,7 @@ hcblasStatus_t hcblasSaxpyBatched(hcblasHandle_t handle, int n,
 hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
                            const float           *x, int incx,
                            float                 *y, int incy) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -379,7 +379,7 @@ hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
 hcblasStatus_t hcblasScopyBatched(hcblasHandle_t handle, int n,
                                   const float           *x, int incx,
                                   float                 *y, int incy, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr  || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -396,7 +396,7 @@ hcblasStatus_t hcblasScopyBatched(hcblasHandle_t handle, int n,
 hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            double                *y, int incy) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -411,7 +411,7 @@ hcblasStatus_t hcblasDcopy(hcblasHandle_t handle, int n,
 hcblasStatus_t hcblasDcopyBatched(hcblasHandle_t handle, int n,
                                   const double          *x, int incx,
                                   double                *y, int incy, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -450,7 +450,7 @@ hcblasStatus_t hcblasSdot (hcblasHandle_t handle, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *result) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -466,7 +466,7 @@ hcblasStatus_t hcblasSdotBatched (hcblasHandle_t handle, int n,
                                   const float           *x, int incx,
                                   const float           *y, int incy,
                                   float           *result, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr  || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -484,7 +484,7 @@ hcblasStatus_t hcblasDdot (hcblasHandle_t handle, int n,
                            const double          *x, int incx,
                            const double          *y, int incy,
                            double          *result) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -500,7 +500,7 @@ hcblasStatus_t hcblasDdotBatched (hcblasHandle_t handle, int n,
                                   const double          *x, int incx,
                                   const double          *y, int incy,
                                   double          *result, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long yOffset = 0;
@@ -536,7 +536,7 @@ hcblasStatus_t hcblasDdotBatched (hcblasHandle_t handle, int n,
 hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
                             const float           *alpha,
                             float           *x, int incx) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   hcblasStatus status;
@@ -550,7 +550,7 @@ hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
 hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t handle, int n,
                                    const float           *alpha,
                                    float           *x, int incx, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long X_batchOffset = n;
@@ -565,7 +565,7 @@ hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t handle, int n,
 hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
                             const double          *alpha,
                             double          *x, int incx) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   hcblasStatus status;
@@ -579,7 +579,7 @@ hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
 hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
                                    const double          *alpha,
                                    double          *x, int incx, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
   long xOffset = 0;
   long X_batchOffset = n;
@@ -643,7 +643,7 @@ hcblasStatus_t hcblasSgemv(hcblasHandle_t handle, hcblasOperation_t trans,
                            float           *x, int incx,
                            const float           *beta,
                            float           *y, int incy) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
@@ -669,7 +669,7 @@ hcblasStatus_t hcblasSgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans
                                   float           *x, int incx,
                                   const float           *beta,
                                   float           *y, int incy, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
@@ -708,7 +708,7 @@ hcblasStatus_t hcblasDgemv(hcblasHandle_t handle, hcblasOperation_t trans,
                            double           *x, int incx,
                            const double           *beta,
                            double           *y, int incy) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
@@ -734,7 +734,7 @@ hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans
                                   double           *x, int incx,
                                   const double           *beta,
                                   double           *y, int incy, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
@@ -798,7 +798,7 @@ hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *A, int lda) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
@@ -820,7 +820,7 @@ hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
                                   const float           *x, int incx,
                                   const float           *y, int incy,
                                   float           *A, int lda, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr  || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
@@ -846,7 +846,7 @@ hcblasStatus_t  hcblasDger(hcblasHandle_t handle, int m, int n,
                            const double           *x, int incx,
                            const double           *y, int incy,
                            double           *A, int lda) {
-  if(handle == nullptr)
+  if(handle == nullptr  || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
@@ -868,7 +868,7 @@ hcblasStatus_t  hcblasDgerBatched(hcblasHandle_t handle, int m, int n,
                                   const double           *x, int incx,
                                   const double           *y, int incy,
                                   double           *A, int lda, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr  || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || incx == 0 || incy == 0)
@@ -945,7 +945,7 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
                            float           *B, int ldb,
                            const float           *beta,
                            float           *C, int ldc) {
-  if(handle == nullptr)
+  if(handle == nullptr  || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0)
@@ -973,7 +973,7 @@ hcblasStatus_t hcblasCgemm(hcblasHandle_t handle,
                            hcComplex       *B, int ldb,
                            const hcComplex       *beta,
                            hcComplex       *C, int ldc) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0)
@@ -1006,7 +1006,7 @@ hcblasStatus_t hcblasDgemm(hcblasHandle_t handle,
                            double           *B, int ldb,
                            const double           *beta,
                            double           *C, int ldc) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0)
@@ -1034,7 +1034,7 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
                            hcDoubleComplex       *B, int ldb,
                            const hcDoubleComplex       *beta,
                            hcDoubleComplex       *C, int ldc) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0)
@@ -1107,7 +1107,7 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
                                   float           *Barray, int ldb,
                                   const float           *beta,
                                   float           *Carray, int ldc, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)
@@ -1142,7 +1142,7 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
                                   hcComplex       *Barray, int ldb,
                                   const hcComplex       *beta,
                                   hcComplex       *Carray, int ldc, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)
@@ -1177,7 +1177,7 @@ hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t handle,
                                   double           *Barray, int ldb,
                                   const double           *beta,
                                   double           *Carray, int ldc, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)
@@ -1212,7 +1212,7 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
                                   hcDoubleComplex       *Barray, int ldb,
                                   const hcDoubleComplex       *beta,
                                   hcDoubleComplex       *Carray, int ldc, int batchCount) {
-  if(handle == nullptr)
+  if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
   if(m < 0 || n < 0 || k < 0 || batchCount < 0)

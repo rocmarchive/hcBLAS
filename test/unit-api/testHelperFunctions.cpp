@@ -63,12 +63,12 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  /*handle->deviceId = 0;
  status = hcblasSetVector(handle, n, sizeof(x1), x1 , incx, y2, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
-
+*/
  // HCBLAS_STATUS_NOT_INITIALIZED  
- hcblasDestroy(handle);
+ hcblasDestroy(&handle);
  status = hcblasSetVector(handle, n, sizeof(x1), x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
-*/
+
  free(x1);
  free(x2);
  hc::am_free(y1);
@@ -110,11 +110,11 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
 /* handle->deviceId = 0;
  status = hcblasSetVector(handle, n, sizeof(y1), x2 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
-
+*/
  // HCBLAS_STATUS_NOT_INITIALIZED
- hcblasDestroy(handle);
+ hcblasDestroy(&handle);
  status = hcblasSetVector(handle, n, sizeof(y1), x1 , incx, y1, incy);
- EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);*/
+ EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
  free(y1);
  free(y2);
@@ -150,11 +150,11 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
 /* handle->deviceId = 0;
  status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , lda, y2, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
-
+*/
  // HCBLAS_STATUS_NOT_INITIALIZED  
- hcblasDestroy(handle);
+ hcblasDestroy(&handle);
  status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , lda, y1, ldb);
- EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);*/
+ EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
  free(x1);
  free(x2);
@@ -189,11 +189,11 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
 /* // HCBLAS_STATUS_MAPPING_ERROR
  status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x2 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
-
+*/
  // HCBLAS_STATUS_NOT_INITIALIZED
- hcblasDestroy(handle);
+ hcblasDestroy(&handle);
  status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x1 , lda, y1, ldb);
- EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);*/
+ EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
  free(y1);
  free(y2);

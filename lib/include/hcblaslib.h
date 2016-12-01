@@ -59,14 +59,13 @@ class Hcblaslibrary
         acc = &default_acc;
       }
       std::vector<accelerator> accs = accelerator::get_all();
-      bool foundIt = false;
       for (int i=0;i<accs.size();i++) {
         if (accs[i] == *acc) {
-          foundIt = true;
+          this-> initialized = true;
           break;
         }
       }
-      assert(foundIt);
+      assert(this->initialized);
       this->currentAccl = *acc;
       auto accl_view = (*acc).get_default_view();
       this->currentAcclView = accl_view;
@@ -74,8 +73,17 @@ class Hcblaslibrary
       this->Order = ColMajor;
     }
 
+    ~Hcblaslibrary() 
+    {
+       // Deinitialize the library
+       this->initialized = false;
+    }
+
     // Add current Accerator field
     hc::accelerator currentAccl;
+
+    // Filed to check if library is initialized
+    bool initialized = false;
 
     // Add current Accerator View field set with a default accelerator view of default accelerator
     // TODO - change to pointer
