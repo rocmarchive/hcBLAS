@@ -33,12 +33,13 @@ TEST(hcblasDestroyTest, return_Check_hcblasDestroy) {
 TEST(hcblasSetGetAcclViewTest, func_and_return_check_hcblasSetGetAcclView) {
  // Case I: Input to the API is null handle
  hcblasHandle_t handle = NULL;
+ void **stream = NULL;
  hc::accelerator default_acc;
  hc::accelerator_view default_acc_view = default_acc.get_default_view();
  hc::accelerator_view* accl_view = NULL;
  hcblasStatus_t status = hcblasSetAcclView(handle, default_acc_view);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
- status = hcblasGetAcclView(handle, &accl_view);
+ status = hcblasGetAcclView(handle, &accl_view, stream);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
  // Now create the handle
  status = hcblasCreate(&handle);
@@ -53,7 +54,7 @@ TEST(hcblasSetGetAcclViewTest, func_and_return_check_hcblasSetGetAcclView) {
  status = hcblasSetAcclView(handle, default_acc_view);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  // Now Get the Accl_view
- status = hcblasGetAcclView(handle, &accl_view);
+ status = hcblasGetAcclView(handle, &accl_view, stream);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  EXPECT_TRUE(accl_view != NULL);
  if (default_acc_view == *accl_view) {
@@ -71,7 +72,6 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
  status= hcblasCreate(&handle);
- std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *y1 = (float*)am_alloc(n, handle->currentAccl, 0);
  double *y2 = (double*)am_alloc(n, handle->currentAccl, 0);
  // HCBLAS_STATUS_SUCCESS
@@ -117,7 +117,6 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
  status= hcblasCreate(&handle);
- std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *x1 = (float*)am_alloc(n, handle->currentAccl, 0);
  double *x2 = (double*)am_alloc(n, handle->currentAccl, 0);
  // HCBLAS_STATUS_SUCCESS
@@ -165,7 +164,6 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
  status= hcblasCreate(&handle);
- std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *y1 = (float*)am_alloc(rows * cols, handle->currentAccl, 0);
  double *y2 = (double*)am_alloc(rows * cols, handle->currentAccl, 0);
 
@@ -205,7 +203,6 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
  status= hcblasCreate(&handle);
- std::vector<hc::accelerator>accs = hc::accelerator::get_all();
  float *x1 = (float*)am_alloc(rows * cols, handle->currentAccl, 0);
  double *x2 = (double*)am_alloc(rows * cols, handle->currentAccl, 0);
 
