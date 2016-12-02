@@ -33,7 +33,7 @@ extern "C" {
 typedef hcblasHandle_t hipblasHandle_t;
 typedef hcComplex hipComplex ;
 
-
+thread_local hipStream_t currentStreamId = 0x0; 
 extern  hipblasHandle_t dummyGlobal;
 /* Unsupported types
 		"cublasFillMode_t",

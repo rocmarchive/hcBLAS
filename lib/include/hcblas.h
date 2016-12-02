@@ -13,6 +13,7 @@ extern "C" {
 
 namespace hc {
   class accelerator;
+  class accelerator_view;
 };
 
 typedef struct  Hcblaslibrary* hcblasHandle_t;
@@ -91,6 +92,24 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc=nullptr
 // HCBLAS_STATUS_NOT_INITIALIZED    the library was not initialized
 
 hcblasStatus_t hcblasDestroy(hcblasHandle_t *handle);
+
+
+//hcblasSetAcclView()
+//This function sets the hcBLAS library stream, which will be used to execute all subsequent calls to the hcBLAS library functions. If the hcBLAS library stream is not set, all kernels use the defaultNULL stream. In particular, this routine can be used to change the stream between kernel launches and then to reset the hcBLAS library stream back to NULL.
+//Return Value 	Meaning
+
+// Returns
+// HCBLAS_STATUS_SUCCESS         :the stream was set successfully
+// HCBLAS_STATUS_NOT_INITIALIZED :the library was not initialized
+hcblasStatus_t hcblasSetAcclView(hcblasHandle_t handle, hc::accelerator_view accl_view); 
+
+//hcblasGetAcclView()
+// This function gets the hcBLAS library stream, which is being used to execute all calls to the hcBLAS library functions. If the hcBLAS library stream is not set, all kernels use the defaultNULL stream.
+// Return Value 	
+// HCBLAS_STATUS_SUCCESS : the stream was returned successfully
+// HCBLAS_STATUS_NOT_INITIALIZED : the library was not initialized
+
+hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view *accl_view); 
 
 
 // 3. hcblasSetVector()

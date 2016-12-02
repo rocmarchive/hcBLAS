@@ -5,6 +5,44 @@
 extern "C" {
 #endif
 
+//hipblasSetStream()
+//This function sets the hipBLAS library stream, which will be used to execute all subsequent calls to the hipBLAS library functions. If the hipBLAS library stream is not set, all kernels use the defaultNULL stream. In particular, this routine can be used to change the stream between kernel launches and then to reset the hipBLAS library stream back to NULL.
+//Return Value 	Meaning
+
+// Returns
+// HIPBLAS_STATUS_SUCCESS         :the stream was set successfully
+// HIPBLAS_STATUS_NOT_INITIALIZED :the library was not initialized
+hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t streamId) {
+  if (handle == nullptr) {
+    return HIPBLAS_STATUS_NOT_INITIALIZED;    
+  }
+  hc::accelerator_view *pAcclView;
+  hipError_t err = hipHccGetAcceleratorView(streamId, &pAcclView);
+  if (err != hipSuccess)
+  { 
+    return HIPBLAS_STATUS_NOT_INITIALIZED;
+  }
+  else 
+  {
+    currentStreamId = streamId;
+  }
+  return hipHCBLASStatusToHIPStatus(hcblasSetAcclView(handle, *pAcclView));
+} 
+
+//hipblasGetStream()
+// This function gets the hipBLAS library stream, which is being used to execute all calls to the hipBLAS library functions. If the hipBLAS library stream is not set, all kernels use the defaultNULL stream.
+// Return Value 	
+// HIPBLAS_STATUS_SUCCESS : the stream was returned successfully
+// HIPBLAS_STATUS_NOT_INITIALIZED : the library was not initialized
+
+hipblasStatus_t  hipblasGetStream(hipblasHandle_t handle, hipStream_t *streamId) {
+  if (handle == nullptr) {
+    return HIPBLAS_STATUS_NOT_INITIALIZED;    
+  }
+  streamId = &currentStreamId;
+  return HIPBLAS_STATUS_SUCCESS;
+}
+
 hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op)
 {
 	switch (op)
