@@ -89,6 +89,9 @@ class Hcblaslibrary
     // TODO - change to pointer
     hc::accelerator_view currentAcclView = this->currentAccl.get_default_view();
 
+    // StreamInfo
+    void* currentStream = NULL;
+
     hcblasOrder Order;
         
 /* SAXPY - Y = alpha * X + Y                                    */

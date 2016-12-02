@@ -28,7 +28,8 @@ THE SOFTWARE.
 //!
 //!  This is the master include file for hipblas, wrapping around hcblas and cublas "version 1"
 //
-
+#ifndef HIPBLAS_H
+#define HIPBLAS_H
 #pragma once
 
 enum hipblasStatus_t {
@@ -62,5 +63,5 @@ enum hipblasOperation_t {
 
 
 	
-
+#endif
 

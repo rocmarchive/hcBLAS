@@ -51,11 +51,12 @@ hcblasStatus_t hcblasDestroy(hcblasHandle_t *handle){
 // Returns
 // HCBLAS_STATUS_SUCCESS         :the stream was set successfully
 // HCBLAS_STATUS_NOT_INITIALIZED :the library was not initialized
-hcblasStatus_t hcblasSetAcclView(hcblasHandle_t handle, hc::accelerator_view accl_view) {
-  if (handle == nullptr) {
+hcblasStatus_t hcblasSetAcclView(hcblasHandle_t handle, hc::accelerator_view accl_view, void* stream) {
+  if (handle == nullptr || handle->initialized == false) {
     return HCBLAS_STATUS_NOT_INITIALIZED;    
   }
-    handle->currentAcclView = accl_view;
+  handle->currentAcclView = accl_view;
+  handle->currentStream = stream;
   return HCBLAS_STATUS_SUCCESS;
 } 
 
@@ -65,11 +66,12 @@ hcblasStatus_t hcblasSetAcclView(hcblasHandle_t handle, hc::accelerator_view acc
 // HCBLAS_STATUS_SUCCESS : the stream was returned successfully
 // HCBLAS_STATUS_NOT_INITIALIZED : the library was not initialized
 
-hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view **accl_view) {
+hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view **accl_view, void** stream) {
   if (handle == nullptr) {
     return HCBLAS_STATUS_NOT_INITIALIZED;    
   }
-  *accl_view = &(handle->currentAcclView);
+  *accl_view = &handle->currentAcclView;
+  stream = &(handle->currentStream);
   return HCBLAS_STATUS_SUCCESS;
 }
 

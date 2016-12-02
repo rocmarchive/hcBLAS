@@ -33,7 +33,6 @@ extern "C" {
 typedef hcblasHandle_t hipblasHandle_t;
 typedef hcComplex hipComplex ;
 
-thread_local hipStream_t currentStreamId = 0x0; 
 extern  hipblasHandle_t dummyGlobal;
 /* Unsupported types
 		"cublasFillMode_t",
@@ -53,6 +52,10 @@ hipblasStatus_t hipHCBLASStatusToHIPStatus(hcblasStatus_t hcStatus);
 hipblasStatus_t hipblasCreate(hipblasHandle_t* handle);
 
 hipblasStatus_t hipblasDestroy(hipblasHandle_t handle);
+
+hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t streamId);
+
+hipblasStatus_t  hipblasGetStream(hipblasHandle_t handle, hipStream_t *streamId);
 
 hipblasStatus_t hipblasSetVector(int n, int elemSize, const void *x, int incx, void *y, int incy);
 
