@@ -18,6 +18,17 @@ using namespace hc;
 using namespace hc::short_vector;
 using namespace std;
 
+#ifdef SERIALIZE_LEVEL1
+  #define _WAIT1 .wait()
+  #define _WAIT2
+#elif SERIALIZE_LEVEL2
+  #define _WAIT1
+  #define _WAIT2 .wait()
+#else
+  #define _WAIT1
+  #define _WAIT2
+#endif
+
 
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {

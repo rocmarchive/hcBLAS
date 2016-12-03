@@ -88,7 +88,7 @@ hcblasStatus zgemm_TransAB_rMajor_loopunroll(hc::accelerator_view accl_view,
       C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
       C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
-  });
+  })_WAIT1;
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -186,7 +186,7 @@ hcblasStatus zgemm_TransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -280,7 +280,7 @@ hcblasStatus zgemm_TransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -379,7 +379,7 @@ hcblasStatus zgemm_TransAB_rMajor_MICRO_TS8XMTS2(hc::accelerator_view accl_view,
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -476,7 +476,7 @@ hcblasStatus zgemm_NoTransB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -565,7 +565,7 @@ hcblasStatus zgemm_NoTransA_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -663,7 +663,7 @@ hcblasStatus zgemm_NoTransA_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -756,7 +756,7 @@ hcblasStatus zgemm_NoTransA_rMajor_loopunroll(hc::accelerator_view accl_view,
       C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
       C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
-  });
+  })_WAIT1;
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -842,7 +842,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -928,7 +928,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS16XSS16(hc::accelerator_view accl_vie
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -1025,7 +1025,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vi
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;

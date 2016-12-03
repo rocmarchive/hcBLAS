@@ -69,7 +69,7 @@ hcblasStatus gemm_NoTransAB_STEP_TS8XSS8(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -141,7 +141,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -212,7 +212,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -292,7 +292,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_view,
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -366,7 +366,7 @@ hcblasStatus gemm_NoTransAB_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -446,7 +446,7 @@ hcblasStatus gemm_NoTransA_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] =  alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -526,7 +526,7 @@ hcblasStatus gemm_NoTransA_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] =  alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -595,7 +595,7 @@ hcblasStatus gemm_NoTransA_STEP_TS8XSS8(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] =  alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -665,7 +665,7 @@ hcblasStatus gemm_NoTransA_STEP_TS16XSS16(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] =  alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -745,7 +745,7 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_view,
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -819,7 +819,7 @@ hcblasStatus gemm_NoTransA_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -900,7 +900,7 @@ hcblasStatus gemm_NoTransB_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -969,7 +969,7 @@ hcblasStatus gemm_NoTransB_STEP_TS8XSS8(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -1049,7 +1049,7 @@ hcblasStatus gemm_NoTransB_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -1131,7 +1131,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_view,
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -1205,7 +1205,7 @@ hcblasStatus gemm_NoTransB_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -1276,7 +1276,7 @@ hcblasStatus gemm_TransAB_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -1344,7 +1344,7 @@ hcblasStatus gemm_TransAB_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -1417,7 +1417,7 @@ hcblasStatus gemm_TransAB_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
         }
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -1524,7 +1524,7 @@ hcblasStatus gemm_TransAB_K1(hc::accelerator_view accl_view,
         C[C_index] = sum + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
   return HCBLAS_SUCCEEDS;
 }
@@ -1625,7 +1625,7 @@ hcblasStatus gemm_NoTransAB_K2(hc::accelerator_view accl_view,
         C[C_index] = sum + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
   return HCBLAS_SUCCEEDS;
 }
 
@@ -1734,7 +1734,7 @@ hcblasStatus gemm_TransAB_K3(hc::accelerator_view accl_view,
         C[C_index] = acc[w] + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef HC_RTS
 #undef HC_WPT
@@ -1838,7 +1838,7 @@ hcblasStatus gemm_NoTransA_K4(hc::accelerator_view accl_view,
         C[C_index] = sum + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
   return HCBLAS_SUCCEEDS;
 }
@@ -1939,7 +1939,7 @@ hcblasStatus gemm_NoTransB_K5(hc::accelerator_view accl_view,
         C[C_index] = sum + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
   return HCBLAS_SUCCEEDS;
 }
@@ -2061,7 +2061,7 @@ hcblasStatus gemm_TransAB_K6(hc::accelerator_view accl_view,
         C[C_index] = sum + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE_1D_Y
 #undef TILESIZE_1D_X
 #undef TILESIZE_X
@@ -2184,7 +2184,7 @@ hcblasStatus gemm_TransAB_K7(hc::accelerator_view accl_view,
         C[C_index] = sum + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE_1D_Y
 #undef TILESIZE_1D_X
 #undef TILESIZE_X
@@ -2267,7 +2267,7 @@ hcblasStatus gemm_TransAB_K8(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = localMemA[thread_y] * localMemB[thread_x] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE_1D_Y
 #undef TILESIZE_1D_X
 #undef TILESIZE_X
@@ -2322,7 +2322,7 @@ hcblasStatus gemm_TransAB_K9(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = localVarA * B[bOffset + gx] + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE_1D_Y
 #undef TILESIZE_1D_X
 #undef TILESIZE_X
@@ -2390,7 +2390,7 @@ hcblasStatus gemm_TransAB_K10(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = sum + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
   return HCBLAS_SUCCEEDS;
 }
@@ -2448,7 +2448,7 @@ hcblasStatus gemm_TransAB_11(hc::accelerator_view accl_view,
       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = sum + beta * C[C_index];
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
   return HCBLAS_SUCCEEDS;
 }
@@ -2552,7 +2552,7 @@ hcblasStatus gemm_TransAB_12(hc::accelerator_view accl_view,
         C[C_index] = sum + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
   return HCBLAS_SUCCEEDS;
 }
@@ -2645,7 +2645,7 @@ hcblasStatus gemm_NoTransAB_K3(hc::accelerator_view accl_view,
         C[C_index] = acc[w] + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef HC_RTS
 #undef HC_WPT
@@ -2739,7 +2739,7 @@ hcblasStatus gemm_NoTransA_K3(hc::accelerator_view accl_view,
         C[C_index] = acc[w] + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef HC_RTS
 #undef HC_WPT
@@ -2834,7 +2834,7 @@ hcblasStatus gemm_NoTransB_K3(hc::accelerator_view accl_view,
         C[C_index] = acc[w] + beta * C[C_index];
       }
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef HC_RTS
 #undef HC_WPT
@@ -2879,7 +2879,7 @@ hcblasStatus gemm_NoTransAB_largeK(hc::accelerator_view accl_view,
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
     }
-  });
+  })_WAIT1;
 #undef GEMM_BLOCK
   return HCBLAS_SUCCEEDS;
 }
@@ -2922,7 +2922,7 @@ hcblasStatus gemm_NoTransA_largeK(hc::accelerator_view accl_view,
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
     }
-  });
+  })_WAIT1;
 #undef GEMM_BLOCK
   return HCBLAS_SUCCEEDS;
 }
@@ -2966,7 +2966,7 @@ hcblasStatus gemm_NoTransB_largeK(hc::accelerator_view accl_view,
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
     }
-  });
+  })_WAIT1;
 #undef GEMM_BLOCK
   return HCBLAS_SUCCEEDS;
 }

@@ -98,7 +98,7 @@ void sasum_HC(hc::accelerator_view accl_view,
       // write to global buffer in this tiles
       dev_global_buffer[ tid.tile[0] ] = smem;
     }
-  }).wait();
+  })_WAIT2;
 
   // create host buffer
   float* host_global_buffer = (float *)malloc(sizeof(float) * tile_count);
@@ -211,7 +211,7 @@ void sasum_HC(hc::accelerator_view accl_view,
 // write to global buffer in this tiles
       dev_global_buffer[ elt * tile_count + tid.tile[1] ] = smem;
     }
-  }).wait();
+  })_WAIT2;
 
   // create host buffer
   float* host_global_buffer = (float *) malloc(sizeof(float) * batchSize * tile_count);

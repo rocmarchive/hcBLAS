@@ -86,7 +86,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_vi
     C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[3][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
     C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
     C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -202,7 +202,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_vi
     C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[5][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
     C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[5][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
     C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[5][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -312,7 +312,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_v
         C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
         C[CIndex + CinitOffset + TILESIZE * ldc] = alpha*rC[1][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc] ;
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -467,7 +467,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_v
         C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
         C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -690,7 +690,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_v
         C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[5][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
         C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[5][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
     }
-  });
+  })_WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;

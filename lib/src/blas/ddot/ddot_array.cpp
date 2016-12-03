@@ -98,7 +98,7 @@ double ddot_HC(hc::accelerator_view accl_view, long n,
       // write to global buffer in this tiles
       dev_global_buffer[ tid.tile[0] ] = smem;
     }
-  }).wait();
+  })_WAIT2;
 
   // create host buffer
   double* host_global_buffer = (double* )malloc(sizeof(double) * tile_count);
@@ -214,7 +214,7 @@ double ddot_HC(hc::accelerator_view accl_view, long n,
       // write to global buffer in this tiles
       dev_global_buffer[ elt * tile_count + tid.tile[1] ] = smem;
     }
-  }).wait();
+  })_WAIT2;
 
   // create host buffer
   double* host_global_buffer = (double* )malloc(sizeof(double) * batchSize * tile_count);
