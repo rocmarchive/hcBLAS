@@ -248,8 +248,7 @@ hipblasStatus_t hipblasDgemmBatched(hipblasHandle_t handle,  hipblasOperation_t 
 
 hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc, int batchCount){
-	return HIPBLAS_STATUS_NOT_SUPPORTED;
-	//return hipHCBLASStatusToHIPStatus(hcblasCgemmBatched( handle, transa,  transb, m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
+	return hipHCBLASStatusToHIPStatus(hcblasCgemmBatched( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
 }
 
 
