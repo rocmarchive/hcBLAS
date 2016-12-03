@@ -7,7 +7,7 @@ TEST(hcblasCreateTest, return_Check_hcblasCreate) {
  // Case I: Input to the API is null handle
  hcblasHandle_t handle = NULL;
  // Passing a Null handle to the API
- hcblasStatus_t status = hcblasCreate(&handle); 
+ hcblasStatus_t status = hcblasCreate(&handle, NULL); 
  // Assert if the handle is still NULL after allocation
  EXPECT_TRUE(handle != NULL);
  // If allocation succeeds we must expect a success status
@@ -20,7 +20,7 @@ TEST(hcblasCreateTest, return_Check_hcblasCreate) {
 TEST(hcblasDestroyTest, return_Check_hcblasDestroy) {
  hcblasHandle_t handle = NULL;
  // Passing a Null handle to the API
- hcblasStatus_t status = hcblasCreate(&handle);
+ hcblasStatus_t status = hcblasCreate(&handle, NULL);
  //hcblasDestroy
  status = hcblasDestroy(&handle);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
@@ -42,7 +42,7 @@ TEST(hcblasSetGetAcclViewTest, func_and_return_check_hcblasSetGetAcclView) {
  status = hcblasGetAcclView(handle, &accl_view, stream);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
  // Now create the handle
- status = hcblasCreate(&handle);
+ status = hcblasCreate(&handle, NULL);
  // Assert if the handle is still NULL after allocation
  EXPECT_TRUE(handle != NULL);
  // If allocation succeeds we must expect a success status
@@ -71,7 +71,7 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  double *x2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- status= hcblasCreate(&handle);
+ status= hcblasCreate(&handle, NULL);
  float *y1 = (float*)am_alloc(n, handle->currentAccl, 0);
  double *y2 = (double*)am_alloc(n, handle->currentAccl, 0);
  // HCBLAS_STATUS_SUCCESS
@@ -116,7 +116,7 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  double *y2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- status= hcblasCreate(&handle);
+ status= hcblasCreate(&handle, NULL);
  float *x1 = (float*)am_alloc(n, handle->currentAccl, 0);
  double *x2 = (double*)am_alloc(n, handle->currentAccl, 0);
  // HCBLAS_STATUS_SUCCESS
@@ -163,7 +163,7 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  double *x2 = (double*) calloc(rows * cols, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- status= hcblasCreate(&handle);
+ status= hcblasCreate(&handle, NULL);
  float *y1 = (float*)am_alloc(rows * cols, handle->currentAccl, 0);
  double *y2 = (double*)am_alloc(rows * cols, handle->currentAccl, 0);
 
@@ -202,7 +202,7 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  double *y2 = (double*) calloc(cols * rows, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- status= hcblasCreate(&handle);
+ status= hcblasCreate(&handle, NULL);
  float *x1 = (float*)am_alloc(rows * cols, handle->currentAccl, 0);
  double *x2 = (double*)am_alloc(rows * cols, handle->currentAccl, 0);
 

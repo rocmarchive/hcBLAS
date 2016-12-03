@@ -79,7 +79,7 @@ typedef hcDoubleComplex hcDoubleComplex;
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
-hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc=nullptr);
+hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc);
 
 // 2. hcblasDestory()
 

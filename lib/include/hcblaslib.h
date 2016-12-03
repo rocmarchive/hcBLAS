@@ -18,14 +18,17 @@ using namespace hc;
 using namespace hc::short_vector;
 using namespace std;
 
-#ifdef SERIALIZE_LEVEL1
+//Compulsory wait
+#define _WAIT2 .wait()
+
+// Ensuring Optional wait on kernels
+#if (SERIALIZE_KERNEL == 1)
   #define _WAIT1 .wait()
-  #define _WAIT2
-#elif SERIALIZE_LEVEL2
-  #define _WAIT1
-  #define _WAIT2 .wait()
 #else
   #define _WAIT1
+#endif
+#if (SERIALIZE_KERNEL == 2)
+  #undef _WAIT2
   #define _WAIT2
 #endif
 
@@ -69,14 +72,7 @@ class Hcblaslibrary
         hc::accelerator default_acc;
         acc = &default_acc;
       }
-      std::vector<accelerator> accs = accelerator::get_all();
-      for (int i=0;i<accs.size();i++) {
-        if (accs[i] == *acc) {
-          this-> initialized = true;
-          break;
-        }
-      }
-      assert(this->initialized);
+      this-> initialized = true;
       this->currentAccl = *acc;
       auto accl_view = (*acc).get_default_view();
       this->currentAcclView = accl_view;
