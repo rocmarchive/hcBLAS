@@ -65,17 +65,17 @@ class Hcblaslibrary
 
     // Constructor to initialize the library with the given accelerator
     Hcblaslibrary(hc::accelerator *acc)
+        : currentAcclView(acc->get_default_view() )
     {
-      // When accelerator specified is null, use the default accelerator 
-      if (acc == nullptr) 
-      {
-        hc::accelerator default_acc;
-        acc = &default_acc;
+      std::vector<accelerator> accs = accelerator::get_all();
+      for (int i=0;i<accs.size();i++) {
+        if (accs[i] == *acc) {
+          this-> initialized = true;
+          break;
+        }
       }
-      this-> initialized = true;
+      assert(this->initialized);
       this->currentAccl = *acc;
-      auto accl_view = (*acc).get_default_view();
-      this->currentAcclView = accl_view;
       // TODO: Add another constructor to accomodate row major setting
       this->Order = ColMajor;
     }
@@ -92,9 +92,7 @@ class Hcblaslibrary
     // Filed to check if library is initialized
     bool initialized = false;
 
-    // Add current Accerator View field set with a default accelerator view of default accelerator
-    // TODO - change to pointer
-    hc::accelerator_view currentAcclView = this->currentAccl.get_default_view();
+    hc::accelerator_view currentAcclView;
 
     // StreamInfo
     void* currentStream = NULL;
