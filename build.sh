@@ -131,8 +131,6 @@ if [ "$bench" = "off" ]; then
  # Build Tests
      cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
      set +e
-     mkdir $current_work_dir/build/test/src/bin/
-     mkdir $current_work_dir/build/test/unit/bin/
      
      make -j$working_threads
      cd $current_work_dir/test/unit/
@@ -145,8 +143,6 @@ if [ "$bench" = "off" ]; then
  # Build Tests
      cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
      set +e
-     mkdir $current_work_dir/build/test/src/bin/
-     mkdir $current_work_dir/build/test/unit/bin/
      set -e
      make -j$working_threads
      cd $current_work_dir/test/unit/
