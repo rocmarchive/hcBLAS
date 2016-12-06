@@ -111,7 +111,7 @@ elif [ "$synckernel" = "off" ]; then
 cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=OFF -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
 else 
 #default case: Of course there are Compulsory waits on certain kernels 
-cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=DEFAULT -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
 fi
 
 make -j$working_threads package $verbose
