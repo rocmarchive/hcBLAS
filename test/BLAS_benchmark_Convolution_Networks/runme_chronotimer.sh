@@ -7,8 +7,6 @@ export HCBLAS_PATH=$CURRENTDIR/../../
 
 cd $CURRENTDIR/../../build/test/ && cmake -DCMAKE_CXX_FLAGS=-fPIC $HCBLAS_PATH/test/ -DPROFILE=ON 
 set +e
-mkdir $CURRENTDIR/../../build/test/src/bin/
-mkdir $CURRENTDIR/../../build/test/unit/gtest/bin/
 set -e
 make
 cd $CURRENTDIR
