@@ -1169,28 +1169,28 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   order = CblasColMajor;
   hipblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
-  float *A = (float*) calloc(M * K, sizeof(float));
-  float *B = (float*) calloc(K * N, sizeof(float));
+  float *A = (float*) calloc(M * K * batchSize, sizeof(float));
+  float *B = (float*) calloc(K * N * batchSize, sizeof(float));
   float *C = (float*) calloc(M * N * batchSize, sizeof(float));
   float *C_hipblas = (float*) calloc(M * N * batchSize, sizeof(float));
   float *C_cblas = (float*) calloc(M * N * batchSize, sizeof(float));
   float *devA = NULL, * devB = NULL, *devC = NULL;
-  hipError_t err= hipMalloc(&devA, sizeof(float) * M * K);
-  err = hipMalloc(&devB, sizeof(float) * K * N);
+  hipError_t err= hipMalloc(&devA, sizeof(float) * M * K * batchSize);
+  err = hipMalloc(&devB, sizeof(float) * K * N * batchSize);
   err = hipMalloc(&devC, sizeof(float) * M * N * batchSize);
-  for(int i = 0; i < M * K; i++) {
+  for(int i = 0; i < M * K * batchSize; i++) {
               A[i] = rand()%100;
   }
-  for(int i = 0; i < K * N;i++) {
+  for(int i = 0; i < K * N * batchSize;i++) {
               B[i] = rand() % 15;
   }
   for(int i = 0; i < M * N * batchSize;i++) {
               C[i] = rand() % 25;
               C_cblas[i] = C[i];
   }
-  status = hipblasSetMatrix(M, K, sizeof(float), A, 1, devA, 1);
+  status = hipblasSetMatrix(M, K * batchSize, sizeof(float), A, 1, devA, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(K, N, sizeof(float), B, 1, devB, 1);
+  status = hipblasSetMatrix(K, N * batchSize, sizeof(float), B, 1, devB, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   status = hipblasSetMatrix(M, N * batchSize, sizeof(float), C, 1, devC, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
