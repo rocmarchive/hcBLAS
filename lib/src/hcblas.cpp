@@ -1152,7 +1152,7 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
   long cOffset = 0;
   long A_batchOffset = 0;
   long B_batchOffset = 0;
-  long C_batchOffset = m * n;
+  long C_batchOffset = 0;
 
   hcblasStatus status;
   hcblasTranspose transA, transB;

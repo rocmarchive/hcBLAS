@@ -1168,7 +1168,7 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   order = CblasColMajor;
   hipblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
-  int batchSize = 1;
+  int batchSize = 32;
   float *A[batchSize];
   float *B[batchSize];
   float *C[batchSize];
@@ -1254,20 +1254,20 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   //hipblasDestroy(handle);
   //status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc, batchSize);
   //EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
-
-  free(A);
-  free(B);
-  free(C);
+  // Free up resources
   for(int b = 0; b < batchSize; b++) {
     hipFree(devA[b]);
     hipFree(devB[b]);
     hipFree(devC[b]);
+    free(A[b]);
+    free(B[b]);
+    free(C[b]);
+    free(C_cblas[b]);
+    free(C_hipblas[b]);
   }
   hipFree(d_Aarray);
   hipFree(d_Barray);
   hipFree(d_Carray);
-  free(C_cblas);
-  free(C_hipblas);
 }
 
 TEST(hipblaswrapper_cgemm, func_return_correct_cgemm) {
