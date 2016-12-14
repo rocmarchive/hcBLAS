@@ -9,13 +9,55 @@ hcblasStatus gemm_HC(hc::accelerator_view accl_view,
                      float *B_mat,
                      long bOffset, long ldb, const float beta,
                      float *C_mat,
+                     long cOffset, long ldc) {
+  hcblasStatus status = HCBLAS_SUCCEEDS;
+  // Start the operations
+
+  if (order) {
+     if (TransB == 'n') {
+        if (TransA == 'n') {
+          status = gemm_NoTransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        } else {
+          status = gemm_NoTransB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        }
+      } else if (TransA == 'n') {
+        status = gemm_NoTransA(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      } else {
+        status = gemm_TransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      }
+  }
+  else {
+      if (TransB == 'n') {
+        if (TransA == 'n') {
+          status = gemm_NoTransAB_rMajor(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        } else {
+          status = gemm_NoTransB_rMajor(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+        }
+      } else if (TransA == 'n') {
+        status = gemm_NoTransA_rMajor(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      } else {
+        status = gemm_TransAB_rMajor(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+      }
+  }
+  return status;
+}
+hcblasStatus gemm_HC(hc::accelerator_view accl_view,
+                     const int order, char TransA, char TransB,
+                     const int M, const int N, const int K,
+                     const float alpha, float *A_mat[],
+                     long aOffset, long lda,
+                     float *B_mat[],
+                     long bOffset, long ldb, const float beta,
+                     float *C_mat[],
                      long cOffset, long ldc,
                      long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset = 0, int batchSize = 0) {
   hcblasStatus status = HCBLAS_SUCCEEDS;
   // Start the operations
 
+  printf("Gemm HC batched\n");
+
   if (order) {
-    if(batchSize > 0) {
+    if(batchSize >= 0) {
       if (TransB == 'n') {
         if (TransA == 'n') {
           status = gemm_NoTransAB(accl_view, A_mat, aOffset, A_batchOffset, B_mat, bOffset, B_batchOffset, C_mat, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
@@ -27,21 +69,9 @@ hcblasStatus gemm_HC(hc::accelerator_view accl_view,
       } else {
         status = gemm_TransAB(accl_view, A_mat, aOffset, A_batchOffset, B_mat, bOffset, B_batchOffset, C_mat, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
       }
-    } else {
-      if (TransB == 'n') {
-        if (TransA == 'n') {
-          status = gemm_NoTransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
-        } else {
-          status = gemm_NoTransB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
-        }
-      } else if (TransA == 'n') {
-        status = gemm_NoTransA(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
-      } else {
-        status = gemm_TransAB(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
-      }
-    }
+    }   
   } else {
-    if(batchSize > 0) {
+/*    if(batchSize > 0) {
       if (TransB == 'n') {
         if (TransA == 'n') {
           status = gemm_NoTransAB_rMajor(accl_view, A_mat, aOffset, A_batchOffset, B_mat, bOffset, B_batchOffset, C_mat, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
@@ -65,12 +95,13 @@ hcblasStatus gemm_HC(hc::accelerator_view accl_view,
       } else {
         status = gemm_TransAB_rMajor(accl_view, A_mat, aOffset, B_mat, bOffset, C_mat, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
       }
-    }
+    }*/
   }
 
+  printf("Gemm HC batched endds\n");
   return status;
-}
 
+}
 // Type 1 -  alpha = 0 Kernel
 
 hcblasStatus gemm_alpha0_col(hc::accelerator_view accl_view,
@@ -243,10 +274,10 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view accl_view,
 					   hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
 					   const int N, const int K, const float &alpha,
-					   float *A, const long lda, const long A_batchOffset,
-					   float *B, const long ldb, const long B_batchOffset,
+					   float *A[], const long lda, const long A_batchOffset,
+					   float *B[], const long ldb, const long B_batchOffset,
 					   const float &beta,
-					   float *C, const long ldc, const long C_batchOffset,
+					   float *C[], const long ldc, const long C_batchOffset,
 					   const long aOffset, const long bOffset, const long cOffset, const int batchSize) {
   int i, j, k;
   float temp;
@@ -258,7 +289,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view accl_view,
   }
 
 
-  // For alpha = 0
+/*  // For alpha = 0
   if (alpha == 0) {
     if (order) {
         status = gemm_alpha0_col_batch(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
@@ -267,7 +298,7 @@ hcblasStatus Hcblaslibrary :: hcblas_sgemm(hc::accelerator_view accl_view,
         status = gemm_alpha0_row_batch(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
     }
     return status;
-  }
+  }*/
 
   status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
           bOffset, ldb, beta, C, cOffset, ldc, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);

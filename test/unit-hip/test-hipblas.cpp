@@ -1164,36 +1164,61 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   long lda;
   long ldb;
   long ldc;
-  int batchSize = 32;
   CBLAS_ORDER order;
   order = CblasColMajor;
   hipblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
-  float *A = (float*) calloc(M * K * batchSize, sizeof(float));
-  float *B = (float*) calloc(K * N * batchSize, sizeof(float));
-  float *C = (float*) calloc(M * N * batchSize, sizeof(float));
-  float *C_hipblas = (float*) calloc(M * N * batchSize, sizeof(float));
-  float *C_cblas = (float*) calloc(M * N * batchSize, sizeof(float));
-  float *devA = NULL, * devB = NULL, *devC = NULL;
-  hipError_t err= hipMalloc(&devA, sizeof(float) * M * K * batchSize);
-  err = hipMalloc(&devB, sizeof(float) * K * N * batchSize);
-  err = hipMalloc(&devC, sizeof(float) * M * N * batchSize);
-  for(int i = 0; i < M * K * batchSize; i++) {
-              A[i] = rand()%100;
+  int batchSize = 1;
+  float *A[batchSize];
+  float *B[batchSize];
+  float *C[batchSize];
+  float *C_hipblas[batchSize];
+  float *C_cblas[batchSize];
+  // Device pointers stored in host memory
+  float *devA[batchSize], *devB[batchSize], *devC[batchSize];
+  // Create device double pointer to store device pointers in device memory
+  float **d_Aarray, **d_Barray, **d_Carray;
+  hipMalloc((void **)&d_Aarray, batchSize * sizeof(float*));
+  hipMalloc((void **)&d_Barray, batchSize * sizeof(float*));
+  hipMalloc((void **)&d_Carray, batchSize * sizeof(float*));
+  const size_t aSize = sizeof(float) * M * K;
+  const size_t bSize = sizeof(float) * K * N;
+  const size_t cSize = sizeof(float) * M * N;
+
+
+  // Host and Device Array allocation
+  for(int i =0; i < batchSize; i++) {
+    A[i] = (float *) malloc(aSize);
+    B[i] = (float *) malloc(bSize);
+    C[i] = (float *) malloc(cSize);
+    C_hipblas[i] = (float *) malloc(cSize);
+    C_cblas[i] = (float *) malloc(cSize);
+    hipMalloc((void**)&(devA[i]), aSize);
+    hipMalloc((void**)&(devB[i]), bSize);
+    hipMalloc((void**)&(devC[i]), cSize);
   }
-  for(int i = 0; i < K * N * batchSize;i++) {
-              B[i] = rand() % 15;
+
+  // Populate the inputs 
+  for (int b = 0; b < batchSize; b++) {
+    // Populate each subscript of array
+    for(int i = 0; i < M * K; i++) {
+      A[b][i] = 1;
+    }
+    status = hipblasSetMatrix(M, K, sizeof(float), A[b], 1, devA[b], 1);
+    EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+    for(int i = 0; i < K * N; i++) {
+      B[b][i] = 2;
+    }
+    status = hipblasSetMatrix(K, N, sizeof(float), B[b], 1, devB[b], 1);
+    EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+    for(int i = 0; i < M * N;i++) 
+    {
+      C[b][i] = 3;
+      C_cblas[b][i] = C[b][i];
+    }
+    status = hipblasSetMatrix(M, N, sizeof(float), C[b], 1, devC[b], 1);
+    EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   }
-  for(int i = 0; i < M * N * batchSize;i++) {
-              C[i] = rand() % 25;
-              C_cblas[i] = C[i];
-  }
-  status = hipblasSetMatrix(M, K * batchSize, sizeof(float), A, 1, devA, 1);
-  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(K, N * batchSize, sizeof(float), B, 1, devB, 1);
-  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(M, N * batchSize, sizeof(float), C, 1, devC, 1);
-  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
   // NoTransA and NoTransB */           
   typeA = HIPBLAS_OP_N;
@@ -1201,33 +1226,48 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   Transa = CblasNoTrans;
   Transb = CblasNoTrans;
 
+  // Copyinng device pointers stored in host memory to device memory
+  hipMemcpy(d_Aarray, devA, batchSize * sizeof(float*), hipMemcpyHostToDevice);
+  hipMemcpy(d_Barray, devB, batchSize * sizeof(float*), hipMemcpyHostToDevice);
+  hipMemcpy(d_Carray, devC, batchSize * sizeof(float*), hipMemcpyHostToDevice);
+
     // Column major */
   lda = M; ldb = K ; ldc = M;
-  status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc, batchSize);
+  status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, d_Aarray, lda, d_Barray, ldb, &beta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  // Get the results
+  for(int b =0; b < batchSize; b++) {
+    status = hipblasGetMatrix(M, N, sizeof(float), devC[b], 1, C_hipblas[b], 1);
+    EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  }
 
-  status = hipblasGetMatrix(M, N * batchSize, sizeof(float), devC, 1, C_hipblas, 1);
-  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-
-  for(int i = 0; i < batchSize; i++)
-         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas  + i * M * N ,ldc );
-  for(int i = 0 ; i < M * N * batchSize; i++)
-    EXPECT_EQ(C_hipblas[i], C_cblas[i]);
+  for(int b = 0; b < batchSize; b++)
+         cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A[b], lda, B[b], ldb, beta, C_cblas[b],ldc );
+  
+  for(int b = 0; b < batchSize; b++) {
+    for(int i = 0 ; i < M * N; i++) {
+      EXPECT_EQ(C_hipblas[b][i], C_cblas[b][i]);
+    }
+  }
 
   // HIPBLAS_STATUS_NOT_INITIALIZED
-  hipblasDestroy(handle);
-  status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc, batchSize);
-  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+  //hipblasDestroy(handle);
+  //status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc, batchSize);
+  //EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
 
   free(A);
   free(B);
   free(C);
-  hipFree(devA);
-  hipFree(devB);
-  hipFree(devC);
+  for(int b = 0; b < batchSize; b++) {
+    hipFree(devA[b]);
+    hipFree(devB[b]);
+    hipFree(devC[b]);
+  }
+  hipFree(d_Aarray);
+  hipFree(d_Barray);
+  hipFree(d_Carray);
   free(C_cblas);
   free(C_hipblas);
-
 }
 
 TEST(hipblaswrapper_cgemm, func_return_correct_cgemm) {

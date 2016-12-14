@@ -1206,7 +1206,7 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_regularN_Implementation_type_1
  func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
-TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
+/*TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
    hc::accelerator accl;
    Hcblaslibrary hc(&accl);
   int M = 189, N = 9, K = 19;
@@ -1316,7 +1316,7 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
   float* devA1 = NULL;
   float* devB1 = NULL;
   float* devC1 = NULL;
-  /* A, B, C device pointers are not allocated properly */
+  // A, B, C device pointers are not allocated properly 
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA1, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_INVALID);
   status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devB1, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
@@ -1338,9 +1338,9 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
   hc::am_free(devAbatch);
   hc::am_free(devBbatch);
   hc::am_free(devCbatch);
-}
+}*/
 
-TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
+/*TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
    hc::accelerator accl;
    Hcblaslibrary hc(&accl);
   int M = 189, N = 9, K = 19;
@@ -1606,5 +1606,5 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
   hc::am_free(devAbatch);
   hc::am_free(devBbatch);
   hc::am_free(devCbatch);
-}
+}*/
 

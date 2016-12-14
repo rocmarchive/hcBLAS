@@ -595,30 +595,30 @@ hcblasStatus gemm_TransAB(hc::accelerator_view accl_view,
 */
 
 hcblasStatus gemm_NoTransAB(hc::accelerator_view accl_view,
-                            float *A, long aOffset, long A_batchOffset,
-                            float *B, long bOffset, long B_batchOffset,
-                            float *C, long cOffset, long C_batchOffset,
+                            float *A[], long aOffset, long A_batchOffset,
+                            float *B[], long bOffset, long B_batchOffset,
+                            float *C[], long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float alpha, float beta, int batchSize);
 
 hcblasStatus gemm_NoTransA(hc::accelerator_view accl_view,
-	                   float *A, long aOffset, long A_batchOffset,
-                           float *B, long bOffset, long B_batchOffset,
-                           float *C, long cOffset, long C_batchOffset,
+	                   float *A[], long aOffset, long A_batchOffset,
+                           float *B[], long bOffset, long B_batchOffset,
+                           float *C[], long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta, int batchSize);
 
 hcblasStatus gemm_NoTransB(hc::accelerator_view accl_view,
-          		   float *A, long aOffset, long A_batchOffset,
-                           float *B, long bOffset, long B_batchOffset,
-                           float *C, long cOffset, long C_batchOffset,
+          		   float *A[], long aOffset, long A_batchOffset,
+                           float *B[], long bOffset, long B_batchOffset,
+                           float *C[], long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float alpha, float beta, int batchSize);
 
 hcblasStatus gemm_TransAB(hc::accelerator_view accl_view,
-                          float *A, long aOffset, long A_batchOffset,
-                          float *B, long bOffset, long B_batchOffset,
-                          float *C, long cOffset, long C_batchOffset,
+                          float *A[], long aOffset, long A_batchOffset,
+                          float *B[], long bOffset, long B_batchOffset,
+                          float *C[], long cOffset, long C_batchOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
                           float alpha, float beta, int batchSize);
 
