@@ -12,6 +12,7 @@ ADD_SUBDIRECTORY(blas)
 #Setting a Project name
 SET(PROJECT_NAME "hcblas")
 SET(PROJECT_NAME_EXT "hipblas")
+SET(ROCM_PATH "/opt/rocm/")
 SET(HIP_PATH "/opt/rocm/hip")
 PROJECT (${PROJECT_NAME})
 MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
@@ -30,7 +31,7 @@ SET (HIPBLASSRCS ${HCBLASSRCS} hipblas.cpp)
  
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
-  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
+  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${ROCM_PATH}/include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
   set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc")
   
   # Setting header dependencies for hcblas library generation
