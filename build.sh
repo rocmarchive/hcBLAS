@@ -138,7 +138,11 @@ fi
 # Test=OFF and Profile=OFF (Build library and tests)
 if [ "$bench" = "off" ]; then
   if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
-    echo "${green}HCBLAS Build Completed!${reset}"
+    if [ "$platform" = "hcc" ]; then
+      echo "${green}HCBLAS Build Completed!${reset}"
+    elif  [ "$platform" = "nvcc" ]; then
+      echo "${green}HIPBLAS Build Completed!${reset}"
+    fi
 # Test=ON and Profile=OFF (Build and test the library)
   elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
  # Build Tests

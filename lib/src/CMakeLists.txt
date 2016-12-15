@@ -97,6 +97,9 @@ ELSEIF (${PLATFORM} MATCHES "nvcc")
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
   )
+  file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/../include/hipblas.h")
+  file(GLOB nvcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/nvcc_detail/*.h")
+  INSTALL(FILES ${headers} DESTINATION include)
   INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
   INSTALL(FILES ${nvcc_detail} DESTINATION include/nvcc_detail)
 ENDIF()

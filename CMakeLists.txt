@@ -11,7 +11,6 @@ SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake  "${HIP_PATH}/cmake")
 EXECUTE_PROCESS(COMMAND ${HIP_PATH}/bin/hipconfig -P OUTPUT_VARIABLE PLATFORM)
 add_subdirectory(lib/src)
 # Build hcblas and hipblas from source on a AMD platform
-IF (${PLATFORM} MATCHES "hcc")
 
   # Get the current working branch
   execute_process(
@@ -42,8 +41,13 @@ IF (${PLATFORM} MATCHES "hcc")
 
   set(CPACK_SET_DESTDIR TRUE)
   set(CPACK_INSTALL_PREFIX "${DEFAULT_DEBIAN_INSTALL_PREFIX}")
+IF (${PLATFORM} MATCHES "hcc")
   set(CPACK_PACKAGE_NAME "hcblas")
-  set(CPACK_PACKAGE_NAME_EXT "hipblas")
+  SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "HcBLAS: a BLAS Library based on Heterogeneous C++ construct")
+ELSEIF (${PLATFORM} MATCHES "nvcc")
+  set(CPACK_PACKAGE_NAME "hipblas")
+  SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "HipBLAS: a BLAS Library interface that links against cublas library")
+ENDIF() # PLATFORM 
   set(CPACK_PACKAGE_VENDOR "MulticoreWare, Inc")
   set(CPACK_GENERATOR "DEB;TGZ")
   set(CPACK_SOURCE_GENERATOR "TGZ")
@@ -54,15 +58,13 @@ IF (${PLATFORM} MATCHES "hcc")
   set(CPACK_SOURCE_TBZ2 "OFF")
   set(CPACK_BINARY_TZ "OFF")
   SET(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${GIT_BRANCH}-${GIT_COMMIT_HASH}-${CMAKE_SYSTEM_NAME})
-  SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "HcBLAS: a BLAS Library based on Heterogeneous C++ construct")
   SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Neelakandan <neelakandan@multicorewareinc.com>") #required
 
   set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
   "${PROJECT_BINARY_DIR}/packaging/debian/postinst;${PROJECT_BINARY_DIR}/packaging/debian/prerm")
 
   INCLUDE(CPack)
-ELSEIF (${PLATFORM} MATCHES "nvcc")
-   MESSAGE(STATUS "Building HIPBLAS in NVCC platform")
-ENDIF() # PLATFORM Equals HCC
+#ELSEIF (${PLATFORM} MATCHES "nvcc")
+#   MESSAGE(STATUS "Building HIPBLAS in NVCC platform")
 
 
