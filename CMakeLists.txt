@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 # HIP_PATH
 IF(NOT DEFINED $ENV{HIP_PATH})
-  SET(HIP_PATH /opt/rocm/hip)
+  SET(HIP_PATH "/opt/rocm/hip")
 ELSE()
   SET(HIP_PATH $ENV{HIP_PATH})
 ENDIF()
@@ -62,6 +62,8 @@ IF (${PLATFORM} MATCHES "hcc")
   "${PROJECT_BINARY_DIR}/packaging/debian/postinst;${PROJECT_BINARY_DIR}/packaging/debian/prerm")
 
   INCLUDE(CPack)
+ELSEIF (${PLATFORM} MATCHES "nvcc")
+   MESSAGE(STATUS "Building HIPBLAS in NVCC platform")
 ENDIF() # PLATFORM Equals HCC
 
 
