@@ -1303,9 +1303,10 @@ TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
 }
 
 TEST(hcblaswrapper_dgemmBatched, func_return_correct_dgemmBatched) {
-  hcblasStatus_t status;
+   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
   hc::accelerator default_acc;
+  hc::accelerator_view accl_view = default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &default_acc); 
   int M = 123;
@@ -1322,30 +1323,55 @@ TEST(hcblaswrapper_dgemmBatched, func_return_correct_dgemmBatched) {
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   hcblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
-  double *A = (double*) calloc(M * K * batchSize, sizeof(double));
-  double *B = (double*) calloc(K * N * batchSize, sizeof(double));
-  double *C = (double*) calloc(M * N * batchSize, sizeof(double));
-  double *C_hcblas = (double*) calloc(M * N * batchSize, sizeof(double));
-  double *C_cblas = (double*) calloc(M * N * batchSize, sizeof(double));
-  double* devA = hc::am_alloc(sizeof(double) * M * K * batchSize, handle->currentAccl, 0);
-  double* devB = hc::am_alloc(sizeof(double) * K * N * batchSize, handle->currentAccl, 0);
-  double* devC = hc::am_alloc(sizeof(double) * M * N * batchSize, handle->currentAccl, 0);
-  for(int i = 0; i < M * K; i++) {
-              A[i] = rand()%100;
+  double *A[batchSize];
+  double *B[batchSize];
+  double *C[batchSize];
+  double *C_hcblas[batchSize];
+  double *C_cblas[batchSize];
+  // Device pointers stored in host memory
+  double *devA[batchSize], *devB[batchSize], *devC[batchSize];
+  // Create device double pointer to store device pointers in device memory
+  double **d_Aarray =  hc::am_alloc(batchSize * sizeof(double*), default_acc, 0);
+  double **d_Barray  = hc::am_alloc(batchSize * sizeof(double*), default_acc, 0);
+  double **d_Carray = hc::am_alloc(batchSize * sizeof(double*), default_acc, 0);
+  const size_t aSize = sizeof(double) * M * K;
+  const size_t bSize = sizeof(double) * K * N;
+  const size_t cSize = sizeof(double) * M * N;
+
+
+  // Host and Device Array allocation
+  for(int i =0; i < batchSize; i++) {
+    A[i] = (double *) malloc(aSize);
+    B[i] = (double *) malloc(bSize);
+    C[i] = (double *) malloc(cSize);
+    C_hcblas[i] = (double *) malloc(cSize);
+    C_cblas[i] = (double *) malloc(cSize);
+    devA[i] = hc::am_alloc(aSize, default_acc, 0);
+    devB[i] = hc::am_alloc(bSize, default_acc, 0);
+    devC[i] = hc::am_alloc(cSize, default_acc, 0);
   }
-  for(int i = 0; i < K * N;i++) {
-              B[i] = rand() % 15;
+
+  // Populate the inputs 
+  for (int b = 0; b < batchSize; b++) {
+    // Populate each subscript of array
+    for(int i = 0; i < M * K; i++) {
+      A[b][i] = rand() % 100;
+    }
+    status = hcblasSetMatrix(handle, M, K, sizeof(double), A[b], 1, devA[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+    for(int i = 0; i < K * N; i++) {
+      B[b][i] = rand() % 15;
+    }
+    status = hcblasSetMatrix(handle, K, N, sizeof(double), B[b], 1, devB[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+    for(int i = 0; i < M * N; i++) 
+    {
+      C[b][i] = rand() % 25;
+      C_cblas[b][i] = C[b][i];
+    }
+    status = hcblasSetMatrix(handle, M, N, sizeof(double), C[b], 1, devC[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   }
-  for(int i = 0; i < M * N * batchSize;i++) {
-              C[i] = rand() % 25;
-              C_cblas[i] = C[i];
-  }
-  status = hcblasSetMatrix(handle, M, K * batchSize, sizeof(double), A, 1, devA, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  status = hcblasSetMatrix(handle, K, N * batchSize, sizeof(double), B, 1, devB, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  status = hcblasSetMatrix(handle, M, N * batchSize, sizeof(double), C, 1, devC, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
   // NoTransA and NoTransB */           
   typeA = HCBLAS_OP_N;
@@ -1353,33 +1379,48 @@ TEST(hcblaswrapper_dgemmBatched, func_return_correct_dgemmBatched) {
   Transa = CblasNoTrans;
   Transb = CblasNoTrans;
 
+  // Copyinng device pointers stored in host memory to device memory
+  accl_view.copy(devA, d_Aarray, batchSize * sizeof(double*));
+  accl_view.copy(devB, d_Barray, batchSize * sizeof(double*));
+  accl_view.copy(devC, d_Carray, batchSize * sizeof(double*));
+
     // Column major */
   lda = M; ldb = K ; ldc = M;
-  status = hcblasDgemmBatched(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc, batchSize);
+  status = hcblasDgemmBatched(handle, typeA, typeB, M, N, K, &alpha, d_Aarray, lda, d_Barray, ldb, &beta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  // Get the results
+  for(int b =0; b < batchSize; b++) {
+    status = hcblasGetMatrix(handle, M, N, sizeof(double), devC[b], 1, C_hcblas[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  }
 
-  status = hcblasGetMatrix(handle, M, N * batchSize, sizeof(double), devC, 1, C_hcblas, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-
-  for(int i = 0; i < batchSize; i++)
-         cblas_dgemm( order, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas  + i * M * N ,ldc );
-  for(int i = 0 ; i < M * N * batchSize; i++)
-    EXPECT_EQ(C_hcblas[i], C_cblas[i]);
+  for(int b = 0; b < batchSize; b++)
+         cblas_dgemm( order, Transa, Transb, M, N, K, alpha, A[b], lda, B[b], ldb, beta, C_cblas[b],ldc );
+  
+  for(int b = 0; b < batchSize; b++) {
+    for(int i = 0 ; i < M * N; i++) {
+      EXPECT_EQ(C_hcblas[b][i], C_cblas[b][i]);
+    }
+  }
 
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
-  status = hcblasDgemmBatched(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc, batchSize);
+  status = hcblasDgemmBatched(handle, typeA, typeB, M, N, K, &alpha, d_Aarray, lda, d_Barray, ldb, &beta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
-
-  free(A);
-  free(B);
-  free(C);
-  hc::am_free(devA);
-  hc::am_free(devB);
-  hc::am_free(devC);
-  free(C_cblas);
-  free(C_hcblas);
-
+  // Free up resources
+  for(int b = 0; b < batchSize; b++) {
+    hc::am_free(devA[b]);
+    hc::am_free(devB[b]);
+    hc::am_free(devC[b]);
+    free(A[b]);
+    free(B[b]);
+    free(C[b]);
+    free(C_cblas[b]);
+    free(C_hcblas[b]);
+  }
+  hc::am_free(d_Aarray);
+  hc::am_free(d_Barray);
+  hc::am_free(d_Carray);
 }
 
 TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
