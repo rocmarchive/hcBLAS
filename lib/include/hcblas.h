@@ -603,10 +603,10 @@ hcblasStatus_t hcblasSgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const float           *alpha,
-                                  float           *Aarray, int lda,
-                                  float           *Barray, int ldb,
+                                  float           *Aarray[], int lda,
+                                  float           *Barray[], int ldb,
                                   const float           *beta,
-                                  float           *Carray, int ldc, int batchCount);
+                                  float           *Carray[], int ldc, int batchCount);
 
 hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
@@ -621,10 +621,10 @@ hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const double           *alpha,
-                                  double           *Aarray, int lda,
-                                  double           *Barray, int ldb,
+                                  double           *Aarray[], int lda,
+                                  double           *Barray[], int ldb,
                                   const double           *beta,
-                                  double           *Carray, int ldc, int batchCount);
+                                  double           *Carray[], int ldc, int batchCount);
 
 hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,

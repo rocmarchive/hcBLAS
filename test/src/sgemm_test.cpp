@@ -156,7 +156,7 @@ int main(int argc,char* argv[])
 	    accl_view.copy(Abatch, devAbatch, M * K * sizeof(float));
 	    accl_view.copy(Bbatch, devBbatch, K * N * sizeof(float));
 	    accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(float));
-            status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);   
+            //status = hc.hcblas_sgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);   
 	    accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float));
             for(int i = 0; i < batchSize; i++)
                 cblas_sgemm( order, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N ,ldc );

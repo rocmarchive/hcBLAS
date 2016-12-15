@@ -233,10 +233,10 @@ class Hcblaslibrary
                               hcblasOrder order, hcblasTranspose typeA,
                               hcblasTranspose typeB, const int M,
                               const int N, const int K, const float &alpha,
-                              float *A, const long lda, const long A_batchOffset,
-                              float *B, const long ldb, const long B_batchOffset,
+                              float *A[], const long lda, const long A_batchOffset,
+                              float *B[], const long ldb, const long B_batchOffset,
                               const float &beta,
-                              float *C, const long ldc, const long C_batchOffset,
+                              float *C[], const long ldc, const long C_batchOffset,
                               const long aOffset, const long bOffset, const long cOffset, const int batchSize);
 
 /*  DGEMM - Overloaded function with arguments related to batch processing */
@@ -244,10 +244,10 @@ class Hcblaslibrary
                               hcblasOrder order, hcblasTranspose typeA,
                               hcblasTranspose typeB, const int M,
                               const int N, const int K, const double &alpha,
-                              double *A, const long lda, const long A_batchOffset,
-                              double *B, const long ldb, const long B_batchOffset,
+                              double *A[], const long lda, const long A_batchOffset,
+                              double *B[], const long ldb, const long B_batchOffset,
                               const double &beta,
-                              double *C, const long ldc, const long C_batchOffset,
+                              double *C[], const long ldc, const long C_batchOffset,
                               const long aOffset, const long bOffset, const long cOffset, const int batchSize);
 /* CGEMM - C = alpha * op(A) * op(B) + beta * C                   */
 /* CGEMM - Overloaded function with arguments of type hc::array   */     
