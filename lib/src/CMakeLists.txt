@@ -3,25 +3,26 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8.8)
 MESSAGE(STATUS "CMAKE VERSION ${CMAKE_VERSION}")
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-# Find HCC compiler
-FIND_PACKAGE(HC++ 1.0 REQUIRED)
-
-ADD_SUBDIRECTORY(blas)
-
-#Setting a Project name
-SET(PROJECT_NAME "hcblas")
 SET(PROJECT_NAME_EXT "hipblas")
-SET(HIP_PATH "/opt/rocm/hip")
-PROJECT (${PROJECT_NAME})
-MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
-SET(SERIALIZE_KERNEL "DEFAULT" CACHE STRING "SYNC KERNELS")
+# Build hcblas and hipblas from source on AMD platform
+IF (${PLATFORM} MATCHES "hcc")
+  # Find HCC compiler
+  FIND_PACKAGE(HC++ 1.0 REQUIRED)
+
+  ADD_SUBDIRECTORY(blas)
+
+  #Setting a Project name
+  SET(PROJECT_NAME "hcblas")
+  PROJECT (${PROJECT_NAME})
+  MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
+
+  SET(SERIALIZE_KERNEL "DEFAULT" CACHE STRING "SYNC KERNELS")
 
 
-#Setting a variable for source files
-SET (HCBLASSRCS ${BLASSRC} hcblas.cpp)
-SET (HIPBLASSRCS ${HCBLASSRCS} hipblas.cpp)
+  #Setting a variable for source files
+  SET (HCBLASSRCS ${BLASSRC} hcblas.cpp)
+  SET (HIPBLASSRCS ${HCBLASSRCS} hipblas_hcc.cpp)
 
   execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
@@ -79,3 +80,15 @@ SET (HIPBLASSRCS ${HCBLASSRCS} hipblas.cpp)
   INSTALL(FILES ${headers} DESTINATION include)
   INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
   INSTALL(FILES ${nvcc_detail} DESTINATION include/nvcc_detail)
+
+ELSEIF (${PLATFORM} MATCHES "nvcc")
+  MESSAGE(STATUS "Building hipblas_nvcc.cpp")
+  SET (HIPBLASSRCS ${HCBLASSRCS} hipblas_nvcc.cpp)
+  INSTALL(TARGETS "${PROJECT_NAME_EXT}" 
+    RUNTIME DESTINATION lib
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+  )
+  INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
+  INSTALL(FILES ${nvcc_detail} DESTINATION include/nvcc_detail)
+ENDIF()

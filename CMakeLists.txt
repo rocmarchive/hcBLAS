@@ -9,10 +9,9 @@ ENDIF()
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake  "${HIP_PATH}/cmake")
 EXECUTE_PROCESS(COMMAND ${HIP_PATH}/bin/hipconfig -P OUTPUT_VARIABLE PLATFORM)
-
+add_subdirectory(lib/src)
 # Build hcblas and hipblas from source on a AMD platform
 IF (${PLATFORM} MATCHES "hcc")
-  add_subdirectory(lib/src)
 
   # Get the current working branch
   execute_process(
