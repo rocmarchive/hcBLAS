@@ -54,7 +54,6 @@ hcblasStatus gemm_HC(hc::accelerator_view accl_view,
   hcblasStatus status = HCBLAS_SUCCEEDS;
   // Start the operations
 
-  printf("Gemm HC batched\n");
 
   if (order) {
     if(batchSize >= 0) {
@@ -98,7 +97,6 @@ hcblasStatus gemm_HC(hc::accelerator_view accl_view,
     }*/
   }
 
-  printf("Gemm HC batched endds\n");
   return status;
 
 }

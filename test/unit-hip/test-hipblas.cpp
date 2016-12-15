@@ -1202,18 +1202,18 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   for (int b = 0; b < batchSize; b++) {
     // Populate each subscript of array
     for(int i = 0; i < M * K; i++) {
-      A[b][i] = 1;
+      A[b][i] = rand() % 100;
     }
     status = hipblasSetMatrix(M, K, sizeof(float), A[b], 1, devA[b], 1);
     EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
     for(int i = 0; i < K * N; i++) {
-      B[b][i] = 2;
+      B[b][i] = rand() % 15;
     }
     status = hipblasSetMatrix(K, N, sizeof(float), B[b], 1, devB[b], 1);
     EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
     for(int i = 0; i < M * N;i++) 
     {
-      C[b][i] = 3;
+      C[b][i] = rand() % 25;
       C_cblas[b][i] = C[b][i];
     }
     status = hipblasSetMatrix(M, N, sizeof(float), C[b], 1, devC[b], 1);

@@ -1340,7 +1340,7 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_regularN_Implementation_type_1
   hc::am_free(devCbatch);
 }*/
 
-/*TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
+TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
    hc::accelerator accl;
    Hcblaslibrary hc(&accl);
   int M = 189, N = 9, K = 19;
@@ -1352,7 +1352,7 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_regularN_Implementation_type_1
   long cOffset = 0;
   long A_batchOffset = 0;
   long B_batchOffset = 0;
-  long C_batchOffset = M * N;
+  long C_batchOffset = 0;
   int batchSize = 64;
   hcblasOrder hcOrder;
   hcblasTranspose typeA, typeB;
@@ -1361,53 +1361,98 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_regularN_Implementation_type_1
   accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type II - Inputs and Outputs are HCC float array containers with batch processing
-  float* Abatch = (float*) calloc(M * K, sizeof(float));
-  float* Bbatch = (float*) calloc(K * N, sizeof(float));
-  float* Cbatch = (float*) calloc(M * N * batchSize, sizeof(float));
-  float* CCblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));
-  float* Chcblasbatch = (float*) calloc(M * N * batchSize, sizeof(float));
-  float* devAbatch = hc::am_alloc(sizeof(float) * M * K, acc, 0);
-  float* devBbatch = hc::am_alloc(sizeof(float) * K * N, acc, 0);
-  float* devCbatch = hc::am_alloc(sizeof(float) * M * N * batchSize, acc, 0);
+  float *A[batchSize];
+  float *B[batchSize];
+  float *C[batchSize];
+  float *C_hcblas[batchSize];
+  float *C_cblas[batchSize];
+  // Device pointers stored in host memory
+  float *devA[batchSize], *devB[batchSize], *devC[batchSize];
+  // Create device double pointer to store device pointers in device memory
+  float **d_Aarray =  hc::am_alloc(batchSize * sizeof(float*), acc, 0);
+  float **d_Barray  = hc::am_alloc(batchSize * sizeof(float*), acc, 0);
+  float **d_Carray = hc::am_alloc(batchSize * sizeof(float*), acc, 0);
+  const size_t aSize = sizeof(float) * M * K;
+  const size_t bSize = sizeof(float) * K * N;
+  const size_t cSize = sizeof(float) * M * N;
 
-  for(int i = 0; i < M * K; i++) {
-    Abatch[i] = rand() % 100;
+  // Host and Device Array allocation
+  for(int i =0; i < batchSize; i++) {
+    A[i] = (float *) malloc(aSize);
+    B[i] = (float *) malloc(bSize);
+    C[i] = (float *) malloc(cSize);
+    C_hcblas[i] = (float *) malloc(cSize);
+    C_cblas[i] = (float *) malloc(cSize);
+    devA[i] = hc::am_alloc(aSize, acc, 0);
+    devB[i] = hc::am_alloc(aSize, acc, 0);
+    devC[i] = hc::am_alloc(aSize, acc, 0);
+  }
+  // Populate the inputs 
+  for (int b = 0; b < batchSize; b++) {
+    // Populate each subscript of array
+    for(int i = 0; i < M * K; i++) {
+      A[b][i] = rand() % 100;
+    }
+    accl_view.copy(A[b], devA[b], sizeof(float) * M * K);
+    for(int i = 0; i < K * N; i++) {
+      B[b][i] = rand() % 15;
+    }
+    accl_view.copy(B[b], devB[b], sizeof(float) * K * N);
+    for(int i = 0; i < M * N;i++) 
+    {
+      C[b][i] = 4;
+      C_cblas[b][i] = C[b][i];
+    }
+    accl_view.copy(C[b], devC[b], sizeof(float) * M * N);
   }
 
-  for(int i = 0; i < K * N; i++) {
-    Bbatch[i] = rand() % 15;
-  }
-
-  for(int i = 0; i < M * N * batchSize; i++) {
-    Cbatch[i] = rand() % 25;
-    CCblasbatch[i] = Cbatch[i];
-  }
-
-  accl_view.copy(Abatch, devAbatch, M * K * sizeof(float));
-  accl_view.copy(Bbatch, devBbatch, K * N * sizeof(float));
-  accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(float));
-  // NoTransA and NoTransB
+  // NoTransA and NoTransB */           
   typeA = NoTrans;
   typeB = NoTrans;
   Transa = CblasNoTrans;
   Transb = CblasNoTrans;
+
+  // Copyinng device pointers stored in host memory to device memory
+  accl_view.copy(devA, d_Aarray, batchSize * sizeof(float*));
+  accl_view.copy(devB, d_Barray, batchSize * sizeof(float*));
+  accl_view.copy(devC, d_Carray, batchSize * sizeof(float*));
+
   // Column major
   lda = M;
   ldb = K ;
   ldc = M;
-  status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devAbatch, lda, A_batchOffset, devBbatch, ldb, B_batchOffset, beta, devCbatch, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
+  status = hc.hcblas_sgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, d_Aarray, lda, A_batchOffset, d_Barray, ldb, B_batchOffset, beta, d_Carray, ldc, C_batchOffset, aOffset, bOffset, cOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devCbatch, Chcblasbatch, M * N * batchSize * sizeof(float));
-
-  for(int i = 0; i < batchSize; i++) {
-    cblas_sgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, Abatch, lda, Bbatch, ldb, beta, CCblasbatch  + i * M * N , ldc );
+// Get the results
+  for(int b =0; b < batchSize; b++) {
+    accl_view.copy(devC[b], C_hcblas[b], M * N * sizeof(float));
   }
 
-  for(int i = 0 ; i < M * N * batchSize; i++) {
-    EXPECT_EQ(Chcblasbatch[i], CCblasbatch[i]);
+  for(int b = 0; b < batchSize; b++)
+         cblas_sgemm(CblasColMajor, Transa, Transb, M, N, K, alpha, A[b], lda, B[b], ldb, beta, C_cblas[b],ldc );
+  
+  for(int b = 0; b < batchSize; b++) {
+    for(int i = 0 ; i < M * N; i++) {
+      EXPECT_EQ(C_hcblas[b][i], C_cblas[b][i]);
+    }
   }
+  // Free up resources
+  for(int b = 0; b < batchSize; b++) {
+    hc::am_free(devA[b]);
+    hc::am_free(devB[b]);
+    hc::am_free(devC[b]);
+    free(A[b]);
+    free(B[b]);
+    free(C[b]);
+    free(C_cblas[b]);
+    free(C_hcblas[b]);
+  }
+  hc::am_free(d_Aarray);
+  hc::am_free(d_Barray);
+  hc::am_free(d_Carray);
 
-  // alpha = 0
+
+/*  // alpha = 0
   lda = M;
   ldb = K ;
   ldc = M;
@@ -1605,6 +1650,6 @@ TEST(hcblas_sgemm, func_correct_sgemmTT_Col_slimC_regularN_Implementation_type_1
   free(Chcblasbatch);
   hc::am_free(devAbatch);
   hc::am_free(devBbatch);
-  hc::am_free(devCbatch);
-}*/
+  hc::am_free(devCbatch);*/
+}
 
