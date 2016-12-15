@@ -41,8 +41,6 @@ ELSEIF(${PLATFORM} MATCHES "nvcc")
   set (HIP_CXXFLAGS "${HIP_CXXFLAGS} -I${HIPBLAS_INCLUDE_PATH} -I/usr/local/cuda/include/ -I${HIP_PATH}/include")
   set (HIP_LDFLAGS "${HIP_LDFLAGS} -L${HIPBLAS_LIBRARY_PATH} -L/usr/local/cuda/lib64")
   INCLUDE_DIRECTORIES(${HIP_PATH}/include)
-  INCLUDE_DIRECTORIES(/usr/lib)
-  INCLUDE_DIRECTORIES(/usr/local/cuda/lib64)
 
   SET_PROPERTY(SOURCE ${SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HIP_CXXFLAGS} -DGTEST_HAS_TR1_TUPLE=0 -D__HIP_PLATFORM_NVCC__")
   SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "bin/")
@@ -50,7 +48,7 @@ ELSEIF(${PLATFORM} MATCHES "nvcc")
   SET(LINK "-pthread")
   SET_PROPERTY(TARGET unit-hip-test APPEND_STRING PROPERTY LINK_FLAGS " ${HIP_LDFLAGS} ${LINK}")
 
-  TARGET_LINK_LIBRARIES(unit-hip-test hipblas blas cublas)
+  TARGET_LINK_LIBRARIES(unit-hip-test hipblas blas cudart)
 
   add_test(NAME unit-hip-test COMMAND ./bin/unit-hip-test)  
 ENDIF()
