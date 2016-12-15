@@ -136,19 +136,15 @@ fi
  
 # Various possibilities of test and profile arguments
 # Test=OFF and Profile=OFF (Build library and tests)
+if [ "$platform" = "hcc" ]; then
 if [ "$bench" = "off" ]; then
   if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
-    if [ "$platform" = "hcc" ]; then
       echo "${green}HCBLAS Build Completed!${reset}"
-    elif  [ "$platform" = "nvcc" ]; then
-      echo "${green}HIPBLAS Build Completed!${reset}"
-    fi
 # Test=ON and Profile=OFF (Build and test the library)
   elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
  # Build Tests
      cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
      set +e
-     
      make -j$working_threads
      cd $current_work_dir/test/unit/
  # Invoke test script 
@@ -179,4 +175,13 @@ else #bench=on run chrono timer
   cd $current_work_dir/test/BLAS_benchmark_Convolution_Networks/
   ./runme_chronotimer.sh
 fi
+fi
   
+if [ "$platform" = "nvcc" ]; then
+      echo "${green}HIPBLAS Build Completed!${reset}"
+  if ( [ "$testing" = "on" ]); then
+     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+     set +e
+     make -j$working_threads
+  fi 
+fi

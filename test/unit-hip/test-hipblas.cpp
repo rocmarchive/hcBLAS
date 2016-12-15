@@ -1,3 +1,4 @@
+#include "hip/hip_runtime_api.h"
 #include "hipblas.h"
 #include "gtest/gtest.h"
 #include "cblas.h"
@@ -1233,7 +1234,7 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
 
     // Column major */
   lda = M; ldb = K ; ldc = M;
-  status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, d_Aarray, lda, d_Barray, ldb, &beta, d_Carray, ldc, batchSize);
+  status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, const_cast<const float**>(d_Aarray), lda, const_cast<const float**>(d_Barray), ldb, &beta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   // Get the results
   for(int b =0; b < batchSize; b++) {
@@ -1353,7 +1354,7 @@ TEST(hipblaswrapper_dgemmBatched, func_return_correct_dgemmBatched) {
 
     // Column major */
   lda = M; ldb = K ; ldc = M;
-  status = hipblasDgemmBatched(handle, typeA, typeB, M, N, K, &alpha, d_Aarray, lda, d_Barray, ldb, &beta, d_Carray, ldc, batchSize);
+  status = hipblasDgemmBatched(handle, typeA, typeB, M, N, K, &alpha, const_cast<const double**>(d_Aarray), lda, const_cast<const double**>(d_Barray), ldb, &beta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   // Get the results
   for(int b =0; b < batchSize; b++) {
