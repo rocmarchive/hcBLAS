@@ -17,6 +17,7 @@ then
 
 elif [ -x "/opt/rocm/hcc/bin/clang++" ];
 then
+  platform="hcc"
   cmake_c_compiler="/opt/rocm/hcc/bin/clang"
   cmake_cxx_compiler="/opt/rocm/hcc/bin/clang++"
 
