@@ -24,12 +24,14 @@ TEST(hipblasDestroyTest, return_Check_hipblasDestroy) {
  status = hipblasDestroy(handle);
  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
  // Destory again
+#ifdef __HIP_PLATFORM_HCC__
  status = hipblasDestroy(handle);
  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+#endif
 }
 
-
-/*TEST(hipblasSetGetAcclViewTest, func_and_return_check_hipblasSetGetAcclView) {
+#ifdef __HIP_PLATFORM_HCC__
+TEST(hipblasSetGetAcclViewTest, func_and_return_check_hipblasSetGetAcclView) {
  // Case I: Input to the API is null handle
  hipblasHandle_t handle = NULL;
  hc::accelerator default_acc;
@@ -60,7 +62,8 @@ TEST(hipblasDestroyTest, return_Check_hipblasDestroy) {
  }
  // We must expect the accl_view obtained is what that's being set
  //EXPECT_EQ(default_acc_view, *accl_view);
-}*/
+}
+#endif
 
 TEST(hipblasSetVectorTest, return_Check_hipblasSetVector) {
  int n = 10;
@@ -76,12 +79,12 @@ TEST(hipblasSetVectorTest, return_Check_hipblasSetVector) {
  err = hipMalloc(&y2, n);
  // HIPBLAS_STATUS_SUCCESS
  // float type memory transfer from host to device
-/* status = hipblasSetVector(n, sizeof(x1), x1 , incx, y1, incy);
+ status = hipblasSetVector(n, sizeof(x1), x1 , incx, y1, incy);
  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
  // double type memory transfer from host to device
  status = hipblasSetVector(n, sizeof(x2), x2 , incx, y2, incy);
  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
- */
+ 
  // HIPBLAS_STATUS_INVALID_VALUE 
  // incx is 0
  status = hipblasSetVector(n, sizeof(x1), x1 , 0, y1, incy);
@@ -93,16 +96,12 @@ TEST(hipblasSetVectorTest, return_Check_hipblasSetVector) {
  status = hipblasSetVector(n, 0, x1 , incx, y1, incy);
  EXPECT_EQ(status, HIPBLAS_STATUS_INVALID_VALUE);
  
-// HIPBLAS_STATUS_MAPPING_ERROR
- /*handle->deviceId = 0;
- status = hipblasSetVector(n, sizeof(x1), x1 , incx, y2, incy);
- EXPECT_EQ(status, HIPBLAS_STATUS_MAPPING_ERROR);
-*/
- // HIPBLAS_STATUS_NOT_INITIALIZED  
  hipblasDestroy(handle);
+#ifdef __HIP_PLATFORM_HCC__
+ // HIPBLAS_STATUS_NOT_INITIALIZED  
  status = hipblasSetVector(n, sizeof(x1), x1 , incx, y1, incy);
  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
-
+#endif
  free(x1);
  free(x2);
  hipFree(y1);
@@ -123,13 +122,13 @@ TEST(hipblasGetVectorTest, return_Check_hipblasGetVector) {
  err = hipMalloc(&x2, n);
  // HIPBLAS_STATUS_SUCCESS
  // float type memory transfer from host to device
-/*
+
  status = hipblasSetVector(n, sizeof(y1), x1 , incx, y1, incy);
  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
  // double type memory transfer from host to device
  status = hipblasSetVector(n, sizeof(y2), x2 , incx, y2, incy);
  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-*/
+
  // HIPBLAS_STATUS_INVALID_VALUE
  // incx is 0
  status = hipblasSetVector(n, sizeof(y1), x1 , 0, y1, incy);
@@ -141,15 +140,12 @@ TEST(hipblasGetVectorTest, return_Check_hipblasGetVector) {
  status = hipblasSetVector(n, 0, x1 , incx, y1, incy);
  EXPECT_EQ(status, HIPBLAS_STATUS_INVALID_VALUE);
 
- // HIPBLAS_STATUS_MAPPING_ERROR
-/* handle->deviceId = 0;
- status = hipblasSetVector(n, sizeof(y1), x2 , incx, y1, incy);
- EXPECT_EQ(status, HIPBLAS_STATUS_MAPPING_ERROR);
-*/
- // HIPBLAS_STATUS_NOT_INITIALIZED
  hipblasDestroy(handle);
+ // HIPBLAS_STATUS_NOT_INITIALIZED
+#ifdef __HIP_PLATFORM_HCC__
  status = hipblasSetVector(n, sizeof(y1), x1 , incx, y1, incy);
  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+#endif
 
  free(y1);
  free(y2);
@@ -181,16 +177,16 @@ TEST(hipblasSetMatrixTest, return_Check_hipblasSetMatrix) {
  // elemSize is 0
  status = hipblasSetMatrix(rows, cols, 0, x1 , lda, y1, ldb);
  EXPECT_EQ(status, HIPBLAS_STATUS_INVALID_VALUE);
+
+ status = hipblasSetMatrix(rows, cols, sizeof(x1), x1 , lda, y1, ldb);
+ EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
  
-// HIPBLAS_STATUS_MAPPING_ERROR
-/* handle->deviceId = 0;
- status = hipblasSetMatrix(rows, cols, sizeof(x1), x1 , lda, y2, ldb);
- EXPECT_EQ(status, HIPBLAS_STATUS_MAPPING_ERROR);
-*/
- // HIPBLAS_STATUS_NOT_INITIALIZED  
  hipblasDestroy(handle);
+#ifdef __HIP_PLATFORM_HCC__
+ // HIPBLAS_STATUS_NOT_INITIALIZED  
  status = hipblasSetMatrix(rows, cols, sizeof(x1), x1 , lda, y1, ldb);
  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+#endif
 
  free(x1);
  free(x2);
@@ -213,23 +209,25 @@ TEST(hipblasGetMatrixTest, return_Check_hipblasGetMatrix) {
 
  // HIPBLAS_STATUS_INVALID_VALUE
  // lda is 0
- status = hipblasSetMatrix(rows, cols, sizeof(y1), x1 , 0, y1, ldb);
+ status = hipblasGetMatrix(rows, cols, sizeof(y1), x1 , 0, y1, ldb);
  EXPECT_EQ(status, HIPBLAS_STATUS_INVALID_VALUE);
  // ldb is 0
- status = hipblasSetMatrix(rows, cols, sizeof(y1), x1 , lda, y1, 0);
+ status = hipblasGetMatrix(rows, cols, sizeof(y1), x1 , lda, y1, 0);
  EXPECT_EQ(status, HIPBLAS_STATUS_INVALID_VALUE);
  // elemSize is 0
- status = hipblasSetMatrix(rows, cols, 0, x1 , lda, y1, ldb);
+ status = hipblasGetMatrix(rows, cols, 0, x1 , lda, y1, ldb);
  EXPECT_EQ(status, HIPBLAS_STATUS_INVALID_VALUE);
 
-/* // HIPBLAS_STATUS_MAPPING_ERROR
- status = hipblasSetMatrix(rows, cols, sizeof(y1), x2 , lda, y1, ldb);
+ // HIPBLAS_STATUS_MAPPING_ERROR
+ status = hipblasGetMatrix(rows, cols, sizeof(y1), x2 , lda, y1, ldb);
  EXPECT_EQ(status, HIPBLAS_STATUS_MAPPING_ERROR);
-*/
- // HIPBLAS_STATUS_NOT_INITIALIZED
  hipblasDestroy(handle);
- status = hipblasSetMatrix(rows, cols, sizeof(y1), x1 , lda, y1, ldb);
+
+#ifdef __HIP_PLATFORM_HCC__
+ // HIPBLAS_STATUS_NOT_INITIALIZED
+ status = hipblasGetMatrix(rows, cols, sizeof(y1), x1 , lda, y1, ldb);
  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+#endif
 
  free(y1);
  free(y2);
