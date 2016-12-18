@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 #pragma once
-
+#include <hip/hip_runtime_api.h>
 #include <cuda_runtime_api.h>
 #include <cublas.h>
 #include <cublas_v2.h>
@@ -107,6 +107,9 @@ inline static hipblasStatus_t hipCUBLASStatusToHIPStatus(cublasStatus_t cuStatus
 	}
 }
 
+hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t streamId);
+
+hipblasStatus_t  hipblasGetStream(hipblasHandle_t handle, hipStream_t *streamId);
 
 hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) ;
 

@@ -26,6 +26,26 @@ THE SOFTWARE.
 #ifdef __cplusplus
 extern "C" {
 #endif
+//hipblasSetStream()
+//This function sets the hipBLAS library stream, which will be used to execute all subsequent calls to the hipBLAS library functions. If the hipBLAS library stream is not set, all kernels use the defaultNULL stream. In particular, this routine can be used to change the stream between kernel launches and then to reset the hipBLAS library stream back to NULL.
+//Return Value 	Meaning
+
+// Returns
+// HIPBLAS_STATUS_SUCCESS         :the stream was set successfully
+// HIPBLAS_STATUS_NOT_INITIALIZED :the library was not initialized
+hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t streamId) {
+    return hipCUBLASStatusToHIPStatus(cublasSetStream(handle, streamId));
+} 
+
+//hipblasGetStream()
+// This function gets the hipBLAS library stream, which is being used to execute all calls to the hipBLAS library functions. If the hipBLAS library stream is not set, all kernels use the defaultNULL stream.
+// Return Value 	
+// HIPBLAS_STATUS_SUCCESS : the stream was returned successfully
+// HIPBLAS_STATUS_NOT_INITIALIZED : the library was not initialized
+
+hipblasStatus_t  hipblasGetStream(hipblasHandle_t handle, hipStream_t *streamId) {
+    return hipCUBLASStatusToHIPStatus(cublasGetStream(handle, streamId));
+}
 
 hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
     return hipCUBLASStatusToHIPStatus(cublasCreate(&*handle));
