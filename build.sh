@@ -10,18 +10,28 @@ if [ ! -z $HCC_HOME ];
 then
   if [ -x "$HCC_HOME/compiler/bin/clang++" ];
   then
+    platform="hcc"
     cmake_c_compiler="$HCC_HOME/bin/clang"
     cmake_cxx_compiler="$HCC_HOME/bin/clang++"
   fi
 
 elif [ -x "/opt/rocm/hcc/bin/clang++" ];
 then
+  platform="hcc"
   cmake_c_compiler="/opt/rocm/hcc/bin/clang"
   cmake_cxx_compiler="/opt/rocm/hcc/bin/clang++"
+
+elif [ -x "/usr/local/cuda/bin/nvcc" ];
+then
+  platform="nvcc"
+  cmake_c_compiler="/usr/bin/gcc"
+  cmake_cxx_compiler="/usr/bin/g++"
 else
-  echo "Clang compiler not found"
+  echo "Neither clang  or NVCC compiler found"
+  echo "Not an AMD or NVCC compatible stack"
   exit 1
 fi
+
 
 #CURRENT_WORK_DIRECTORY
 current_work_dir=$PWD
@@ -105,14 +115,18 @@ build_dir=$current_work_dir/build
 
 # change to library build
 cd $build_dir
-if [ "$synckernel" = "on" ]; then
-cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
-elif [ "$synckernel" = "off" ]; then
-cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=OFF -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
-else 
-#default case: Of course there are Compulsory waits on certain kernels 
-cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
-fi
+if [ "$platform" = "hcc" ]; then
+  if [ "$synckernel" = "on" ]; then
+    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+  elif [ "$synckernel" = "off" ]; then
+    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=OFF -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+  else 
+    #default case: Of course there are Compulsory waits on certain kernels 
+   cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+  fi
+elif [ "$platform" = "nvcc" ]; then
+  cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hipblas $current_work_dir
+fi #platform
 
 make -j$working_threads package $verbose
 make -j$working_threads $verbose
@@ -123,15 +137,15 @@ fi
  
 # Various possibilities of test and profile arguments
 # Test=OFF and Profile=OFF (Build library and tests)
+if [ "$platform" = "hcc" ]; then
 if [ "$bench" = "off" ]; then
   if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
-    echo "${green}HCBLAS Build Completed!${reset}"
+      echo "${green}HCBLAS Build Completed!${reset}"
 # Test=ON and Profile=OFF (Build and test the library)
   elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
  # Build Tests
      cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
      set +e
-     
      make -j$working_threads
      cd $current_work_dir/test/unit/
  # Invoke test script 
@@ -162,4 +176,13 @@ else #bench=on run chrono timer
   cd $current_work_dir/test/BLAS_benchmark_Convolution_Networks/
   ./runme_chronotimer.sh
 fi
+fi
   
+if [ "$platform" = "nvcc" ]; then
+      echo "${green}HIPBLAS Build Completed!${reset}"
+  if ( [ "$testing" = "on" ]); then
+     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+     set +e
+     make -j$working_threads
+  fi 
+fi

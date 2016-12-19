@@ -3,11 +3,14 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8.8)
 MESSAGE(STATUS "CMAKE VERSION ${CMAKE_VERSION}")
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+SET(PROJECT_NAME_EXT "hipblas")
 
-# Find HCC compiler
-FIND_PACKAGE(HC++ 1.0 REQUIRED)
+# Build hcblas and hipblas from source on AMD platform
+IF (${PLATFORM} MATCHES "hcc")
+  # Find HCC compiler
+  FIND_PACKAGE(HC++ 1.0 REQUIRED)
 
-ADD_SUBDIRECTORY(blas)
+  ADD_SUBDIRECTORY(blas)
 
 #Setting a Project name
 SET(PROJECT_NAME "hcblas")
@@ -17,12 +20,12 @@ SET(HIP_PATH "/opt/rocm/hip")
 PROJECT (${PROJECT_NAME})
 MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
-SET(SERIALIZE_KERNEL "DEFAULT" CACHE STRING "SYNC KERNELS")
+  SET(SERIALIZE_KERNEL "DEFAULT" CACHE STRING "SYNC KERNELS")
 
 
-#Setting a variable for source files
-SET (HCBLASSRCS ${BLASSRC} hcblas.cpp)
-SET (HIPBLASSRCS ${HCBLASSRCS} hipblas.cpp)
+  #Setting a variable for source files
+  SET (HCBLASSRCS ${BLASSRC} hcblas.cpp)
+  SET (HIPBLASSRCS ${HCBLASSRCS} hipblas_hcc.cpp)
 
   execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
@@ -80,3 +83,26 @@ SET (HIPBLASSRCS ${HCBLASSRCS} hipblas.cpp)
   INSTALL(FILES ${headers} DESTINATION include)
   INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
   INSTALL(FILES ${nvcc_detail} DESTINATION include/nvcc_detail)
+
+ELSEIF (${PLATFORM} MATCHES "nvcc")
+  MESSAGE(STATUS "Building hipblas_nvcc.cpp")
+  set (CXXFLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -I/usr/local/cuda/include -D__HIP_PLATFORM_NVCC__=")
+  set (LDFLAGS "-L/usr/local/cuda/lib64 -L/usr/local/cuda/lib")
+  SET (HIPBLASSRCS hipblas_nvcc.cpp)
+  FOREACH(src_file ${HIPBLASSRCS})
+	  SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${CXXFLAGS} ")
+  ENDFOREACH()
+  ADD_LIBRARY("${PROJECT_NAME_EXT}" SHARED ${HIPBLASSRCS})
+  SET_PROPERTY(TARGET "${PROJECT_NAME_EXT}" APPEND_STRING PROPERTY LINK_FLAGS " ${LDFLAGS} ")
+  TARGET_LINK_LIBRARIES("${PROJECT_NAME_EXT}" cudart cublas)
+  INSTALL(TARGETS "${PROJECT_NAME_EXT}" 
+    RUNTIME DESTINATION lib
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+  )
+  file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/../include/hipblas.h")
+  file(GLOB nvcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/nvcc_detail/*.h")
+  INSTALL(FILES ${headers} DESTINATION include)
+  INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
+  INSTALL(FILES ${nvcc_detail} DESTINATION include/nvcc_detail)
+ENDIF()
