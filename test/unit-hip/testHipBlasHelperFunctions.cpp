@@ -30,40 +30,6 @@ TEST(hipblasDestroyTest, return_Check_hipblasDestroy) {
 #endif
 }
 
-#ifdef __HIP_PLATFORM_HCC__
-TEST(hipblasSetGetAcclViewTest, func_and_return_check_hipblasSetGetAcclView) {
- // Case I: Input to the API is null handle
- hipblasHandle_t handle = NULL;
- hc::accelerator default_acc;
- hc::accelerator_view default_acc_view = default_acc.get_default_view();
- hc::accelerator_view* accl_view = NULL;
- hipblasStatus_t status = hipblasSetAcclView(handle, default_acc_view);
- EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
- status = hipblasGetAcclView(handle, &accl_view);
- EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
- // Now create the handle
- status = hipblasCreate(&handle);
- // Assert if the handle is still NULL after allocation
- EXPECT_TRUE(handle != NULL);
- // If allocation succeeds we must expect a success status
- if (handle != NULL)
-   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS); 
- else
-   EXPECT_EQ(status, HIPBLAS_STATUS_ALLOC_FAILED);
-
- status = hipblasSetAcclView(handle, default_acc_view);
- EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
- // Now Get the Accl_view
- status = hipblasGetAcclView(handle, &accl_view);
- EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
- EXPECT_TRUE(accl_view != NULL);
- if (default_acc_view == *accl_view) {
-   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
- }
- // We must expect the accl_view obtained is what that's being set
- //EXPECT_EQ(default_acc_view, *accl_view);
-}
-#endif
 
 TEST(hipblasSetVectorTest, return_Check_hipblasSetVector) {
  int n = 10;

@@ -320,7 +320,7 @@ TEST(hipblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
   // HIPBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
   status = hipblasDscalBatched(handle, n, &alpha, devX, incx, batchSize);
-  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);i
+  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
 
   free(X);
   free(Xcblas);
@@ -1301,7 +1301,7 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   // HIPBLAS_STATUS_NOT_INITIALIZED
 #ifdef __HIP_PLATFORM_HCC__
   hipblasDestroy(handle);
-  status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc, batchSize);
+  status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, const_cast<const float**>(d_Aarray), lda, const_cast<const float**>(d_Barray), ldb, &beta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
 #endif
   // Free up resources
