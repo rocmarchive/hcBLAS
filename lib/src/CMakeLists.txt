@@ -35,7 +35,9 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${ROCM_PATH}/include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
-  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc  -L${ROCM_PATH}/lib -lCXLActivityLogger")
+
+  MESSAGE(STATUS "lib cmake HCC_LDFLAGS= ${HCC_LDFLAGS}")
   
   # Setting header dependencies for hcblas library generation
   FOREACH(src_file ${HCBLASSRCS})

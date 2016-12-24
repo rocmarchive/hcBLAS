@@ -64,18 +64,19 @@ class Hcblaslibrary
     public:
 
     // Constructor to initialize the library with the given accelerator
-    Hcblaslibrary(hc::accelerator *acc)
-        : currentAcclView(acc->get_default_view() )
+    Hcblaslibrary( hc::accelerator_view *av)
+        : currentAccl(av->get_accelerator()),
+          currentAcclView(*av)
     {
+
       std::vector<accelerator> accs = accelerator::get_all();
       for (int i=0;i<accs.size();i++) {
-        if (accs[i] == *acc) {
+        if (accs[i] == this->currentAccl) {
           this-> initialized = true;
           break;
         }
       }
       assert(this->initialized);
-      this->currentAccl = *acc;
       // TODO: Add another constructor to accomodate row major setting
       this->Order = ColMajor;
     }
