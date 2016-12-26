@@ -8,7 +8,8 @@
 
 TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int M = 179;
     int N = 19;
     int isTransA = 1;
@@ -133,7 +134,8 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_1) {
 
 TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int M = 179;
     int N = 19;
     int isTransA = 1;
@@ -278,7 +280,8 @@ TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_1) {
  
 TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int M = 179;
     int N = 19;
     int isTransA = 1;
@@ -411,7 +414,8 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_2) {
 
 TEST(hcblas_sgemv, func_correct_sgemv_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int M = 179;
     int N = 19;
     int isTransA = 1;

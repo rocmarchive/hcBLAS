@@ -5,7 +5,8 @@
 #include "cblas.h"
 TEST(hcblas_scopy, return_correct_scopy_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int N = 23;
     int incX = 1;
     int incY = 1;
@@ -57,7 +58,8 @@ TEST(hcblas_scopy, return_correct_scopy_Implementation_type_1) {
 
 TEST(hcblas_scopy, func_correct_scopy_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 23;
    int incX = 1;
    int incY = 1;
@@ -99,7 +101,8 @@ TEST(hcblas_scopy, func_correct_scopy_Implementation_type_1) {
 
 TEST(hcblas_scopy, return_correct_scopy_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int N = 23;
     int incX = 1;
     int incY = 1;
@@ -154,7 +157,8 @@ TEST(hcblas_scopy, return_correct_scopy_Implementation_type_2) {
 
 TEST(hcblas_scopy, func_correct_scopy_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 23;
    int incX = 1;
    int incY = 1;

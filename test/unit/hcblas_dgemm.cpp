@@ -6,7 +6,8 @@
 
 TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int M = 189, N = 9, K = 19;
     double alpha = 1, beta = 1;
     long lda, ldb, ldc;
@@ -125,7 +126,8 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
 
 TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int M = 189, N = 9, K = 19;
     double alpha = 1, beta = 1;
     long lda, ldb, ldc;
@@ -305,7 +307,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
 
 /*TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   Hcblaslibrary hc(&av);
     int M = 189, N = 9, K = 19;
     double alpha = 1, beta = 1;
     long lda, ldb, ldc;
@@ -429,7 +431,7 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
   
 /*TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   Hcblaslibrary hc(&av);
     int M = 189, N = 9, K = 19;
     double alpha = 1, beta = 1;
     long lda, ldb, ldc;
@@ -623,7 +625,8 @@ TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_1) {
 
 TEST(hcblas_dgemm, func_correct_dgemm_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
   int M = 189, N = 9, K = 19;
   double alpha = 1, beta = 1;
   long lda, ldb, ldc;
