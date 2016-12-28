@@ -1,6 +1,8 @@
 #ifndef HCBLAS_H
 #define HCBLAS_H
 
+#include "hcblaslib.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif //(__cplusplus)
@@ -65,6 +67,24 @@ typedef float_2_ hcFloatComplex;
 typedef hcFloatComplex hcComplex;
 typedef double_2_ hcDoubleComplex;
 typedef hcDoubleComplex hcDoubleComplex;
+
+/*typedef struct{
+  unsigned x: 16;
+} half__; */
+
+/*
+struct __hc_half {
+  __hc_half() {}
+  __hc_half(const unsigned raw) : x(raw) {}
+  __hc_half(const int raw) : x((unsigned int)raw) {}
+  
+  __hc_half overload=(int raw) { x = (unsigned int) raw; }
+  
+  unsigned x: 16;
+};
+typedef struct __hc_half half__;
+*/
+
 
 // hcblas Helper functions 
 
@@ -557,6 +577,15 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
                            hcDoubleComplex       *B, int ldb,
                            const hcDoubleComplex       *beta,
                            hcDoubleComplex       *C, int ldc);
+                           
+hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const __half           *alpha,
+                            __half          *A, int lda,
+                            __half          *B, int ldb,
+                           const __half           *beta,
+                            __half           *C, int ldc);
 
 // 2. hcblas<t>gemmBatched()
 

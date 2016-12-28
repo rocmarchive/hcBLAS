@@ -24,6 +24,18 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
   return HCBLAS_STATUS_SUCCESS;  
 }
 
+bool hisnan( __half raw) __HC_FP16_DECL_SUFFIX__
+{
+   return (raw.x == raw.x) ? false : true;
+}
+
+int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__
+{
+  if (raw.x == 0xFC00) return -1;
+  if (raw.x == 0x7C00) return 1;
+  return 0;
+}
+
 // 2. hcblasDestory()
 
 // This function releases hardware resources used by the HCBLAS library.
@@ -1087,6 +1099,33 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
   status = handle->hcblas_zgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const double2*>(alpha)), reinterpret_cast<double2*>(A), aOffset, lda, reinterpret_cast<double2*>(B), bOffset, ldb, *(reinterpret_cast<const double2*>(beta)), reinterpret_cast<double2*>(C), cOffset, ldc);
 
   if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}
+
+hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const __half           *alpha,
+                            __half          *A, int lda,
+                            __half          *B, int ldb,
+                           const __half           *beta,
+                           __half           *C, int ldc) {
+  if(handle == nullptr  || handle->initialized == false)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+
+  if(m < 0 || n < 0 || k < 0)
+    return HCBLAS_STATUS_INVALID_VALUE;
+  long aOffset = 0;
+  long bOffset = 0;
+  long cOffset = 0;
+  hcblasStatus status;
+  hcblasTranspose transA, transB;
+  transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
+  transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
+  status = handle->hcblas_hgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
+  if(status == HCBLAS_SUCCEEDS) 
         return HCBLAS_STATUS_SUCCESS;
   else
         return HCBLAS_STATUS_EXECUTION_FAILED;

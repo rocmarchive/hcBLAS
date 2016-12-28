@@ -32,6 +32,7 @@ using namespace std;
   #define _WAIT2
 #endif
 
+ #define __HC_FP16_DECL_SUFFIX__ __attribute__((hc,cpu))
 
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {
@@ -51,6 +52,76 @@ enum hcblasTranspose {
     NoTrans = 'n',
     Trans = 't'
 };
+
+/*typedef struct{
+  unsigned x: 16;
+} __half;
+*/
+
+struct __hc_half {
+  __hc_half() __HC_FP16_DECL_SUFFIX__ {}
+  //__hc_half(const unsigned raw) : x(raw) {}
+  //__hc_half(unsigned int raw) : x(raw) {}
+  __hc_half(const int raw) __HC_FP16_DECL_SUFFIX__ : x((unsigned int)raw) {}
+  __hc_half(double raw) __HC_FP16_DECL_SUFFIX__ : x((unsigned int)raw) {}
+  
+  void operator=(int raw) __HC_FP16_DECL_SUFFIX__ { x = (unsigned int) raw; }
+  
+  //__hc_half operator=(double raw) { x = (unsigned int) raw; }
+  
+  __hc_half operator*(__hc_half a) const __HC_FP16_DECL_SUFFIX__ {
+    __hc_half ret;
+    ret.x = x * a.x;
+    return ret;
+  }
+  
+  __hc_half operator+(__hc_half a) __HC_FP16_DECL_SUFFIX__ {
+    __hc_half ret;
+    ret.x = x + a.x;
+    return ret;
+  }
+  
+  void operator+=(__hc_half a) __HC_FP16_DECL_SUFFIX__ { x = x + a.x; }
+  
+  void operator*=(__hc_half a) __HC_FP16_DECL_SUFFIX__ { x = x * a.x; }
+  
+  bool operator==(int a) const __HC_FP16_DECL_SUFFIX__ { 
+    if ( x == a )
+      return true;
+    else
+      return false;
+  }
+  bool operator==(const __hc_half a) const __HC_FP16_DECL_SUFFIX__ { 
+    if ( x == a.x )
+      return true;
+    else
+      return false;
+  }
+  
+ /* ostream &operator<<( ostream &output ) { 
+         output << x ;
+         return output;            
+      }*/
+  unsigned int x;
+};
+typedef struct __hc_half __half;
+
+/*#ifndef HISNAN_FUNC
+#define HISNAN_FUNC
+bool hisnan( __half raw) __HC_FP16_DECL_SUFFIX__
+{
+   return (raw.x == raw.x) ? false : true;
+}
+
+int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__
+{
+  if (raw.x == 0xFC00) return -1;
+  if (raw.x == 0x7C00) return 1;
+  return 0;
+}
+#endif*/
+bool hisnan( __half raw) __HC_FP16_DECL_SUFFIX__ ;
+int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__;
 
 struct hc_Complex
 {
@@ -226,6 +297,16 @@ class Hcblaslibrary
 		              double *B, const long ldb, 
 			      const double  &beta,  
 		       	      double *C, const long ldc, 
+			      const long aOffset, const long bOffset, const long cOffset);
+			      
+		hcblasStatus hcblas_hgemm(hc::accelerator_view accl_view,
+ 			      hcblasOrder order, hcblasTranspose typeA,
+                              hcblasTranspose typeB, const int M,
+                              const int N, const int K, const __half &alpha,
+                              __half *A, const long lda, 
+		              __half *B, const long ldb, 
+			       const __half &beta,  
+		       	      __half *C, const long ldc, 
 			      const long aOffset, const long bOffset, const long cOffset);
 
 /* SGEMM - Overloaded function with arguments related to batch processing */
