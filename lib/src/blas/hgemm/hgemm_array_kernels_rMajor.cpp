@@ -12,7 +12,7 @@ hcblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS8XSS8(hc::accelerator_view accl_vi
 						    __half *B, long bOffset,
 						    __half *C, long cOffset,
 						    int M, int N, int K, int lda, int ldb, int ldc,
-						    const __half alpha, const __half beta) {
+						    __half alpha, __half beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -85,7 +85,7 @@ hcblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS16XSS16(hc::accelerator_view accl_
 						      __half *B, long bOffset,
 						      __half *C, long cOffset,
 						      int M, int N, int K, int lda, int ldb, int ldc,
-						      const __half alpha, const __half beta) {
+						      __half alpha, __half beta) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -158,7 +158,7 @@ hcblasStatus gemm_NoTransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
 					           __half *B, long bOffset,
 					           __half *C, long cOffset,
 					           int M, int N, int K, int lda, int ldb, int ldc,
-					           const __half alpha, const __half beta) {
+					           __half alpha, __half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -237,7 +237,7 @@ hcblasStatus gemm_NoTransA_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					       __half *B, long bOffset,
 					       __half *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta) {
+					       __half alpha, __half beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -312,7 +312,7 @@ hcblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS8XSS8(hc::accelerator_view accl_vie
 					           __half *B, long bOffset,
 					           __half *C, long cOffset,
 					           int M, int N, int K, int lda, int ldb, int ldc,
-				                   const __half alpha, const __half beta) {
+				                   __half alpha, __half beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -398,7 +398,7 @@ hcblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS16XSS16(hc::accelerator_view accl_v
 						     __half *B, long bOffset,
 						     __half *C, long cOffset,
 						     int M, int N, int K, int lda, int ldb, int ldc,
-						     const __half alpha, const __half beta) {
+						     __half alpha, __half beta) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -484,7 +484,7 @@ hcblasStatus gemm_NoTransA_rMajor_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_
 						      __half *B, long bOffset,
 						      __half *C, long cOffset,	
 						      int M, int N, int K, int lda, int ldb, int ldc,
-						      const __half alpha, const __half beta) {
+						      __half alpha, __half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -571,7 +571,7 @@ hcblasStatus gemm_NoTransA_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view
 					          __half *B, long bOffset,
 					          __half *C, long cOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
-					          const __half alpha, const __half beta) {
+					          __half alpha, __half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -649,7 +649,7 @@ hcblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS16XSS16(hc::accelerator_view accl_v
 						     __half *B, long bOffset,
 						     __half *C, long cOffset,
 						     int M, int N, int K, int lda, int ldb, int ldc,
-						     const __half alpha, const __half beta) {
+						     __half alpha, __half beta) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -734,7 +734,7 @@ hcblasStatus gemm_NoTransB_rMajor_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_
 						      __half *B, long bOffset,
 						      __half *C, long cOffset,
 						      int M, int N, int K, int lda, int ldb, int ldc,
-						      const __half alpha, const __half beta) {
+						      __half alpha, __half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -819,7 +819,7 @@ hcblasStatus gemm_NoTransB_rMajor_STEP_TS16XSS16(hc::accelerator_view accl_view,
 					         __half *B, long bOffset,
 					         __half *C, long cOffset,
 					         int M, int N, int K, int lda, int ldb, int ldc,
-					         const __half alpha, const __half beta) {
+					         __half alpha, __half beta) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -894,7 +894,7 @@ hcblasStatus gemm_NoTransB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					       __half *B, long bOffset,
 					       __half *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta) {
+					       __half alpha, __half beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -969,7 +969,7 @@ hcblasStatus gemm_NoTransB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view
 					          __half *B, long bOffset,
 					          __half *C, long cOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
-					          const __half alpha, const __half beta) {
+					          __half alpha, __half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -1048,7 +1048,7 @@ hcblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS8XSS8(hc::accelerator_view accl_vie
 					           __half *B, long bOffset,
 					           __half *C, long cOffset,
 					           int M, int N, int K, int lda, int ldb, int ldc,
-					           const __half alpha, const __half beta) {
+					           __half alpha, __half beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1133,7 +1133,7 @@ hcblasStatus gemm_TransAB_rMajor_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_v
 						     __half *B, long bOffset,
 						     __half *C, long cOffset,
 						     int M, int N, int K, int lda, int ldb, int ldc,
-						     const __half alpha, const __half beta) {
+						     __half alpha, __half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -1219,7 +1219,7 @@ hcblasStatus gemm_TransAB_rMajor_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view
 					          __half *B, long bOffset,
 					          __half *C, long cOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
-					          const __half alpha, const __half beta) {
+					          __half alpha, __half beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1295,7 +1295,7 @@ hcblasStatus gemm_TransAB_rMajor_STEP_NBK_TS16XSS16(hc::accelerator_view accl_vi
 						    __half *B, long bOffset,
 						    __half *C, long cOffset,
 						    int M, int N, int K, int lda, int ldb, int ldc,
-						    const __half alpha, const __half beta) {
+						    __half alpha, __half beta) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1372,7 +1372,7 @@ hcblasStatus gemm_TransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					         __half *B, long bOffset,
 					         __half *C, long cOffset,
 					         int M, int N, int K, int lda, int ldb, int ldc,
-					         const __half alpha, const __half beta) {
+					         __half alpha, __half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -1451,7 +1451,7 @@ hcblasStatus gemm_TransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					      __half *B, long bOffset,
 					      __half *C, long cOffset,
 					      int M, int N, int K, int lda, int ldb, int ldc,
-					      const __half alpha, const __half beta) {
+					      __half alpha, __half beta) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1524,7 +1524,7 @@ hcblasStatus gemm_TransAB_rMajor_largeK(hc::accelerator_view accl_view,
                                         __half *B, long bOffset,
                                         __half *C, long cOffset,
                                         int M, int N, int K, int lda, int ldb, int ldc,
-                                        const __half alpha, const __half beta) {
+                                        __half alpha, __half beta) {
 #define GEMM_BLOCK 256
   hc::extent<2> grdExt(N, M * GEMM_BLOCK);
   hc::tiled_extent<2> t_ext = grdExt.tile(1 , GEMM_BLOCK);
@@ -1567,7 +1567,7 @@ hcblasStatus gemm_NoTransB_rMajor_largeK(hc::accelerator_view accl_view,
 				         __half *B, long bOffset,
 				         __half *C, long cOffset,
 				         int M, int N, int K, int lda, int ldb, int ldc,
-				         const __half alpha, const __half beta) {	
+				         __half alpha, __half beta) {	
 #define GEMM_BLOCK 256
   hc::extent<2> grdExt(N, M * GEMM_BLOCK);
   hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
@@ -1611,7 +1611,7 @@ hcblasStatus gemm_NoTransA_rMajor_largeK(hc::accelerator_view accl_view,
 				         __half *B, long bOffset,
 				         __half *C, long cOffset,
 				         int M, int N, int K, int lda, int ldb, int ldc,
-				         const __half alpha, const __half beta) {
+				         __half alpha, __half beta) {
 #define GEMM_BLOCK 256
   hc::extent<2> grdExt(N, M * GEMM_BLOCK);
   hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
@@ -1656,7 +1656,7 @@ hcblasStatus gemm_NoTransAB_rMajor(hc::accelerator_view accl_view,
                                    __half *B, long bOffset,
                                    __half *C, long cOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
-                                   const __half alpha, const __half beta) {
+                                   __half alpha, __half beta) {
   if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600)) {
     return gemm_NoTransAB_rMajor_STEP_NBK_TS8XSS8(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if ((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10)))) {
@@ -1671,7 +1671,7 @@ hcblasStatus gemm_NoTransA_rMajor(hc::accelerator_view accl_view,
                                   __half *B, long bOffset,
                                   __half *C, long cOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
-                                  const __half alpha, const __half beta) {
+                                  __half alpha, __half beta) {
   if(M < 1000 && N < 1000 && K > 10000) {
     return gemm_NoTransA_rMajor_largeK(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if((M < 6000 && N < 600 && K < 10) || (M < 1800 && N < 80 &&  K > 1800 && K < 6000)) {
@@ -1693,7 +1693,7 @@ hcblasStatus gemm_NoTransB_rMajor(hc::accelerator_view accl_view,
                                   __half *B, long bOffset,
                                   __half *C, long cOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
-                                  const __half alpha, const __half beta) {
+                                  __half alpha, __half beta) {
   if(M < 1000 && N < 1000 && K > 10000) {
     return gemm_NoTransB_rMajor_largeK(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if( M > 1800 && M < 6000 && N > 600 && N < 1800 && K < 600 ) {
@@ -1716,7 +1716,7 @@ hcblasStatus gemm_TransAB_rMajor(hc::accelerator_view accl_view,
                                  __half *B, long bOffset,
                                  __half *C, long cOffset,
                                  int M, int N, int K, int lda, int ldb, int ldc,
-                                 const __half alpha, const __half beta) {
+                                 __half alpha, __half beta) {
   if(M < 1000 && N < 1000 && K > 10000) {
     return gemm_TransAB_rMajor_largeK(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   } else if ( M > 600 && M < 1800 && N < 200 && K > 600 && K < 1800) {

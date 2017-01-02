@@ -7,7 +7,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::
 					       const __half *B, long bOffset,
 					       __half *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta) {
+					       __half alpha, __half beta) {
   int M_ = (M-1)/4 + 1;
   int N_ = (N-1)/4 + 1;
   int N_R = (N_ + 15) & ~15;
@@ -83,7 +83,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(hc::
 					       const __half *B, long bOffset,
 					       __half *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta) {
+					       __half alpha, __half beta) {
   int M_ = M >> 3;
   int N_ = N >> 3;
   int N_R = (N_ + 15) & ~15;
@@ -218,7 +218,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS2_MB2(hc::accelera
                                                 const __half *B, long bOffset,
                                                 __half *C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
-                                                const __half alpha, const __half beta) {
+                                                __half alpha, __half beta) {
   int M_ = (M-1)/4 + 1;
   int N_ = (N-1)/4 + 1;
   int N_R = (N_ + 15) & ~15;
@@ -374,7 +374,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS4_MB2(hc::accelera
 					        const __half *B, long bOffset,
 					        __half *C, long cOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
-					        const __half alpha, const __half beta) {
+					        __half alpha, __half beta) {
   int M_ = (M-1)/8 + 1;
   int N_ = (N-1)/8 + 1;
   int N_R = (N_ + 15) & ~15;
@@ -684,7 +684,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_vi
 					       const __half *B, long bOffset,
 					       __half *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta) {
+					       __half alpha, __half beta) {
 #undef TILESIZE
 #undef MICROTILESIZE
 #define TILESIZE 16
@@ -774,7 +774,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_vi
 					       const __half *B, long bOffset,
 					       __half *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta) {
+					       __half alpha, __half beta) {
 #undef TILESIZE
 #undef MICROTILESIZE
 #define TILESIZE 16
@@ -889,7 +889,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_v
 					       const __half *B, long bOffset,
 					       __half *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta) {
+					       __half alpha, __half beta) {
 #undef TILESIZE
 #undef MICROTILESIZE
 #define TILESIZE 16
@@ -1000,7 +1000,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_v
 					       const __half *B, long bOffset,
 					       __half *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta) {
+					       __half alpha, __half beta) {
 #undef TILESIZE
 #undef MICROTILESIZE
 #define TILESIZE 16
@@ -1155,7 +1155,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_v
 					       const __half *B, long bOffset,
 					       __half *C, long cOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta) {
+					       __half alpha, __half beta) {
 #undef TILESIZE
 #undef MICROTILESIZE
 #define TILESIZE 16

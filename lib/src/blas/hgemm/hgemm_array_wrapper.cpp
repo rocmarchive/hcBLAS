@@ -1,13 +1,13 @@
 #include "hgemm_array_kernels.h"
 
-// Hgemm Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
+// Sgemm Wrapper routine that invokes the appropriate kernel routines depending on the input dimension M N and K
 hcblasStatus gemm_HC(hc::accelerator_view accl_view,
                      const int order, char TransA, char TransB,
                      const int M, const int N, const int K,
                      const __half alpha, __half *A_mat,
                      long aOffset, long lda,
                      __half *B_mat,
-                     long bOffset, long ldb,const __half beta,
+                     long bOffset, long ldb, const __half beta,
                      __half *C_mat,
                      long cOffset, long ldc) {
   hcblasStatus status = HCBLAS_SUCCEEDS;
@@ -107,7 +107,7 @@ hcblasStatus gemm_alpha0_col(hc::accelerator_view accl_view,
 			     __half *B, long bOffset,
 			     __half *C, long cOffset,
 			     int M, int N, int K, int lda, int ldb, int ldc,
-			     const __half alpha, const __half beta) {
+			     __half alpha, __half beta) {
 #define GEMM_BLOCK 256
   hc::extent<2> grdExt(N, M * GEMM_BLOCK);
   hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
@@ -139,7 +139,7 @@ hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view accl_view,
                                    __half *B, long bOffset, long B_batchOffset,
                                    __half *C, long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
-                                   const __half alpha, const __half beta, int batchSize) {
+                                   __half alpha, __half beta, int batchSize) {
 #define GEMM_BLOCK 256
   hc::extent<3> grdExt(batchSize, N, M * GEMM_BLOCK);
   hc::tiled_extent<3> t_ext = grdExt.tile(1, 1, GEMM_BLOCK);
@@ -172,7 +172,7 @@ hcblasStatus gemm_alpha0_row(hc::accelerator_view accl_view,
 			     __half *B, long bOffset,
 			     __half *C, long cOffset,
 			     int M, int N, int K, int lda, int ldb, int ldc,
-			     const __half alpha, const __half beta) {
+			     __half alpha, __half beta) {
 #define GEMM_BLOCK 256
   hc::extent<2> grdExt(N, M * GEMM_BLOCK);
   hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
@@ -204,7 +204,7 @@ hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view accl_view,
                                    __half *B, long bOffset, long B_batchOffset,
                                    __half *C, long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
-                                   const __half alpha, const __half beta, int batchSize) {
+                                   __half alpha, __half beta, int batchSize) {
 #define GEMM_BLOCK 256
   hc::extent<3> grdExt(batchSize, N, M * GEMM_BLOCK);
   hc::tiled_extent<3> t_ext = grdExt.tile(1, 1, GEMM_BLOCK);
@@ -230,7 +230,7 @@ hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view accl_view,
       return HCBLAS_SUCCEEDS;
 }
 
-// Hgemm Call Type I: Inputs and outputs are HCC device pointers
+// Sgemm Call Type I: Inputs and outputs are HCC device pointers
 hcblasStatus  Hcblaslibrary :: hcblas_hgemm(hc::accelerator_view accl_view,
 					    hcblasOrder order,
 					    hcblasTranspose typeA,
@@ -284,8 +284,8 @@ hcblasStatus  Hcblaslibrary :: hcblas_hgemm(hc::accelerator_view accl_view,
   // Quick return if possible
   if (A == NULL || B == NULL || C == NULL || !M || !N || !K) {
     return HCBLAS_INVALID;
-  } */
-
+  }
+*/
 
 /*  // For alpha = 0
   if (alpha == 0) {
@@ -301,5 +301,5 @@ hcblasStatus  Hcblaslibrary :: hcblas_hgemm(hc::accelerator_view accl_view,
  /* status = gemm_HC(accl_view, order, typeA, typeB, M, N, K, alpha, A, aOffset, lda, B,
           bOffset, ldb, beta, C, cOffset, ldc, A_batchOffset, B_batchOffset, C_batchOffset, batchSize);
   return status;
-}*/
-
+}
+*/

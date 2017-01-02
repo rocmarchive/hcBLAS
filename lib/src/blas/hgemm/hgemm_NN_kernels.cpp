@@ -7,7 +7,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc:
                                                 const __half *B, long bOffset,
                                                 __half *C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
-                                                const __half alpha, const __half beta) {
+                                                __half alpha, __half beta) {
   int M_ = (M-1)/4 + 1;
   int N_ = (N-1)/4 + 1;
   int N_R = (N_ + 15) & ~15;
@@ -16,7 +16,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc:
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
-    __half rC[4][4] = {{(__half)(0)}};
+    __half rC[4][4] = {{(__half)0}};
     __half rA[1][4];
     __half rB[1][4];
     tile_static __half lA[16 * 32 * 2 + 16];
@@ -89,7 +89,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(hc:
 					        const __half *B, long bOffset,
 					        __half *C, long cOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
-					        const __half alpha, const __half beta) {
+					        __half alpha, __half beta) {
   int M_ = M >> 3;
   int N_ = N >> 3;
   hc::extent<2> grdExt((N_ + 15) & ~15, (M_ + 15) & ~15);
@@ -224,7 +224,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS2_MB2(hc::acceler
                                                 const __half *B, long bOffset,
                                                 __half *C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
-                                                const __half alpha, const __half beta) {
+                                                __half alpha, __half beta) {
   int M_ = (M-1)/4 + 1;
   int N_ = (N-1)/4 + 1;
   int N_R = (N_ + 15) & ~15;
@@ -380,7 +380,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS4_MB2(hc::acceler
 					        const __half *B, long bOffset,
 					        __half *C, long cOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
-					        const __half alpha, const __half beta) {
+					        __half alpha, __half beta) {
   int M_ = (M-1)/8 + 1;
   int N_ = (N-1)/8 + 1;
   int N_R = (N_ + 15) & ~15;
@@ -690,7 +690,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(hc::accelerator
 					        const __half *B, long bOffset,
 					        __half *C, long cOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
-					        const __half alpha, const __half beta) {
+					        __half alpha, __half beta) {
   int M_ = M >> 2;
   int N_ = N >> 2;
   hc::extent<2> grdExt((N_ + 15) & ~15, (M_ + 15) & ~15);
@@ -776,7 +776,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_
                                                 const __half *B, long bOffset,
                                                 __half *C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
-                                                const __half alpha, const __half beta) {
+                                                __half alpha, __half beta) {
   int M_ = (M-1)/2 + 1;
   int N_ = (N-1)/2 + 1;
   int N_R = (N_ + 15) & ~15;
@@ -888,7 +888,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS8XMTS4(hc::accelerator_view accl_v
                                                 const __half *B, long bOffset,
                                                 __half *C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
-                                                const __half alpha, const __half beta) {
+                                                __half alpha, __half beta) {
   int M_ = (M-1)/4 + 1;
   int N_ = (N-1)/4 + 1;
   int N_R = (N_ + 7) & ~7;
@@ -1040,7 +1040,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_
 					        const __half *B, long bOffset,
 					        __half *C, long cOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
-					        const __half alpha, const __half beta) {
+					        __half alpha, __half beta) {
   int M_ = (M-1)/4 + 1;
   int N_ = (N-1)/4 + 1;
   int N_R = (N_ + 15) & ~15;
@@ -1196,7 +1196,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_
                                                 const __half *B, long bOffset,
                                                 __half *C, long cOffset,
                                                 int M, int N, int K, int lda, int ldb, int ldc,
-                                                const __half alpha, const __half beta) {
+                                                __half alpha, __half beta) {
   int M_ = (M-1)/6 + 1;
   int N_ = (N-1)/6 + 1;
   int N_R = (N_ + 15) & ~15;
@@ -1420,7 +1420,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator
 					        const __half *B, long bOffset,
 					        __half *C, long cOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
-					        const __half alpha, const __half beta) {
+					        __half alpha, __half beta) {
   int M_ = M/6;
   int N_ = N/6 ;
   hc::extent<2> grdExt((N_ + 15) & ~15, (M_ + 15) & ~15);
@@ -1532,7 +1532,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view accl_vi
 					     __half *B, long bOffset,
 					     __half *C, long cOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
-					     const __half alpha, const __half beta) {
+					     __half alpha, __half beta) {
   int M_R = (M + 15) & ~(15);
   int N_R = (N + 15) & ~(15);
   int K_R = (K + 63) & ~(63);
@@ -1623,7 +1623,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view accl_vi
 					     __half *B, long bOffset,
 					     __half *C, long cOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
-					     const __half alpha, const __half beta) {
+					     __half alpha, __half beta) {
 
   int M_R = (M + 15) & ~(15);
   int N_R = (N + 15) & ~(15);
@@ -1716,7 +1716,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_vie
 					     __half *B, long bOffset,
 					     __half *C, long cOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
-					     const __half alpha, const __half beta) {
+					     __half alpha, __half beta) {
   hc::extent<2> grdExt((N + 15) & ~15, (M + 15) & ~15);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
@@ -1778,7 +1778,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_vie
 					     __half *B, long bOffset,
 					     __half *C, long cOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
-					     const __half alpha, const __half beta) {
+					     __half alpha, __half beta) {
   hc::extent<2> grdExt((N + 15) & ~15, (M + 15) & ~15);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {

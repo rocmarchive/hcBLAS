@@ -1,5 +1,7 @@
 #include "hcblaslib.h"
 #include "hcblas.h"
+#include <iostream>
+using namespace std;
 // hcblas Helper functions 
 
 // 1. hcblasCreate()
@@ -11,6 +13,7 @@
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
+
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
   if (handle == NULL) { 
@@ -27,6 +30,7 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
 bool hisnan( __half raw) __HC_FP16_DECL_SUFFIX__
 {
    return (raw.x == raw.x) ? false : true;
+   
 }
 
 int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__
@@ -34,6 +38,31 @@ int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__
   if (raw.x == 0xFC00) return -1;
   if (raw.x == 0x7C00) return 1;
   return 0;
+}
+
+
+__hc_half operator/(int raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ {
+    __hc_half ret;
+    ret.x = (short)raw / a.x ;
+    return ret; 
+}
+
+__hc_half operator/(__hc_half raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ {
+    __hc_half ret;
+    ret.x = raw.x / a.x ;
+    return ret; 
+}
+
+ostream &operator<<( ostream &output, __hc_half a ) { 
+         output << a.x ;
+         return output;            
+}
+      
+bool operator!=( __hc_half a , __hc_half b) __HC_FP16_DECL_SUFFIX__ { 
+    if ( a.x != b.x )
+      return true;
+    else
+      return false;
 }
 
 // 2. hcblasDestory()
@@ -1117,6 +1146,7 @@ hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
 
   if(m < 0 || n < 0 || k < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
+  
   long aOffset = 0;
   long bOffset = 0;
   long cOffset = 0;

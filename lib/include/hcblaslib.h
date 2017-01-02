@@ -32,7 +32,7 @@ using namespace std;
   #define _WAIT2
 #endif
 
- #define __HC_FP16_DECL_SUFFIX__ __attribute__((hc,cpu))
+#define __HC_FP16_DECL_SUFFIX__ __attribute__((hc,cpu))
 
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {
@@ -58,71 +58,56 @@ enum hcblasTranspose {
 } __half;
 */
 
-struct __hc_half {
+struct __hc_half
+{
   __hc_half() __HC_FP16_DECL_SUFFIX__ {}
-  //__hc_half(const unsigned raw) : x(raw) {}
-  //__hc_half(unsigned int raw) : x(raw) {}
-  __hc_half(const int raw) __HC_FP16_DECL_SUFFIX__ : x((unsigned int)raw) {}
-  __hc_half(double raw) __HC_FP16_DECL_SUFFIX__ : x((unsigned int)raw) {}
-  
-  void operator=(int raw) __HC_FP16_DECL_SUFFIX__ { x = (unsigned int) raw; }
-  
-  //__hc_half operator=(double raw) { x = (unsigned int) raw; }
-  
-  __hc_half operator*(__hc_half a) const __HC_FP16_DECL_SUFFIX__ {
-    __hc_half ret;
-    ret.x = x * a.x;
-    return ret;
+  __hc_half(int raw) __HC_FP16_DECL_SUFFIX__ : x((unsigned short)raw) {}
+  unsigned short x ;
+  __hc_half operator*(__hc_half a) const __HC_FP16_DECL_SUFFIX__
+  {
+      __hc_half ret;
+      ret.x = x * a.x ;
+      return ret ;
+   }
+   __hc_half operator+(__hc_half a) const __HC_FP16_DECL_SUFFIX__
+  {
+      __hc_half ret;
+      ret.x = x + a.x ;
+      return ret ;
+   }
+  void operator+=(__hc_half a) __HC_FP16_DECL_SUFFIX__
+  {
+   x = x + a.x;
   }
-  
-  __hc_half operator+(__hc_half a) __HC_FP16_DECL_SUFFIX__ {
-    __hc_half ret;
-    ret.x = x + a.x;
-    return ret;
+  void operator*=(__hc_half a) __HC_FP16_DECL_SUFFIX__
+  {
+     x = x * a.x;
   }
-  
-  void operator+=(__hc_half a) __HC_FP16_DECL_SUFFIX__ { x = x + a.x; }
-  
-  void operator*=(__hc_half a) __HC_FP16_DECL_SUFFIX__ { x = x * a.x; }
-  
-  bool operator==(int a) const __HC_FP16_DECL_SUFFIX__ { 
-    if ( x == a )
-      return true;
-    else
-      return false;
+   bool operator==(int a) const __HC_FP16_DECL_SUFFIX__
+  {
+     if (x == (unsigned short)a)
+        return true;
+     else
+        return false;
   }
-  bool operator==(const __hc_half a) const __HC_FP16_DECL_SUFFIX__ { 
-    if ( x == a.x )
-      return true;
-    else
-      return false;
+   bool operator==(const __hc_half a) const __HC_FP16_DECL_SUFFIX__
+  {
+     if (x == a.x)
+        return true;
+     else
+        return false;
   }
-  
- /* ostream &operator<<( ostream &output ) { 
-         output << x ;
-         return output;            
-      }*/
-  unsigned int x;
+   
+
 };
-typedef struct __hc_half __half;
 
-/*#ifndef HISNAN_FUNC
-#define HISNAN_FUNC
-bool hisnan( __half raw) __HC_FP16_DECL_SUFFIX__
-{
-   return (raw.x == raw.x) ? false : true;
-}
+typedef __hc_half __half ;
 
-int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__
-{
-  if (raw.x == 0xFC00) return -1;
-  if (raw.x == 0x7C00) return 1;
-  return 0;
-}
-#endif*/
 bool hisnan( __half raw) __HC_FP16_DECL_SUFFIX__ ;
 int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__;
-
+ostream &operator<<( ostream &output, __hc_half a ) ;
+bool operator!=( __hc_half a , __hc_half b) __HC_FP16_DECL_SUFFIX__ ;
+   
 struct hc_Complex
 {
      float real;

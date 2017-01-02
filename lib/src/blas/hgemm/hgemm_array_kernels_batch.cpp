@@ -7,7 +7,7 @@ hcblasStatus gemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					       __half *B[], long bOffset, long B_batchOffset,
 					       __half *C[], long cOffset, long C_batchOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
-					       const __half alpha, const __half beta, int batchSize) {
+					       __half alpha, __half beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -84,7 +84,7 @@ hcblasStatus gemm_NoTransAB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view accl_vie
 					           __half *B[], long bOffset, long B_batchOffset,
 					           __half *C[], long cOffset, long C_batchOffset,
 						   int M, int N, int K, int lda, int ldb, int ldc,
-					           const __half alpha, const __half beta, int batchSize) {
+					           __half alpha, __half beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -159,7 +159,7 @@ hcblasStatus gemm_NoTransAB_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_
 						      __half *B[], long bOffset, long B_batchOffset,
 						      __half *C[], long cOffset, long C_batchOffset,
 						      int M, int N, int K, int lda, int ldb, int ldc,
-						      const __half alpha, const __half beta, int batchSize) {
+						      __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -244,7 +244,7 @@ hcblasStatus gemm_NoTransAB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view accl_v
 						     __half *B[], long bOffset, long B_batchOffset,
 						     __half *C[], long cOffset, long C_batchOffset,
 						     int M, int N, int K, int lda, int ldb, int ldc,
-						     const __half alpha, const __half beta, int batchSize) {
+						     __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -319,7 +319,7 @@ hcblasStatus gemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view
 					          __half *B[], long bOffset, long B_batchOffset,
 					          __half *C[], long cOffset, long C_batchOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
-					          const __half alpha, const __half beta, int batchSize) {
+					          __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -396,7 +396,7 @@ hcblasStatus gemm_NoTransA_batch_STEP_NBK_TS16XSS16(hc::accelerator_view accl_vi
 						    __half *B[], long bOffset, long B_batchOffset,
 						    __half *C[], long cOffset, long C_batchOffset,
 						    int M, int N, int K, int lda, int ldb, int ldc,
-						    const __half alpha, const __half beta, int batchSize) {
+						    __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -479,7 +479,7 @@ hcblasStatus gemm_NoTransA_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					      __half *B[], long bOffset, long B_batchOffset,
 					      __half *C[], long cOffset, long C_batchOffset,
 					      int M, int N, int K, int lda, int ldb, int ldc,
-					      const __half alpha, const __half beta, int batchSize) {
+					      __half alpha, __half beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -552,7 +552,7 @@ hcblasStatus gemm_NoTransA_batch_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view
 					          __half *B[], long bOffset, long B_batchOffset,
 				                  __half *C[], long cOffset, long C_batchOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
-					          const __half alpha, const __half beta, int batchSize) {
+					          __half alpha, __half beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -635,7 +635,7 @@ hcblasStatus gemm_NoTransA_batch_STEP_TS16XSS16(hc::accelerator_view accl_view,
 					        __half *B[], long bOffset, long B_batchOffset,
 				                __half *C[], long cOffset, long C_batchOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
-					        const __half alpha, const __half beta, int batchSize) {
+					        __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -708,7 +708,7 @@ hcblasStatus gemm_NoTransA_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_v
 						     __half *B[], long bOffset, long B_batchOffset,
 						     __half *C[], long cOffset, long C_batchOffset,
 						     int M, int N, int K, int lda, int ldb, int ldc,
-						     const __half alpha, const __half beta, int batchSize) {
+						     __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -792,7 +792,7 @@ hcblasStatus gemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					         __half *B[], long bOffset, long B_batchOffset,
 					         __half *C[], long cOffset, long C_batchOffset,
 					         int M, int N, int K, int lda, int ldb, int ldc,
-					         const __half alpha, const __half beta, int batchSize) {
+					         __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -869,7 +869,7 @@ hcblasStatus gemm_NoTransB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view
 					          __half *B[], long bOffset, long B_batchOffset,
 					          __half *C[], long cOffset, long C_batchOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
-					          const __half alpha, const __half beta, int batchSize) {	
+					          __half alpha, __half beta, int batchSize) {	
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -953,7 +953,7 @@ hcblasStatus gemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 					      __half *B[], long bOffset, long B_batchOffset,
 					      __half *C[], long cOffset, long C_batchOffset,
 					      int M, int N, int K, int lda, int ldb, int ldc,
-					      const __half alpha, const __half beta, int batchSize) {
+					      __half alpha, __half beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1026,7 +1026,7 @@ hcblasStatus gemm_NoTransB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view accl_vi
 						    __half *B[], long bOffset, long B_batchOffset,
 						    __half *C[], long cOffset, long C_batchOffset,
 						    int M, int N, int K, int lda, int ldb, int ldc,
-						    const __half alpha, const __half beta, int batchSize) {
+						    __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1110,7 +1110,7 @@ hcblasStatus gemm_NoTransB_batch_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_v
 						     __half *B[], long bOffset, long B_batchOffset,
 						     __half *C[], long cOffset, long C_batchOffset,
 						     int M, int N, int K, int lda, int ldb, int ldc,
-						     const __half alpha, const __half beta, int batchSize) {
+						     __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -1195,7 +1195,7 @@ hcblasStatus gemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					         __half *B[], long bOffset, long B_batchOffset,
 					         __half *C[], long cOffset, long C_batchOffset,
 					         int M, int N, int K, int lda, int ldb, int ldc,
-					         const __half alpha, const __half beta, int batchSize) {	
+					         __half alpha, __half beta, int batchSize) {	
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -1272,7 +1272,7 @@ hcblasStatus gemm_TransAB_batch_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
 					         __half *B[], long bOffset, long B_batchOffset,
 					         __half *C[], long cOffset, long C_batchOffset,
 					         int M, int N, int K, int lda, int ldb, int ldc,
-					         const __half alpha, const __half beta, int batchSize) {
+					         __half alpha, __half beta, int batchSize) {
 #define TILESIZE 8
 #define STEPSIZE 8
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1344,7 +1344,7 @@ hcblasStatus gemm_TransAB_batch_STEP_NBK_TS16XSS16(hc::accelerator_view accl_vie
 					           __half *B[], long bOffset, long B_batchOffset,
 					           __half *C[], long cOffset, long C_batchOffset,
 					           int M, int N, int K, int lda, int ldb, int ldc,
-					           const __half alpha, const __half beta, int batchSize) {
+					           __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define STEPSIZE 16
   hc::extent<3> grdExt(batchSize, (N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
@@ -1416,7 +1416,7 @@ hcblasStatus gemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					        __half *B[], long bOffset, long B_batchOffset,
 						__half *C[], long cOffset, long C_batchOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
-				                const __half alpha, const __half beta, int batchSize) {
+				                __half alpha, __half beta, int batchSize) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
   int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
@@ -1493,7 +1493,7 @@ hcblasStatus gemm_NoTransAB_batch_largeM(hc::accelerator_view accl_view,
 				         __half *B[], long bOffset, long B_batchOffset,
 				         __half *C[], long cOffset, long C_batchOffset,
 				         int M, int N, int K, int lda, int ldb, int ldc,
-				         const __half alpha, const __half beta, int batchSize) {
+				         __half alpha, __half beta, int batchSize) {
 #define MICROTILESIZE_A 2
 #define MICROTILESIZE_B 1
 #define TILESIZE_A 32
@@ -1576,7 +1576,7 @@ hcblasStatus gemm_NoTransA_batch_largeM(hc::accelerator_view accl_view,
                                         __half *B[], long bOffset, long B_batchOffset,
                                         __half *C[], long cOffset, long C_batchOffset,
                                         int M, int N, int K, int lda, int ldb, int ldc,
-                                        const __half alpha, const __half beta, int batchSize) {
+                                        __half alpha, __half beta, int batchSize) {
 #define MICROTILESIZE_A 2
 #define MICROTILESIZE_B 2
 #define TILESIZE_A 32
@@ -1663,7 +1663,7 @@ hcblasStatus gemm_NoTransB_batch_largeM(hc::accelerator_view accl_view,
                                         __half *B[], long bOffset, long B_batchOffset,
                                         __half *C[], long cOffset, long C_batchOffset,
                                         int M, int N, int K, int lda, int ldb, int ldc,
-                                        const __half alpha, const __half beta, int batchSize) {
+                                        __half alpha, __half beta, int batchSize) {
 #define MICROTILESIZE_A 2
 #define MICROTILESIZE_B 1
 #define TILESIZE_A 32
@@ -1746,7 +1746,7 @@ hcblasStatus gemm_NoTransAB(hc::accelerator_view accl_view,
                             __half *B[], long bOffset, long B_batchOffset,
                             __half *C[], long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
-                            const __half alpha, const __half beta, int batchSize) {
+                            __half alpha, __half beta, int batchSize) {
   if (M > 10000 && N < 500) {
     return gemm_NoTransAB_batch_largeM(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   } else if ( M > 600 && M < 1800 && N < 200 && K > 600 && K < 1800) {
@@ -1772,7 +1772,7 @@ hcblasStatus gemm_NoTransA(hc::accelerator_view accl_view,
                            __half *B[], long bOffset, long B_batchOffset,
                            __half *C[], long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
-                           const __half alpha, const __half beta, int batchSize) {
+                           __half alpha, __half beta, int batchSize) {
   if (M > 10000 && N < 500) {
     return gemm_NoTransA_batch_largeM(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   } else if( M > 1800 && M < 6000 && N > 600 && N < 1800 && K < 600 ) {
@@ -1799,7 +1799,7 @@ hcblasStatus gemm_NoTransB(hc::accelerator_view accl_view,
                            __half *B[], long bOffset, long B_batchOffset,
                            __half *C[], long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
-                           const __half alpha, const __half beta, int batchSize) {
+                           __half alpha, __half beta, int batchSize) {
   if (M > 10000 && N < 500) {
     return gemm_NoTransB_batch_largeM(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   } else if((M < 6000 && N < 600 && K < 10) || (M < 1800 && N < 80 &&  K > 1800 && K < 6000)) {
@@ -1820,7 +1820,7 @@ hcblasStatus gemm_TransAB(hc::accelerator_view accl_view,
                           __half *B[], long bOffset, long B_batchOffset,
                           __half *C[], long cOffset, long C_batchOffset,
                           int M, int N, int K, int lda, int ldb, int ldc,
-                          const __half alpha, const __half beta, int batchSize) {
+                          __half alpha, __half beta, int batchSize) {
   if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600)) {
     return gemm_TransAB_batch_STEP_NBK_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   } else if((M < 600 && N < 600 && K < 1800) || (M < 1800 && ((N < 600 && K < 1800) || (N < 1800 && K < 10)))) {

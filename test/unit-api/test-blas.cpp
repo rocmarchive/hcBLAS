@@ -7,39 +7,25 @@
 void cblas_hgemm( int, int, int, __half* , __half* , __half* , __half, __half );
 
 //own-implementation
-/*void cblas_hgemm( int M, int N, int K, __half* A, __half* B, __half* C_cblas, __half alpha , __half beta)
+void cblas_hgemm( int M, int N, int K, __half* A, __half* B, __half* C_cblas, __half alpha , __half beta)
 {
   for( int i = 0 ; i < M ; i++)
   {
      for( int j = 0 ; j < N ; j++)
      {
+         //cout <<"\nfilling as:\t " << j * M + i ;
+        
          for( int k = 0 ; k < K ; k++)
          {
-            C_cblas[j + i * N] =  alpha * A[k + i * K] * B[j + k * N] + beta * C_cblas[j + i * N] ; //row-major
-            //C_cblas[j * N + i] += (  A[k * M + i] * B[j * K + k] ) ;//+ ( C_cblas[j * M + i] ); //column-major
-         }
-         //cout << C_cblas[j * M + i] ;
-     }
-   }
-} */
-
-//likewise in sgemm
-void cblas_hgemm( int M, int N, int K, __half* A, __half* B, __half* C_cblas, __half alpha , __half beta)
-{
-  for( int i = 0 ; i < N ; i++)
-  {
-     for( int j = 0 ; j < K ; j++)
-     {
-        //temp = alpha * B[j * K] ;
-         for( int k = 0 ; k < M ; k++)
-         {
-            //C_cblas[j + i * N] =  alpha * A[k + i * K] * B[j + k * N] + beta * C_cblas[j + i * N] ; //row-major
-            C_cblas[k * N + i] +=  A[k * K+j] * B[j * N+i]  ;//+ ( C_cblas[j * M + i] ); //column-major
+            //C_cblas[j + i * N] += A[k + i * K] * B[j + k * N] ;//+ beta * C_cblas[j + i * N] ; //row-major
+            C_cblas[j * M + i] = (  alpha * A[k * M + i] * B[j * K + k] ) + beta * C_cblas[j * M + i]  ;//+ ( C_cblas[j * M + i] ); //column-major
+            // cout << "\nMultiplying :\t A["<<k * M + i <<"]= "<<A[k * M + i] <<"\tB:["<<j * K + k<<"]= "<< B[j * K + k] <<"\tC:[" <<j * M + i<<"]= "<< C_cblas[j * M + i] ;
          }
          //cout << C_cblas[j * M + i] ;
      }
    }
 }
+
 
 TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   hcblasStatus_t status;
@@ -1147,9 +1133,9 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
   hc::accelerator default_acc;
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &default_acc); 
-  int M = 123;
-  int N = 78;
-  int K = 23;
+  int M = 20;
+  int N = 10;
+  int K = 10;
   int incx = 1, incy = 1;
   float alpha = 1;
   float beta = 1;
@@ -1178,6 +1164,8 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
               C[i] = rand() % 25;
               C_cblas[i] = C[i];
   }
+  
+  //float* devC = hc::am_alloc(sizeof(float) * M * N, handle->currentAccl, 0);
   status = hcblasSetMatrix(handle, M, K, sizeof(float), A, 1, devA, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   status = hcblasSetMatrix(handle, K, N, sizeof(float), B, 1, devB, 1);
@@ -1202,7 +1190,6 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
   cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
   for(int i = 0 ; i < M * N ; i++)
     EXPECT_EQ(C_hcblas[i], C_cblas[i]);
-
    // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc);
@@ -1680,6 +1667,7 @@ TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
   long ldc;
   CBLAS_ORDER order;
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
+  cout <<"orderof"<< order ;
   hcblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
   __half *A = (__half*) calloc(M * K, sizeof(__half));
@@ -1700,14 +1688,23 @@ TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
               C[i] = rand() % 25;
               C_cblas[i] = C[i];
   }
+  /*for(int i = 0; i < M * K; i++) {
+              cout << "\n"<<i<<":";
+              cout << A[i] ;
+  }*/
   status = hcblasSetMatrix(handle, M, K, sizeof(__half), A, 1, devA, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   status = hcblasSetMatrix(handle, K, N, sizeof(__half), B, 1, devB, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   status = hcblasSetMatrix(handle, M, N, sizeof(__half), C, 1, devC, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-
-  // NoTransA and NoTransB */           
+  /*cout <<"\n\n\n\t\t\t Printing cblas ";
+  for(int i = 0; i < M * N;i++) {
+              cout<<"\n";
+              cout << C_cblas[i] ;
+  }*/
+  // NoTransA and NoTransB */      
+  //cout <<"\nSIZEOFVALUES"<< sizeof(__half) << sizeof(unsigned int) ;    
   typeA = HCBLAS_OP_N;
   typeB = HCBLAS_OP_N;
   Transa = CblasNoTrans;
@@ -1717,11 +1714,30 @@ TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
   lda = M; ldb = K ; ldc = M;
   status = hcblasHgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-
+  
+  
   status = hcblasGetMatrix(handle, M, N, sizeof(__half), devC, 1, C_hcblas, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-
+  for ( int i = 0 ; i<M*N ; i++)
+  {
+      if ( i == 17 )
+        cout <<"\n"<<C_hcblas[i];
+   }
   cblas_hgemm( M, N, K, A, B, C_cblas,alpha,beta);
+  
+  int count = 0 ;
+  //__half max = 0;
+  for(int i = 0; i < M * N;i++) {
+              if (C_cblas[i]!=C_hcblas[i])
+                {
+                 count = count + 1;
+              cout<<"\n"<<i<<"\t";
+              cout << C_cblas[i] ;
+              cout <<"\t" ;
+              cout << C_hcblas[i] ;
+               }
+  }
+  cout << "\ncount" << count ;
   for(int i = 0 ; i < M * N ; i++)
     EXPECT_EQ(C_hcblas[i], C_cblas[i]);
 
