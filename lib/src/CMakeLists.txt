@@ -105,7 +105,7 @@ ELSEIF (${PLATFORM} MATCHES "nvcc")
   
   SET (CXXFLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -I/usr/local/cuda/include -D__HIP_PLATFORM_NVCC__=")
   SET (LDFLAGS "-L/usr/local/cuda/lib64 -L/usr/local/cuda/lib")
-  SET (HIPBLASSRCS ${CMAKE_CURRENT_SOURCE_DIR}/hcc_detail/hipblas.cpp)
+  SET (HIPBLASSRCS ${CMAKE_CURRENT_SOURCE_DIR}/nvcc_detail/hipblas.cpp)
   
   FOREACH(src_file ${HIPBLASSRCS})
 	  SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${CXXFLAGS} ")

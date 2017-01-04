@@ -44,6 +44,7 @@ typedef cuComplex hipComplex;
 */
 
 #if (HIP_SHARED_OBJ == 1)
+//#ifdef __HIP_PLATFORM_NVCC__
 
 cublasOperation_t hipOperationToCudaOperation( hipblasOperation_t op);
 
@@ -144,6 +145,68 @@ hipblasStatus_t hipblasDaxpy(hipblasHandle_t handle, int n, const double *alpha,
 
 
 #else
+
+inline static cublasOperation_t hipOperationToCudaOperation( hipblasOperation_t op)
+{
+	switch (op)
+	{
+		case HIPBLAS_OP_N:
+			return CUBLAS_OP_N;
+
+		case HIPBLAS_OP_T:
+			return CUBLAS_OP_T;
+
+		case HIPBLAS_OP_C:
+			return CUBLAS_OP_C;
+
+		default:
+			throw "Non existent OP";
+	}
+}
+
+inline static hipblasOperation_t CudaOperationToHIPOperation( cublasOperation_t op)
+{
+	switch (op)
+	{
+		case CUBLAS_OP_N :
+			return HIPBLAS_OP_N;
+
+		case CUBLAS_OP_T :
+			return HIPBLAS_OP_T;
+
+		case CUBLAS_OP_C :
+			return HIPBLAS_OP_C;
+
+		default:
+			throw "Non existent OP";
+	}
+}
+
+
+inline static hipblasStatus_t hipCUBLASStatusToHIPStatus(cublasStatus_t cuStatus)
+{
+	switch(cuStatus)
+	{
+		case CUBLAS_STATUS_SUCCESS:
+			return HIPBLAS_STATUS_SUCCESS;
+		case CUBLAS_STATUS_NOT_INITIALIZED:
+			return HIPBLAS_STATUS_NOT_INITIALIZED;
+		case CUBLAS_STATUS_ALLOC_FAILED:
+			return HIPBLAS_STATUS_ALLOC_FAILED;
+		case CUBLAS_STATUS_INVALID_VALUE:
+			return HIPBLAS_STATUS_INVALID_VALUE;
+		case CUBLAS_STATUS_MAPPING_ERROR:
+			return HIPBLAS_STATUS_MAPPING_ERROR;
+		case CUBLAS_STATUS_EXECUTION_FAILED:
+			return HIPBLAS_STATUS_EXECUTION_FAILED;
+		case CUBLAS_STATUS_INTERNAL_ERROR:
+			return HIPBLAS_STATUS_INTERNAL_ERROR;
+		case CUBLAS_STATUS_NOT_SUPPORTED:
+			return HIPBLAS_STATUS_NOT_SUPPORTED;
+		default:
+			throw "Unimplemented status";
+	}
+}
 
 inline static hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t streamId) {
     return hipCUBLASStatusToHIPStatus(cublasSetStream(handle, streamId));
