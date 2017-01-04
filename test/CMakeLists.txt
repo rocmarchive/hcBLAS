@@ -8,8 +8,13 @@ ENDIF()
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake  "${HIP_PATH}/cmake")
 EXECUTE_PROCESS(COMMAND ${HIP_PATH}/bin/hipconfig -P OUTPUT_VARIABLE PLATFORM)
+#SET(HIP_SHARED_OBJ $ENV{HIP_SHARED_OBJ})
+SET(HIP_SHARED_OBJ "DEFAULT" CACHE STRING "HIP SO")
 
-add_subdirectory(unit-hip)
+IF(${HIP_SHARED_OBJ} MATCHES "ON" OR ${PLATFORM} MATCHES "nvcc")
+  add_subdirectory(unit-hip)
+ENDIF()
+
 IF(${PLATFORM} MATCHES "hcc")
 add_subdirectory(src)
 add_subdirectory(unit)

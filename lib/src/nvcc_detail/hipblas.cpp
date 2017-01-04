@@ -48,7 +48,7 @@ hipblasStatus_t  hipblasGetStream(hipblasHandle_t handle, hipStream_t *streamId)
 }
 
 hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
-    return hipCUBLASStatusToHIPStatus(cublasCreate(&*handle));
+    return hipCUBLASStatusToHIPStatus(cublasCreate(handle));
 }
 
 //TODO broke common API semantics, think about this again.
