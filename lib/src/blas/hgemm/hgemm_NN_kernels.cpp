@@ -1,6 +1,7 @@
 #include "hgemm_array_kernels.h"
 #include <cmath>
 #include "hc_math.hpp"
+#include <iostream>
 
 hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc::accelerator_view accl_view,
                                                 const __half *A, long aOffset,

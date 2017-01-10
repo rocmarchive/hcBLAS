@@ -230,7 +230,7 @@ hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view accl_view,
       return HCBLAS_SUCCEEDS;
 }
 
-// Sgemm Call Type I: Inputs and outputs are HCC device pointers
+// Hgemm Call Type I: Inputs and outputs are HCC device pointers
 hcblasStatus  Hcblaslibrary :: hcblas_hgemm(hc::accelerator_view accl_view,
 					    hcblasOrder order,
 					    hcblasTranspose typeA,

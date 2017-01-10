@@ -3,6 +3,29 @@
 #include "gtest/gtest.h"
 #include "cblas.h"
 
+
+void cblas_hgemm( int, int, int, __half* , __half* , __half* , __half, __half );
+
+//own-implementation
+void cblas_hgemm( int M, int N, int K, __half* A, __half* B, __half* C_cblas, __half alpha , __half beta)
+{
+  for( int i = 0 ; i < M ; i++)
+  {
+     for( int j = 0 ; j < N ; j++)
+     {
+         //cout <<"\nfilling as:\t " << j * M + i ;
+        
+         for( int k = 0 ; k < K ; k++)
+         {
+            //C_cblas[j + i * N] += A[k + i * K] * B[j + k * N] ;//+ beta * C_cblas[j + i * N] ; //row-major
+            C_cblas[j * M + i] = (  alpha * A[k * M + i] * B[j * K + k] ) + beta * C_cblas[j * M + i]  ;//+ ( C_cblas[j * M + i] ); //column-major
+            // cout << "\nMultiplying :\t A["<<k * M + i <<"]= "<<A[k * M + i] <<"\tB:["<<j * K + k<<"]= "<< B[j * K + k] <<"\tC:[" <<j * M + i<<"]= "<< C_cblas[j * M + i] ;
+         }
+         //cout << C_cblas[j * M + i] ;
+     }
+   }
+}
+
 TEST(hipblaswrapper_sasum, func_return_correct_sasum) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -1199,6 +1222,7 @@ TEST(hipblaswrapper_sgemm, func_return_correct_sgemm) {
   free(C_hipblas);
 }
 
+
 TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -1650,3 +1674,82 @@ TEST(hipblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
 }
 #endif
 
+#ifdef __HIP_PLATFORM_HCC__
+TEST(hipblaswrapper_hgemm, func_return_correct_hgemm) {
+  hipblasStatus_t status;
+  hipblasHandle_t handle = NULL;
+  status = hipblasCreate(&handle);
+  int M = 123;
+  int N = 78;
+  int K = 23;
+  int incx = 1, incy = 1;
+  hiphalf alpha = 1;
+  hiphalf beta = 1;
+  long lda;
+  long ldb;
+  long ldc;
+  CBLAS_ORDER order;
+  order = CblasColMajor;
+  hipblasOperation_t typeA, typeB;
+  CBLAS_TRANSPOSE Transa, Transb;
+  hiphalf *A = (hiphalf*) calloc(M * K, sizeof(hiphalf));
+  hiphalf *B = (hiphalf*) calloc(K * N, sizeof(hiphalf));
+  hiphalf *C = (hiphalf*) calloc(M * N, sizeof(hiphalf));
+  hiphalf *C_hipblas = (hiphalf*) calloc(M * N, sizeof(hiphalf));
+  hiphalf *C_cblas = (hiphalf*) calloc(M * N, sizeof(hiphalf));
+  hiphalf *devA = NULL, * devB = NULL, *devC = NULL;
+  hipError_t err= hipMalloc(&devA, sizeof(hiphalf) * M * K);
+  err = hipMalloc(&devB, sizeof(hiphalf) * K * N);
+  err = hipMalloc(&devC, sizeof(hiphalf) * M * N);
+  for(int i = 0; i < M * K; i++) {
+              A[i] = 1;
+  }
+  for(int i = 0; i < K * N;i++) {
+              B[i] = 2;
+  }
+  for(int i = 0; i < M * N;i++) {
+              C[i] = 3;
+              C_cblas[i] = C[i];
+  }
+  status = hipblasSetMatrix(M, K, sizeof(hiphalf), A, 1, devA, 1);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  status = hipblasSetMatrix(K, N, sizeof(hiphalf), B, 1, devB, 1);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  status = hipblasSetMatrix(M, N, sizeof(hiphalf), C, 1, devC, 1);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+
+  // NoTransA and NoTransB */           
+  typeA = HIPBLAS_OP_N;
+  typeB = HIPBLAS_OP_N;
+  Transa = CblasNoTrans;
+  Transb = CblasNoTrans;
+
+    // Column major */
+  lda = M; ldb = K ; ldc = M;
+  status = hipblasHgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+
+  status = hipblasGetMatrix(M, N, sizeof(hiphalf), devC, 1, C_hipblas, 1);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+
+  cblas_hgemm( M, N, K, A, B, C_cblas,alpha,beta);
+  for(int i = 0 ; i < M * N ; i++)
+    //EXPECT_EQ(C_hipblas[i], C_cblas[i]);
+
+   // HIPBLAS_STATUS_NOT_INITIALIZED
+  hipblasDestroy(handle);
+#ifdef __HIP_PLATFORM_HCC__
+  status = hipblasHgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc);
+  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+#endif
+
+  free(A);
+  free(B);
+  free(C);
+  hipFree(devA);
+  hipFree(devB);
+  hipFree(devC);
+  free(C_cblas);
+  free(C_hipblas);
+}
+#endif
