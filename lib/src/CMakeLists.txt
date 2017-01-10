@@ -2,7 +2,7 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.8.8) 
 MESSAGE(STATUS "CMAKE VERSION ${CMAKE_VERSION}")
 
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${HIP_PATH})
 SET(PROJECT_NAME_EXT "hipblas")
 
 # Build hcblas and hipblas from source on AMD platform
@@ -16,7 +16,6 @@ IF (${PLATFORM} MATCHES "hcc")
 SET(PROJECT_NAME "hcblas")
 SET(PROJECT_NAME_EXT "hipblas")
 SET(ROCM_PATH "/opt/rocm/")
-SET(HIP_PATH "/opt/rocm/hip")
 PROJECT (${PROJECT_NAME})
 MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
 
@@ -35,7 +34,7 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${ROCM_PATH}/include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
-  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -Wl,-rpath-link,${HIP_PATH}/lib -Wl,-rpath-link,${ROCM_PROFILER_PATH}/bin/x86_64/ -L${ROCM_PROFILER_PATH}/bin/x86_64/ -L${HIP_PATH}/lib  -lCXLActivityLogger -lhip_hcc")
   
   # Setting header dependencies for hcblas library generation
   FOREACH(src_file ${HCBLASSRCS})
