@@ -10,10 +10,10 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   hc::accelerator default_acc;
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &default_acc); 
-  int n = 24;
+  int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
-  float* result;
+  float result;
 
   // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
   float *X = (float*)calloc(lenx, sizeof(float));//host input
@@ -24,19 +24,18 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
 
   status = hcblasSetVector(handle, lenx, sizeof(float), X, incx, devX, incx);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  //TODO: Neel Fix HCBLAS SASUM test seg fault failure
-//  handle->currentAcclView.copy(X, devX, lenx * sizeof(float));
-  //status = hcblasSasum(handle, n, devX, incx, result);
-  //EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  handle->currentAcclView.copy(X, devX, lenx * sizeof(float) );
+  status = hcblasSasum(handle, n , devX, incx, &result);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
   float asumcblas = 0.0;
   asumcblas = cblas_sasum( n, X, incx);
-//  EXPECT_EQ(*result, asumcblas);
+  EXPECT_EQ(result, asumcblas);
 
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
-  //status = hcblasSasum(handle, n, devX, incx, result);
-  //EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
+  status = hcblasSasum(handle, n, devX, incx, &result);
+  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED); 
 
   free(X);
   hc::am_free(devX);
@@ -353,7 +352,7 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
   status = hcblasSetVector(handle, leny, sizeof(float), Y, incy, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   status = hcblasScopy(handle, n, devX, incx, devY, incy);
-//  handle->currentAcclView.copy(devY, Y, leny * sizeof(float));
+  handle->currentAcclView.copy(devY, Y, leny * sizeof(float));
   status = hcblasGetVector(handle, leny, sizeof(float), devY, incy, Y, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   cblas_scopy( n, X, incx, Ycblas, incy );
@@ -407,7 +406,7 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
   status = hcblasScopyBatched(handle, n, devX, incx, devY, incy, batchSize);
   status = hcblasGetVector(handle, leny * batchSize, sizeof(float), devY, incy, Y, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-//  handle->currentAcclView.copy(devY, Y, leny * batchSize * sizeof(float));
+  handle->currentAcclView.copy(devY, Y, leny * batchSize * sizeof(float));
   for(int i = 0; i < batchSize; i++)
       cblas_scopy( n, X + i * n, incx, Ycblas + i * n, incy );
   for(int i = 0; i < leny * batchSize; i++){
@@ -459,7 +458,7 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
   status = hcblasDcopy(handle, n, devX, incx, devY, incy);
   status = hcblasGetVector(handle, leny, sizeof(double), devY, incy, Y, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  //handle->currentAcclView.copy(devY, Y, leny * sizeof(double));
+  handle->currentAcclView.copy(devY, Y, leny * sizeof(double));
   cblas_dcopy( n, X, incx, Ycblas, incy );
   for(int i = 0; i < leny; i++){
         EXPECT_EQ(Y[i], Ycblas[i]);
@@ -509,7 +508,7 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
   status = hcblasSetVector(handle, leny*batchSize, sizeof(double), Y, incy, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   status = hcblasDcopyBatched(handle, n, devX, incx, devY, incy, batchSize);
-//  handle->currentAcclView.copy(devY, Y, leny * batchSize * sizeof(double));
+  handle->currentAcclView.copy(devY, Y, leny * batchSize * sizeof(double));
   status = hcblasGetVector(handle, leny*batchSize, sizeof(double), devY, incy, Y, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   for(int i = 0; i < batchSize; i++)
@@ -798,13 +797,13 @@ TEST(hcblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
   status = hcblasSetVector(handle, leny*batchSize, sizeof(float), Y, incy, devY, incy);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   status = hcblasSaxpyBatched(handle, n, &alpha, devX, incx, devY, incy, batchSize);
-  status = hcblasGetVector(handle, leny, sizeof(float), devY, 1, Y, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasGetVector(handle, leny * batchSize, sizeof(float), devY, 1, Y, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   for(int i = 0; i < batchSize; i++)
        cblas_saxpy( n, alpha, X + i * n, incx, Ycblas + i * n, incy );
   for(int i =0; i < leny * batchSize; i ++){
-     // TODO: CHeck the cause for this failure 
-     // EXPECT_EQ(Y[i], Ycblas[i]);
+      EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
   // HCBLAS_STATUS_NOT_INITIALIZED

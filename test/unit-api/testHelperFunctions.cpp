@@ -63,7 +63,7 @@ TEST(hcblasSetGetAcclViewTest, func_and_return_check_hcblasSetGetAcclView) {
    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  }
  // We must expect the accl_view obtained is what that's being set
- //EXPECT_EQ(default_acc_view, *accl_view);
+ EXPECT_EQ(default_acc_view, *accl_view);
 }
 
 TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
@@ -80,31 +80,30 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  double *y2 = (double*)am_alloc(n, handle->currentAccl, 0);
  // HCBLAS_STATUS_SUCCESS
  // float type memory transfer from host to device
-/* status = hcblasSetVector(handle, n, sizeof(x1), x1 , incx, y1, incy);
+ status = hcblasSetVector(handle, n, sizeof(float), x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  // double type memory transfer from host to device
- status = hcblasSetVector(handle, n, sizeof(x2), x2 , incx, y2, incy);
+ status = hcblasSetVector(handle, n, sizeof(double), x2 , incx, y2, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
- */
+ 
  // HCBLAS_STATUS_INVALID_VALUE 
  // incx is 0
- status = hcblasSetVector(handle, n, sizeof(x1), x1 , 0, y1, incy);
+ status = hcblasSetVector(handle, n, sizeof(float), x1 , 0, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  // incy is 0
- status = hcblasSetVector(handle, n, sizeof(x1), x1 , incx, y1, 0);
+ status = hcblasSetVector(handle, n, sizeof(float), x1 , incx, y1, 0);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  // elemSize is 0
  status = hcblasSetVector(handle, n, 0, x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  
 // HCBLAS_STATUS_MAPPING_ERROR
- /*handle->deviceId = 0;
- status = hcblasSetVector(handle, n, sizeof(x1), x1 , incx, y2, incy);
- EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
-*/
+ /*status = hcblasSetVector(handle, n, sizeof(double), x1 , incx, y2, incy);
+ EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);*/
+
  // HCBLAS_STATUS_NOT_INITIALIZED  
  hcblasDestroy(&handle);
- status = hcblasSetVector(handle, n, sizeof(x1), x1 , incx, y1, incy);
+ status = hcblasSetVector(handle, n, sizeof(float), x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
  free(x1);
@@ -125,34 +124,33 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  status = hcblasCreate(&handle, &default_acc); 
  float *x1 = (float*)am_alloc(n, handle->currentAccl, 0);
  double *x2 = (double*)am_alloc(n, handle->currentAccl, 0);
+
  // HCBLAS_STATUS_SUCCESS
  // float type memory transfer from host to device
-/*
- status = hcblasSetVector(handle, n, sizeof(y1), x1 , incx, y1, incy);
+ status = hcblasSetVector(handle, n, sizeof(float), x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  // double type memory transfer from host to device
- status = hcblasSetVector(handle, n, sizeof(y2), x2 , incx, y2, incy);
+ status = hcblasSetVector(handle, n, sizeof(double), x2 , incx, y2, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-*/
+
  // HCBLAS_STATUS_INVALID_VALUE
  // incx is 0
- status = hcblasSetVector(handle, n, sizeof(y1), x1 , 0, y1, incy);
+ status = hcblasSetVector(handle, n, sizeof(float), x1 , 0, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  // incy is 0
- status = hcblasSetVector(handle, n, sizeof(y1), x1 , incx, y1, 0);
+ status = hcblasSetVector(handle, n, sizeof(float), x1 , incx, y1, 0);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  // elemSize is 0
  status = hcblasSetVector(handle, n, 0, x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
 
  // HCBLAS_STATUS_MAPPING_ERROR
-/* handle->deviceId = 0;
- status = hcblasSetVector(handle, n, sizeof(y1), x2 , incx, y1, incy);
- EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
-*/
+ /*status = hcblasSetVector(handle, n, sizeof(double), x1 , incx, y1, incy);
+ EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);*/
+
  // HCBLAS_STATUS_NOT_INITIALIZED
  hcblasDestroy(&handle);
- status = hcblasSetVector(handle, n, sizeof(y1), x1 , incx, y1, incy);
+ status = hcblasSetVector(handle, n, sizeof(float), x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
  free(y1);
@@ -164,7 +162,7 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
 TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  int rows = 10;
  int cols = 10;
- int lda = 1, ldb = 1;
+ int lda = 10, ldb = 10;
  float *x1 = (float*) calloc(rows * cols, sizeof(float));
  double *x2 = (double*) calloc(rows * cols, sizeof(double));
  hcblasStatus_t status;
@@ -177,23 +175,22 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
 
  // HCBLAS_STATUS_INVALID_VALUE 
  // lda is 0
- status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , 0, y1, ldb);
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(float), x1 , 0, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  // ldb is 0
- status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , lda, y1, 0);
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(float), x1 , lda, y1, 0);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  // elemSize is 0
  status = hcblasSetMatrix(handle, rows, cols, 0, x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  
 // HCBLAS_STATUS_MAPPING_ERROR
-/* handle->deviceId = 0;
- status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , lda, y2, ldb);
- EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
-*/
+ /*status = hcblasSetMatrix(handle, rows, cols, sizeof(double), x1 , lda, y2, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);*/
+
  // HCBLAS_STATUS_NOT_INITIALIZED  
  hcblasDestroy(&handle);
- status = hcblasSetMatrix(handle, rows, cols, sizeof(x1), x1 , lda, y1, ldb);
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(float), x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
  free(x1);
@@ -205,7 +202,7 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
 TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  int rows = 10;
  int cols = 10;
- int lda = 1, ldb = 1;
+ int lda = 10, ldb = 10;
  float *y1 = (float*) calloc(cols * rows, sizeof(float));
  double *y2 = (double*) calloc(cols * rows, sizeof(double));
  hcblasStatus_t status;
@@ -218,22 +215,22 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
 
  // HCBLAS_STATUS_INVALID_VALUE
  // lda is 0
- status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x1 , 0, y1, ldb);
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(float), x1 , 0, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  // ldb is 0
- status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x1 , lda, y1, 0);
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(float), x1 , lda, y1, 0);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
  // elemSize is 0
  status = hcblasSetMatrix(handle, rows, cols, 0, x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
 
-/* // HCBLAS_STATUS_MAPPING_ERROR
- status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x2 , lda, y1, ldb);
- EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
-*/
+// HCBLAS_STATUS_MAPPING_ERROR
+ /*status = hcblasSetMatrix(handle, rows, cols, sizeof(double), x1 , lda, y1, ldb);
+ EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);*/
+
  // HCBLAS_STATUS_NOT_INITIALIZED
  hcblasDestroy(&handle);
- status = hcblasSetMatrix(handle, rows, cols, sizeof(y1), x1 , lda, y1, ldb);
+ status = hcblasSetMatrix(handle, rows, cols, sizeof(float), x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
  free(y1);
