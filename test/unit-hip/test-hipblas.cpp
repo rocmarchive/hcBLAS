@@ -777,6 +777,7 @@ TEST(hipblaswrapper_saxpy, func_return_correct_saxpy) {
   hipFree(devY);
 }
 
+#ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -803,26 +804,24 @@ TEST(hipblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
             Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
   }
-  status = hipblasSetVector(lenx*batchSize, sizeof(float), X, incx, devX, incx);
+  status = hipblasSetVector(lenx * batchSize, sizeof(float), X, incx, devX, incx);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetVector(leny*batchSize, sizeof(float), Y, incy, devY, incy);
+  status = hipblasSetVector(leny * batchSize, sizeof(float), Y, incy, devY, incy);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   status = hipblasSaxpyBatched(handle, n, &alpha, devX, incx, devY, incy, batchSize);
-  status = hipblasGetVector(leny, sizeof(float), devY, 1, Y, 1);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  status = hipblasGetVector(leny * batchSize, sizeof(float), devY, 1, Y, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   for(int i = 0; i < batchSize; i++)
        cblas_saxpy( n, alpha, X + i * n, incx, Ycblas + i * n, incy );
-  for(int i =0; i < leny * batchSize; i ++){
-     // TODO: CHeck the cause for this failure 
-     // EXPECT_EQ(Y[i], Ycblas[i]);
+  for(int i =0; i < leny * batchSize; i++){
+      EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
   // HIPBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
-#ifdef __HIP_PLATFORM_HCC__
   status = hipblasSaxpyBatched(handle, n, &alpha, devX, incx, devY, incy, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
-#endif
 
   free(X);
   hipFree(devX);
@@ -830,6 +829,7 @@ TEST(hipblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
   free(Ycblas);
   hipFree(devY);
 }
+#endif
 
 TEST(hipblaswrapper_sger, func_return_correct_sger) {
   hipblasStatus_t status;
