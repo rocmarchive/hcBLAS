@@ -57,6 +57,7 @@ This script is invoked to build hcblas library and test sources. Please provide 
    ${green}--debug${reset}   Compile with debug info (-g)
    ${green}--verbose${reset} Run make with VERBOSE=1
    ${green}--install${reset} Install .deb file using dpkg -i.  Requires sudo perms.
+   ${green}--examples${reset} To build and run the example files in examples folder (on/off)
 
 NOTE: export CODEXL_PATH=/path/to/profiler before enabling profile variable.
 =============================================================================================================================
@@ -86,6 +87,9 @@ while [ $# -gt 0 ]; do
       ;;
     --bench=*)
       bench="${1#*=}"
+      ;;
+    --examples=*)
+      examples="${1#*=}"
       ;;
     --help) print_help;;
     *)
@@ -175,6 +179,14 @@ if [ "$bench" = "off" ]; then
 else #bench=on run chrono timer
   cd $current_work_dir/test/BLAS_benchmark_Convolution_Networks/
   ./runme_chronotimer.sh
+fi
+
+#EXAMPLES
+#Invoke examples script if --examples=on
+if [ "$examples" = "on" ]; then
+  chmod +x $current_work_dir/examples/build.sh
+  cd $current_work_dir/examples/
+  ./build.sh
 fi
 fi
   
