@@ -263,10 +263,10 @@ hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
 
   err = hipGetDevice(&deviceId);
   if (err == hipSuccess) {
-    hc::accelerator acc;
-    err = hipHccGetAccelerator(deviceId, &acc);
+    hc::accelerator_view *av;
+    err = hipHccGetAcceleratorView(hipStreamDefault, &av);
     if (err == hipSuccess) {
-      retval = hipHCBLASStatusToHIPStatus(hcblasCreate(&*handle, &acc));
+      retval = hipHCBLASStatusToHIPStatus(hcblasCreate(&*handle, av));
       dummyGlobal = *handle;
     } else {
       retval = HIPBLAS_STATUS_INVALID_VALUE;

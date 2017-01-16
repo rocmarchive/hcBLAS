@@ -11,7 +11,8 @@ int main(int argc, char** argv)
 {
     /*  HCBLAS Implementation */
     hc::accelerator accl;
-    Hcblaslibrary hc(&accl);  
+    hc::accelerator_view av=accl.get_default_view();
+    Hcblaslibrary hc(&av);
     if (argc < 5){
         cout<<"No sufficient commandline arguments specified"<<"argc :"<<argc<<endl;
         return -1;

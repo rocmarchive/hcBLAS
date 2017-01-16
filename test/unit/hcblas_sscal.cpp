@@ -6,7 +6,8 @@
 
 TEST(hcblas_sscal, return_correct_sscal_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 23;
    int incX = 1;
    long xOffset = 0;
@@ -41,7 +42,8 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_1) {
 
 TEST(hcblas_sscal, function_correct_sscal_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 23;
    int incX = 1;
    long xOffset = 0;
@@ -80,7 +82,8 @@ TEST(hcblas_sscal, function_correct_sscal_Implementation_type_1) {
 
 TEST(hcblas_sscal, return_correct_sscal_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 19;
    int incX = 1;
    int batchSize = 32;
@@ -117,7 +120,8 @@ TEST(hcblas_sscal, return_correct_sscal_Implementation_type_2) {
 
 TEST(hcblas_sscal, function_correct_sscal_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 19;
    int incX = 1;
    int batchSize = 32;

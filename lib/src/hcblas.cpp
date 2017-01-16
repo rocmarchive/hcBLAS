@@ -12,11 +12,11 @@
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
 
-hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator *acc) {
+hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator_view *av) {
   if (handle == NULL) { 
     handle = new hcblasHandle_t();
   }
-  *handle = new Hcblaslibrary(acc);
+  *handle = new Hcblaslibrary(av);
 
   if(*handle == NULL) {
     return HCBLAS_STATUS_ALLOC_FAILED;
