@@ -1,10 +1,11 @@
 /* Example Ddot program */
-/* Compilation: /opt/hcc/bin/clang++ `/opt/hcc/bin/hcc-config --cxxflags --ldflags` -lhc_am -lhcblas ddot_example.cpp */
+/* Compilation: /opt/rocm/hcc/bin/clang++ `/opt/rocm/hcc/bin/hcc-config --cxxflags --ldflags` -lhc_am -lhcblas -I../lib/include -L../build/lib/src ddot_example.cpp */
 
 #include <iostream>
-#include "hcblas.h"
 #include <cstdlib>
+#include "hcblas.h"
 #include "hc_am.hpp"
+#include "hcblaslib.h"
 
 int main() {
   // variable to hold return status of hcblas routines
@@ -13,7 +14,9 @@ int main() {
   // Create hcBlas handle object. 
   // Sets default target accelerator (id =1) and data layout as column major  
   hcblasHandle_t handle = NULL;
-  status= hcblasCreate(&handle);
+  hc::accelerator default_acc;
+  // Passing a Null handle and default accelerator to the API
+  status= hcblasCreate(&handle, &default_acc);
 
   // Ddot input variables
   int n = 123;
@@ -22,9 +25,6 @@ int main() {
   long lenx = 1 + (n-1) * abs(incx);
   long leny = 1 + (n-1) * abs(incy);
   double result;
-
-  // Enumerate the list of accelerators
-  std::vector<hc::accelerator>acc = hc::accelerator::get_all();
 
   // Allocate host pointers
   double *h_X = (double*)calloc(lenx, sizeof(double));//host input
@@ -43,28 +43,28 @@ int main() {
   double* d_Y = hc::am_alloc(sizeof(double) * leny, handle->currentAccl, 0);
 
   // Initialze device pointers using hcblasSetVector utility
-  status = hcblasSetVector(handle, lenx, sizeof(double), h_X, 1, d_X, 1);
+  status = hcblasSetVector(handle, lenx, sizeof(double), h_X, incx, d_X, incx);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Data download failure\n");
+     printf("Error : Data download failure\n");
      exit(1);
   }
-  status = hcblasSetVector(handle, leny, sizeof(double), h_Y, 1, d_Y, 1);
+  status = hcblasSetVector(handle, leny, sizeof(double), h_Y, incy, d_Y, incy);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Data download failure\n");
+     printf("Error : Data download failure\n");
      exit(1);
   }
 
   // Invoke Ddot Blas routine
   status = hcblasDdot(handle, n, d_X, incx, d_Y, incy, &result);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Function invocation failure\n");
+     printf("Error : Function invocation failure\n");
      exit(1);
   }
 
   // Get the device output d_Y back to host
-  status = hcblasGetVector(handle, leny, sizeof(double), d_Y, 1, h_Y, 1);
+  status = hcblasGetVector(handle, leny, sizeof(double), d_Y, incy, h_Y, incy);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Upload failure\n");
+     printf("Error : Upload failure\n");
      exit(1);
   }
 
@@ -73,9 +73,9 @@ int main() {
   // Deallocate the resources
 
   // Destroy the handle
-  status = hcblasDestroy(handle);
+  status = hcblasDestroy(&handle);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Handle deallocation failure\n");
+     printf("Error : Handle deallocation failure\n");
      exit(1);
   }
 
