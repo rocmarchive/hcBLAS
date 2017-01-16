@@ -53,11 +53,6 @@ enum hcblasTranspose {
     Trans = 't'
 };
 
-/*typedef struct{
-  unsigned x: 16;
-} __half;
-*/
-
 union SP_FP32
 {
     unsigned int u;
@@ -81,6 +76,12 @@ struct __hc_half
       ret = x + a.x ;
       return ret ;
    }
+  __hc_half operator-(const __hc_half a) const __HC_FP16_DECL_SUFFIX__
+  {
+	__hc_half ret;
+	ret = x - a.x;
+	return ret;
+  }
   void operator+=(__hc_half a) __HC_FP16_DECL_SUFFIX__
   {
    x = x + a.x;
@@ -118,6 +119,7 @@ __hc_half operator/(__hc_half raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ ;
 __hc_half operator*(__hc_half raw, double a) __HC_FP16_DECL_SUFFIX__ ;
 float __hc_half2float(const __hc_half h) __HC_FP16_DECL_SUFFIX__ ;
 __hc_half __hc_float2half(const float h) __HC_FP16_DECL_SUFFIX__ ;
+unsigned short operator+(short raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ ;
 
 struct hc_Complex
 {

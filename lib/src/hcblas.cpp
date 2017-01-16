@@ -47,6 +47,11 @@ __hc_half operator/(int raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ {
     return ret; 
 }
 
+unsigned short operator+(short raw,__hc_half a) __HC_FP16_DECL_SUFFIX__ {
+	unsigned short ret;
+	ret = raw + a.x ;
+	return ret;
+}
 __hc_half operator/(__hc_half raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ {
     __hc_half ret;
     ret.x = raw.x / a.x;
