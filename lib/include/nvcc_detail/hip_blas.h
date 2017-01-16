@@ -44,7 +44,6 @@ typedef cuComplex hipComplex;
 */
 
 #if (HIP_SHARED_OBJ == 1)
-//#ifdef __HIP_PLATFORM_NVCC__
 
 cublasOperation_t hipOperationToCudaOperation( hipblasOperation_t op);
 
