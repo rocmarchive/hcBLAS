@@ -777,6 +777,7 @@ TEST(hipblaswrapper_saxpy, func_return_correct_saxpy) {
   hipFree(devY);
 }
 
+#ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -803,26 +804,24 @@ TEST(hipblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
             Y[i] =  rand() % 15;
             Ycblas[i] = Y[i];
   }
-  status = hipblasSetVector(lenx*batchSize, sizeof(float), X, incx, devX, incx);
+  status = hipblasSetVector(lenx * batchSize, sizeof(float), X, incx, devX, incx);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetVector(leny*batchSize, sizeof(float), Y, incy, devY, incy);
+  status = hipblasSetVector(leny * batchSize, sizeof(float), Y, incy, devY, incy);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   status = hipblasSaxpyBatched(handle, n, &alpha, devX, incx, devY, incy, batchSize);
-  status = hipblasGetVector(leny, sizeof(float), devY, 1, Y, 1);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  status = hipblasGetVector(leny * batchSize, sizeof(float), devY, 1, Y, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   for(int i = 0; i < batchSize; i++)
        cblas_saxpy( n, alpha, X + i * n, incx, Ycblas + i * n, incy );
-  for(int i =0; i < leny * batchSize; i ++){
-     // TODO: CHeck the cause for this failure 
-     // EXPECT_EQ(Y[i], Ycblas[i]);
+  for(int i =0; i < leny * batchSize; i++){
+      EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
   // HIPBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
-#ifdef __HIP_PLATFORM_HCC__
   status = hipblasSaxpyBatched(handle, n, &alpha, devX, incx, devY, incy, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
-#endif
 
   free(X);
   hipFree(devX);
@@ -830,6 +829,7 @@ TEST(hipblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
   free(Ycblas);
   hipFree(devY);
 }
+#endif
 
 TEST(hipblaswrapper_sger, func_return_correct_sger) {
   hipblasStatus_t status;
@@ -1023,9 +1023,9 @@ TEST(hipblaswrapper_sgemv, func_return_correct_sgemv) {
   for(int i =0; i < leny ; i++){
       EXPECT_EQ(Y[i], Ycblas[i]);
   }
+  hipblasDestroy(handle);
   // HIPBLAS_STATUS_NOT_INITIALIZED
 #ifdef __HIP_PLATFORM_HCC__
-  hipblasDestroy(handle);
   status = hipblasSgemv(handle, trans, m, n, &alpha, devA, lda, devX, incx, &beta, devY, incy);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
 #endif
@@ -1164,13 +1164,13 @@ TEST(hipblaswrapper_sgemm, func_return_correct_sgemm) {
   status = hipblasSetMatrix(M, N, sizeof(float), C, 1, devC, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
-  // NoTransA and NoTransB */           
+  // NoTransA and NoTransB            
   typeA = HIPBLAS_OP_N;
   typeB = HIPBLAS_OP_N;
   Transa = CblasNoTrans;
   Transb = CblasNoTrans;
 
-    // Column major */
+    // Column major 
   lda = M; ldb = K ; ldc = M;
   status = hipblasSgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
@@ -1268,7 +1268,7 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
     EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   }
 
-  // NoTransA and NoTransB */           
+  // NoTransA and NoTransB           
   typeA = HIPBLAS_OP_N;
   typeB = HIPBLAS_OP_N;
   Transa = CblasNoTrans;
@@ -1279,7 +1279,7 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   hipMemcpy(d_Barray, devB, batchSize * sizeof(float*), hipMemcpyHostToDevice);
   hipMemcpy(d_Carray, devC, batchSize * sizeof(float*), hipMemcpyHostToDevice);
 
-    // Column major */
+    // Column major 
   lda = M; ldb = K ; ldc = M;
   status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, const_cast<const float**>(d_Aarray), lda, const_cast<const float**>(d_Barray), ldb, &beta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
@@ -1392,7 +1392,7 @@ TEST(hipblaswrapper_dgemmBatched, func_return_correct_dgemmBatched) {
     EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   }
 
-  // NoTransA and NoTransB */           
+  // NoTransA and NoTransB            
   typeA = HIPBLAS_OP_N;
   typeB = HIPBLAS_OP_N;
   Transa = CblasNoTrans;
@@ -1403,7 +1403,7 @@ TEST(hipblaswrapper_dgemmBatched, func_return_correct_dgemmBatched) {
   hipMemcpy(d_Barray, devB, batchSize * sizeof(double*), hipMemcpyHostToDevice);
   hipMemcpy(d_Carray, devC, batchSize * sizeof(double*), hipMemcpyHostToDevice);
 
-    // Column major */
+    // Column major 
   lda = M; ldb = K ; ldc = M;
   status = hipblasDgemmBatched(handle, typeA, typeB, M, N, K, &alpha, const_cast<const double**>(d_Aarray), lda, const_cast<const double**>(d_Barray), ldb, &beta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
@@ -1505,13 +1505,13 @@ TEST(hipblaswrapper_cgemm, func_return_correct_cgemm) {
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   status = hipblasSetMatrix(M, N, sizeof(hipComplex), C, 1, devC, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  // NoTransA and NoTransB */           
+  // NoTransA and NoTransB            
   typeA = HIPBLAS_OP_N;
   typeB = HIPBLAS_OP_N;
   Transa = CblasNoTrans;
   Transb = CblasNoTrans;
 
-    // Column major */
+    // Column major 
   lda = M; ldb = K ; ldc = M;
   status = hipblasCgemm(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
@@ -1649,4 +1649,3 @@ TEST(hipblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   free(cblas);
 }
 #endif
-

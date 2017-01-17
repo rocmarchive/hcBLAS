@@ -93,6 +93,9 @@ while [ $# -gt 0 ]; do
     --examples=*)
       examples="${1#*=}"
       ;;
+    --hip_so=*)
+      hip_so="${1#*=}"
+      ;;
     --help) print_help;;
     *)
       printf "************************************************************\n"
@@ -109,7 +112,6 @@ fi
 
 current_dir=$PWD
 
-
 set +e
 # MAKE BUILD DIR
 mkdir $current_work_dir/build
@@ -122,16 +124,27 @@ build_dir=$current_work_dir/build
 # change to library build
 cd $build_dir
 if [ "$platform" = "hcc" ]; then
-  if [ "$synckernel" = "on" ]; then
-    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
-  elif [ "$synckernel" = "off" ]; then
-    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=OFF -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
-  else 
-    #default case: Of course there are Compulsory waits on certain kernels 
-   cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+  if [ "$hip_so" = "on" ]; then
+    if [ "$synckernel" = "on" ]; then
+      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+    elif [ "$synckernel" = "off" ]; then
+      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DSERIALIZE_KERNEL=OFF -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+    else 
+      #default case: Of course there are Compulsory waits on certain kernels 
+      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+    fi
+  else
+    if ([ "$synckernel" = "on" ]); then
+      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+    elif ([ "$synckernel" = "off" ]); then
+      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=OFF -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+    else
+      #default case: Of course there are Compulsory waits on certain kernels 
+      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+    fi
   fi
 elif [ "$platform" = "nvcc" ]; then
-  cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hipblas $current_work_dir
+  cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hipblas $current_work_dir
 fi #platform
 
 make -j$working_threads package $verbose
@@ -144,40 +157,79 @@ fi
 # Various possibilities of test and profile arguments
 # Test=OFF and Profile=OFF (Build library and tests)
 if [ "$platform" = "hcc" ]; then
-if [ "$bench" = "off" ]; then
-  if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
+  if [ "$bench" = "off" ]; then
+    if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
       echo "${green}HCBLAS Build Completed!${reset}"
 # Test=ON and Profile=OFF (Build and test the library)
-  elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
- # Build Tests
-     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
-     set +e
-     make -j$working_threads
-     cd $current_work_dir/test/unit/
- # Invoke test script 
-     ${current_work_dir}/build/test/unit-api/bin/unit-api-test
-     ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
-     ${current_work_dir}/build/test/unit/bin/unittest
+    elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
+# Build Tests
+      if [ "$hip_so" = "on" ]; then
+        cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+        set +e
+        make -j$working_threads
+# Invoke test script 
+        printf "* UNIT TESTS *\n"
+        printf "**************\n"
+        ${current_work_dir}/build/test/unit/bin/unittest
+        printf "* UNIT-API TESTS *\n"
+        printf "******************\n"
+        ${current_work_dir}/build/test/unit-api/bin/unit-api-test
+        printf "* UNIT-HIP TESTS *\n"
+        printf "******************\n"
+        ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test  
+      else 
+        cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+        set +e
+        make -j$working_threads
+# Invoke test script 
+        printf "* UNIT TESTS *\n"
+        printf "**************\n"
+        ${current_work_dir}/build/test/unit/bin/unittest
+        printf "* UNIT-API TESTS *\n"
+        printf "******************\n"
+        ${current_work_dir}/build/test/unit-api/bin/unit-api-test
+      fi
 # Test=ON and Profile=ON (Build, test and profile the library)
-  elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
- # Build Tests
-     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
-     set +e
-     set -e
-     make -j$working_threads
-     cd $current_work_dir/test/unit/
- #Invoke test script
-     #./test.sh
-     cd $current_work_dir/test/benchmark/
- #Invoke profiling script
-     ./runme.sh
+    elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
+# Build Tests
+      if [ "$hip_so" = "on" ]; then
+        cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+        set +e
+        make -j$working_threads
+# Invoke test script 
+        printf "* UNIT TESTS *\n"
+        printf "**************\n"
+        ${current_work_dir}/build/test/unit/bin/unittest
+        printf "* UNIT-API TESTS *\n"
+        printf "******************\n"
+        ${current_work_dir}/build/test/unit-api/bin/unit-api-test
+        printf "* UNIT-HIP TESTS *\n"
+        printf "******************\n"
+        ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
+      else
+        cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+        set +e
+        make -j$working_threads
+# Invoke test script 
+        printf "* UNIT TESTS *\n"
+        printf "**************\n"
+        ${current_work_dir}/build/test/unit/bin/unittest
+        printf "* UNIT-API TESTS *\n"
+        printf "******************\n"
+        ${current_work_dir}/build/test/unit-api/bin/unit-api-test
+      fi
+      #cd $current_work_dir/test/unit/
+# Invoke test script
+      #./test.sh
+      cd $current_work_dir/test/benchmark/
+# Invoke profiling script
+      ./runme.sh
 # Test=OFF and Profile=ON (Build and profile the library)
-  elif ( [ "$profiling" = "on" ] && [ -z $testing ] ) || ( [ "$testing" = "off" ] && [ "$profiling" = "on" ] ); then
-     cd $current_work_dir/test/benchmark/
- #Invoke profiling script
-     ./runme.sh
-  fi
-
+    elif ( [ "$profiling" = "on" ] && [ -z $testing ] ) || ( [ "$testing" = "off" ] && [ "$profiling" = "on" ] ); then
+      cd $current_work_dir/test/benchmark/
+# Invoke profiling script
+      ./runme.sh
+    fi
 else #bench=on run chrono timer
   cd $current_work_dir/test/BLAS_benchmark_Convolution_Networks/
   ./runme_chronotimer.sh
@@ -194,9 +246,10 @@ fi
   
 if [ "$platform" = "nvcc" ]; then
       echo "${green}HIPBLAS Build Completed!${reset}"
-  if ( [ "$testing" = "on" ]); then
-     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+  if  [ "$testing" = "on" ]; then
+     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
      set +e
      make -j$working_threads
+     ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
   fi 
 fi

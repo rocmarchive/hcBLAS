@@ -75,8 +75,6 @@ hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view **
   return HCBLAS_STATUS_SUCCESS;
 }
 
-
-
 // 3. hcblasSetVector()
 
 // This function copies n elements from a vector x in host memory space to a vector y in GPU memory space.
@@ -92,6 +90,7 @@ hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view **
 
 hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const void *x, int incx, void *y, int incy) {
   std::vector<accelerator> accs = accelerator::get_all();
+  
   if(accs.size() == 0) {
     std::wcout << "There is no acclerator!\n";
     // Since this case is to test on GPU device, skip if there is CPU only
@@ -106,6 +105,15 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const
     return HCBLAS_STATUS_INVALID_VALUE;
   }
  
+  hc::accelerator accl;
+  hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
+  am_status_t status = am_memtracker_getinfo(&resInfo, y);
+  
+  if(elemSize != (resInfo._sizeBytes/n))
+  {
+    return HCBLAS_STATUS_MAPPING_ERROR;
+  }
+
   handle->currentAcclView.copy(x, y, elemSize * n);   
   return HCBLAS_STATUS_SUCCESS;
 }
@@ -124,7 +132,8 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const
 // HCBLAS_STATUS_MAPPING_ERROR      there was an error accessing GPU memory
 
 hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const void *x, int incx, void *y, int incy) {
- std::vector<accelerator> accs = accelerator::get_all();
+  std::vector<accelerator> accs = accelerator::get_all();
+
   if(accs.size() == 0) {
     std::wcout << "There is no acclerator!\n";
     // Since this case is to test on GPU device, skip if there is CPU only
@@ -137,6 +146,15 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const
 
   if( incx <= 0 || incy <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
+  }
+
+  hc::accelerator accl;
+  hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
+  am_status_t status = am_memtracker_getinfo(&resInfo, x);
+  
+  if(elemSize != (resInfo._sizeBytes/n))
+  {
+    return HCBLAS_STATUS_MAPPING_ERROR;
   }
 
   handle->currentAcclView.copy(x, y, elemSize * n);
@@ -159,6 +177,7 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const
 
 hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb) {
   std::vector<accelerator> accs = accelerator::get_all();
+
   if(accs.size() == 0) {
     std::wcout << "There is no acclerator!\n";
     // Since this case is to test on GPU device, skip if there is CPU only
@@ -171,6 +190,15 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int el
 
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
+  }
+
+  hc::accelerator accl;
+  hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
+  am_status_t status = am_memtracker_getinfo(&resInfo, B);
+
+  if(elemSize != (resInfo._sizeBytes/(rows*cols)))
+  {
+    return HCBLAS_STATUS_MAPPING_ERROR;
   }
 
   handle->currentAcclView.copy(A, B, elemSize * rows * cols);
@@ -194,11 +222,13 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int el
 
 hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb) {
   std::vector<accelerator> accs = accelerator::get_all();
+
   if(accs.size() == 0) {
     std::wcout << "There is no acclerator!\n";
     // Since this case is to test on GPU device, skip if there is CPU only
     return HCBLAS_STATUS_MAPPING_ERROR;
   }
+
   assert(accs.size() && "Number of Accelerators == 0!");
 
   if(handle == nullptr || handle->initialized == false)
@@ -206,6 +236,15 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int el
 
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
+  }
+  
+  hc::accelerator accl;
+  hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
+  am_status_t status = am_memtracker_getinfo(&resInfo, A);
+
+  if(elemSize != (resInfo._sizeBytes/(rows*cols)))
+  {
+    return HCBLAS_STATUS_MAPPING_ERROR;
   }
 
   handle->currentAcclView.copy(A, B, elemSize * rows * cols);

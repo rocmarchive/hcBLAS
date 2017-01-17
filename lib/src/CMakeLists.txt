@@ -1,30 +1,38 @@
-
 CMAKE_MINIMUM_REQUIRED (VERSION 2.8.8) 
 MESSAGE(STATUS "CMAKE VERSION ${CMAKE_VERSION}")
 
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${HIP_PATH})
-SET(PROJECT_NAME_EXT "hipblas")
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-# Build hcblas and hipblas from source on AMD platform
+#Setting a Project name
+SET(PROJECT_NAME "hcblas")
+SET(PROJECT_NAME_EXT "hipblas")
+SET(ROCM_PATH "/opt/rocm/")
+
+PROJECT (${PROJECT_NAME})
+MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
+
+# Find HIP
+set (HIP_PATH $ENV{HIP_PATH})
+if (NOT DEFINED HIP_PATH)
+       set (HIP_PATH /opt/rocm/hip)
+endif()
+
+execute_process(COMMAND ${HIP_PATH}/bin/hipconfig --platform OUTPUT_VARIABLE HIP_PLATFORM)
+MESSAGE ("HIP_PATH=" ${HIP_PATH})
+SET(HIP_SHARED_OBJ "DEFAULT" CACHE STRING "HIP SO")
+MESSAGE ("HIP SHARED OBJECT= " ${HIP_SHARED_OBJ})
+
+# Build hcfft and hipfft from source on AMD platform
 IF (${PLATFORM} MATCHES "hcc")
   # Find HCC compiler
   FIND_PACKAGE(HC++ 1.0 REQUIRED)
 
   ADD_SUBDIRECTORY(blas)
 
-#Setting a Project name
-SET(PROJECT_NAME "hcblas")
-SET(PROJECT_NAME_EXT "hipblas")
-SET(ROCM_PATH "/opt/rocm/")
-PROJECT (${PROJECT_NAME})
-MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
-
   SET(SERIALIZE_KERNEL "DEFAULT" CACHE STRING "SYNC KERNELS")
-
 
   #Setting a variable for source files
   SET (HCBLASSRCS ${BLASSRC} hcblas.cpp)
-  SET (HIPBLASSRCS ${HCBLASSRCS} hipblas_hcc.cpp)
 
   execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
@@ -34,15 +42,10 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${ROCM_PATH}/include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
-  set (HCC_LDFLAGS "${HCC_LDFLAGS} -Wl,-rpath-link,${HIP_PATH}/lib -Wl,-rpath-link,${ROCM_PROFILER_PATH}/bin/x86_64/ -L${ROCM_PROFILER_PATH}/bin/x86_64/ -L${HIP_PATH}/lib  -lCXLActivityLogger -lhip_hcc")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc")
   
   # Setting header dependencies for hcblas library generation
   FOREACH(src_file ${HCBLASSRCS})
-	  SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
-  ENDFOREACH()
-
-  # Setting header dependencies for hipblas library generation
-  FOREACH(src_file ${HIPBLASSRCS})
 	  SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
   ENDFOREACH()
 
@@ -50,11 +53,6 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
   ADD_LIBRARY("${PROJECT_NAME}" SHARED  ${HCBLASSRCS})
   SET_PROPERTY(TARGET "${PROJECT_NAME}" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
   TARGET_LINK_LIBRARIES("${PROJECT_NAME}" hc_am)
-
-  #Generating hipblas shared object
-  ADD_LIBRARY("${PROJECT_NAME_EXT}" SHARED ${HIPBLASSRCS})
-  SET_PROPERTY(TARGET "${PROJECT_NAME_EXT}" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
-  TARGET_LINK_LIBRARIES("${PROJECT_NAME_EXT}" hc_am)
 
   IF(${SERIALIZE_KERNEL} MATCHES "ON")
     ADD_DEFINITIONS(-DSERIALIZE_KERNEL=1)
@@ -64,44 +62,64 @@ MESSAGE(STATUS "PROJECT NAME    : ${PROJECT_NAME}")
     ADD_DEFINITIONS(-DSERIALIZE_KERNEL=0)
   ENDIF()
 
-
   INSTALL(TARGETS "${PROJECT_NAME}" 
     RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
   )
 
-  INSTALL(TARGETS "${PROJECT_NAME_EXT}" 
-    RUNTIME DESTINATION lib
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-  )
   file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/../include/*.h")
-  file(GLOB hcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/*.h")
-  file(GLOB nvcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/nvcc_detail/*.h")
   INSTALL(FILES ${headers} DESTINATION include)
-  INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
-  INSTALL(FILES ${nvcc_detail} DESTINATION include/nvcc_detail)
+
+  IF(${HIP_SHARED_OBJ} MATCHES "ON")
+    SET (HIPBLASSRCS ${HCBLASSRCS} ${CMAKE_CURRENT_SOURCE_DIR}/hcc_detail/hipblas.cpp)
+    
+    # Setting header dependencies for hipblas library generation
+    FOREACH(src_file ${HIPBLASSRCS})
+          SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
+    ENDFOREACH()
+    
+    #Generating hipblas shared object
+    ADD_LIBRARY("${PROJECT_NAME_EXT}" SHARED ${HIPBLASSRCS})
+    SET_PROPERTY(TARGET "${PROJECT_NAME_EXT}" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
+    TARGET_LINK_LIBRARIES("${PROJECT_NAME_EXT}" hc_am)
+    ADD_DEFINITIONS(-DHIP_SHARED_OBJ=1)
+
+    INSTALL(TARGETS "${PROJECT_NAME_EXT}" 
+      RUNTIME DESTINATION lib
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib
+    )
+    
+    file(GLOB hcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/*.h")
+    INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
+  ENDIF()
 
 ELSEIF (${PLATFORM} MATCHES "nvcc")
-  MESSAGE(STATUS "Building hipblas_nvcc.cpp")
-  set (CXXFLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -I/usr/local/cuda/include -D__HIP_PLATFORM_NVCC__=")
-  set (LDFLAGS "-L/usr/local/cuda/lib64 -L/usr/local/cuda/lib")
-  SET (HIPBLASSRCS hipblas_nvcc.cpp)
+  MESSAGE(STATUS "Building hipblas.cpp")
+  
+  SET (CXXFLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -I/usr/local/cuda/include -D__HIP_PLATFORM_NVCC__=")
+  SET (LDFLAGS "-L/usr/local/cuda/lib64 -L/usr/local/cuda/lib")
+  SET (HIPBLASSRCS ${CMAKE_CURRENT_SOURCE_DIR}/nvcc_detail/hipblas.cpp)
+  
   FOREACH(src_file ${HIPBLASSRCS})
 	  SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${CXXFLAGS} ")
   ENDFOREACH()
+
   ADD_LIBRARY("${PROJECT_NAME_EXT}" SHARED ${HIPBLASSRCS})
   SET_PROPERTY(TARGET "${PROJECT_NAME_EXT}" APPEND_STRING PROPERTY LINK_FLAGS " ${LDFLAGS} ")
   TARGET_LINK_LIBRARIES("${PROJECT_NAME_EXT}" cudart cublas)
+  ADD_DEFINITIONS(-DHIP_SHARED_OBJ=1)
+  
   INSTALL(TARGETS "${PROJECT_NAME_EXT}" 
     RUNTIME DESTINATION lib
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
   )
+  
   file(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/../include/hipblas.h")
   file(GLOB nvcc_detail "${CMAKE_CURRENT_SOURCE_DIR}/../include/nvcc_detail/*.h")
   INSTALL(FILES ${headers} DESTINATION include)
-  INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
   INSTALL(FILES ${nvcc_detail} DESTINATION include/nvcc_detail)
 ENDIF()
+
