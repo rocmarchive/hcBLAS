@@ -5,13 +5,27 @@
 extern "C" {
 #endif
 
-//hipblasSetStream()
-//This function sets the hipBLAS library stream, which will be used to execute all subsequent calls to the hipBLAS library functions. If the hipBLAS library stream is not set, all kernels use the defaultNULL stream. In particular, this routine can be used to change the stream between kernel launches and then to reset the hipBLAS library stream back to NULL.
-//Return Value 	Meaning
+hipblasHandle_t dummyGlobal;
 
-// Returns
-// HIPBLAS_STATUS_SUCCESS         :the stream was set successfully
-// HIPBLAS_STATUS_NOT_INITIALIZED :the library was not initialized
+hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
+  int deviceId;
+  hipError_t err;
+  hipblasStatus_t retval = HIPBLAS_STATUS_SUCCESS;
+
+  err = hipGetDevice(&deviceId);
+  if (err == hipSuccess) {
+    hc::accelerator_view *av;
+    err = hipHccGetAcceleratorView(hipStreamDefault, &av);
+    if (err == hipSuccess) {
+      retval = hipHCBLASStatusToHIPStatus(hcblasCreate(&*handle, av));
+      dummyGlobal = *handle;
+    } else {
+      retval = HIPBLAS_STATUS_INVALID_VALUE;
+    }
+  }
+  return retval;
+}
+
 hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t streamId) {
   if (handle == nullptr) {
     return HIPBLAS_STATUS_NOT_INITIALIZED;    
@@ -24,12 +38,6 @@ hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t streamId) {
   }
   return hipHCBLASStatusToHIPStatus(hcblasSetAcclView(handle, *pAcclView, static_cast<void*>(&streamId)));
 } 
-
-//hipblasGetStream()
-// This function gets the hipBLAS library stream, which is being used to execute all calls to the hipBLAS library functions. If the hipBLAS library stream is not set, all kernels use the defaultNULL stream.
-// Return Value 	
-// HIPBLAS_STATUS_SUCCESS : the stream was returned successfully
-// HIPBLAS_STATUS_NOT_INITIALIZED : the library was not initialized
 
 hipblasStatus_t  hipblasGetStream(hipblasHandle_t handle, hipStream_t *streamId) {
   if (handle == nullptr) {
@@ -252,28 +260,6 @@ hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipblasOperation_t 
 	return hipHCBLASStatusToHIPStatus(hcblasCgemmBatched( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
 }
 
-
-// TODO - review use of this handle:
-hipblasHandle_t dummyGlobal;
-
-hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
-  int deviceId;
-  hipError_t err;
-  hipblasStatus_t retval = HIPBLAS_STATUS_SUCCESS;
-
-  err = hipGetDevice(&deviceId);
-  if (err == hipSuccess) {
-    hc::accelerator_view *av;
-    err = hipHccGetAcceleratorView(hipStreamDefault, &av);
-    if (err == hipSuccess) {
-      retval = hipHCBLASStatusToHIPStatus(hcblasCreate(&*handle, av));
-      dummyGlobal = *handle;
-    } else {
-      retval = HIPBLAS_STATUS_INVALID_VALUE;
-    }
-  }
-  return retval;
-}
 
 #ifdef __cplusplus
 }

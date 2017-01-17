@@ -7,11 +7,11 @@
 TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
-  int n = 24;
+  int n = 23;
   int incx = 1;
   long lenx = 1 + (n-1) * abs(incx);
   float result;
@@ -45,7 +45,7 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
 TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -86,7 +86,7 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
 TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -122,7 +122,7 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
 TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -164,7 +164,7 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
 TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -205,7 +205,7 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
 TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -248,7 +248,7 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
 TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -289,7 +289,7 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
 TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -332,7 +332,7 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
 TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -384,7 +384,7 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
 TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -438,7 +438,7 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
 TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -490,7 +490,7 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
 TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -544,7 +544,7 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
 TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -589,7 +589,7 @@ TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
 TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -639,7 +639,7 @@ TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
 TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -684,7 +684,7 @@ TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
 TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -734,7 +734,7 @@ TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
 TEST(hcblaswrapper_saxpy, func_return_correct_saxpy) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -785,7 +785,7 @@ TEST(hcblaswrapper_saxpy, func_return_correct_saxpy) {
 TEST(hcblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -839,7 +839,7 @@ TEST(hcblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
 TEST(hcblaswrapper_sger, func_return_correct_sger) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -902,7 +902,7 @@ TEST(hcblaswrapper_sger, func_return_correct_sger) {
 TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -970,7 +970,7 @@ TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
 TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -1048,7 +1048,7 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
 TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -1128,7 +1128,7 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
 TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -1206,9 +1206,9 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
 TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
-  hc::accelerator_view accl_view = default_acc.get_default_view();
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
+  hc::accelerator_view accl_view = default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
   int M = 123;
@@ -1328,9 +1328,9 @@ TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
 TEST(hcblaswrapper_dgemmBatched, func_return_correct_dgemmBatched) {
    hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
-  hc::accelerator_view accl_view = default_acc.get_default_view();
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
+  hc::accelerator_view accl_view = default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
   int M = 123;
@@ -1450,7 +1450,7 @@ TEST(hcblaswrapper_dgemmBatched, func_return_correct_dgemmBatched) {
 TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -1551,7 +1551,7 @@ TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
 TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
-  hc::accelerator default_acc;
+  hc::accelerator default_acc; 
   hc::accelerator_view av=default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
   status = hcblasCreate(&handle, &av); 
@@ -1651,4 +1651,5 @@ TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   free(bblas);
   free(cblas);
 }
+
 

@@ -95,7 +95,8 @@ IF (${PLATFORM} MATCHES "hcc")
     INSTALL(FILES ${hcc_detail} DESTINATION include/hcc_detail)
   ENDIF()
 
-ELSEIF (${PLATFORM} MATCHES "nvcc")
+ELSEIF (${PLATFORM} MATCHES "nvcc" AND ${HIP_SHARED_OBJ} MATCHES "ON")
+  
   MESSAGE(STATUS "Building hipblas.cpp")
   
   SET (CXXFLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -I/usr/local/cuda/include -D__HIP_PLATFORM_NVCC__=")

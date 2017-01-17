@@ -32,9 +32,6 @@ else
   exit 1
 fi
 
-
-
-
 #CURRENT_WORK_DIRECTORY
 current_work_dir=$PWD
 
@@ -53,12 +50,12 @@ cat <<-HELP
 =============================================================================================================================
 This script is invoked to build hcblas library and test sources. Please provide the following arguments:
 
-   ${green}--test${reset}    Test to enable the library testing. 
-   ${green}--profile${reset} Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.(CodeXL)
-   ${green}--bench${reset}   Profile benchmark using chrono timer.
-   ${green}--debug${reset}   Compile with debug info (-g)
-   ${green}--verbose${reset} Run make with VERBOSE=1
-   ${green}--install${reset} Install .deb file using dpkg -i.  Requires sudo perms.
+   ${green}--test${reset}     Test to enable the library testing. 
+   ${green}--profile${reset}  Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY.(CodeXL)
+   ${green}--bench${reset}    Profile benchmark using chrono timer.
+   ${green}--debug${reset}    Compile with debug info (-g)
+   ${green}--verbose${reset}  Run make with VERBOSE=1
+   ${green}--install${reset}  Install .deb file using dpkg -i.  Requires sudo perms.
    ${green}--examples${reset} To build and run the example files in examples folder (on/off)
 
 NOTE: export CODEXL_PATH=/path/to/profiler before enabling profile variable.
@@ -123,7 +120,9 @@ build_dir=$current_work_dir/build
 
 # change to library build
 cd $build_dir
+
 if [ "$platform" = "hcc" ]; then
+  
   if [ "$hip_so" = "on" ]; then
     if [ "$synckernel" = "on" ]; then
       cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
@@ -143,20 +142,16 @@ if [ "$platform" = "hcc" ]; then
       cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
     fi
   fi
-elif [ "$platform" = "nvcc" ]; then
-  cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hipblas $current_work_dir
-fi #platform
 
-make -j$working_threads package $verbose
-make -j$working_threads $verbose
+  make -j$working_threads package $verbose
+  make -j$working_threads $verbose
 
-if [ "$install" = "1" ]; then
-sudo make -j$working_threads install
-fi
+  if [ "$install" = "1" ]; then
+    sudo make -j$working_threads install
+  fi
  
 # Various possibilities of test and profile arguments
 # Test=OFF and Profile=OFF (Build library and tests)
-if [ "$platform" = "hcc" ]; then
   if [ "$bench" = "off" ]; then
     if ( [ -z $testing ] && [ -z $profiling ] ) || ( [ "$testing" = "off" ] || [ "$profiling" = "off" ] ); then
       echo "${green}HCBLAS Build Completed!${reset}"
@@ -188,6 +183,9 @@ if [ "$platform" = "hcc" ]; then
         printf "* UNIT-API TESTS *\n"
         printf "******************\n"
         ${current_work_dir}/build/test/unit-api/bin/unit-api-test
+        printf "* UNIT-HIP TESTS *\n"
+        printf "******************\n"
+        ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
       fi
 # Test=ON and Profile=ON (Build, test and profile the library)
     elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
@@ -217,10 +215,11 @@ if [ "$platform" = "hcc" ]; then
         printf "* UNIT-API TESTS *\n"
         printf "******************\n"
         ${current_work_dir}/build/test/unit-api/bin/unit-api-test
+        printf "* UNIT-HIP TESTS *\n"
+        printf "******************\n"
+        ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
       fi
-      #cd $current_work_dir/test/unit/
 # Invoke test script
-      #./test.sh
       cd $current_work_dir/test/benchmark/
 # Invoke profiling script
       ./runme.sh
@@ -230,24 +229,34 @@ if [ "$platform" = "hcc" ]; then
 # Invoke profiling script
       ./runme.sh
     fi
-else #bench=on run chrono timer
-  cd $current_work_dir/test/BLAS_benchmark_Convolution_Networks/
-  ./runme_chronotimer.sh
-fi
+  else #bench=on
+    cd $current_work_dir/test/BLAS_benchmark_Convolution_Networks/
+    ./runme.sh
+  fi
 
 #EXAMPLES
 #Invoke examples script if --examples=on
-if [ "$examples" = "on" ]; then
-  chmod +x $current_work_dir/examples/build.sh
-  cd $current_work_dir/examples/
-  ./build.sh
-fi
-fi
-  
-if [ "$platform" = "nvcc" ]; then
-      echo "${green}HIPBLAS Build Completed!${reset}"
+  if [ "$examples" = "on" ]; then
+    chmod +x $current_work_dir/examples/build.sh
+    cd $current_work_dir/examples/
+    ./build.sh
+  fi
+elif [ "$platform" = "nvcc" ]; then
+  if [ "$hip_so" = "on" ]; then
+    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hipblas $current_work_dir
+    
+    make -j$working_threads package $verbose
+    make -j$working_threads $verbose
+    
+    echo "${green}HIPBLAS Build Completed!${reset}"
+  fi
+
   if  [ "$testing" = "on" ]; then
-     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+     if [ "$hip_so" = "on" ]; then
+       cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+     else
+       cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+     fi
      set +e
      make -j$working_threads
      ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test

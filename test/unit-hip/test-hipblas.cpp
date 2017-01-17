@@ -201,6 +201,7 @@ TEST(hipblaswrapper_sscal, func_return_correct_sscal) {
   hipFree(devX);
 }
 
+#ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -234,15 +235,14 @@ TEST(hipblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
 
   // HIPBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
-#ifdef __HIP_PLATFORM_HCC__
   status = hipblasSscalBatched(handle, n, &alpha, devX, incx, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
-#endif 
 
   free(X);
   free(Xcblas);
   hipFree(devX);
 }
+#endif 
 
 TEST(hipblaswrapper_dscal, func_return_correct_dscal) {
   hipblasStatus_t status;
@@ -663,9 +663,9 @@ TEST(hipblaswrapper_ddot, func_return_correct_ddot) {
   dotcblas = cblas_ddot( n, X, incx, Y, incy);
   EXPECT_EQ(result, dotcblas);
 
+  hipblasDestroy(handle);
 #ifdef __HIP_PLATFORM_HCC__
   // HIPBLAS_STATUS_NOT_INITIALIZED
-  hipblasDestroy(handle);
   status = hipblasDdot(handle, n, devX, incx, devY, incy, &result);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
 #endif
@@ -818,8 +818,8 @@ TEST(hipblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
       EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
-  // HIPBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
+  // HIPBLAS_STATUS_NOT_INITIALIZED
   status = hipblasSaxpyBatched(handle, n, &alpha, devX, incx, devY, incy, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
 
@@ -959,7 +959,6 @@ TEST(hipblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
   free(A);
   hipFree(devA);
 }
-
 #endif
 
 TEST(hipblaswrapper_sgemv, func_return_correct_sgemv) {
@@ -1023,6 +1022,7 @@ TEST(hipblaswrapper_sgemv, func_return_correct_sgemv) {
   for(int i =0; i < leny ; i++){
       EXPECT_EQ(Y[i], Ycblas[i]);
   }
+
   hipblasDestroy(handle);
   // HIPBLAS_STATUS_NOT_INITIALIZED
 #ifdef __HIP_PLATFORM_HCC__
@@ -1157,11 +1157,11 @@ TEST(hipblaswrapper_sgemm, func_return_correct_sgemm) {
               C[i] = 3;
               C_cblas[i] = C[i];
   }
-  status = hipblasSetMatrix(M, K, sizeof(float), A, 1, devA, 1);
+  status = hipblasSetMatrix(M, K, sizeof(float), A, M, devA, K);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(K, N, sizeof(float), B, 1, devB, 1);
+  status = hipblasSetMatrix(K, N, sizeof(float), B, K, devB, N);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(M, N, sizeof(float), C, 1, devC, 1);
+  status = hipblasSetMatrix(M, N, sizeof(float), C, M, devC, N);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
   // NoTransA and NoTransB            
@@ -1175,12 +1175,12 @@ TEST(hipblaswrapper_sgemm, func_return_correct_sgemm) {
   status = hipblasSgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
-  status = hipblasGetMatrix(M, N, sizeof(float), devC, 1, C_hipblas, 1);
+  status = hipblasGetMatrix(M, N, sizeof(float), devC, M, C_hipblas, N);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
   cblas_sgemm( order, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
   for(int i = 0 ; i < M * N ; i++)
-    //EXPECT_EQ(C_hipblas[i], C_cblas[i]);
+    EXPECT_EQ(C_hipblas[i], C_cblas[i]);
 
    // HIPBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
@@ -1198,7 +1198,9 @@ TEST(hipblaswrapper_sgemm, func_return_correct_sgemm) {
   free(C_cblas);
   free(C_hipblas);
 }
+#endif
 
+#ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -1252,19 +1254,19 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
     for(int i = 0; i < M * K; i++) {
       A[b][i] = 1;
     }
-    status = hipblasSetMatrix(M, K, sizeof(float), A[b], 1, devA[b], 1);
+    status = hipblasSetMatrix(M, K, sizeof(float), A[b], M, devA[b], K);
     EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
     for(int i = 0; i < K * N; i++) {
       B[b][i] = 2;
     }
-    status = hipblasSetMatrix(K, N, sizeof(float), B[b], 1, devB[b], 1);
+    status = hipblasSetMatrix(K, N, sizeof(float), B[b], K, devB[b], N);
     EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
     for(int i = 0; i < M * N;i++) 
     {
       C[b][i] = 3;
       C_cblas[b][i] = C[b][i];
     }
-    status = hipblasSetMatrix(M, N, sizeof(float), C[b], 1, devC[b], 1);
+    status = hipblasSetMatrix(M, N, sizeof(float), C[b], M, devC[b], N);
     EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   }
 
@@ -1285,7 +1287,7 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   // Get the results
   for(int b =0; b < batchSize; b++) {
-    status = hipblasGetMatrix(M, N, sizeof(float), devC[b], 1, C_hipblas[b], 1);
+    status = hipblasGetMatrix(M, N, sizeof(float), devC[b], M, C_hipblas[b], N);
     EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   }
 
@@ -1298,9 +1300,9 @@ TEST(hipblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
     }
   }
 
+  hipblasDestroy(handle);
   // HIPBLAS_STATUS_NOT_INITIALIZED
 #ifdef __HIP_PLATFORM_HCC__
-  hipblasDestroy(handle);
   status = hipblasSgemmBatched(handle, typeA, typeB, M, N, K, &alpha, const_cast<const float**>(d_Aarray), lda, const_cast<const float**>(d_Barray), ldb, &beta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
 #endif

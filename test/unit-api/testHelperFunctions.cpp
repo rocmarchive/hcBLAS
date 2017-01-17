@@ -6,7 +6,7 @@
 TEST(hcblasCreateTest, return_Check_hcblasCreate) {
  // Case I: Input to the API is null handle
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc;
+ hc::accelerator default_acc; 
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
  hcblasStatus_t status = hcblasCreate(&handle, &av); 
@@ -21,7 +21,7 @@ TEST(hcblasCreateTest, return_Check_hcblasCreate) {
 
 TEST(hcblasDestroyTest, return_Check_hcblasDestroy) {
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc;
+ hc::accelerator default_acc; 
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
  hcblasStatus_t status = hcblasCreate(&handle, &av); 
@@ -32,6 +32,7 @@ TEST(hcblasDestroyTest, return_Check_hcblasDestroy) {
  status = hcblasDestroy(&handle);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 }
+
 
 
 TEST(hcblasSetGetAcclViewTest, func_and_return_check_hcblasSetGetAcclView) {
@@ -66,7 +67,7 @@ TEST(hcblasSetGetAcclViewTest, func_and_return_check_hcblasSetGetAcclView) {
    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  }
  // We must expect the accl_view obtained is what that's being set
- EXPECT_EQ(default_acc_view, *accl_view);
+  EXPECT_EQ(default_acc_view, *accl_view);
 }
 
 TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
@@ -76,12 +77,13 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  double *x2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc;
+ hc::accelerator default_acc; 
  hc::accelerator_view av=default_acc.get_default_view();
+
  // Passing a Null handle and default accelerator to the API
  status = hcblasCreate(&handle, &av); 
- float *y1 = (float*)am_alloc(n, handle->currentAccl, 0);
- double *y2 = (double*)am_alloc(n, handle->currentAccl, 0);
+ float *y1 = (float*)am_alloc(n * sizeof(float), handle->currentAccl, 0);
+ double *y2 = (double*)am_alloc(n * sizeof(double), handle->currentAccl, 0);
  // HCBLAS_STATUS_SUCCESS
  // float type memory transfer from host to device
  status = hcblasSetVector(handle, n, sizeof(float), x1 , incx, y1, incy);
@@ -123,12 +125,13 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  double *y2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc;
+ hc::accelerator default_acc; 
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
  status = hcblasCreate(&handle, &av); 
- float *x1 = (float*)am_alloc(n, handle->currentAccl, 0);
- double *x2 = (double*)am_alloc(n, handle->currentAccl, 0);
+ float *x1 = (float*)am_alloc(n * sizeof(float), handle->currentAccl, 0);
+ double *x2 = (double*)am_alloc(n * sizeof(double), handle->currentAccl, 0);
+
  // HCBLAS_STATUS_SUCCESS
  // float type memory transfer from device to host
  status = hcblasGetVector(handle, n, sizeof(float), x1 , incx, y1, incy);
@@ -171,12 +174,12 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  double *x2 = (double*) calloc(rows * cols, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc;
+ hc::accelerator default_acc; 
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
  status = hcblasCreate(&handle, &av); 
- float *y1 = (float*)am_alloc(rows * cols, handle->currentAccl, 0);
- double *y2 = (double*)am_alloc(rows * cols, handle->currentAccl, 0);
+ float *y1 = (float*)am_alloc(rows * cols * sizeof(float), handle->currentAccl, 0);
+ double *y2 = (double*)am_alloc(rows * cols * sizeof(double), handle->currentAccl, 0);
 
  // HCBLAS_STATUS_SUCCESS
  // float type memory transfer from host to device
@@ -220,12 +223,12 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  double *y2 = (double*) calloc(cols * rows, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc;
+ hc::accelerator default_acc; 
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
  status = hcblasCreate(&handle, &av); 
- float *x1 = (float*)am_alloc(rows * cols, handle->currentAccl, 0);
- double *x2 = (double*)am_alloc(rows * cols, handle->currentAccl, 0);
+ float *x1 = (float*)am_alloc(rows * cols * sizeof(float), handle->currentAccl, 0);
+ double *x2 = (double*)am_alloc(rows * cols * sizeof(double), handle->currentAccl, 0);
 
  // HCBLAS_STATUS_SUCCESS
  // float type memory transfer from device to host
@@ -260,5 +263,4 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  hc::am_free(x1);
  hc::am_free(x2);
 }
-
 

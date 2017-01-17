@@ -23,6 +23,8 @@ THE SOFTWARE.
 
 #include <hip/hip_runtime_api.h>
 #include <hcblas.h>
+#include <hc.hpp>
+#include <hip/hcc_detail/hcc_acc.h>
 
 //HGSOS for Kalmar leave it as C++, only cublas needs C linkage.
 
@@ -32,9 +34,6 @@ extern "C" {
 
 typedef hcblasHandle_t hipblasHandle_t;
 typedef hcComplex hipComplex ;
-
-// TODO - review use of this handle:
-extern  hipblasHandle_t dummyGlobal;
 
 /* Unsupported types
                 "cublasFillMode_t",
@@ -141,6 +140,9 @@ hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipblasOperation_t 
 
 #else
 
+// TODO - review use of this handle:
+hipblasHandle_t dummyGlobal;
+
 inline static hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op)
 {
 	switch (op)
@@ -207,10 +209,10 @@ inline static hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
 
   err = hipGetDevice(&deviceId);
   if (err == hipSuccess) {
-    hc::accelerator acc;
-    err = hipHccGetAccelerator(deviceId, &acc);
+    hc::accelerator_view *av;
+    err = hipHccGetAcceleratorView(hipStreamDefault, &av);
     if (err == hipSuccess) {
-      retval = hipHCBLASStatusToHIPStatus(hcblasCreate(&*handle, &acc));
+      retval = hipHCBLASStatusToHIPStatus(hcblasCreate(&*handle, av));
       dummyGlobal = *handle;
     } else {
       retval = HIPBLAS_STATUS_INVALID_VALUE;
