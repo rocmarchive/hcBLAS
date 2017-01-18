@@ -5,6 +5,7 @@
 #include<vector>
 #include<numeric>
 #include <math.h>
+#include <hcblaslib.h>
 
 float sgemmCompareL2fe(const float *reference, const float *data,
                const unsigned int len, const float epsilon)
@@ -16,7 +17,7 @@ float sgemmCompareL2fe(const float *reference, const float *data,
     float error = 0;
     float ref = 0;
 
-    // Making Vector conversions to invoke standar library routines
+    // Making Vector conversions to invoke standard library routines
     std::vector<float> refVec(reference, reference + len);
     std::vector<float> dataVec(data, data + len);
     std::vector<float> diffVec(len);
@@ -49,6 +50,51 @@ float sgemmCompareL2fe(const float *reference, const float *data,
 #endif
 
       return error;
+}
+
+float hgemmCompareL2fe(const __half *reference, const  __half *data,
+               const unsigned int len, const float epsilon)
+{
+    if(epsilon < 0) {
+      std::cout<<"Invalid epsilon value"<<std::endl;
+    }
+
+    short error = 0;
+    short ref = 0;
+    float reterror = 0;
+
+    // Making Vector conversions to invoke standard library routines
+    std::vector<__half> refVec(reference, reference + len);
+    std::vector<__half> dataVec(data, data + len);
+    std::vector<__half> diffVec(len);
+    // Compute the difference vector with respect to reference data
+    std::transform(refVec.begin(), refVec.end(), dataVec.begin(), diffVec.begin(), std::minus<__half>());
+    // Compute the square of the difference element wise
+    std::transform(diffVec.begin(), diffVec.end(), diffVec.begin(), diffVec.begin(), std::multiplies<__half>());
+    error = std::inner_product(diffVec.begin(), diffVec.end(), diffVec.begin(), error);
+    ref = std::inner_product(refVec.begin(), refVec.end(), refVec.begin(), ref);
+    float normRef = sqrtf(fabs((float)ref));
+    if (fabs(float(ref)) < 1e-7)
+    {
+#ifdef _DEBUG
+        std::cerr << "ERROR, reference l2-norm is 0\n";
+#endif
+        return false;
+    }
+
+    float normError = sqrtf((float)error);
+    reterror = normError / normRef;
+    bool result = reterror < epsilon;
+#ifdef _DEBUG
+
+    if (! result)
+    {
+        std::cerr << "ERROR, l2-norm error "
+                  << reterror << " is greater than epsilon " << epsilon << "\n";
+    }
+#endif
+
+      return reterror;
 }
 
 void printDiff(float *data1, float *data2, int width, int height, int iListLength, float fListTol)

@@ -1,8 +1,6 @@
 #include "hip/hip_runtime_api.h"
 #include "gtest/gtest.h"
 #include "hipblas.h"
-#include <iostream>
-using namespace std;
 
 TEST(hipblasCreateTest, return_Check_hipblasCreate) {
  // Case I: Input to the API is null handle

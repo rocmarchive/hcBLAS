@@ -1,6 +1,8 @@
 #ifndef HCBLAS_H
 #define HCBLAS_H
 
+#include "hcblaslib.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif //(__cplusplus)
@@ -48,9 +50,7 @@ enum hcblasOperation_t {
   HCBLAS_OP_C   // Conjugate transpose operation is selected
 };
   
-// 2.2.4. hcComplex
 
-// hcComplex is used in Complex-precision functions
 struct float_2_ {
   float x;
   float y;
@@ -60,6 +60,10 @@ struct double_2_ {
   double x;
   double y;
 };
+
+// 2.2.4. hcComplex
+
+// hcComplex is used in Complex-precision functions
 
 typedef float_2_ hcFloatComplex;
 typedef hcFloatComplex hcComplex;
@@ -557,6 +561,15 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
                            hcDoubleComplex       *B, int ldb,
                            const hcDoubleComplex       *beta,
                            hcDoubleComplex       *C, int ldc);
+                           
+hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
+                           hcblasOperation_t transa, hcblasOperation_t transb,
+                           int m, int n, int k,
+                           const __half           *alpha,
+                            __half          *A, int lda,
+                            __half          *B, int ldb,
+                           const __half           *beta,
+                            __half           *C, int ldc);
 
 // 2. hcblas<t>gemmBatched()
 
