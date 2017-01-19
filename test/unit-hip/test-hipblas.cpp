@@ -1,4 +1,4 @@
-#include "hip/hip_runtime_api.h"
+#include "hip/hip_runtime.h"
 #include "hipblas.h"
 #include "gtest/gtest.h"
 #include "cblas.h"
