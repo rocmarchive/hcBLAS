@@ -6,6 +6,8 @@
 #include "cblas.h"
 #include "test_constants.h"
 
+#ifdef HGEMM_TEST_ON
+
 void cblas_hgemm( int,int, int,int, int, int, __half, __half* ,long, __half* , long, __half ,__half*,long  );
 
 
@@ -1301,3 +1303,5 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_slimC_regularN_Implementation_type_1
  __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
+
+#endif
