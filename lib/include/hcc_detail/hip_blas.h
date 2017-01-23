@@ -144,8 +144,6 @@ hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipblasOperation_t 
 
 #else
 
-// TODO - review use of this handle:
-hipblasHandle_t dummyGlobal;
 
 inline static hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op)
 {
@@ -217,7 +215,6 @@ inline static hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
     err = hipHccGetAcceleratorView(hipStreamDefault, &av);
     if (err == hipSuccess) {
       retval = hipHCBLASStatusToHIPStatus(hcblasCreate(&*handle, av));
-      dummyGlobal = *handle;
     } else {
       retval = HIPBLAS_STATUS_INVALID_VALUE;
     }
@@ -250,20 +247,56 @@ inline static hipblasStatus_t hipblasDestroy(hipblasHandle_t handle) {
     return hipHCBLASStatusToHIPStatus(hcblasDestroy(&handle)); 
 }
 
-inline static hipblasStatus_t hipblasSetVector(int n, int elemSize, const void *x, int incx, void *y, int incy){
-	return hipHCBLASStatusToHIPStatus(hcblasSetVector(dummyGlobal, n, elemSize, x, incx, y, incy)); //HGSOS no need for handle moving forward
+inline hipblasStatus_t hipblasSetVector(int n, int elemSize, const void *x, int incx, void *y, int incy){
+        hipblasHandle_t handle;
+        hipblasStatus_t status = HIPBLAS_STATUS_SUCCESS;
+        status = hipblasCreate(&handle);
+	if (status == HIPBLAS_STATUS_SUCCESS) { 
+           status = hipHCBLASStatusToHIPStatus(hcblasSetVector(handle, n, elemSize, x, incx, y, incy)); 
+        } else {
+            return status;
+        }
+        status = hipblasDestroy(handle);
+        return status;
 }
 
-inline static hipblasStatus_t hipblasGetVector(int n, int elemSize, const void *x, int incx, void *y, int incy){
-	return hipHCBLASStatusToHIPStatus(hcblasGetVector(dummyGlobal, n, elemSize, x, incx, y, incy)); //HGSOS no need for handle
+inline hipblasStatus_t hipblasGetVector(int n, int elemSize, const void *x, int incx, void *y, int incy){
+        hipblasHandle_t handle;
+        hipblasStatus_t status = HIPBLAS_STATUS_SUCCESS;
+        status = hipblasCreate(&handle);
+	if (status == HIPBLAS_STATUS_SUCCESS) {
+	   status =  hipHCBLASStatusToHIPStatus(hcblasGetVector(handle, n, elemSize, x, incx, y, incy)); //HGSOS no need for handle
+        } else {
+            return status;
+        }
+        status = hipblasDestroy(handle);
+        return status;
 }
 
-inline static hipblasStatus_t hipblasSetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb){
-	return hipHCBLASStatusToHIPStatus(hcblasSetMatrix(dummyGlobal, rows, cols, elemSize, A, lda, B, ldb));
+inline hipblasStatus_t hipblasSetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb){
+        hipblasHandle_t handle;
+        hipblasStatus_t status = HIPBLAS_STATUS_SUCCESS;
+        status = hipblasCreate(&handle);
+	if (status == HIPBLAS_STATUS_SUCCESS) {
+	  status = hipHCBLASStatusToHIPStatus(hcblasSetMatrix(handle, rows, cols, elemSize, A, lda, B, ldb));
+        } else {
+            return status;
+        }
+        status = hipblasDestroy(handle);
+        return status;
 }
 
-inline static hipblasStatus_t hipblasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb){
-	return hipHCBLASStatusToHIPStatus(hcblasGetMatrix(dummyGlobal, rows, cols, elemSize, A, lda, B, ldb));
+inline hipblasStatus_t hipblasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb){
+        hipblasHandle_t handle;
+        hipblasStatus_t status = HIPBLAS_STATUS_SUCCESS;
+        status = hipblasCreate(&handle);
+	if (status == HIPBLAS_STATUS_SUCCESS) {
+	  status =  hipHCBLASStatusToHIPStatus(hcblasGetMatrix(handle, rows, cols, elemSize, A, lda, B, ldb));
+        } else {
+            return status;
+        }
+        status = hipblasDestroy(handle);
+        return status;
 }
 
 inline static hipblasStatus_t  hipblasSasum(hipblasHandle_t handle, int n, const float *x, int incx, float  *result){
