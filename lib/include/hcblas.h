@@ -18,7 +18,7 @@ namespace hc {
   class accelerator_view;
 };
 
-typedef struct  Hcblaslibrary* hcblasHandle_t;
+typedef class  Hcblaslibrary* hcblasHandle_t;
 
 // 2.2.2. hcblasStatus_t
 
