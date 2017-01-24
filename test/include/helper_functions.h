@@ -7,7 +7,7 @@
 #include <math.h>
 #include <hcblaslib.h>
 
-float sgemmCompareL2fe(const float *reference, const float *data,
+inline float sgemmCompareL2fe(const float *reference, const float *data,
                const unsigned int len, const float epsilon)
 {
     if(epsilon < 0) {
@@ -52,7 +52,7 @@ float sgemmCompareL2fe(const float *reference, const float *data,
       return error;
 }
 
-float hgemmCompareL2fe(const __half *reference, const  __half *data,
+inline float hgemmCompareL2fe(const __half *reference, const  __half *data,
                const unsigned int len, const float epsilon)
 {
     if(epsilon < 0) {
@@ -97,7 +97,7 @@ float hgemmCompareL2fe(const __half *reference, const  __half *data,
       return reterror;
 }
 
-void printDiff(float *data1, float *data2, int width, int height, int iListLength, float fListTol)
+inline void printDiff(float *data1, float *data2, int width, int height, int iListLength, float fListTol)
 {
     printf("Listing first %d Differences > %.6f...\n", iListLength, fListTol);
     int i,j,k;
