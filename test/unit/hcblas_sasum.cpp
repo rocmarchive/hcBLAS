@@ -6,7 +6,8 @@
 
 TEST(hcblas_sasum, return_correct_sasum_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 119;
    int incX = 1;
    long xOffset = 0;
@@ -43,7 +44,8 @@ TEST(hcblas_sasum, return_correct_sasum_Implementation_type_1) {
 
 TEST(hcblas_sasum, func_correct_sasum_Implementation_type_1){ 
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 119;
    int incX = 1;
    long xOffset = 0;
@@ -71,7 +73,8 @@ TEST(hcblas_sasum, func_correct_sasum_Implementation_type_1){
 
 TEST(hcblas_sasum, return_correct_sasum_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 119;
    int incX = 1;
    int batchSize = 128;
@@ -110,7 +113,8 @@ TEST(hcblas_sasum, return_correct_sasum_Implementation_type_2) {
 
 TEST(hcblas_sasum, func_correct_sasum_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 119;
    int incX = 1;
    int batchSize = 128;

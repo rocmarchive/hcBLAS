@@ -6,7 +6,8 @@
 
 TEST(hcblas_daxpy, return_correct_daxpy_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 279;
    int incX = 1;
    int incY = 1;
@@ -65,7 +66,8 @@ TEST(hcblas_daxpy, return_correct_daxpy_Implementation_type_1) {
 
 TEST(hcblas_daxpy, func_correct_daxpy_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 279;
    int incX = 1;
    int incY = 1;
@@ -108,7 +110,8 @@ TEST(hcblas_daxpy, func_correct_daxpy_Implementation_type_1) {
 
 TEST(hcblas_daxpy, return_correct_daxpy_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 279;
    int incX = 1;
    int incY = 1;
@@ -170,7 +173,8 @@ TEST(hcblas_daxpy, return_correct_daxpy_Implementation_type_2) {
 
 TEST(hcblas_daxpy, func_correct_daxpy_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 279;
    int incX = 1;
    int incY = 1;

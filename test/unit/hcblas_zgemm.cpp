@@ -9,7 +9,8 @@ using namespace hc::short_vector;
 
 TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int M = 189, N = 9, K = 19;
     long lda, ldb, ldc;
     int incX = 1, incY = 1;
@@ -137,7 +138,8 @@ TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_1) {
 
 TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int M = 189, N = 9, K = 19;
     long lda, ldb, ldc;
     int incX = 1, incY = 1;
@@ -411,7 +413,8 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_1) {
 
 TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
     int M = 189, N = 9, K = 19;
     long lda, ldb, ldc;
     int incX = 1, incY = 1;
@@ -544,7 +547,8 @@ TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_2) {
  
 TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int M = 189, N = 9, K = 19;
    long lda, ldb, ldc;
    int incX = 1, incY = 1;

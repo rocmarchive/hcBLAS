@@ -8,7 +8,8 @@
 // code to check input given n size N
 void func_check_sdot_with_input(long N) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
   int incX = 1;
   int incY = 1;
   long yOffset = 0;
@@ -49,7 +50,8 @@ void func_check_sdot_with_input(long N) {
 
 TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
   long N = 189;
   int incX = 1;
   int incY = 1;
@@ -108,7 +110,8 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
 
 TEST(hcblas_sdot, return_correct_sdot_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
   long N = 189;
   int incX = 1;
   int incY = 1;
@@ -213,7 +216,8 @@ TEST(hcblas_sdot, func_correct_sdot_vvsmallN_Implementation_type_1) {
 // Func to check batch sdot gven inut size
 void func_check_sdot_batch_with_input(long N) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
   int incX = 1;
   int incY = 1;
   long yOffset = 0;

@@ -6,7 +6,8 @@
 
 TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 279;
    int incX = 1;
    int incY = 1;
@@ -65,7 +66,8 @@ TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_1) {
 
 TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_1) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 279;
    int incX = 1;
    int incY = 1;
@@ -108,7 +110,8 @@ TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_1) {
 
 TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 279;
    int incX = 1;
    int incY = 1;
@@ -170,7 +173,8 @@ TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_2) {
 
 TEST(hcblas_saxpy, func_correct_saxpy_Implementation_type_2) {
    hc::accelerator accl;
-   Hcblaslibrary hc(&accl);
+   hc::accelerator_view av = accl.get_default_view();
+   Hcblaslibrary hc(&av);
    int N = 279;
    int incX = 1;
    int incY = 1;
