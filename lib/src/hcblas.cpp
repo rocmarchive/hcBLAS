@@ -2,7 +2,7 @@
 #include "hcblas.h"
 #include <iostream>
 using namespace std;
-// hcblas Helper functions 
+// hcblas Helper functions
 
 // 1. hcblasCreate()
 
@@ -12,11 +12,11 @@ using namespace std;
 // Return Values
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
-// HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated  
+// HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated
 
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator_view *av) {
 
-  if (handle == NULL) { 
+  if (handle == NULL) {
     handle = new hcblasHandle_t();
   }
   *handle = new Hcblaslibrary(av);
@@ -24,13 +24,13 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator_view *av) {
   if(*handle == NULL) {
     return HCBLAS_STATUS_ALLOC_FAILED;
   }
-  return HCBLAS_STATUS_SUCCESS;  
+  return HCBLAS_STATUS_SUCCESS;
 }
 
 bool hisnan( __half raw) __HC_FP16_DECL_SUFFIX__
 {
    return (raw.x == raw.x) ? false : true;
-   
+
 }
 
 int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__
@@ -44,7 +44,7 @@ int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__
 __hc_half operator/(int raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ {
     __hc_half ret;
     ret.x = (unsigned short)raw / a.x ;
-    return ret; 
+    return ret;
 }
 
 unsigned short operator+(short raw,__hc_half a) __HC_FP16_DECL_SUFFIX__ {
@@ -55,15 +55,15 @@ unsigned short operator+(short raw,__hc_half a) __HC_FP16_DECL_SUFFIX__ {
 __hc_half operator/(__hc_half raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ {
     __hc_half ret;
     ret.x = raw.x / a.x;
-    return ret; 
+    return ret;
 }
 
-ostream &operator<<( ostream &output, __hc_half a ) { 
+ostream &operator<<( ostream &output, __hc_half a ) {
          output << a.x ;
-         return output;            
+         return output;
 }
-      
-bool operator!=( __hc_half a , __hc_half b) __HC_FP16_DECL_SUFFIX__ { 
+
+bool operator!=( __hc_half a , __hc_half b) __HC_FP16_DECL_SUFFIX__ {
     if ( a.x != b.x )
       return true;
     else
@@ -169,25 +169,25 @@ hcblasStatus_t hcblasDestroy(hcblasHandle_t *handle){
 // HCBLAS_STATUS_NOT_INITIALIZED :the library was not initialized
 hcblasStatus_t hcblasSetAcclView(hcblasHandle_t handle, hc::accelerator_view accl_view, void* stream) {
   if (handle == nullptr || handle->initialized == false) {
-    return HCBLAS_STATUS_NOT_INITIALIZED;    
+    return HCBLAS_STATUS_NOT_INITIALIZED;
   }
   handle->currentAcclView = accl_view;
   handle->currentStream = stream;
   return HCBLAS_STATUS_SUCCESS;
-} 
+}
 
 //hcblasGetAcclView()
 // This function gets the hcBLAS library stream, which is being used to execute all calls to the hcBLAS library functions. If the hcBLAS library stream is not set, all kernels use the defaultNULL stream.
-// Return Value 	
+// Return Value
 // HCBLAS_STATUS_SUCCESS : the stream was returned successfully
 // HCBLAS_STATUS_NOT_INITIALIZED : the library was not initialized
 
 hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view **accl_view, void** stream) {
   if (handle == nullptr) {
-    return HCBLAS_STATUS_NOT_INITIALIZED;    
+    return HCBLAS_STATUS_NOT_INITIALIZED;
   }
   *accl_view = &handle->currentAcclView;
-  stream = &(handle->currentStream);
+  *stream = handle->currentStream;
   return HCBLAS_STATUS_SUCCESS;
 }
 
@@ -206,7 +206,7 @@ hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view **
 
 hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const void *x, int incx, void *y, int incy) {
   std::vector<accelerator> accs = accelerator::get_all();
-  
+
   if(accs.size() == 0) {
     std::wcout << "There is no acclerator!\n";
     // Since this case is to test on GPU device, skip if there is CPU only
@@ -220,17 +220,17 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize, const
   if( incx <= 0 || incy <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
   }
- 
+
   hc::accelerator accl;
   hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
   am_status_t status = am_memtracker_getinfo(&resInfo, y);
-  
+
   if(elemSize != (resInfo._sizeBytes/n))
   {
     return HCBLAS_STATUS_MAPPING_ERROR;
   }
 
-  handle->currentAcclView.copy(x, y, elemSize * n);   
+  handle->currentAcclView.copy(x, y, elemSize * n);
   return HCBLAS_STATUS_SUCCESS;
 }
 
@@ -267,7 +267,7 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const
   hc::accelerator accl;
   hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
   am_status_t status = am_memtracker_getinfo(&resInfo, x);
-  
+
   if(elemSize != (resInfo._sizeBytes/n))
   {
     return HCBLAS_STATUS_MAPPING_ERROR;
@@ -279,9 +279,9 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize, const
 
 // 5. hcblasSetMatrix()
 
-// This function copies a tile of rows x cols elements from a matrix A in host memory space to a 
-// matrix B in GPU memory space. It is assumed that each element requires storage of elemSize bytes 
-// and that both matrices are stored in column-major format, with the leading dimension of the source 
+// This function copies a tile of rows x cols elements from a matrix A in host memory space to a
+// matrix B in GPU memory space. It is assumed that each element requires storage of elemSize bytes
+// and that both matrices are stored in column-major format, with the leading dimension of the source
 // matrix A and destination matrix B given in lda and ldb, respectively.
 
 // Return Values
@@ -318,15 +318,15 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols, int el
   }
 
   handle->currentAcclView.copy(A, B, elemSize * rows * cols);
- 
+
   return HCBLAS_STATUS_SUCCESS;
 }
 
 // 6. hcblasGetMatrix()
 
-// This function copies a tile of rows x cols elements from a matrix A in GPU memory space to 
-// a matrix B in host memory space. It is assumed that each element requires storage of elemSize 
-// bytes and that both matrices are stored in column-major format, with the leading dimension of 
+// This function copies a tile of rows x cols elements from a matrix A in GPU memory space to
+// a matrix B in host memory space. It is assumed that each element requires storage of elemSize
+// bytes and that both matrices are stored in column-major format, with the leading dimension of
 // the source matrix A and destination matrix B given in lda and ldb, respectively.
 
 // Return Values
@@ -353,7 +353,7 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int el
   if( rows < 0 || cols < 0 ||  lda <=0 || ldb <=0 || elemSize <=0 ) {
     return HCBLAS_STATUS_INVALID_VALUE;
   }
-  
+
   hc::accelerator accl;
   hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
   am_status_t status = am_memtracker_getinfo(&resInfo, A);
@@ -370,9 +370,9 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols, int el
 
 // HCBLAS Level-1 function reference
 
-// Level-1 Basic Linear Algebra Subprograms (BLAS1) functions perform scalar and vector based operations. 
-// We will use abbreviations <type> for type and <t> for the corresponding short type to make a more concise 
-// and clear presentation of the implemented functions. 
+// Level-1 Basic Linear Algebra Subprograms (BLAS1) functions perform scalar and vector based operations.
+// We will use abbreviations <type> for type and <t> for the corresponding short type to make a more concise
+// and clear presentation of the implemented functions.
 // Unless otherwise specified <type> and <t> have the following meanings:
 
 // <type>       <t>          Meaning
@@ -409,7 +409,7 @@ hcblasStatus_t  hcblasSasum(hcblasHandle_t handle, const int n,
   long xOffset = 0;
   hcblasStatus status;
   status = handle->hcblas_sasum(handle->currentAcclView, n, x, incx, xOffset, result);
-  if(status == HCBLAS_SUCCEEDS) 
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
         return HCBLAS_STATUS_EXECUTION_FAILED;
@@ -459,7 +459,7 @@ hcblasStatus_t  hcblasDasumBatched(hcblasHandle_t handle, const int n,
 
 // 2. hcblas<t>axpy() and hcblas<t>axpyBatched()
 
-// This function multiplies the vector x by the scalar α and adds it to the vector y overwriting 
+// This function multiplies the vector x by the scalar α and adds it to the vector y overwriting
 // the latest vector with the result.
 
 // Param.       Memory           In/out         Meaning
@@ -558,7 +558,7 @@ hcblasStatus_t hcblasScopy(hcblasHandle_t handle, int n,
   long yOffset = 0;
   hcblasStatus status;
   status = handle->hcblas_scopy(handle->currentAcclView, n, x, incx, xOffset, y, incy, yOffset);
-  if(status == HCBLAS_SUCCEEDS) 
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
         return HCBLAS_STATUS_EXECUTION_FAILED;
@@ -795,8 +795,8 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
 // This function performs the matrix-vector multiplication
 // y = α op ( A ) x + β y
 // where A is a m × n matrix stored in column-major format, x and y are vectors, and α and β are scalars. Also, for matrix A
-// op ( A ) = A             if transa == HCBLAS_OP_N 
-//            A^T           if transa == HCBLAS_OP_T   
+// op ( A ) = A             if transa == HCBLAS_OP_N
+//            A^T           if transa == HCBLAS_OP_T
 //            A^H           if transa == HCBLAS_OP_C
 
 // Param.       Memory           In/out         Meaning
@@ -811,7 +811,7 @@ hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
 // lda          host             input          leading dimension of two-dimensional array used to store matrix A.
 // x            device           input          <type> vector with n elements if transa==HCBLAS_OP_N and m elements otherwise.
 // incx         host             input          stride between consecutive elements of x.
-// beta         host or device   input          <type> scalar used for multiplication, if beta==0 
+// beta         host or device   input          <type> scalar used for multiplication, if beta==0
 //                                              then y does not have to be a valid input.
 // y            device           in/out         <type> vector with m elements if transa==HCBLAS_OP_N and n elements otherwise.
 // incy         host             input          stride between consecutive elements of y.
@@ -956,7 +956,7 @@ hcblasStatus_t hcblasDgemvBatched(hcblasHandle_t handle, hcblasOperation_t trans
 // 2. hcblas<t>ger() and hcblas<t>gerBatched()
 
 // This function performs the rank-1 update
-// A = α x y T + A if ger(),geru() is called 
+// A = α x y T + A if ger(),geru() is called
 //     α x y H + A if gerc() is called
 // where A is a m × n matrix stored in column-major format, x and y are vectors, and α is a scalar.
 
@@ -1091,10 +1091,10 @@ hcblasStatus_t  hcblasDgerBatched(hcblasHandle_t handle, int m, int n,
 
 // This function performs the matrix-matrix multiplication
 // C = α op ( A ) op ( B ) + β C
-// where α and β are scalars, and A , B and C are matrices stored in column-major format with dimensions 
+// where α and β are scalars, and A , B and C are matrices stored in column-major format with dimensions
 // op ( A ) m × k , op ( B ) k × n and C m × n , respectively. Also, for matrix A
-// op ( A ) = A   if  transa == HCBLAS_OP_N 
-//            A^T if  transa == HCBLAS_OP_T 
+// op ( A ) = A   if  transa == HCBLAS_OP_N
+//            A^T if  transa == HCBLAS_OP_T
 //            A^H if  transa == HCBLAS_OP_C
 // and op ( B ) is defined similarly for matrix B .
 
@@ -1107,10 +1107,10 @@ hcblasStatus_t  hcblasDgerBatched(hcblasHandle_t handle, int m, int n,
 // n            host             input          number of rows of matrix op(B) and C.
 // k            host             input          number of columns of op(A) and rows of op(B).
 // alpha        host or device   input          <type> scalar used for multiplication.
-// A            device           input          <type> array of dimensions lda x k with lda>=max(1,m) 
+// A            device           input          <type> array of dimensions lda x k with lda>=max(1,m)
 //                                              if transa == HCBLAS_OP_N and lda x m with lda>=max(1,k) otherwise.
 // lda          host             input          leading dimension of two-dimensional array used to store the matrix A.
-// B            device           input          <type> array of dimension ldb x n with ldb>=max(1,k) 
+// B            device           input          <type> array of dimension ldb x n with ldb>=max(1,k)
 //                                              if transa == HCBLAS_OP_N and ldb x k with ldb>=max(1,n) otherwise.
 // ldb          host             input          leading dimension of two-dimensional array used to store matrix B.
 // beta         host or device   input          <type> scalar used for multiplication. If beta==0, C does not have to be a valid input.
@@ -1122,7 +1122,7 @@ hcblasStatus_t  hcblasDgerBatched(hcblasHandle_t handle, int m, int n,
 // --------------------------------------------------------------------
 // HCBLAS_STATUS_SUCCESS           the operation completed successfully
 // HCBLAS_STATUS_NOT_INITIALIZED   the library was not initialized
-// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k<0 
+// HCBLAS_STATUS_INVALID_VALUE     the parameters m,n,k<0
 // HCBLAS_STATUS_EXECUTION_FAILED  the function failed to launch on the GPU
 
 hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
@@ -1147,7 +1147,7 @@ hcblasStatus_t hcblasSgemm(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
   status = handle->hcblas_sgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
-  if(status == HCBLAS_SUCCEEDS) 
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
         return HCBLAS_STATUS_EXECUTION_FAILED;
@@ -1208,7 +1208,7 @@ hcblasStatus_t hcblasDgemm(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
   status = handle->hcblas_dgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
-  if(status == HCBLAS_SUCCEEDS) 
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
         return HCBLAS_STATUS_EXECUTION_FAILED;
@@ -1260,7 +1260,7 @@ hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
 
   if(m < 0 || n < 0 || k < 0)
     return HCBLAS_STATUS_INVALID_VALUE;
-  
+
   long aOffset = 0;
   long bOffset = 0;
   long cOffset = 0;
@@ -1269,7 +1269,7 @@ hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
   status = handle->hcblas_hgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
-  if(status == HCBLAS_SUCCEEDS) 
+  if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
         return HCBLAS_STATUS_EXECUTION_FAILED;
@@ -1278,11 +1278,11 @@ hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
 
 // This function performs the matrix-matrix multiplications of an array of matrices.
 // C [ i ] = α op ( A [ i ] ) op ( B [ i ] ) + β C [ i ] ,  for i  ∈ [ 0 , batchCount − 1 ]
-// where α and β are scalars, and A , B and C are arrays of pointers to matrices stored in 
-// column-major format with dimensions op ( A [ i ] ) m × k , op ( B [ i ] ) k × n and C [ i ] m × n , 
+// where α and β are scalars, and A , B and C are arrays of pointers to matrices stored in
+// column-major format with dimensions op ( A [ i ] ) m × k , op ( B [ i ] ) k × n and C [ i ] m × n ,
 // respectively. Also, for matrix A
-// op ( A ) = A   if  transa == HCBLAS_OP_N 
-//            A^T if  transa == HCBLAS_OP_T 
+// op ( A ) = A   if  transa == HCBLAS_OP_N
+//            A^T if  transa == HCBLAS_OP_T
 //            A^H if  transa == HCBLAS_OP_C
 // and op ( B [ i ] ) is defined similarly for matrix B [ i ] .
 
