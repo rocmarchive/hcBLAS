@@ -6,25 +6,25 @@
 TEST(hcblasCreateTest, return_Check_hcblasCreate) {
  // Case I: Input to the API is null handle
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc; 
+ hc::accelerator default_acc;
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
- hcblasStatus_t status = hcblasCreate(&handle, &av); 
+ hcblasStatus_t status = hcblasCreate(&handle, &av);
  // Assert if the handle is still NULL after allocation
  EXPECT_TRUE(handle != NULL);
  // If allocation succeeds we must expect a success status
  if (handle != NULL)
-   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS); 
+   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  else
    EXPECT_EQ(status, HCBLAS_STATUS_ALLOC_FAILED);
 }
 
 TEST(hcblasDestroyTest, return_Check_hcblasDestroy) {
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc; 
+ hc::accelerator default_acc;
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
- hcblasStatus_t status = hcblasCreate(&handle, &av); 
+ hcblasStatus_t status = hcblasCreate(&handle, &av);
  //hcblasDestroy
  status = hcblasDestroy(&handle);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
@@ -45,22 +45,22 @@ TEST(hcblasSetGetAcclViewTest, func_and_return_check_hcblasSetGetAcclView) {
  hc::accelerator_view* accl_view = NULL;
  hcblasStatus_t status = hcblasSetAcclView(handle, default_acc_view);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
- status = hcblasGetAcclView(handle, &accl_view, stream);
+ status = hcblasGetAcclView(handle, accl_view, stream);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
  // Passing a Null handle and default accelerator to the API
- status = hcblasCreate(&handle, &av); 
+ status = hcblasCreate(&handle, &av);
  // Assert if the handle is still NULL after allocation
  EXPECT_TRUE(handle != NULL);
  // If allocation succeeds we must expect a success status
  if (handle != NULL)
-   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS); 
+   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  else
    EXPECT_EQ(status, HCBLAS_STATUS_ALLOC_FAILED);
 
  status = hcblasSetAcclView(handle, default_acc_view);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  // Now Get the Accl_view
- status = hcblasGetAcclView(handle, &accl_view, stream);
+ status = hcblasGetAcclView(handle, accl_view, stream);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
  EXPECT_TRUE(accl_view != NULL);
  if (default_acc_view == *accl_view) {
@@ -77,11 +77,11 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  double *x2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc; 
+ hc::accelerator default_acc;
  hc::accelerator_view av=default_acc.get_default_view();
 
  // Passing a Null handle and default accelerator to the API
- status = hcblasCreate(&handle, &av); 
+ status = hcblasCreate(&handle, &av);
  float *y1 = (float*)am_alloc(n * sizeof(float), handle->currentAccl, 0);
  double *y2 = (double*)am_alloc(n * sizeof(double), handle->currentAccl, 0);
  // HCBLAS_STATUS_SUCCESS
@@ -91,8 +91,8 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  // double type memory transfer from host to device
  status = hcblasSetVector(handle, n, sizeof(double), x2 , incx, y2, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
- 
- // HCBLAS_STATUS_INVALID_VALUE 
+
+ // HCBLAS_STATUS_INVALID_VALUE
  // incx is 0
  status = hcblasSetVector(handle, n, sizeof(float), x1 , 0, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
@@ -102,12 +102,12 @@ TEST(hcblasSetVectorTest, return_Check_hcblasSetVector) {
  // elemSize is 0
  status = hcblasSetVector(handle, n, 0, x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
- 
+
 // HCBLAS_STATUS_MAPPING_ERROR
  status = hcblasSetVector(handle, n, sizeof(double), x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
 
- // HCBLAS_STATUS_NOT_INITIALIZED  
+ // HCBLAS_STATUS_NOT_INITIALIZED
  hcblasDestroy(&handle);
  status = hcblasSetVector(handle, n, sizeof(float), x1 , incx, y1, incy);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
@@ -125,10 +125,10 @@ TEST(hcblasGetVectorTest, return_Check_hcblasGetVector) {
  double *y2 = (double*) calloc(n, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc; 
+ hc::accelerator default_acc;
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
- status = hcblasCreate(&handle, &av); 
+ status = hcblasCreate(&handle, &av);
  float *x1 = (float*)am_alloc(n * sizeof(float), handle->currentAccl, 0);
  double *x2 = (double*)am_alloc(n * sizeof(double), handle->currentAccl, 0);
 
@@ -174,10 +174,10 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  double *x2 = (double*) calloc(rows * cols, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc; 
+ hc::accelerator default_acc;
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
- status = hcblasCreate(&handle, &av); 
+ status = hcblasCreate(&handle, &av);
  float *y1 = (float*)am_alloc(rows * cols * sizeof(float), handle->currentAccl, 0);
  double *y2 = (double*)am_alloc(rows * cols * sizeof(double), handle->currentAccl, 0);
 
@@ -189,7 +189,7 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  status = hcblasSetMatrix(handle, rows, cols, sizeof(double), x2 , lda, y2, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
- // HCBLAS_STATUS_INVALID_VALUE 
+ // HCBLAS_STATUS_INVALID_VALUE
  // lda is 0
  status = hcblasSetMatrix(handle, rows, cols, sizeof(float), x1 , 0, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
@@ -199,12 +199,12 @@ TEST(hcblasSetMatrixTest, return_Check_hcblasSetMatrix) {
  // elemSize is 0
  status = hcblasSetMatrix(handle, rows, cols, 0, x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_INVALID_VALUE);
- 
+
 // HCBLAS_STATUS_MAPPING_ERROR
  status = hcblasSetMatrix(handle, rows, cols, sizeof(double), x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_MAPPING_ERROR);
 
- // HCBLAS_STATUS_NOT_INITIALIZED  
+ // HCBLAS_STATUS_NOT_INITIALIZED
  hcblasDestroy(&handle);
  status = hcblasSetMatrix(handle, rows, cols, sizeof(float), x1 , lda, y1, ldb);
  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
@@ -223,10 +223,10 @@ TEST(hcblasGetMatrixTest, return_Check_hcblasGetMatrix) {
  double *y2 = (double*) calloc(cols * rows, sizeof(double));
  hcblasStatus_t status;
  hcblasHandle_t handle = NULL;
- hc::accelerator default_acc; 
+ hc::accelerator default_acc;
  hc::accelerator_view av=default_acc.get_default_view();
  // Passing a Null handle and default accelerator to the API
- status = hcblasCreate(&handle, &av); 
+ status = hcblasCreate(&handle, &av);
  float *x1 = (float*)am_alloc(rows * cols * sizeof(float), handle->currentAccl, 0);
  double *x2 = (double*)am_alloc(rows * cols * sizeof(double), handle->currentAccl, 0);
 
