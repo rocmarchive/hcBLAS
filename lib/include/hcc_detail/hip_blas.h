@@ -239,7 +239,7 @@ inline static hipblasStatus_t  hipblasGetStream(hipblasHandle_t handle, hipStrea
   if (handle == nullptr) {
     return HIPBLAS_STATUS_NOT_INITIALIZED;
   }
-  hc::accelerator_view *pAcclView;
+  hc::accelerator_view *pAcclView=NULL;
   return hipHCBLASStatusToHIPStatus(hcblasGetAcclView(handle, pAcclView, (void**)(&streamId)));
 }
 
