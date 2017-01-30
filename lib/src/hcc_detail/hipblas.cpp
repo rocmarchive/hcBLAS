@@ -39,15 +39,15 @@ hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t streamId) {
   { 
     return HIPBLAS_STATUS_NOT_INITIALIZED;
   }
-  return hipHCBLASStatusToHIPStatus(hcblasSetAcclView(handle, *pAcclView, static_cast<void*>(&streamId)));
+  return hipHCBLASStatusToHIPStatus(hcblasSetAcclView(handle, *pAcclView, static_cast<void*>(streamId)));
 } 
 
 hipblasStatus_t  hipblasGetStream(hipblasHandle_t handle, hipStream_t *streamId) {
   if (handle == nullptr) {
     return HIPBLAS_STATUS_NOT_INITIALIZED;    
   }
-  hc::accelerator_view **ppAcclView;
-  return hipHCBLASStatusToHIPStatus(hcblasGetAcclView(handle, ppAcclView, (void**)(&streamId)));
+  hc::accelerator_view *pAcclView;
+  return hipHCBLASStatusToHIPStatus(hcblasGetAcclView(handle, &pAcclView, (void**)(streamId)));
 }
 
 hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op)
