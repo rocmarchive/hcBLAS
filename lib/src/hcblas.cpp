@@ -187,7 +187,7 @@ hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view *a
     return HCBLAS_STATUS_NOT_INITIALIZED;
   }
   accl_view = &handle->currentAcclView;
-  *stream = handle->currentStream;
+  stream = &(handle->currentStream);
   return HCBLAS_STATUS_SUCCESS;
 }
 
