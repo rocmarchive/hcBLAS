@@ -31,23 +31,23 @@ hipblasStatus_t hipblasCreate(hipblasHandle_t* handle) {
 
 hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t streamId) {
   if (handle == nullptr) {
-    return HIPBLAS_STATUS_NOT_INITIALIZED;    
+    return HIPBLAS_STATUS_NOT_INITIALIZED;
   }
   hc::accelerator_view *pAcclView;
   hipError_t err = hipHccGetAcceleratorView(streamId, &pAcclView);
   if (err != hipSuccess)
-  { 
+  {
     return HIPBLAS_STATUS_NOT_INITIALIZED;
   }
   return hipHCBLASStatusToHIPStatus(hcblasSetAcclView(handle, *pAcclView, static_cast<void*>(streamId)));
-} 
+}
 
 hipblasStatus_t  hipblasGetStream(hipblasHandle_t handle, hipStream_t *streamId) {
   if (handle == nullptr) {
-    return HIPBLAS_STATUS_NOT_INITIALIZED;    
+    return HIPBLAS_STATUS_NOT_INITIALIZED;
   }
-  hc::accelerator_view *pAcclView;
-  return hipHCBLASStatusToHIPStatus(hcblasGetAcclView(handle, &pAcclView, (void**)(streamId)));
+  hc::accelerator_view *pAcclView = NULL;
+  return hipHCBLASStatusToHIPStatus(hcblasGetAcclView(handle, pAcclView, (void**)(streamId)));
 }
 
 hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op)
@@ -56,13 +56,13 @@ hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op)
 	{
 		case HIPBLAS_OP_N:
 			return HCBLAS_OP_N;
-		
+
 		case HIPBLAS_OP_T:
 			return HCBLAS_OP_T;
-			
+
 		case HIPBLAS_OP_C:
 			return HCBLAS_OP_C;
-			
+
 		default:
 			throw "Non existent OP";
 	}
@@ -74,20 +74,20 @@ hipblasOperation_t HCCOperationToHIPOperation( hcblasOperation_t op)
 	{
 		case HCBLAS_OP_N :
 			return HIPBLAS_OP_N;
-		
+
 		case HCBLAS_OP_T :
 			return HIPBLAS_OP_T;
-			
+
 		case HCBLAS_OP_C :
 			return HIPBLAS_OP_C;
-			
+
 		default:
 			throw "Non existent OP";
 	}
 }
 
 
-hipblasStatus_t hipHCBLASStatusToHIPStatus(hcblasStatus_t hcStatus) 
+hipblasStatus_t hipHCBLASStatusToHIPStatus(hcblasStatus_t hcStatus)
 {
 	switch(hcStatus)
 	{
@@ -111,15 +111,15 @@ hipblasStatus_t hipHCBLASStatusToHIPStatus(hcblasStatus_t hcStatus)
 }
 
 hipblasStatus_t hipblasDestroy(hipblasHandle_t handle) {
-    return hipHCBLASStatusToHIPStatus(hcblasDestroy(&handle)); 
+    return hipHCBLASStatusToHIPStatus(hcblasDestroy(&handle));
 }
 
 hipblasStatus_t hipblasSetVector(int n, int elemSize, const void *x, int incx, void *y, int incy){
         hipblasHandle_t handle;
         hipblasStatus_t status = HIPBLAS_STATUS_SUCCESS;
         status = hipblasCreate(&handle);
-	if (status == HIPBLAS_STATUS_SUCCESS) { 
-           status = hipHCBLASStatusToHIPStatus(hcblasSetVector(handle, n, elemSize, x, incx, y, incy)); 
+	if (status == HIPBLAS_STATUS_SUCCESS) {
+           status = hipHCBLASStatusToHIPStatus(hcblasSetVector(handle, n, elemSize, x, incx, y, incy));
         } else {
             return status;
         }
@@ -211,19 +211,19 @@ hipblasStatus_t hipblasDcopyBatched(hipblasHandle_t handle, int n, const double 
 }
 
 hipblasStatus_t hipblasSdot (hipblasHandle_t handle, int n, const float *x, int incx, const float *y, int incy, float *result){
-	return 	hipHCBLASStatusToHIPStatus(hcblasSdot(handle, n, x, incx, y, incy, result));			   
+	return 	hipHCBLASStatusToHIPStatus(hcblasSdot(handle, n, x, incx, y, incy, result));
 }
 
 hipblasStatus_t hipblasDdot (hipblasHandle_t handle, int n, const double *x, int incx, const double *y, int incy, double *result){
-	return 	hipHCBLASStatusToHIPStatus(hcblasDdot(handle, n, x, incx, y, incy, result));			   
+	return 	hipHCBLASStatusToHIPStatus(hcblasDdot(handle, n, x, incx, y, incy, result));
 }
 
 hipblasStatus_t hipblasSdotBatched (hipblasHandle_t handle, int n, const float *x, int incx, const float *y, int incy, float *result, int batchCount){
-	return 	hipHCBLASStatusToHIPStatus(hcblasSdotBatched(handle, n, x, incx, y, incy, result, batchCount));			   
+	return 	hipHCBLASStatusToHIPStatus(hcblasSdotBatched(handle, n, x, incx, y, incy, result, batchCount));
 }
 
 hipblasStatus_t hipblasDdotBatched (hipblasHandle_t handle, int n, const double *x, int incx, const double *y, int incy, double *result, int batchCount){
-	return 	hipHCBLASStatusToHIPStatus(hcblasDdotBatched ( handle, n, x, incx, y, incy, result, batchCount));			   
+	return 	hipHCBLASStatusToHIPStatus(hcblasDdotBatched ( handle, n, x, incx, y, incy, result, batchCount));
 }
 
 hipblasStatus_t  hipblasSscal(hipblasHandle_t handle, int n, const float *alpha,  float *x, int incx){
@@ -245,18 +245,18 @@ hipblasStatus_t  hipblasDscalBatched(hipblasHandle_t handle, int n, const double
 hipblasStatus_t hipblasSgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const float *alpha, const float *A, int lda,
                            const float *x, int incx,  const float *beta,  float *y, int incy){
         // TODO: Remove const_cast
-	return hipHCBLASStatusToHIPStatus(hcblasSgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, const_cast<float*>(A), lda, const_cast<float*>(x), incx, beta,  y, incy));						   
+	return hipHCBLASStatusToHIPStatus(hcblasSgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, const_cast<float*>(A), lda, const_cast<float*>(x), incx, beta,  y, incy));
 }
 
 hipblasStatus_t hipblasDgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const double *alpha, const double *A, int lda,
                            const double *x, int incx,  const double *beta,  double *y, int incy){
         // TODO: Remove const_cast
-	return hipHCBLASStatusToHIPStatus(hcblasDgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, const_cast<double*>(A), lda, const_cast<double*>(x), incx, beta,  y, incy));						   
+	return hipHCBLASStatusToHIPStatus(hcblasDgemv(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, const_cast<double*>(A), lda, const_cast<double*>(x), incx, beta,  y, incy));
 }
 
 hipblasStatus_t hipblasSgemvBatched(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const float *alpha, float *A, int lda,
                            float *x, int incx,  const float *beta,  float *y, int incy, int batchCount){
-	return hipHCBLASStatusToHIPStatus(hcblasSgemvBatched(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, A, lda, x, incx, beta,  y, incy, batchCount));						   
+	return hipHCBLASStatusToHIPStatus(hcblasSgemvBatched(handle, hipOperationToHCCOperation(trans),  m,  n, alpha, A, lda, x, incx, beta,  y, incy, batchCount));
 }
 
 hipblasStatus_t  hipblasSger(hipblasHandle_t handle, int m, int n, const float *alpha, const float *x, int incx, const float *y, int incy, float *A, int lda){
