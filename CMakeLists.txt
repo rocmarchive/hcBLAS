@@ -13,6 +13,8 @@ ELSE()
   SET(ROCM_PROFILER_PATH $ENV{HIP_PATH})
 ENDIF()
 
+SET(HIP_SHARED_OBJ "DEFAULT" CACHE STRING "HIP SO")
+SET(INSTALL_OPT $ENV{INSTALL_OPT})
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake  "${HIP_PATH}/cmake")
 EXECUTE_PROCESS(COMMAND ${HIP_PATH}/bin/hipconfig -P OUTPUT_VARIABLE PLATFORM)
@@ -45,9 +47,21 @@ add_subdirectory(lib/src)
   execute_process(COMMAND ${DEBIAN_EXTRA_SCRIPT_SOURCE_DIR}/process_packaging_script.bsh ${DEBIAN_EXTRA_SCRIPT_SOURCE_DIR}/postinst.in  ${DEBIAN_EXTRA_SCRIPT_DEST_DIR}/postinst WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 
   execute_process(COMMAND ${DEBIAN_EXTRA_SCRIPT_SOURCE_DIR}/process_packaging_script.bsh ${DEBIAN_EXTRA_SCRIPT_SOURCE_DIR}/prerm.in  ${DEBIAN_EXTRA_SCRIPT_DEST_DIR}/prerm WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
-
   set(CPACK_SET_DESTDIR TRUE)
   set(CPACK_INSTALL_PREFIX "${DEFAULT_DEBIAN_INSTALL_PREFIX}")
+
+  IF(DEFINED INSTALL_OPT)
+    SET( lib_so_link ${CMAKE_INSTALL_PREFIX}/../lib/libhcblas.so)
+    SET( hcc_so_target ${CMAKE_INSTALL_PREFIX}/lib/libhcblas.so)
+    execute_process(COMMAND ln -s ${hcc_so_target} ${lib_so_link})
+  
+    IF(${HIP_SHARED_OBJ} MATCHES "ON")
+      SET( lib_so_link ${CMAKE_INSTALL_PREFIX}/../lib/libhipblas.so)
+      SET( hip_so_target ${CMAKE_INSTALL_PREFIX}/lib/libhipblas_hcc.so)
+      execute_process(COMMAND ln -s ${hip_so_target} ${lib_so_link})
+    ENDIF()
+  ENDIF()
+
 IF (${PLATFORM} MATCHES "hcc")
   set(CPACK_PACKAGE_NAME "hcblas")
   SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "HcBLAS: a BLAS Library based on Heterogeneous C++ construct")
@@ -71,7 +85,3 @@ ENDIF() # PLATFORM
   "${PROJECT_BINARY_DIR}/packaging/debian/postinst;${PROJECT_BINARY_DIR}/packaging/debian/prerm")
 
   INCLUDE(CPack)
-#ELSEIF (${PLATFORM} MATCHES "nvcc")
-#   MESSAGE(STATUS "Building HIPBLAS in NVCC platform")
-
-

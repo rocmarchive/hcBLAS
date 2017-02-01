@@ -107,6 +107,10 @@ if [ -z $bench];then
     bench="off"
 fi
 
+if [ "$install" = "1" ]; then
+    export INSTALL_OPT=on
+fi
+
 current_dir=$PWD
 
 set +e
