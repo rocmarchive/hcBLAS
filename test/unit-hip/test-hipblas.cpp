@@ -4,9 +4,9 @@
 #include "cblas.h"
 
 
-void cblas_hgemm( int, int, int, __half* , __half* , __half* , __half, __half );
+void cblas_hgemm( int, int, int, __half_* , __half_* , __half_* , __half_, __half_ );
 
-void cblas_hgemm( int M, int N, int K, __half* A, __half* B, __half* C_cblas, __half alpha , __half beta)
+void cblas_hgemm( int M, int N, int K, __half_* A, __half_* B, __half_* C_cblas, __half_ alpha , __half_ beta)
 {
   for( int i = 0 ; i < M ; i++)
   {

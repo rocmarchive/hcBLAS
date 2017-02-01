@@ -34,7 +34,7 @@ extern "C" {
 
 typedef hcblasHandle_t hipblasHandle_t;
 typedef hcComplex hipComplex ;
-typedef __half hiphalf ;
+typedef __half_ hiphalf ;
 
 /* Unsupported types
                 "cublasFillMode_t",
