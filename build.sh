@@ -152,6 +152,11 @@ if [ "$platform" = "hcc" ]; then
 
   if [ "$install" = "1" ]; then
     sudo make -j$working_threads install
+    if  [ "$hip_so" = "on" ] ; then
+     cd $build_dir/packaging/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir/packaging/
+    else
+     cd $build_dir/packaging/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir/packaging/
+    fi
   fi
  
 # Various possibilities of test and profile arguments
