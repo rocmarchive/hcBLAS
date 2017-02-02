@@ -20,7 +20,7 @@ if [ ! -x $path2profiler ]; then
   echo "profiler does not exist..Exiting.."
   exit
 fi
-echo -e "\n M\t N\t K\t TransA\t TransB\t Imple\t Avg Time(ms)" >> $workingdir/profileSummary_cgemm.csv
+echo -e "\n M\t N\t K\t TransA\t TransB\t Imple\t Gflop/sec \t Avg Time(ms)" >> $workingdir/profileSummary_cgemm.csv
 
 #Start profiling cgemm
 while read line; do
