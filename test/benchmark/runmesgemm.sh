@@ -20,7 +20,6 @@ if [ ! -x $path2profiler ]; then
   echo "profiler does not exist..Exiting.."
   exit
 fi
-#echo -e "\n M\t N\t K\t TransA\t TransB\t Imple\t Avg Time(ms)\t Gflop/sec" >> $workingdir/profileSummary_sgemm.csv
 echo -e "\n M       N       K    TransA  TransB Imple   Gflop/sec  Avg Time(ms)" >> $workingdir/profileSummary_sgemm.csv
 
 #Start profiling sgemm
