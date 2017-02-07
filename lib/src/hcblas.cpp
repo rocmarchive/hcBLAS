@@ -14,6 +14,7 @@ using namespace std;
 // HCBLAS_STATUS_SUCCESS            initialization succeeded
 // HCBLAS_STATUS_ALLOC_FAILED       the resources could not be allocated
 
+
 hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator_view *av) {
 
   if (handle == NULL) {
@@ -1250,11 +1251,11 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
 hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
-                           const __half           *alpha,
-                            __half          *A, int lda,
-                            __half          *B, int ldb,
-                           const __half           *beta,
-                           __half           *C, int ldc) {
+                           const __half_           *alpha,
+                            __half_          *A, int lda,
+                            __half_          *B, int ldb,
+                           const __half_           *beta,
+                           __half_           *C, int ldc) {
   if(handle == nullptr  || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
@@ -1268,7 +1269,7 @@ hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
   hcblasTranspose transA, transB;
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
-  status = handle->hcblas_hgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *alpha, A, lda, B, ldb, *beta, C, ldc, aOffset, bOffset, cOffset);
+  status = handle->hcblas_hgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const __half*>(alpha)), reinterpret_cast<__half*>(A), lda, reinterpret_cast<__half*>(B), ldb, *(reinterpret_cast<const __half*>(beta)), reinterpret_cast<__half*>(C), ldc, aOffset, bOffset, cOffset);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else

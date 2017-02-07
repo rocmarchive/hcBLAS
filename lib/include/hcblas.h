@@ -1,7 +1,7 @@
 #ifndef HCBLAS_H
 #define HCBLAS_H
 
-#include "hcblaslib.h"
+#define __HC_FP16_DECL_SUFFIX__ __attribute__((hc,cpu))
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,6 +60,61 @@ struct double_2_ {
   double x;
   double y;
 };
+
+
+struct __hc_half_ {
+  __hc_half_() __HC_FP16_DECL_SUFFIX__ {}
+  __hc_half_(int raw) __HC_FP16_DECL_SUFFIX__ : x((unsigned short)raw) {}
+  unsigned short x ;
+  
+  __hc_half_ operator*(__hc_half_ a) const __HC_FP16_DECL_SUFFIX__
+  {
+    __hc_half_ ret;
+    ret = x * a.x ;
+    return ret ;
+  }
+  
+   __hc_half_ operator+(__hc_half_ a) const __HC_FP16_DECL_SUFFIX__
+  {
+     __hc_half_ ret;
+     ret = x + a.x ;
+     return ret ;
+  }
+  
+  __hc_half_ operator-(const __hc_half_ a) const __HC_FP16_DECL_SUFFIX__
+  {
+    __hc_half_ ret;
+    ret = x - a.x;
+    return ret;
+  }
+  
+  void operator+=(__hc_half_ a) __HC_FP16_DECL_SUFFIX__
+  {
+    x = x + a.x;
+  }
+ 
+  void operator*=(__hc_half_ a) __HC_FP16_DECL_SUFFIX__
+  {
+    x = x * a.x;
+  }
+
+  bool operator==(int a) const __HC_FP16_DECL_SUFFIX__
+  {
+    if (x == (unsigned short)a)
+      return true;
+    else
+      return false;
+  }
+
+  bool operator==(const __hc_half_ a) const __HC_FP16_DECL_SUFFIX__
+  {
+    if (x == a.x)
+      return true;
+    else
+      return false;
+  }
+};
+typedef __hc_half_ __half_ ;
 
 // 2.2.4. hcComplex
 
@@ -565,11 +620,11 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
 hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
-                           const __half           *alpha,
-                            __half          *A, int lda,
-                            __half          *B, int ldb,
-                           const __half           *beta,
-                            __half           *C, int ldc);
+                           const __half_           *alpha,
+                            __half_          *A, int lda,
+                            __half_          *B, int ldb,
+                           const __half_           *beta,
+                            __half_           *C, int ldc);
 
 // 2. hcblas<t>gemmBatched()
 
