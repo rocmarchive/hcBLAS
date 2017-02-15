@@ -23,8 +23,6 @@ THE SOFTWARE.
 
 #include <hip/hip_runtime.h>
 #include <hcblas.h>
-#include <hc.hpp>
-#include <hip/hcc_detail/hcc_acc.h>
 
 //HGSOS for Kalmar leave it as C++, only cublas needs C linkage.
 
