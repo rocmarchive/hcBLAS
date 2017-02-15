@@ -13,6 +13,7 @@
 #include "hc.hpp"
 #include "hc_am.hpp"
 #include "hc_short_vector.hpp"
+#include "hc_defines.h"
 
 using namespace hc;
 using namespace hc::short_vector;
@@ -59,72 +60,10 @@ union SP_FP32
     float f;
 };
 
-struct __hc_half
-{
-  __hc_half() __HC_FP16_DECL_SUFFIX__ {}
-  __hc_half(int raw) __HC_FP16_DECL_SUFFIX__ : x((unsigned short)raw) {}
-  unsigned short x ;
-  
-  __hc_half operator*(__hc_half a) const __HC_FP16_DECL_SUFFIX__
-  {
-    __hc_half ret;
-    ret = x * a.x ;
-    return ret ;
-  }
-  
-   __hc_half operator+(__hc_half a) const __HC_FP16_DECL_SUFFIX__
-  {
-     __hc_half ret;
-     ret = x + a.x ;
-     return ret ;
-  }
-  
-  __hc_half operator-(const __hc_half a) const __HC_FP16_DECL_SUFFIX__
-  {
-    __hc_half ret;
-    ret = x - a.x;
-    return ret;
-  }
-  
-  void operator+=(__hc_half a) __HC_FP16_DECL_SUFFIX__
-  {
-    x = x + a.x;
-  }
- 
-  void operator*=(__hc_half a) __HC_FP16_DECL_SUFFIX__
-  {
-    x = x * a.x;
-  }
 
-  bool operator==(int a) const __HC_FP16_DECL_SUFFIX__
-  {
-    if (x == (unsigned short)a)
-      return true;
-    else
-      return false;
-  }
 
-  bool operator==(const __hc_half a) const __HC_FP16_DECL_SUFFIX__
-  {
-    if (x == a.x)
-      return true;
-    else
-      return false;
-  }
-};
-
-typedef __hc_half __half ;
-
-bool hisnan( __half raw) __HC_FP16_DECL_SUFFIX__ ;
-int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__;
-ostream &operator<<( ostream &output, __hc_half a ) ;
-bool operator!=( __hc_half a , __hc_half b) __HC_FP16_DECL_SUFFIX__ ;
-__hc_half operator/( int raw , __hc_half a ) __HC_FP16_DECL_SUFFIX__ ;
-__hc_half operator/(__hc_half raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ ;
-__hc_half operator*(__hc_half raw, double a) __HC_FP16_DECL_SUFFIX__ ;
-float __hc_half2float(const __hc_half h) __HC_FP16_DECL_SUFFIX__ ;
-__hc_half __hc_float2half(const float h) __HC_FP16_DECL_SUFFIX__ ;
-unsigned short operator+(short raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ ;
+bool hisnan( half raw) __HC_FP16_DECL_SUFFIX__ ;
+int hisinf(half raw) __HC_FP16_DECL_SUFFIX__;
 
 struct hc_Complex
 {
@@ -306,11 +245,11 @@ class Hcblaslibrary
     hcblasStatus hcblas_hgemm(hc::accelerator_view accl_view,
  			      hcblasOrder order, hcblasTranspose typeA,
                               hcblasTranspose typeB, const int M,
-                              const int N, const int K, const __half &alpha,
-                              __half *A, const long lda, 
-		              __half *B, const long ldb, 
-			       const __half &beta,  
-		       	      __half *C, const long ldc, 
+                              const int N, const int K, const half &alpha,
+                              half *A, const long lda, 
+		              half *B, const long ldb, 
+			       const half &beta,  
+		       	      half *C, const long ldc, 
 			      const long aOffset, const long bOffset, const long cOffset);
 
 /* SGEMM - Overloaded function with arguments related to batch processing */

@@ -4,15 +4,15 @@
 #include "cblas.h"
 #include "hcblaslib.h"
 
-void cblas_hgemm( int, int, int, __half_* , __half_* , __half_* , __half_, __half_ );
+void cblas_hgemm( int, int, int, half* , half* , half* , half, half );
 
-void cblas_hgemm( int M, int N, int K, __half_* A, __half_* B, __half_* C_cblas, __half_ alpha , __half_ beta)
+void cblas_hgemm( int M, int N, int K, half* A, half* B, half* C_cblas, half alpha , half beta)
 {
   for( int i = 0 ; i < M ; i++)
   {
      for( int j = 0 ; j < N ; j++)
      {
-         __half_ temp = 0;
+         half temp = 0;
          for( int k = 0 ; k < K ; k++)
          {
             temp += alpha * A[k * M + i] * B[j * K + k];
@@ -1688,8 +1688,8 @@ TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
   int N = 78;
   int K = 23;
   int incx = 1, incy = 1;
-  __half_ alpha = 1;
-  __half_ beta = 1;
+  half alpha = 1;
+  half beta = 1;
   long lda;
   long ldb;
   long ldc;
@@ -1697,14 +1697,14 @@ TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
   order = (handle->Order)? CblasColMajor: CblasRowMajor;
   hcblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
-  __half_ *A = (__half_*) calloc(M * K, sizeof(__half_));
-  __half_ *B = (__half_*) calloc(K * N, sizeof(__half_));
-  __half_ *C = (__half_*) calloc(M * N, sizeof(__half_));
-  __half_ *C_hcblas = (__half_*) calloc(M * N, sizeof(__half_));
-  __half_ *C_cblas = (__half_*) calloc(M * N, sizeof(__half_));
-  __half_* devA = hc::am_alloc(sizeof(__half_) * M * K, handle->currentAccl, 0);
-  __half_* devB = hc::am_alloc(sizeof(__half_) * K * N, handle->currentAccl, 0);
-  __half_* devC = hc::am_alloc(sizeof(__half_) * M * N, handle->currentAccl, 0);
+  half *A = (half*) calloc(M * K, sizeof(half));
+  half *B = (half*) calloc(K * N, sizeof(half));
+  half *C = (half*) calloc(M * N, sizeof(half));
+  half *C_hcblas = (half*) calloc(M * N, sizeof(half));
+  half *C_cblas = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, handle->currentAccl, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, handle->currentAccl, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, handle->currentAccl, 0);
   
   for(int i = 0; i < M * K; i++) {
               A[i] = rand()%100;
@@ -1717,11 +1717,11 @@ TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
               C_cblas[i] = C[i];
   }
   
-  status = hcblasSetMatrix(handle, M, K, sizeof(__half_), A, 1, devA, 1);
+  status = hcblasSetMatrix(handle, M, K, sizeof(half), A, 1, devA, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  status = hcblasSetMatrix(handle, K, N, sizeof(__half_), B, 1, devB, 1);
+  status = hcblasSetMatrix(handle, K, N, sizeof(half), B, 1, devB, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  status = hcblasSetMatrix(handle, M, N, sizeof(__half_), C, 1, devC, 1);
+  status = hcblasSetMatrix(handle, M, N, sizeof(half), C, 1, devC, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   
   // NoTransA and NoTransB */       
@@ -1736,7 +1736,7 @@ TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   
   
-  status = hcblasGetMatrix(handle, M, N, sizeof(__half_), devC, 1, C_hcblas, 1);
+  status = hcblasGetMatrix(handle, M, N, sizeof(half), devC, 1, C_hcblas, 1);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   
   cblas_hgemm( M, N, K, A, B, C_cblas,alpha,beta);

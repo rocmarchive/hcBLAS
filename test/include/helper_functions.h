@@ -52,7 +52,7 @@ inline float sgemmCompareL2fe(const float *reference, const float *data,
       return error;
 }
 
-inline float hgemmCompareL2fe(const __half *reference, const  __half *data,
+inline float hgemmCompareL2fe(const half *reference, const  half *data,
                const unsigned int len, const float epsilon)
 {
     if(epsilon < 0) {
@@ -64,13 +64,13 @@ inline float hgemmCompareL2fe(const __half *reference, const  __half *data,
     float reterror = 0;
 
     // Making Vector conversions to invoke standard library routines
-    std::vector<__half> refVec(reference, reference + len);
-    std::vector<__half> dataVec(data, data + len);
-    std::vector<__half> diffVec(len);
+    std::vector<half> refVec(reference, reference + len);
+    std::vector<half> dataVec(data, data + len);
+    std::vector<half> diffVec(len);
     // Compute the difference vector with respect to reference data
-    std::transform(refVec.begin(), refVec.end(), dataVec.begin(), diffVec.begin(), std::minus<__half>());
+    std::transform(refVec.begin(), refVec.end(), dataVec.begin(), diffVec.begin(), std::minus<half>());
     // Compute the square of the difference element wise
-    std::transform(diffVec.begin(), diffVec.end(), diffVec.begin(), diffVec.begin(), std::multiplies<__half>());
+    std::transform(diffVec.begin(), diffVec.end(), diffVec.begin(), diffVec.begin(), std::multiplies<half>());
     error = std::inner_product(diffVec.begin(), diffVec.end(), diffVec.begin(), error);
     ref = std::inner_product(refVec.begin(), refVec.end(), refVec.begin(), ref);
     float normRef = sqrtf(fabs((float)ref));

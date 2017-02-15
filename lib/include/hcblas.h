@@ -61,6 +61,7 @@ struct double_2_ {
   double y;
 };
 
+typedef __fp16 half;
 
 struct __hc_half_ {
   __hc_half_() __HC_FP16_DECL_SUFFIX__ {}
@@ -114,7 +115,6 @@ struct __hc_half_ {
       return false;
   }
 };
-typedef __hc_half_ __half_ ;
 
 // 2.2.4. hcComplex
 
@@ -620,11 +620,11 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
 hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
-                           const __half_           *alpha,
-                            __half_          *A, int lda,
-                            __half_          *B, int ldb,
-                           const __half_           *beta,
-                            __half_           *C, int ldc);
+                           const half           *alpha,
+                            half          *A, int lda,
+                            half          *B, int ldb,
+                           const half           *beta,
+                            half           *C, int ldc);
 
 // 2. hcblas<t>gemmBatched()
 

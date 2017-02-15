@@ -28,118 +28,19 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator_view *av) {
   return HCBLAS_STATUS_SUCCESS;
 }
 
-bool hisnan( __half raw) __HC_FP16_DECL_SUFFIX__
+bool hisnan( half raw) __HC_FP16_DECL_SUFFIX__
 {
-   return (raw.x == raw.x) ? false : true;
+   return (raw == raw) ? false : true;
 
 }
 
-int hisinf(__half raw) __HC_FP16_DECL_SUFFIX__
+int hisinf(half raw) __HC_FP16_DECL_SUFFIX__
 {
-  if (raw.x == 0xFC00) return -1;
-  if (raw.x == 0x7C00) return 1;
+  if (raw == 0xFC00) return -1;
+  if (raw == 0x7C00) return 1;
   return 0;
 }
 
-
-__hc_half operator/(int raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ {
-    __hc_half ret;
-    ret.x = (unsigned short)raw / a.x ;
-    return ret;
-}
-
-unsigned short operator+(short raw,__hc_half a) __HC_FP16_DECL_SUFFIX__ {
-	unsigned short ret;
-	ret = raw + a.x ;
-	return ret;
-}
-__hc_half operator/(__hc_half raw, __hc_half a) __HC_FP16_DECL_SUFFIX__ {
-    __hc_half ret;
-    ret.x = raw.x / a.x;
-    return ret;
-}
-
-ostream &operator<<( ostream &output, __hc_half a ) {
-         output << a.x ;
-         return output;
-}
-
-bool operator!=( __hc_half a , __hc_half b) __HC_FP16_DECL_SUFFIX__ {
-    if ( a.x != b.x )
-      return true;
-    else
-      return false;
-}
-__hc_half operator*(__hc_half raw, double a) __HC_FP16_DECL_SUFFIX__ {
-  __hc_half ret ;
-  ret.x = raw.x * (unsigned short)a ;
-  return ret;
-}
-
-float __hc_half2float(const __hc_half h) __HC_FP16_DECL_SUFFIX__
-{
-    const SP_FP32 magic = { 113 << 23 };
-    const unsigned int shifted_exp = 0x7c00 << 13; // exponent mask after shift
-    SP_FP32 o;
-
-    o.u = (h.x & 0x7fff) << 13;             // exponent/mantissa bits
-    unsigned int exp = shifted_exp & o.u;   // just the exponent
-    o.u += (127 - 15) << 23;                // exponent adjust
-
-    // handle exponent special cases
-    if (exp == shifted_exp) {     // Inf/NaN?
-        o.u += (128 - 16) << 23;    // extra exp adjust
-    } else if (exp == 0) {        // Zero/Denormal?
-    o.u += 1 << 23;             // extra exp adjust
-    o.f -= magic.f;             // renormalize
-    }
-
-    o.u |= (h.x & 0x8000) << 16;    // sign bit
-    return o.f;
-}
-__hc_half __hc_float2half(const float h) __HC_FP16_DECL_SUFFIX__
-{
-    SP_FP32 f; f.f = h;
-
-    const SP_FP32 f32infty = { 255 << 23 };
-    const SP_FP32 f16max = { (127 + 16) << 23 };
-    const SP_FP32 denorm_magic = { ((127 - 15) + (23 - 10) + 1) << 23 };
-    unsigned int sign_mask = 0x80000000u;
-    __hc_half o;
-    o.x = static_cast<unsigned short>(0x0u);
-
-    unsigned int sign = f.u & sign_mask;
-    f.u ^= sign;
-
-    // NOTE all the integer compares in this function can be safely
-    // compiled into signed compares since all operands are below
-    // 0x80000000. Important if you want fast straight SSE2 code
-    // (since there's no unsigned PCMPGTD).
-
-    if (f.u >= f16max.u) {  // result is Inf or NaN (all exponent bits set)
-        o.x = (f.u > f32infty.u) ? 0x7e00 : 0x7c00; // NaN->qNaN and Inf->Inf
-    } else {  // (De)normalized number or zero
-        if (f.u < (113 << 23)) {  // resulting FP16 is subnormal or zero
-            // use a magic value to align our 10 mantissa bits at the bottom of
-            // the float. as long as FP addition is round-to-nearest-even this
-            // just works.
-            f.f += denorm_magic.f;
-
-            // and one integer subtract of the bias later, we have our final float!
-            o.x = static_cast<unsigned short>(f.u - denorm_magic.u);
-         } else {
-            unsigned int mant_odd = (f.u >> 13) & 1; // resulting mantissa is odd
-            // update exponent, rounding bias part 1
-            f.u += ((unsigned int)(15 - 127) << 23) + 0xfff;
-            // rounding bias part 2
-            f.u += mant_odd;
-            // take the bits!
-            o.x = static_cast<unsigned short>(f.u >> 13);
-         }
-     }
-     o.x |= static_cast<unsigned short>(sign >> 16);
-     return o;
-}
 
 // 2. hcblasDestory()
 
@@ -1251,11 +1152,11 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
 hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
-                           const __half_           *alpha,
-                            __half_          *A, int lda,
-                            __half_          *B, int ldb,
-                           const __half_           *beta,
-                           __half_           *C, int ldc) {
+                           const half           *alpha,
+                            half          *A, int lda,
+                            half          *B, int ldb,
+                           const half           *beta,
+                           half           *C, int ldc) {
   if(handle == nullptr  || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
@@ -1269,7 +1170,7 @@ hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
   hcblasTranspose transA, transB;
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
-  status = handle->hcblas_hgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const __half*>(alpha)), reinterpret_cast<__half*>(A), lda, reinterpret_cast<__half*>(B), ldb, *(reinterpret_cast<const __half*>(beta)), reinterpret_cast<__half*>(C), ldc, aOffset, bOffset, cOffset);
+  status = handle->hcblas_hgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const half*>(alpha)), reinterpret_cast<half*>(A), lda, reinterpret_cast<half*>(B), ldb, *(reinterpret_cast<const half*>(beta)), reinterpret_cast<half*>(C), ldc, aOffset, bOffset, cOffset);
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
   else
