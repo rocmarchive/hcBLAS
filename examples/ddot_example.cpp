@@ -15,8 +15,9 @@ int main() {
   // Sets default target accelerator (id =1) and data layout as column major  
   hcblasHandle_t handle = NULL;
   hc::accelerator default_acc;
+  hc::accelerator_view av = default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
-  status= hcblasCreate(&handle, &default_acc);
+  status= hcblasCreate(&handle, &av);
 
   // Ddot input variables
   int n = 123;
@@ -45,12 +46,12 @@ int main() {
   // Initialze device pointers using hcblasSetVector utility
   status = hcblasSetVector(handle, lenx, sizeof(double), h_X, incx, d_X, incx);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Error : Data download failure\n");
+     printf("Error : Data download failure for h_X\n");
      exit(1);
   }
   status = hcblasSetVector(handle, leny, sizeof(double), h_Y, incy, d_Y, incy);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Error : Data download failure\n");
+     printf("Error : Data download failure for h_Y\n");
      exit(1);
   }
 
