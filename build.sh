@@ -103,7 +103,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-if [ -z $bench];then
+if [ -z $bench ];then
     bench="off"
 fi
 
