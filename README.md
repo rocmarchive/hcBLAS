@@ -88,8 +88,9 @@ int main() {
   // Sets default target accelerator (id =1) and data layout as column major 
   hcblasHandle_t handle = NULL;
   hc::accelerator default_acc;
+  hc::accelerator_view av = default_acc.get_default_view();
   // Passing a Null handle and default accelerator to the API
-  status = hcblasCreate(&handle, &default_acc);
+  status = hcblasCreate(&handle, &av);
 
   // Variables to hold Transpose combinations
   hcblasOperation_t typeA, typeB;
@@ -119,17 +120,17 @@ int main() {
   // Initialze device pointers using hcblasSetMatrix utility
   status = hcblasSetMatrix(handle, M, K, sizeof(float), h_A, M, d_A, K);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Error : Data download failure\n");
+     printf("Error : Data download failure for h_A\n");
      exit(1);
   }
-  status = hcblasSetMatrix(handle, K, N, sizeof(float), h_B, K, d_A, N);
+  status = hcblasSetMatrix(handle, K, N, sizeof(float), h_B, K, d_B, N);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Error : Data download failure\n");
+     printf("Error : Data download failure for h_B\n");
      exit(1);
   }
   status = hcblasSetMatrix(handle, M, N, sizeof(float), h_C, M, d_C, N);
   if(status != HCBLAS_STATUS_SUCCESS) {
-     printf("Error : Data download failure\n");
+     printf("Error : Data download failure for h_C\n");
      exit(1);
   }
 
