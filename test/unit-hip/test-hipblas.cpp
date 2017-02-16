@@ -4,9 +4,9 @@
 #include "cblas.h"
 
 
-void cblas_hgemm( int, int, int, __half* , __half* , __half* , __half, __half );
+void cblas_hgemm( int, int, int, hiphalf* , hiphalf* , hiphalf* , hiphalf, hiphalf );
 
-void cblas_hgemm( int M, int N, int K, __half* A, __half* B, __half* C_cblas, __half alpha , __half beta)
+void cblas_hgemm( int M, int N, int K, hiphalf* A, hiphalf* B, hiphalf* C_cblas, hiphalf alpha , hiphalf beta)
 {
   for( int i = 0 ; i < M ; i++)
   {
@@ -1678,8 +1678,8 @@ TEST(hipblaswrapper_hgemm, func_return_correct_hgemm) {
   int N = 78;
   int K = 23;
   int incx = 1, incy = 1;
-  __half alpha = 1;
-  __half beta = 1;
+  hiphalf alpha = 1;
+  hiphalf beta = 1;
   long lda;
   long ldb;
   long ldc;
@@ -1687,15 +1687,15 @@ TEST(hipblaswrapper_hgemm, func_return_correct_hgemm) {
   order = CblasColMajor;
   hipblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
-  __half *A = (__half*) calloc(M * K, sizeof(__half));
-  __half *B = (__half*) calloc(K * N, sizeof(__half));
-  __half *C = (__half*) calloc(M * N, sizeof(__half));
-  __half *C_hipblas = (__half*) calloc(M * N, sizeof(__half));
-  __half *C_cblas = (__half*) calloc(M * N, sizeof(__half));
-  __half *devA = NULL, * devB = NULL, *devC = NULL;
-  hipError_t err= hipMalloc(&devA, sizeof(__half) * M * K);
-  err = hipMalloc(&devB, sizeof(__half) * K * N);
-  err = hipMalloc(&devC, sizeof(__half) * M * N);
+  hiphalf *A = (hiphalf*) calloc(M * K, sizeof(hiphalf));
+  hiphalf *B = (hiphalf*) calloc(K * N, sizeof(hiphalf));
+  hiphalf *C = (hiphalf*) calloc(M * N, sizeof(hiphalf));
+  hiphalf *C_hipblas = (hiphalf*) calloc(M * N, sizeof(hiphalf));
+  hiphalf *C_cblas = (hiphalf*) calloc(M * N, sizeof(hiphalf));
+  hiphalf *devA = NULL, * devB = NULL, *devC = NULL;
+  hipError_t err= hipMalloc(&devA, sizeof(hiphalf) * M * K);
+  err = hipMalloc(&devB, sizeof(hiphalf) * K * N);
+  err = hipMalloc(&devC, sizeof(hiphalf) * M * N);
   for(int i = 0; i < M * K; i++) {
               A[i] = 1;
   }
@@ -1706,11 +1706,11 @@ TEST(hipblaswrapper_hgemm, func_return_correct_hgemm) {
               C[i] = 3;
               C_cblas[i] = C[i];
   }
-  status = hipblasSetMatrix(M, K, sizeof(__half), A, 1, devA, 1);
+  status = hipblasSetMatrix(M, K, sizeof(hiphalf), A, 1, devA, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(K, N, sizeof(__half), B, 1, devB, 1);
+  status = hipblasSetMatrix(K, N, sizeof(hiphalf), B, 1, devB, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(M, N, sizeof(__half), C, 1, devC, 1);
+  status = hipblasSetMatrix(M, N, sizeof(hiphalf), C, 1, devC, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
   // NoTransA and NoTransB */           
@@ -1724,7 +1724,7 @@ TEST(hipblaswrapper_hgemm, func_return_correct_hgemm) {
   status = hipblasHgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB, ldb, &beta, devC, ldc);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
-  status = hipblasGetMatrix(M, N, sizeof(__half), devC, 1, C_hipblas, 1);
+  status = hipblasGetMatrix(M, N, sizeof(hiphalf), devC, 1, C_hipblas, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
   cblas_hgemm( M, N, K, A, B, C_cblas,alpha,beta);

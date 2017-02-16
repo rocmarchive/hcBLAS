@@ -61,9 +61,8 @@ struct double_2_ {
   double y;
 };
 
-typedef __fp16 half;
 
-struct __hc_half_ {
+/*struct __hc_half_ {
   __hc_half_() __HC_FP16_DECL_SUFFIX__ {}
   __hc_half_(int raw) __HC_FP16_DECL_SUFFIX__ : x((unsigned short)raw) {}
   unsigned short x ;
@@ -115,6 +114,8 @@ struct __hc_half_ {
       return false;
   }
 };
+
+typedef __hc_half_ half;*/
 
 // 2.2.4. hcComplex
 
