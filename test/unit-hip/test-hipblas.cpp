@@ -4,9 +4,9 @@
 #include "cblas.h"
 
 
-void cblas_hgemm( int, int, int, __half_* , __half_* , __half_* , __half_, __half_ );
+void cblas_hgemm( int, int, int, hiphalf* , hiphalf* , hiphalf* , hiphalf, hiphalf );
 
-void cblas_hgemm( int M, int N, int K, __half_* A, __half_* B, __half_* C_cblas, __half_ alpha , __half_ beta)
+void cblas_hgemm( int M, int N, int K, hiphalf* A, hiphalf* B, hiphalf* C_cblas, hiphalf alpha , hiphalf beta)
 {
   for( int i = 0 ; i < M ; i++)
   {
@@ -1477,7 +1477,7 @@ TEST(hipblaswrapper_cgemm, func_return_correct_cgemm) {
   hipblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
     float alpha[2], beta[2];
-    hipComplex cAlpha, cBeta;
+    hip_Complex cAlpha, cBeta;
     cAlpha.x = 1;
     cAlpha.y = 1;
     cBeta.x = 1;
@@ -1486,13 +1486,13 @@ TEST(hipblaswrapper_cgemm, func_return_correct_cgemm) {
     alpha[1] = cAlpha.y;
     beta[0] = cBeta.x;
     beta[1] = cBeta.y;
-    hipComplex *A = (hipComplex*) calloc(M * K, sizeof(hipComplex));
-    hipComplex *B = (hipComplex*) calloc(K * N, sizeof(hipComplex));
-    hipComplex *C = (hipComplex*) calloc(M * N, sizeof(hipComplex));
-  hipComplex *devA = NULL, * devB = NULL, *devC = NULL;
-  hipError_t err= hipMalloc(&devA, sizeof(hipComplex) * M * K);
-  err = hipMalloc(&devB, sizeof(hipComplex) * K * N);
-  err = hipMalloc(&devC, sizeof(hipComplex) * M * N);
+    hip_Complex *A = (hip_Complex*) calloc(M * K, sizeof(hip_Complex));
+    hip_Complex *B = (hip_Complex*) calloc(K * N, sizeof(hip_Complex));
+    hip_Complex *C = (hip_Complex*) calloc(M * N, sizeof(hip_Complex));
+  hip_Complex *devA = NULL, * devB = NULL, *devC = NULL;
+  hipError_t err= hipMalloc(&devA, sizeof(hip_Complex) * M * K);
+  err = hipMalloc(&devB, sizeof(hip_Complex) * K * N);
+  err = hipMalloc(&devC, sizeof(hip_Complex) * M * N);
     float* ablas = (float *)malloc(sizeof(float )* M * K * 2);
     float* bblas = (float *)malloc(sizeof(float )* K * N * 2);
     float* cblas = (float *)malloc(sizeof(float )* M * N * 2);
@@ -1518,11 +1518,11 @@ TEST(hipblaswrapper_cgemm, func_return_correct_cgemm) {
                 cblas[k++] = C[i].y;
     }
 
-  status = hipblasSetMatrix(M, K, sizeof(hipComplex), A, 1, devA, 1);
+  status = hipblasSetMatrix(M, K, sizeof(hip_Complex), A, 1, devA, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(K, N, sizeof(hipComplex), B, 1, devB, 1);
+  status = hipblasSetMatrix(K, N, sizeof(hip_Complex), B, 1, devB, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(M, N, sizeof(hipComplex), C, 1, devC, 1);
+  status = hipblasSetMatrix(M, N, sizeof(hip_Complex), C, 1, devC, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
   // NoTransA and NoTransB            
   typeA = HIPBLAS_OP_N;
@@ -1535,7 +1535,7 @@ TEST(hipblaswrapper_cgemm, func_return_correct_cgemm) {
   status = hipblasCgemm(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
-  status = hipblasGetMatrix(M, N, sizeof(hipComplex), devC, 1, C, 1);
+  status = hipblasGetMatrix(M, N, sizeof(hip_Complex), devC, 1, C, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
   cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas, ldc );
@@ -1583,7 +1583,7 @@ TEST(hipblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   hipblasOperation_t typeA, typeB;
   CBLAS_TRANSPOSE Transa, Transb;
     float alpha[2], beta[2];
-    hipComplex cAlpha, cBeta;
+    hip_Complex cAlpha, cBeta;
     cAlpha.x = 1;
     cAlpha.y = 1;
     cBeta.x = 1;
@@ -1592,13 +1592,13 @@ TEST(hipblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
     alpha[1] = cAlpha.y;
     beta[0] = cBeta.x;
     beta[1] = cBeta.y;
-    hipComplex *A = (hipComplex*) calloc(M * K, sizeof(hipComplex));
-    hipComplex *B = (hipComplex*) calloc(K * N, sizeof(hipComplex));
-    hipComplex *C = (hipComplex*) calloc(M * N * batchSize, sizeof(hipComplex));
-  hipComplex *devA = NULL, * devB = NULL, *devC = NULL;
-  hipError_t err= hipMalloc(&devA, sizeof(hipComplex) * M * K);
-  err = hipMalloc(&devB, sizeof(hipComplex) * K * N);
-  err = hipMalloc(&devC, sizeof(hipComplex) * M * N * batchSize);
+    hip_Complex *A = (hip_Complex*) calloc(M * K, sizeof(hip_Complex));
+    hip_Complex *B = (hip_Complex*) calloc(K * N, sizeof(hip_Complex));
+    hip_Complex *C = (hip_Complex*) calloc(M * N * batchSize, sizeof(hip_Complex));
+  hip_Complex *devA = NULL, * devB = NULL, *devC = NULL;
+  hipError_t err= hipMalloc(&devA, sizeof(hip_Complex) * M * K);
+  err = hipMalloc(&devB, sizeof(hip_Complex) * K * N);
+  err = hipMalloc(&devC, sizeof(hip_Complex) * M * N * batchSize);
     float* ablas = (float *)malloc(sizeof(float )* M * K * 2);
     float* bblas = (float *)malloc(sizeof(float )* K * N * 2);
     float* cblas = (float *)malloc(sizeof(float )* M * N * batchSize * 2);
@@ -1624,11 +1624,11 @@ TEST(hipblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
                 cblas[k++] = C[i].y;
     }
 
-  status = hipblasSetMatrix(M, K, sizeof(hipComplex), A, 1, devA, 1);
+  status = hipblasSetMatrix(M, K, sizeof(hip_Complex), A, 1, devA, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(K, N, sizeof(hipComplex), B, 1, devB, 1);
+  status = hipblasSetMatrix(K, N, sizeof(hip_Complex), B, 1, devB, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
-  status = hipblasSetMatrix(M, N * batchSize, sizeof(hipComplex), C, 1, devC, 1);
+  status = hipblasSetMatrix(M, N * batchSize, sizeof(hip_Complex), C, 1, devC, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
   // NoTransA and NoTransB            
@@ -1642,7 +1642,7 @@ TEST(hipblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   status = hipblasCgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc, batchSize);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
-  status = hipblasGetMatrix(M, N * batchSize, sizeof(hipComplex), devC, 1, C, 1);
+  status = hipblasGetMatrix(M, N * batchSize, sizeof(hip_Complex), devC, 1, C, 1);
   EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
 
   for(int i = 0; i < batchSize;i++)

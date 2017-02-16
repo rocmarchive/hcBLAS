@@ -4,11 +4,11 @@
 hcblasStatus gemm_HC(hc::accelerator_view accl_view,
                      const int order, char TransA, char TransB,
                      const int M, const int N, const int K,
-                     const __half alpha, __half *A_mat,
+                     const half alpha, half *A_mat,
                      long aOffset, long lda,
-                     __half *B_mat,
-                     long bOffset, long ldb, const __half beta,
-                     __half *C_mat,
+                     half *B_mat,
+                     long bOffset, long ldb, const half beta,
+                     half *C_mat,
                      long cOffset, long ldc) {
   hcblasStatus status = HCBLAS_SUCCEEDS;
   // Start the operations
@@ -44,11 +44,11 @@ hcblasStatus gemm_HC(hc::accelerator_view accl_view,
 hcblasStatus gemm_HC(hc::accelerator_view accl_view,
                      const int order, char TransA, char TransB,
                      const int M, const int N, const int K,
-                     const __half alpha, __half *A_mat[],
+                     const half alpha, half *A_mat[],
                      long aOffset, long lda,
-                     __half *B_mat[],
-                     long bOffset, long ldb, const __half beta,
-                     __half *C_mat[],
+                     half *B_mat[],
+                     long bOffset, long ldb, const half beta,
+                     half *C_mat[],
                      long cOffset, long ldc,
                      long A_batchOffset = 0, long B_batchOffset = 0, long C_batchOffset = 0, int batchSize = 0) {
   hcblasStatus status = HCBLAS_SUCCEEDS;
@@ -103,11 +103,11 @@ hcblasStatus gemm_HC(hc::accelerator_view accl_view,
 // Type 1 -  alpha = 0 Kernel
 
 hcblasStatus gemm_alpha0_col(hc::accelerator_view accl_view,
-		             __half *A, long aOffset,
-			     __half *B, long bOffset,
-			     __half *C, long cOffset,
+		             half *A, long aOffset,
+			     half *B, long bOffset,
+			     half *C, long cOffset,
 			     int M, int N, int K, int lda, int ldb, int ldc,
-			     __half alpha, __half beta) {
+			     half alpha, half beta) {
 #define GEMM_BLOCK 256
   hc::extent<2> grdExt(N, M * GEMM_BLOCK);
   hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
@@ -135,11 +135,11 @@ hcblasStatus gemm_alpha0_col(hc::accelerator_view accl_view,
 // Type 2 - alpha = 0 kernel
 
 hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view accl_view,
-                                   __half *A, long aOffset, long A_batchOffset,
-                                   __half *B, long bOffset, long B_batchOffset,
-                                   __half *C, long cOffset, long C_batchOffset,
+                                   half *A, long aOffset, long A_batchOffset,
+                                   half *B, long bOffset, long B_batchOffset,
+                                   half *C, long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
-                                   __half alpha, __half beta, int batchSize) {
+                                   half alpha, half beta, int batchSize) {
 #define GEMM_BLOCK 256
   hc::extent<3> grdExt(batchSize, N, M * GEMM_BLOCK);
   hc::tiled_extent<3> t_ext = grdExt.tile(1, 1, GEMM_BLOCK);
@@ -168,11 +168,11 @@ hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view accl_view,
 // Type 1 -  alpha = 0 Kernel
 
 hcblasStatus gemm_alpha0_row(hc::accelerator_view accl_view,
-                             __half *A, long aOffset,
-			     __half *B, long bOffset,
-			     __half *C, long cOffset,
+                             half *A, long aOffset,
+			     half *B, long bOffset,
+			     half *C, long cOffset,
 			     int M, int N, int K, int lda, int ldb, int ldc,
-			     __half alpha, __half beta) {
+			     half alpha, half beta) {
 #define GEMM_BLOCK 256
   hc::extent<2> grdExt(N, M * GEMM_BLOCK);
   hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
@@ -200,11 +200,11 @@ hcblasStatus gemm_alpha0_row(hc::accelerator_view accl_view,
 // Type 2 - alpha = 0 kernel
 
 hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view accl_view,
-                                   __half *A, long aOffset, long A_batchOffset,
-                                   __half *B, long bOffset, long B_batchOffset,
-                                   __half *C, long cOffset, long C_batchOffset,
+                                   half *A, long aOffset, long A_batchOffset,
+                                   half *B, long bOffset, long B_batchOffset,
+                                   half *C, long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
-                                   __half alpha, __half beta, int batchSize) {
+                                   half alpha, half beta, int batchSize) {
 #define GEMM_BLOCK 256
   hc::extent<3> grdExt(batchSize, N, M * GEMM_BLOCK);
   hc::tiled_extent<3> t_ext = grdExt.tile(1, 1, GEMM_BLOCK);
@@ -235,14 +235,14 @@ hcblasStatus  Hcblaslibrary :: hcblas_hgemm(hc::accelerator_view accl_view,
 					    hcblasOrder order,
 					    hcblasTranspose typeA,
 					    hcblasTranspose typeB, const int M,
-					    const int N, const int K, const __half &alpha,
-					    __half *A, const long lda,
-					    __half *B, const long ldb,
-					    const __half &beta,
-					    __half *C, const long ldc,
+					    const int N, const int K, const half &alpha,
+					    half *A, const long lda,
+					    half *B, const long ldb,
+					    const half &beta,
+					    half *C, const long ldc,
 					    const long aOffset, const long bOffset, const long cOffset) {
   int i, j;
-  __half temp;
+  half temp;
   hcblasStatus status = HCBLAS_SUCCEEDS;
 
   // Quick return if possible
@@ -271,14 +271,14 @@ hcblasStatus  Hcblaslibrary :: hcblas_hgemm(hc::accelerator_view accl_view,
 					   hcblasOrder order,
 					   hcblasTranspose typeA,
 					   hcblasTranspose typeB, const int M,
-					   const int N, const int K, const __half &alpha,
-					   __half *A[], const long lda, const long A_batchOffset,
-					   __half *B[], const long ldb, const long B_batchOffset,
-					   const __half &beta,
-					   __half *C[], const long ldc, const long C_batchOffset,
+					   const int N, const int K, const half &alpha,
+					   half *A[], const long lda, const long A_batchOffset,
+					   half *B[], const long ldb, const long B_batchOffset,
+					   const half &beta,
+					   half *C[], const long ldc, const long C_batchOffset,
 					   const long aOffset, const long bOffset, const long cOffset, const int batchSize) {
   int i, j, k;
-  __half temp;
+  half temp;
   hcblasStatus status = HCBLAS_SUCCEEDS;
 
   // Quick return if possible
