@@ -8,6 +8,7 @@ extern "C" {
 #endif //(__cplusplus)
 //2.2.1. hcblasHandle_t
 
+
 // The hcblasHandle_t type is a pointer to an opaque structure holding the hcBLAS library context.
 // The hcBLAS library context must be initialized using hcblasCreate() and the returned handle must be
 // passed to all subsequent library function calls. The context should be destroyed at the end using
@@ -61,61 +62,8 @@ struct double_2_ {
   double y;
 };
 
+typedef __fp16 half_;
 
-/*struct __hc_half_ {
-  __hc_half_() __HC_FP16_DECL_SUFFIX__ {}
-  __hc_half_(int raw) __HC_FP16_DECL_SUFFIX__ : x((unsigned short)raw) {}
-  unsigned short x ;
-  
-  __hc_half_ operator*(__hc_half_ a) const __HC_FP16_DECL_SUFFIX__
-  {
-    __hc_half_ ret;
-    ret = x * a.x ;
-    return ret ;
-  }
-  
-   __hc_half_ operator+(__hc_half_ a) const __HC_FP16_DECL_SUFFIX__
-  {
-     __hc_half_ ret;
-     ret = x + a.x ;
-     return ret ;
-  }
-  
-  __hc_half_ operator-(const __hc_half_ a) const __HC_FP16_DECL_SUFFIX__
-  {
-    __hc_half_ ret;
-    ret = x - a.x;
-    return ret;
-  }
-  
-  void operator+=(__hc_half_ a) __HC_FP16_DECL_SUFFIX__
-  {
-    x = x + a.x;
-  }
- 
-  void operator*=(__hc_half_ a) __HC_FP16_DECL_SUFFIX__
-  {
-    x = x * a.x;
-  }
-
-  bool operator==(int a) const __HC_FP16_DECL_SUFFIX__
-  {
-    if (x == (unsigned short)a)
-      return true;
-    else
-      return false;
-  }
-
-  bool operator==(const __hc_half_ a) const __HC_FP16_DECL_SUFFIX__
-  {
-    if (x == a.x)
-      return true;
-    else
-      return false;
-  }
-};
-
-typedef __hc_half_ half;*/
 
 // 2.2.4. hcComplex
 
@@ -621,11 +569,11 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
 hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
-                           const half           *alpha,
-                            half          *A, int lda,
-                            half          *B, int ldb,
-                           const half           *beta,
-                            half           *C, int ldc);
+                           const half_           *alpha,
+                            half_          *A, int lda,
+                            half_          *B, int ldb,
+                           const half_           *beta,
+                            half_           *C, int ldc);
 
 // 2. hcblas<t>gemmBatched()
 
