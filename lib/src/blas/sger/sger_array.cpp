@@ -12,7 +12,7 @@ void ger_HC(hc::accelerator_view accl_view,
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
   hc::extent<2> compute_domain(M, N);
-  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int i = tidx.global[0];
     int j = tidx.global[1];
 
@@ -35,7 +35,7 @@ void ger_HC(hc::accelerator_view accl_view,
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
   hc::extent<3> compute_domain(batchSize, M, N);
-  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ = ] (hc::tiled_index<3> tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int i = tidx.global[1];
     int j = tidx.global[2];
@@ -56,7 +56,7 @@ void ger_HC_rMajor(hc::accelerator_view accl_view,
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
   hc::extent<2> compute_domain(N, M);
-  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(16, 16), [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int i = tidx.global[1];
     int j = tidx.global[0];
 
@@ -79,7 +79,7 @@ void ger_HC_rMajor(hc::accelerator_view accl_view,
   long M = (m + 15) & ~15;
   long N = (n + 15) & ~15;
   hc::extent<3> compute_domain(batchSize, N, M);
-  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, 16, 16), [ = ] (hc::tiled_index<3> tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int i = tidx.global[2];
     int j = tidx.global[1];

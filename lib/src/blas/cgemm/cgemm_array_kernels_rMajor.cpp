@@ -11,7 +11,7 @@ hcblasStatus cgemm_TransAB_rMajor_loopunroll(hc::accelerator_view accl_view,
 #define TILE_DIM  16
   hc::extent<2> grdExt((M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(THREADS, THREADS);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     float CValue = 0, CValue1 = 0;
     int Row = tidx.tile[1] * TILE_DIM + tidx.local[1];
     int Col = tidx.tile[0] * TILE_DIM + tidx.local[0];
@@ -105,7 +105,7 @@ hcblasStatus cgemm_TransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view
 #define MICROTILESIZE 1
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
@@ -204,7 +204,7 @@ hcblasStatus cgemm_TransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int shiftFactor = hc::fast_math::log2(STEPSIZE);
     float rCreal[1][1];
     float rAreal[1][STEPSIZE / TILESIZE];
@@ -298,7 +298,7 @@ hcblasStatus cgemm_TransAB_rMajor_MICRO_TS8XMTS2(hc::accelerator_view accl_view,
 #define MICROTILESIZE 1
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
@@ -395,7 +395,7 @@ hcblasStatus cgemm_NoTransB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
 #define MICROTILESIZE 1
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
@@ -492,7 +492,7 @@ hcblasStatus cgemm_NoTransA_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int shiftFactor = hc::fast_math::log2(TILESIZE);
     float rCreal[1][1];
     float rAreal[1][1];
@@ -581,7 +581,7 @@ hcblasStatus cgemm_NoTransA_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
 #define MICROTILESIZE 1
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
@@ -679,7 +679,7 @@ hcblasStatus cgemm_NoTransA_rMajor_loopunroll(hc::accelerator_view accl_view,
 #define TILE_DIM  16
   hc::extent<2> grdExt((M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(THREADS, THREADS);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     float CValue = 0, CValue1 = 0;
     int Row = tidx.global[1];
     int Col = tidx.global[0];
@@ -772,7 +772,7 @@ hcblasStatus cgemm_NoTransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 #define STEPSIZE 8
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int shiftFactor = hc::fast_math::log2(TILESIZE);
     float rCreal[1][1];
     float rAreal[1][1];
@@ -858,7 +858,7 @@ hcblasStatus cgemm_NoTransAB_rMajor_STEP_TS16XSS16(hc::accelerator_view accl_vie
 #define STEPSIZE 16
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int shiftFactor = hc::fast_math::log2(TILESIZE);
     float rCreal[1][1];
     float rAreal[1][1];
@@ -944,7 +944,7 @@ hcblasStatus cgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vi
 #define MICROTILESIZE 1
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int shiftTS = hc::fast_math::log2(TILESIZE);
     int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};

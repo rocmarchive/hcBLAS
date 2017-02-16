@@ -10,7 +10,7 @@ hcblasStatus cgemm_alpha0_col(hc::accelerator_view accl_view,
 #define TILE_DIM  16
   hc::extent<2> grdExt((N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(THREADS, THREADS);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int Row = tidx.tile[0] * TILE_DIM + tidx.local[0];
     int Col = tidx.tile[1] * TILE_DIM + tidx.local[1];
     float CReal = 0.0;
@@ -47,7 +47,7 @@ hcblasStatus cgemm_alpha0_colbatch(hc::accelerator_view accl_view,
 #define TILE_DIM  16
   hc::extent<3> grdExt(batchSize, (N + (THREADS - 1)) & ~(THREADS - 1), (M + (THREADS - 1)) & ~(THREADS - 1));
   hc::tiled_extent<3> t_ext = grdExt.tile(1, THREADS, THREADS);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3> tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
     int Row = tidx.tile[1] * TILE_DIM + tidx.local[1];
     int Col = tidx.tile[2] * TILE_DIM + tidx.local[2];
@@ -85,7 +85,7 @@ hcblasStatus cgemm_alpha0_row(hc::accelerator_view accl_view,
 #define TILE_DIM  16
   hc::extent<2> grdExt((M + (THREADS - 1)) & ~(THREADS - 1), (N + (THREADS - 1)) & ~(THREADS - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(THREADS, THREADS);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int Row = tidx.tile[1] * TILE_DIM + tidx.local[1];
     int Col = tidx.tile[0] * TILE_DIM + tidx.local[0];
     float CReal = 0.0;

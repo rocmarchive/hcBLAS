@@ -11,7 +11,7 @@ void scopy_HC(hc::accelerator_view accl_view, long n,
               float *Y, long incy, long yOffset) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
   hc::extent<1> compute_domain(size);
-  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1> tidx) __attribute__((hc, cpu)) {
     if(tidx.global[0] < n) {
       long Y_index = yOffset + tidx.global[0];
       Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
@@ -26,7 +26,7 @@ void scopy_HC(hc::accelerator_view accl_view, long n,
               long X_batchOffset, long Y_batchOffset, int batchSize) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
   hc::extent<2> compute_domain(batchSize, size);
-  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
     int elt = tidx.tile[0];
 
     if(tidx.global[1] < n) {
