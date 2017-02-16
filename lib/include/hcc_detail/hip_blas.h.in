@@ -33,7 +33,10 @@ extern "C" {
 
 typedef hcblasHandle_t hipblasHandle_t;
 typedef hcComplex hip_Complex ;
+
+#ifdef ENABLE_HALF
 typedef __half hiphalf;
+#endif
 
 hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op);
 
@@ -117,8 +120,10 @@ hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOperation_t transa,
 hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const hip_Complex *alpha, hip_Complex *A, int lda, hip_Complex *B, int ldb, const hip_Complex *beta, hip_Complex *C, int ldc);
 
+#ifdef ENABLE_HALF
 hipblasStatus_t hipblasHgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const hiphalf *alpha, hiphalf *A, int lda, hiphalf *B, int ldb, const hiphalf *beta, hiphalf *C, int ldc);
+#endif
 
 hipblasStatus_t hipblasSgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const float *alpha, const float *A[], int lda, const float *B[], int ldb, const float *beta, float *C[], int ldc, int batchCount);

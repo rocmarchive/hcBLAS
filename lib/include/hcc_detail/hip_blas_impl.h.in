@@ -35,8 +35,9 @@ extern "C" {
 
 typedef hcblasHandle_t hipblasHandle_t;
 typedef hcComplex hip_Complex ;
+#ifdef ENABLE_HALF
 typedef __half hiphalf;
-
+#endif
 
 
 inline static hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op)
@@ -297,11 +298,12 @@ inline static hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOpera
 	return hipHCBLASStatusToHIPStatus(hcblasDgemm( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, const_cast<double*>(A),  lda, const_cast<double*>(B),  ldb, beta, C,  ldc));
 }
 
+#ifdef ENABLE_HALF
 inline static hipblasStatus_t hipblasHgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const hiphalf *alpha, hiphalf *A, int lda, hiphalf *B, int ldb, const hiphalf *beta, hiphalf *C, int ldc){
         return hipHCBLASStatusToHIPStatus(hcblasHgemm( handle, hipOperationToHCCOperation(transa),  hipOperationToHCCOperation(transb), m,  n,  k, alpha, A, lda, B, ldb, beta, C,  ldc));
 }
-
+#endif
 
 inline static hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const hip_Complex *alpha, hip_Complex *A, int lda, hip_Complex *B, int ldb, const hip_Complex *beta, hip_Complex *C, int ldc){

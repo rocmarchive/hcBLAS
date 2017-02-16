@@ -28,6 +28,7 @@ hcblasStatus_t hcblasCreate(hcblasHandle_t *handle, hc::accelerator_view *av) {
   return HCBLAS_STATUS_SUCCESS;
 }
 
+#ifdef ENABLE_HALF
 bool hisnan( half raw) __HC_FP16_DECL_SUFFIX__
 {
    return (raw == raw) ? false : true;
@@ -40,7 +41,7 @@ int hisinf(half raw) __HC_FP16_DECL_SUFFIX__
   if (raw == 0x7C00) return 1;
   return 0;
 }
-
+#endif
 
 // 2. hcblasDestory()
 
@@ -1149,6 +1150,7 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
         return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
+#ifdef ENABLE_HALF
 hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
@@ -1176,6 +1178,7 @@ hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
   else
         return HCBLAS_STATUS_EXECUTION_FAILED;
 }
+#endif
 // 2. hcblas<t>gemmBatched()
 
 // This function performs the matrix-matrix multiplications of an array of matrices.

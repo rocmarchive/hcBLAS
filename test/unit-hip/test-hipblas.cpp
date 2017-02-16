@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 #include "cblas.h"
 
-
+#ifdef HGEMM_TEST_ON
 void cblas_hgemm( int, int, int, hiphalf* , hiphalf* , hiphalf* , hiphalf, hiphalf );
 
 void cblas_hgemm( int M, int N, int K, hiphalf* A, hiphalf* B, hiphalf* C_cblas, hiphalf alpha , hiphalf beta)
@@ -19,6 +19,7 @@ void cblas_hgemm( int M, int N, int K, hiphalf* A, hiphalf* B, hiphalf* C_cblas,
      }
    }
 }
+#endif
 
 TEST(hipblaswrapper_sasum, func_return_correct_sasum) {
   hipblasStatus_t status;
@@ -1669,6 +1670,7 @@ TEST(hipblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
 }
 #endif
 
+#ifdef HGEMM_TEST_ON
 #ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_hgemm, func_return_correct_hgemm) {
   hipblasStatus_t status;
@@ -1747,4 +1749,5 @@ TEST(hipblaswrapper_hgemm, func_return_correct_hgemm) {
   free(C_cblas);
   free(C_hipblas);
 }
+#endif
 #endif

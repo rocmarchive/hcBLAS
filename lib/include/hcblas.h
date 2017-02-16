@@ -566,6 +566,7 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
                            const hcDoubleComplex       *beta,
                            hcDoubleComplex       *C, int ldc);
 
+#ifdef ENABLE_HALF
 hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
@@ -574,7 +575,7 @@ hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                             half_          *B, int ldb,
                            const half_           *beta,
                             half_           *C, int ldc);
-
+#endif
 // 2. hcblas<t>gemmBatched()
 
 // This function performs the matrix-matrix multiplications of an array of matrices.
