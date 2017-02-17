@@ -3034,7 +3034,10 @@ hcblasStatus gemm_NoTransA(hc::accelerator_view accl_view,
     return gemm_NoTransA_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS2_MB2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
   else if ((M <= 500 && N <= 1000) || (N <= 500 && M <= 1000) || K <= 30) { 
-    return gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    // XXX: use another algorithm as the default one fails to product correct result
+    //      for unknown reason when compiled with Promote-free HCC
+    //return gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
+    return gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(accl_view, A, aOffset, B, bOffset, C, cOffset, M, N, K, lda, ldb, ldc, alpha, beta);
   }
   else if ((M < 9000 && N < 9000 & K < 5000) || (M < 8000 && N < 8000 && K < 6000) ||
            (M < 7000 && N < 7000 && K < 8000) || (M < 6000 && N < 6000 && K < 9000)) { 
