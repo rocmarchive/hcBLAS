@@ -2,7 +2,7 @@
 #This script is invoked to build the hcblas library and test sources
 
 # getconf _NPROCESSORS_ONLN
-working_threads=8
+working_threads=24
 
 # CHECK FOR COMPILER PATH
 
@@ -149,9 +149,9 @@ if [ "$bench" = "off" ]; then
      make -j$working_threads
      cd $current_work_dir/test/unit/
  # Invoke test script 
-     ${current_work_dir}/build/test/unit-api/bin/unit-api-test
-     ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
-     ${current_work_dir}/build/test/unit/bin/unittest
+     #${current_work_dir}/build/test/unit-api/bin/unit-api-test
+     #${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
+     #${current_work_dir}/build/test/unit/bin/unittest
 # Test=ON and Profile=ON (Build, test and profile the library)
   elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
  # Build Tests
