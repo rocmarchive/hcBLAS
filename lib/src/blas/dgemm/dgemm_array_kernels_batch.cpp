@@ -1754,7 +1754,10 @@ hcblasStatus gemm_NoTransAB(hc::accelerator_view accl_view,
   } else if ((( M > 600 && M < 1800 && N < 600 ) || (M < 50 && N < 1800)) && (K < 10)) {
     return gemm_NoTransAB_batch_STEP_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   } else if ((M < 600 && N < 600 && K < 6000) || (M > 1800 && M < 10000 && K > 600 && K < 10000 && N < 10) || (M < 10 && N > 600 && N < 1800 && K < 6000 )) {
-    return gemm_NoTransAB_batch_STEP_NBK_TS16XSS16(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+    // XXX: use another algorithm as the default one fails to product correct result
+    //      for unknown reason when compiled with Promote-free HCC
+    //return gemm_NoTransAB_batch_STEP_NBK_TS16XSS16(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
+    return gemm_NoTransAB_batch_STEP_TS8XSS8(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   } else if  ( (((M > 1800 && M < 6000 && M == K) || ( M > 1800 && M < 10000 && K > 1800 &&  K < 10000))  && N < 200) || (M < 10000 && N < 1800 && K < 10 ) || (M > 1800 && M < 6000 && N < 600 && K < 200)) {
     return gemm_NoTransAB_batch_MICRO_NBK_TS16XMTS2(accl_view, A, aOffset, A_batchOffset, B, bOffset, B_batchOffset, C, cOffset, C_batchOffset, M, N, K, lda, ldb, ldc, alpha, beta, batchSize);
   } else if(M > 6000 && M < 10000 && N < 600 && K < 10) {
