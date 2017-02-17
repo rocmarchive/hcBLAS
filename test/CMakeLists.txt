@@ -9,7 +9,7 @@ ENDIF()
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake  "${HIP_PATH}/cmake")
 EXECUTE_PROCESS(COMMAND ${HIP_PATH}/bin/hipconfig -P OUTPUT_VARIABLE PLATFORM)
 
-add_subdirectory(unit-hip)
+#add_subdirectory(unit-hip)
 IF(${PLATFORM} MATCHES "hcc")
 add_subdirectory(src)
 add_subdirectory(unit)
