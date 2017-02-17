@@ -19,7 +19,7 @@ namespace hc {
   class accelerator_view;
 };
 
-typedef class  Hcblaslibrary* hcblasHandle_t;
+typedef struct  Hcblaslibrary* hcblasHandle_t;
 
 // 2.2.2. hcblasStatus_t
 
@@ -28,7 +28,8 @@ typedef class  Hcblaslibrary* hcblasHandle_t;
 // core functions can be retrieved via  hcblasGetError() . Currently, the
 // following values are defined:
 
-enum hcblasStatus_t {
+enum hcblasStatus_t : unsigned short
+{
   HCBLAS_STATUS_SUCCESS,          // Function succeeds
   HCBLAS_STATUS_NOT_INITIALIZED,  // HCBLAS library not initialized
   HCBLAS_STATUS_ALLOC_FAILED,     // resource allocation failed
@@ -45,7 +46,8 @@ enum hcblasStatus_t {
 // ‘T’ or ‘t’ (transpose) and ‘C’ or ‘c’ (conjugate transpose) that are often used as parameters
 // to legacy BLAS implementations.
 
-enum hcblasOperation_t {
+enum hcblasOperation_t : unsigned short
+{
   HCBLAS_OP_N,  // The Non transpose operation is selected
   HCBLAS_OP_T,  // Transpose operation is selected
   HCBLAS_OP_C   // Conjugate transpose operation is selected

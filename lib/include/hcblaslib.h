@@ -72,7 +72,7 @@ struct hc_Complex
 };
 
 /* Class which implements the blas ( SGEMM, CGEMM, SGEMV, SGER, SAXPY )  */
-class Hcblaslibrary
+struct Hcblaslibrary
 {
     public:
 
