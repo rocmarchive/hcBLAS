@@ -44,7 +44,6 @@ typedef __half hiphalf;
 		"cublasDataType_t"
 */
 
-#if (HIP_SHARED_OBJ == 1)
 
 cublasOperation_t hipOperationToCudaOperation( hipblasOperation_t op);
 
@@ -392,7 +391,6 @@ inline static hipblasStatus_t hipblasDaxpy(hipblasHandle_t handle, int n, const 
     return hipCUBLASStatusToHIPStatus(cublasDaxpy (handle, n, alpha, x, incx, y, incy));
 }
 
-#endif
 
 #ifdef __cplusplus
 }

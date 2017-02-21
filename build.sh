@@ -125,12 +125,12 @@ cd $build_dir
 if [ "$platform" = "hcc" ]; then
   
     if [ "$synckernel" = "on" ]; then
-      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
     elif [ "$synckernel" = "off" ]; then
-      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DSERIALIZE_KERNEL=OFF -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler  -DSERIALIZE_KERNEL=OFF -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
     else 
       #default case: Of course there are Compulsory waits on certain kernels 
-      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
+      cmake -DCMAKE_C_COMPILER=$cmake_c_compiler  -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
     fi
 
   make -j$working_threads package $verbose
@@ -138,7 +138,7 @@ if [ "$platform" = "hcc" ]; then
 
   if [ "$install" = "1" ]; then
     sudo make -j$working_threads install
-    cd $build_dir/packaging/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir/packaging/
+    cd $build_dir/packaging/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir/packaging/
   fi
  
 # Various possibilities of test and profile arguments
@@ -149,7 +149,7 @@ if [ "$platform" = "hcc" ]; then
 # Test=ON and Profile=OFF (Build and test the library)
     elif ( [ "$testing" = "on" ] && [ -z $profiling ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "off" ] ); then
 # Build Tests
-        cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+        cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
         set +e
         make -j$working_threads
 # Invoke test script 
@@ -165,7 +165,7 @@ if [ "$platform" = "hcc" ]; then
 # Test=ON and Profile=ON (Build, test and profile the library)
     elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
 # Build Tests
-        cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+        cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler  -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
         set +e
         make -j$working_threads
 # Invoke test script 
@@ -201,7 +201,7 @@ if [ "$platform" = "hcc" ]; then
     ./build.sh
   fi
 elif [ "$platform" = "nvcc" ]; then
-    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hipblas $current_work_dir
+    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hipblas $current_work_dir
     
     make -j$working_threads package $verbose
     make -j$working_threads $verbose
@@ -209,7 +209,7 @@ elif [ "$platform" = "nvcc" ]; then
     echo "${green}HIPBLAS Build Completed!${reset}"
 
   if  [ "$testing" = "on" ]; then
-       cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DHIP_SHARED_OBJ=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
+       cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler  -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC $current_work_dir/test/
      set +e
      make -j$working_threads
      ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
