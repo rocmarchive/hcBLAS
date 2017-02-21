@@ -29,8 +29,6 @@ IF (${PLATFORM} MATCHES "hcc")
 
   SET(SERIALIZE_KERNEL "DEFAULT" CACHE STRING "SYNC KERNELS")
 
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/hip_blas.h.in ${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/hip_blas.h)
-
   #Setting a variable for source files
   SET (HCBLASSRCS ${BLASSRC} hcblas.cpp)
 
