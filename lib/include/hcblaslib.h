@@ -19,6 +19,7 @@ using namespace hc;
 using namespace hc::short_vector;
 using namespace std;
 
+
 //Compulsory wait
 #define _WAIT2 .wait()
 
@@ -72,7 +73,7 @@ struct hc_Complex
 };
 
 /* Class which implements the blas ( SGEMM, CGEMM, SGEMV, SGER, SAXPY )  */
-class Hcblaslibrary
+struct Hcblaslibrary
 {
     public:
 

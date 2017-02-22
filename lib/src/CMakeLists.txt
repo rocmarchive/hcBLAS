@@ -19,8 +19,6 @@ endif()
 
 execute_process(COMMAND ${HIP_PATH}/bin/hipconfig --platform OUTPUT_VARIABLE HIP_PLATFORM)
 MESSAGE ("HIP_PATH=" ${HIP_PATH})
-SET(HIP_SHARED_OBJ "DEFAULT" CACHE STRING "HIP SO")
-MESSAGE ("HIP SHARED OBJECT= " ${HIP_SHARED_OBJ})
 
 # Build hcfft and hipfft from source on AMD platform
 IF (${PLATFORM} MATCHES "hcc")
@@ -30,12 +28,6 @@ IF (${PLATFORM} MATCHES "hcc")
   ADD_SUBDIRECTORY(blas)
 
   SET(SERIALIZE_KERNEL "DEFAULT" CACHE STRING "SYNC KERNELS")
-
-  IF(${HIP_SHARED_OBJ} MATCHES "ON")
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/hip_blas.h.in ${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/hip_blas.h)
-  ELSE()
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/hip_blas_impl.h.in ${CMAKE_CURRENT_SOURCE_DIR}/../include/hcc_detail/hip_blas.h)
-  ENDIF()
 
   #Setting a variable for source files
   SET (HCBLASSRCS ${BLASSRC} hcblas.cpp)
@@ -77,30 +69,28 @@ IF (${PLATFORM} MATCHES "hcc")
 
   INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../include/" DESTINATION include PATTERN "*.h.in" EXCLUDE)
 
-  IF(${HIP_SHARED_OBJ} MATCHES "ON")
-    SET (HIPBLASSRCS ${HCBLASSRCS} ${CMAKE_CURRENT_SOURCE_DIR}/hcc_detail/hipblas.cpp)
+  SET (HIPBLASSRCS ${HCBLASSRCS} ${CMAKE_CURRENT_SOURCE_DIR}/hcc_detail/hipblas.cpp)
     
-    # Setting header dependencies for hipblas library generation
-    FOREACH(src_file ${HIPBLASSRCS})
-          SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
-    ENDFOREACH()
+  # Setting header dependencies for hipblas library generation
+  FOREACH(src_file ${HIPBLASSRCS})
+        SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
+  ENDFOREACH()
     
-    #Generating hipblas shared object
-    ADD_LIBRARY("${PROJECT_NAME_EXT}_hcc" SHARED ${HIPBLASSRCS})
-    SET_PROPERTY(TARGET "${PROJECT_NAME_EXT}_hcc" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
-    TARGET_LINK_LIBRARIES("${PROJECT_NAME_EXT}_hcc" hc_am)
+  #Generating hipblas shared object
+  ADD_LIBRARY("${PROJECT_NAME_EXT}_hcc" SHARED ${HIPBLASSRCS})
+  SET_PROPERTY(TARGET "${PROJECT_NAME_EXT}_hcc" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
+  TARGET_LINK_LIBRARIES("${PROJECT_NAME_EXT}_hcc" hc_am)
 
-    INSTALL(TARGETS "${PROJECT_NAME_EXT}_hcc" 
+  INSTALL(TARGETS "${PROJECT_NAME_EXT}_hcc" 
       RUNTIME DESTINATION lib
       LIBRARY DESTINATION lib
       ARCHIVE DESTINATION lib
       PERMISSIONS WORLD_READ WORLD_WRITE WORLD_EXECUTE
-    )
+  )
   
   INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../include/" DESTINATION include PATTERN "*.h.in" EXCLUDE)  
-  ENDIF()
 
-ELSEIF (${PLATFORM} MATCHES "nvcc" AND ${HIP_SHARED_OBJ} MATCHES "ON")
+ELSEIF (${PLATFORM} MATCHES "nvcc")
   
   MESSAGE(STATUS "Building hipblas.cpp")
   

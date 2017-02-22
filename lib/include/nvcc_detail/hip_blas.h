@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 typedef cublasHandle_t hipblasHandle_t ;
-typedef cuComplex hip_Complex;
+typedef cuComplex hipComplex;
 typedef __half hiphalf;
 
 /* Unsupported types
@@ -44,7 +44,6 @@ typedef __half hiphalf;
 		"cublasDataType_t"
 */
 
-#if (HIP_SHARED_OBJ == 1)
 
 cublasOperation_t hipOperationToCudaOperation( hipblasOperation_t op);
 
@@ -123,7 +122,7 @@ hipblasStatus_t hipblasSgemm(hipblasHandle_t handle,  hipblasOperation_t transa,
                            int m, int n, int k,  const float *alpha, float *A, int lda, float *B, int ldb, const float *beta, float *C, int ldc);
 
 hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hip_Complex *alpha, hip_Complex *A, int lda, hip_Complex *B, int ldb, const hip_Complex *beta, hip_Complex *C, int ldc);
+                           int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc);
 
 hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const double *alpha, const double *A, int lda, const double *B, int ldb, const double *beta, double *C, int ldc);
@@ -138,7 +137,7 @@ hipblasStatus_t hipblasDgemmBatched(hipblasHandle_t handle,  hipblasOperation_t 
                            int m, int n, int k,  const double *alpha, const double *A[], int lda, const double *B[], int ldb, const double *beta, double *C[], int ldc, int batchCount);
 
 hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hip_Complex *alpha, const hip_Complex *A[], int lda, const hip_Complex *B[], int ldb, const hip_Complex *beta, hip_Complex *C[], int ldc, int batchCount);
+                           int m, int n, int k,  const hipComplex *alpha, const hipComplex *A[], int lda, const hipComplex *B[], int ldb, const hipComplex *beta, hipComplex *C[], int ldc, int batchCount);
 
 hipblasStatus_t hipblasDgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const double *alpha, const double *A, int lda,
                            const double *x, int incx,  const double *beta,  double *y, int incy);
@@ -354,7 +353,7 @@ inline static hipblasStatus_t hipblasSgemm(hipblasHandle_t handle,  hipblasOpera
 }
 
 inline static hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hip_Complex *alpha, hip_Complex *A, int lda, hip_Complex *B, int ldb, const hip_Complex *beta, hip_Complex *C, int ldc){
+                           int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc){
 	return hipCUBLASStatusToHIPStatus(cublasCgemm( handle, hipOperationToCudaOperation(transa),  hipOperationToCudaOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc));
 }
 
@@ -374,7 +373,7 @@ inline static hipblasStatus_t hipblasSgemmBatched(hipblasHandle_t handle,  hipbl
 }
 
 inline static hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hip_Complex *alpha, const hip_Complex *A[], int lda, const hip_Complex *B[], int ldb, const hip_Complex *beta, hip_Complex *C[], int ldc, int batchCount){
+                           int m, int n, int k,  const hipComplex *alpha, const hipComplex *A[], int lda, const hipComplex *B[], int ldb, const hipComplex *beta, hipComplex *C[], int ldc, int batchCount){
 	return hipCUBLASStatusToHIPStatus(cublasCgemmBatched( handle, hipOperationToCudaOperation(transa),  hipOperationToCudaOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc, batchCount));
 }
 
@@ -392,7 +391,6 @@ inline static hipblasStatus_t hipblasDaxpy(hipblasHandle_t handle, int n, const 
     return hipCUBLASStatusToHIPStatus(cublasDaxpy (handle, n, alpha, x, incx, y, incy));
 }
 
-#endif
 
 #ifdef __cplusplus
 }

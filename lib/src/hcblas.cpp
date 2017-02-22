@@ -84,7 +84,7 @@ hcblasStatus_t hcblasSetAcclView(hcblasHandle_t handle, hc::accelerator_view acc
 // HCBLAS_STATUS_SUCCESS : the stream was returned successfully
 // HCBLAS_STATUS_NOT_INITIALIZED : the library was not initialized
 
-hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view *accl_view, void** stream) {
+hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view *&accl_view, void** stream) {
   if (handle == nullptr) {
     return HCBLAS_STATUS_NOT_INITIALIZED;
   }

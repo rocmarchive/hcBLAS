@@ -6,12 +6,11 @@
 #include "cblas.h"
 #include "test_constants.h"
 
-#ifdef HGEMM_TEST_ON
+#ifdef HGEMM_UNIT_TESTING
+void cblas_hgemm( int,int, int,int, int, int, half, half* ,long, half* , long, half ,half*,long  );
 
-void cblas_hgemm( int,int, int,int, int, int, __half, __half* ,long, __half* , long, __half ,__half*,long  );
 
-
-void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half alpha  , __half* A, long lda, __half* B,long ldb,  __half beta , __half* C_cblas,long ldc)
+void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, half alpha  , half* A, long lda, half* B,long ldb,  half beta , half* C_cblas,long ldc)
 {
   if(order == 102 && alpha!= 0)
   {
@@ -21,7 +20,7 @@ void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half
       {
          for( int j = 0 ; j < N ; j++)
          {
-          __half temp=0;
+          half temp=0;
              for( int k = 0 ; k < K ; k++)
              { 
                 temp += alpha * A[k * M + i] * B[j * K + k]; //CM N,N
@@ -36,7 +35,7 @@ void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half
       {
          for( int j = 0 ; j < N ; j++)
          {
-         __half temp=0;
+         half temp=0;
              for( int k = 0 ; k < K ; k++)
              {
                 temp += alpha * A[k + i * K] * B[j * K + k];
@@ -51,7 +50,7 @@ void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half
       {
          for( int j = 0 ; j < N ; j++)
          {
-         __half temp=0;
+         half temp=0;
              for( int k = 0 ; k < K ; k++)
              {
                 temp +=   alpha * A[k * M + i] * B[j + N * k] ; //CM N,T
@@ -66,7 +65,7 @@ void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half
       {
          for( int j = 0 ; j < N ; j++)
          {
-         __half temp=0;
+         half temp=0;
              for( int k = 0 ; k < K ; k++)
              {
                 temp +=  alpha *  A[k + i * K] * B[j + N * k]  ; //CM T,T
@@ -86,7 +85,7 @@ void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half
       {
          for( int j = 0 ; j < N ; j++)
          {
-         __half temp=0;
+         half temp=0;
              for( int k = 0 ; k < K ; k++)
              {
                 temp +=  alpha * A[k + i * K] * B[j + k * N] ;  //RM N,N
@@ -101,7 +100,7 @@ void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half
       {
          for( int j = 0 ; j < N ; j++)
          {
-         __half temp=0;
+         half temp=0;
              for( int k = 0 ; k < K ; k++)
              {
                temp +=  alpha * A[k * M + i] * B[j + k * N] ; // RM T,N
@@ -116,7 +115,7 @@ void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half
       {
          for( int j = 0 ; j < N ; j++)
          {
-         __half temp=0;
+         half temp=0;
              for( int k = 0 ; k < K ; k++)
              {
                 temp += alpha *  A[k + i * K] * B[j * K + k] ; //RM N,T
@@ -131,7 +130,7 @@ void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half
       {
          for( int j = 0 ; j < N ; j++)
          {
-         __half temp=0;
+         half temp=0;
              for( int k = 0 ; k < K ; k++)
              {
                 temp +=  alpha * A[k * M + i] * B[j * K + k]  ; // RM T,T
@@ -149,7 +148,7 @@ void cblas_hgemm( int order ,int transA, int transB, int M, int N, int K, __half
       {
          for( int j = 0 ; j < N ; j++)
          {
-         __half temp=0;
+         half temp=0;
              for( int k = 0 ; k < K ; k++)
              {
              temp = 0 ;
@@ -168,7 +167,7 @@ TEST(hcblas_hgemm, return_correct_hgemm_Implementation_type_1) {
   hc::accelerator_view av = accl.get_default_view();
   Hcblaslibrary hc(&av);
   int M = 189, N = 9, K = 19;
-  __half alpha = 1, beta = 1;
+  half alpha = 1, beta = 1;
   long lda, ldb, ldc;
   int incX = 1, incY = 1;
   long aOffset = 0;
@@ -180,12 +179,12 @@ TEST(hcblas_hgemm, return_correct_hgemm_Implementation_type_1) {
   accelerator_view accl_view = hc.currentAcclView;
   accelerator acc = hc.currentAccl;
   // Implementation type I - Inputs and Outputs are HCC device pointers
-  __half* A = (__half*) calloc(M * K, sizeof(__half));
-  __half* B = (__half*) calloc(K * N, sizeof(__half));
-  __half* C = (__half*) calloc(M * N, sizeof(__half));
-  __half* devA = hc::am_alloc(sizeof(__half) * M * K, acc, 0);
-  __half* devB = hc::am_alloc(sizeof(__half) * K * N, acc, 0);
-  __half* devC = hc::am_alloc(sizeof(__half) * M * N, acc, 0);
+  half* A = (half*) calloc(M * K, sizeof(half));
+  half* B = (half*) calloc(K * N, sizeof(half));
+  half* C = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, acc, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, acc, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, acc, 0);
 
   for(int i = 0; i < M * K; i++) {
     A[i] = rand() % 100;
@@ -199,9 +198,9 @@ TEST(hcblas_hgemm, return_correct_hgemm_Implementation_type_1) {
     C[i] = rand() % 25;
   }
 
-  accl_view.copy(A, devA, M * K * sizeof(__half));
-  accl_view.copy(B, devB, K * N * sizeof(__half));
-  accl_view.copy(C, devC, M * N * sizeof(__half));
+  accl_view.copy(A, devA, M * K * sizeof(half));
+  accl_view.copy(B, devB, K * N * sizeof(half));
+  accl_view.copy(C, devC, M * N * sizeof(half));
   // NoTransA and NoTransB
   typeA = NoTrans;
   typeB = NoTrans;
@@ -268,9 +267,9 @@ TEST(hcblas_hgemm, return_correct_hgemm_Implementation_type_1) {
   ldb = K ;
   ldc = M;
   hcOrder = ColMajor;
-  __half* devA1 = NULL;
-  __half* devB1 = NULL;
-  __half* devC1 = NULL;
+  half* devA1 = NULL;
+  half* devB1 = NULL;
+  half* devC1 = NULL;
   //A, B, C device pointers are not allocated properly
   status = hc.hcblas_hgemm(accl_view, hcOrder, typeA, typeB, M, N, K, alpha, devA1, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_INVALID);
@@ -296,7 +295,7 @@ TEST(hcblas_hgemm, return_correct_hgemm_Implementation_type_1) {
 }
 
 // Function to check Hgemm NoTransAB Column Major
-void func_check_hgemmNN_Col_type_1(int M, int N, int K, __half alpha, __half beta, float tolerance) {
+void func_check_hgemmNN_Col_type_1(int M, int N, int K, half alpha, half beta, float tolerance) {
   hc::accelerator accl;
   hc::accelerator_view av = accl.get_default_view();
   Hcblaslibrary hc(&av);
@@ -313,32 +312,32 @@ void func_check_hgemmNN_Col_type_1(int M, int N, int K, __half alpha, __half bet
   CBLAS_TRANSPOSE Transa, Transb;
   
   // Implementation type I - Inputs and Outputs are HCC device pointers
-  __half* A = (__half*) calloc(M * K, sizeof(__half));
-  __half* B = (__half*) calloc(K * N, sizeof(__half));
-  __half* C = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_hcblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_cblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* devA = hc::am_alloc(sizeof(__half) * M * K, acc, 0);
-  __half* devB = hc::am_alloc(sizeof(__half) * K * N, acc, 0);
-  __half* devC = hc::am_alloc(sizeof(__half) * M * N, acc, 0);
+  half* A = (half*) calloc(M * K, sizeof(half));
+  half* B = (half*) calloc(K * N, sizeof(half));
+  half* C = (half*) calloc(M * N, sizeof(half));
+  half* C_hcblas = (half*) calloc(M * N, sizeof(half));
+  half* C_cblas = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, acc, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, acc, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, acc, 0);
   float* C_hcblas_float = (float*) calloc(M * N, sizeof(float));
   float* C_cblas_float = (float*) calloc(M * N, sizeof(float));
   float X = 2;
   for(int i = 0; i < M * K; i++) {
-    A[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    A[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
    }
 
   for(int i = 0; i < K * N; i++) {
-    B[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    B[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
    }
 
   for(int i = 0; i < M * N; i++) {
-    C[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    C[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
      C_cblas[i] = C[i];
   }
-   accl_view.copy(A, devA, M * K * sizeof(__half));
-  accl_view.copy(B, devB, K * N * sizeof(__half));
-  accl_view.copy(C, devC, M * N * sizeof(__half));
+   accl_view.copy(A, devA, M * K * sizeof(half));
+  accl_view.copy(B, devB, K * N * sizeof(half));
+  accl_view.copy(C, devC, M * N * sizeof(half));
   
   // NoTransA and NoTransB
   typeA = NoTrans;
@@ -352,7 +351,7 @@ void func_check_hgemmNN_Col_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = M;
   status = hc.hcblas_hgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A,lda, B,ldb, beta, C_cblas,ldc );
   float result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
   EXPECT_LE(result, tolerance);
@@ -368,7 +367,7 @@ void func_check_hgemmNN_Col_type_1(int M, int N, int K, __half alpha, __half bet
 }
 
 // Function to check Hgemm NoTransAB row Major
-void func_check_hgemmNN_Row_type_1(int M, int N, int K, __half alpha, __half beta, float tolerance) {
+void func_check_hgemmNN_Row_type_1(int M, int N, int K, half alpha, half beta, float tolerance) {
   hc::accelerator accl;
   hc::accelerator_view av = accl.get_default_view();
   Hcblaslibrary hc(&av);
@@ -384,32 +383,32 @@ void func_check_hgemmNN_Row_type_1(int M, int N, int K, __half alpha, __half bet
   accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
-  __half* A = (__half*) calloc(M * K, sizeof(__half));
-  __half* B = (__half*) calloc(K * N, sizeof(__half));
-  __half* C = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_hcblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_cblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* devA = hc::am_alloc(sizeof(__half) * M * K, acc, 0);
-  __half* devB = hc::am_alloc(sizeof(__half) * K * N, acc, 0);
-  __half* devC = hc::am_alloc(sizeof(__half) * M * N, acc, 0);
+  half* A = (half*) calloc(M * K, sizeof(half));
+  half* B = (half*) calloc(K * N, sizeof(half));
+  half* C = (half*) calloc(M * N, sizeof(half));
+  half* C_hcblas = (half*) calloc(M * N, sizeof(half));
+  half* C_cblas = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, acc, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, acc, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
-    A[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    A[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < K * N; i++) {
-    B[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    B[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < M * N; i++) {
-    C[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    C[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
     C_cblas[i] = C[i];
   }
 
-  accl_view.copy(A, devA, M * K * sizeof(__half));
-  accl_view.copy(B, devB, K * N * sizeof(__half));
-  accl_view.copy(C, devC, M * N * sizeof(__half));
+  accl_view.copy(A, devA, M * K * sizeof(half));
+  accl_view.copy(B, devB, K * N * sizeof(half));
+  accl_view.copy(C, devC, M * N * sizeof(half));
   // NoTransA and NoTransB
   typeA = NoTrans;
   typeB = NoTrans;
@@ -422,7 +421,7 @@ void func_check_hgemmNN_Row_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = N;
   status = hc.hcblas_hgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   float result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
@@ -441,7 +440,7 @@ void func_check_hgemmNN_Row_type_1(int M, int N, int K, __half alpha, __half bet
 
 
 // Function to check Hgemm NoTransA Col Major
-void func_check_hgemmNT_Col_type_1(int M, int N, int K, __half alpha, __half beta, float tolerance) {
+void func_check_hgemmNT_Col_type_1(int M, int N, int K, half alpha, half beta, float tolerance) {
   hc::accelerator accl;
   hc::accelerator_view av = accl.get_default_view();
   Hcblaslibrary hc(&av);
@@ -457,31 +456,31 @@ void func_check_hgemmNT_Col_type_1(int M, int N, int K, __half alpha, __half bet
   accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
-  __half* A = (__half*) calloc(M * K, sizeof(__half));
-  __half* B = (__half*) calloc(K * N, sizeof(__half));
-  __half* C = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_hcblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_cblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* devA = hc::am_alloc(sizeof(__half) * M * K, acc, 0);
-  __half* devB = hc::am_alloc(sizeof(__half) * K * N, acc, 0);
-  __half* devC = hc::am_alloc(sizeof(__half) * M * N, acc, 0);
+  half* A = (half*) calloc(M * K, sizeof(half));
+  half* B = (half*) calloc(K * N, sizeof(half));
+  half* C = (half*) calloc(M * N, sizeof(half));
+  half* C_hcblas = (half*) calloc(M * N, sizeof(half));
+  half* C_cblas = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, acc, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, acc, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, acc, 0);
   float X = 2;
    for(int i = 0; i < M * K; i++) {
-    A[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    A[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < K * N; i++) {
-    B[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    B[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < M * N; i++) {
-    C[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    C[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
     C_cblas[i] = C[i];
   }
  
-  accl_view.copy(A, devA, M * K * sizeof(__half));
-  accl_view.copy(B, devB, K * N * sizeof(__half));
-  accl_view.copy(C, devC, M * N * sizeof(__half));
+  accl_view.copy(A, devA, M * K * sizeof(half));
+  accl_view.copy(B, devB, K * N * sizeof(half));
+  accl_view.copy(C, devC, M * N * sizeof(half));
 
   // NoTransA TransB
   typeA = NoTrans;
@@ -494,7 +493,7 @@ void func_check_hgemmNT_Col_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = M;
   status = hc.hcblas_hgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   float result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
@@ -505,7 +504,7 @@ void func_check_hgemmNT_Col_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = M;
   status = hc.hcblas_hgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm( CblasColMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, beta, C_cblas, ldc);
 
   result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
@@ -516,7 +515,7 @@ void func_check_hgemmNT_Col_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = M;
   status = hc.hcblas_hgemm(accl_view, ColMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, 0, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm( CblasColMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, 0, C_cblas, ldc);
 
   result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
@@ -534,7 +533,7 @@ void func_check_hgemmNT_Col_type_1(int M, int N, int K, __half alpha, __half bet
 
 
 // Function to check Hgemm NoTransA Row Major
-void func_check_hgemmNT_Row_type_1(int M, int N, int K, __half alpha, __half beta, float tolerance) {
+void func_check_hgemmNT_Row_type_1(int M, int N, int K, half alpha, half beta, float tolerance) {
   hc::accelerator accl;
   hc::accelerator_view av = accl.get_default_view();
   Hcblaslibrary hc(&av);
@@ -550,32 +549,32 @@ void func_check_hgemmNT_Row_type_1(int M, int N, int K, __half alpha, __half bet
   accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
-  __half* A = (__half*) calloc(M * K, sizeof(__half));
-  __half* B = (__half*) calloc(K * N, sizeof(__half));
-  __half* C = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_hcblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_cblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* devA = hc::am_alloc(sizeof(__half) * M * K, acc, 0);
-  __half* devB = hc::am_alloc(sizeof(__half) * K * N, acc, 0);
-  __half* devC = hc::am_alloc(sizeof(__half) * M * N, acc, 0);
+  half* A = (half*) calloc(M * K, sizeof(half));
+  half* B = (half*) calloc(K * N, sizeof(half));
+  half* C = (half*) calloc(M * N, sizeof(half));
+  half* C_hcblas = (half*) calloc(M * N, sizeof(half));
+  half* C_cblas = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, acc, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, acc, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
-    A[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    A[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < K * N; i++) {
-    B[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    B[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < M * N; i++) {
-    C[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    C[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
     C_cblas[i] = C[i];
   }
 
-  accl_view.copy(A, devA, M * K * sizeof(__half));
-  accl_view.copy(B, devB, K * N * sizeof(__half));
-  accl_view.copy(C, devC, M * N * sizeof(__half));
+  accl_view.copy(A, devA, M * K * sizeof(half));
+  accl_view.copy(B, devB, K * N * sizeof(half));
+  accl_view.copy(C, devC, M * N * sizeof(half));
 
   // NoTransA TransB
   typeA = NoTrans;
@@ -589,7 +588,7 @@ void func_check_hgemmNT_Row_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = N;
   status = hc.hcblas_hgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm(CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   float result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
@@ -601,7 +600,7 @@ void func_check_hgemmNT_Row_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = N;
   status = hc.hcblas_hgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm(CblasRowMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, beta, C_cblas, ldc);
 
    result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
@@ -613,7 +612,7 @@ void func_check_hgemmNT_Row_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = N;
   status = hc.hcblas_hgemm(accl_view, RowMajor, typeA, typeB, M, N, K, 0, devA, lda, devB, ldb, 0, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm(CblasRowMajor, Transa, Transb, M, N, K, 0, A, lda, B, ldb, 0, C_cblas, ldc);
 
   result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
@@ -630,7 +629,7 @@ void func_check_hgemmNT_Row_type_1(int M, int N, int K, __half alpha, __half bet
 }
 
 // Function to check Hgemm NoTransB Col Major
-void func_check_hgemmTN_Col_type_1(int M, int N, int K, __half alpha, __half beta, float tolerance) {
+void func_check_hgemmTN_Col_type_1(int M, int N, int K, half alpha, half beta, float tolerance) {
   hc::accelerator accl;
   hc::accelerator_view av = accl.get_default_view();
   Hcblaslibrary hc(&av);
@@ -646,32 +645,32 @@ void func_check_hgemmTN_Col_type_1(int M, int N, int K, __half alpha, __half bet
   accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
-  __half* A = (__half*) calloc(M * K, sizeof(__half));
-  __half* B = (__half*) calloc(K * N, sizeof(__half));
-  __half* C = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_hcblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_cblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* devA = hc::am_alloc(sizeof(__half) * M * K, acc, 0);
-  __half* devB = hc::am_alloc(sizeof(__half) * K * N, acc, 0);
-  __half* devC = hc::am_alloc(sizeof(__half) * M * N, acc, 0);
+  half* A = (half*) calloc(M * K, sizeof(half));
+  half* B = (half*) calloc(K * N, sizeof(half));
+  half* C = (half*) calloc(M * N, sizeof(half));
+  half* C_hcblas = (half*) calloc(M * N, sizeof(half));
+  half* C_cblas = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, acc, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, acc, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
-    A[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    A[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < K * N; i++) {
-    B[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    B[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < M * N; i++) {
-    C[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    C[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
     C_cblas[i] = C[i];
   }
 
-  accl_view.copy(A, devA, M * K * sizeof(__half));
-  accl_view.copy(B, devB, K * N * sizeof(__half));
-  accl_view.copy(C, devC, M * N * sizeof(__half));
+  accl_view.copy(A, devA, M * K * sizeof(half));
+  accl_view.copy(B, devB, K * N * sizeof(half));
+  accl_view.copy(C, devC, M * N * sizeof(half));
   
   // TransA NoTransB
   typeA = Trans;
@@ -684,7 +683,7 @@ void func_check_hgemmTN_Col_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = M;
   status = hc.hcblas_hgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
  float result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
@@ -702,7 +701,7 @@ void func_check_hgemmTN_Col_type_1(int M, int N, int K, __half alpha, __half bet
 
 
 // Function to check Hgemm NoTransB Row Major
-void func_check_hgemmTN_Row_type_1(int M, int N, int K, __half alpha, __half beta, float tolerance) {
+void func_check_hgemmTN_Row_type_1(int M, int N, int K, half alpha, half beta, float tolerance) {
   hc::accelerator accl;
   hc::accelerator_view av = accl.get_default_view();
   Hcblaslibrary hc(&av);
@@ -718,32 +717,32 @@ void func_check_hgemmTN_Row_type_1(int M, int N, int K, __half alpha, __half bet
   accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
-  __half* A = (__half*) calloc(M * K, sizeof(__half));
-  __half* B = (__half*) calloc(K * N, sizeof(__half));
-  __half* C = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_hcblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_cblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* devA = hc::am_alloc(sizeof(__half) * M * K, acc, 0);
-  __half* devB = hc::am_alloc(sizeof(__half) * K * N, acc, 0);
-  __half* devC = hc::am_alloc(sizeof(__half) * M * N, acc, 0);
+  half* A = (half*) calloc(M * K, sizeof(half));
+  half* B = (half*) calloc(K * N, sizeof(half));
+  half* C = (half*) calloc(M * N, sizeof(half));
+  half* C_hcblas = (half*) calloc(M * N, sizeof(half));
+  half* C_cblas = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, acc, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, acc, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
-    A[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    A[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < K * N; i++) {
-    B[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    B[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < M * N; i++) {
-    C[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    C[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
     C_cblas[i] = C[i];
   }
 
-  accl_view.copy(A, devA, M * K * sizeof(__half));
-  accl_view.copy(B, devB, K * N * sizeof(__half));
-  accl_view.copy(C, devC, M * N * sizeof(__half));
+  accl_view.copy(A, devA, M * K * sizeof(half));
+  accl_view.copy(B, devB, K * N * sizeof(half));
+  accl_view.copy(C, devC, M * N * sizeof(half));
   
   // TransA NoTransB
   typeA = Trans;
@@ -757,7 +756,7 @@ void func_check_hgemmTN_Row_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = N;
   status = hc.hcblas_hgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++)
@@ -774,7 +773,7 @@ void func_check_hgemmTN_Row_type_1(int M, int N, int K, __half alpha, __half bet
 }
 
 // Function to check Hgemm TransAB Col Major
-void func_check_hgemmTT_Col_type_1(int M, int N, int K, __half alpha, __half beta, float tolerance) {
+void func_check_hgemmTT_Col_type_1(int M, int N, int K, half alpha, half beta, float tolerance) {
   hc::accelerator accl;
   hc::accelerator_view av = accl.get_default_view();
   Hcblaslibrary hc(&av);
@@ -790,32 +789,32 @@ void func_check_hgemmTT_Col_type_1(int M, int N, int K, __half alpha, __half bet
   accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
-  __half* A = (__half*) calloc(M * K, sizeof(__half));
-  __half* B = (__half*) calloc(K * N, sizeof(__half));
-  __half* C = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_hcblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_cblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* devA = hc::am_alloc(sizeof(__half) * M * K, acc, 0);
-  __half* devB = hc::am_alloc(sizeof(__half) * K * N, acc, 0);
-  __half* devC = hc::am_alloc(sizeof(__half) * M * N, acc, 0);
+  half* A = (half*) calloc(M * K, sizeof(half));
+  half* B = (half*) calloc(K * N, sizeof(half));
+  half* C = (half*) calloc(M * N, sizeof(half));
+  half* C_hcblas = (half*) calloc(M * N, sizeof(half));
+  half* C_cblas = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, acc, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, acc, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
-    A[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    A[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < K * N; i++) {
-    B[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    B[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < M * N; i++) {
-    C[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    C[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
     C_cblas[i] = C[i];
   }
 
-  accl_view.copy(A, devA, M * K * sizeof(__half));
-  accl_view.copy(B, devB, K * N * sizeof(__half));
-  accl_view.copy(C, devC, M * N * sizeof(__half));
+  accl_view.copy(A, devA, M * K * sizeof(half));
+  accl_view.copy(B, devB, K * N * sizeof(half));
+  accl_view.copy(C, devC, M * N * sizeof(half));
 
   // TransA TransB
   typeA = Trans;
@@ -830,7 +829,7 @@ void func_check_hgemmTT_Col_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = M;
   status = hc.hcblas_hgemm(accl_view, ColMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm( CblasColMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   for(int i = 0 ; i < M * N ; i++)
@@ -847,7 +846,7 @@ void func_check_hgemmTT_Col_type_1(int M, int N, int K, __half alpha, __half bet
 }
 
 // Function to check Hgemm TransAB Row Major
-void func_check_hgemmTT_Row_type_1(int M, int N, int K, __half alpha, __half beta, float tolerance) {
+void func_check_hgemmTT_Row_type_1(int M, int N, int K, half alpha, half beta, float tolerance) {
   hc::accelerator accl;
   hc::accelerator_view av = accl.get_default_view();
   Hcblaslibrary hc(&av);
@@ -864,32 +863,32 @@ void func_check_hgemmTT_Row_type_1(int M, int N, int K, __half alpha, __half bet
   accelerator acc = hc.currentAccl;
   CBLAS_TRANSPOSE Transa, Transb;
   // Implementation type I - Inputs and Outputs are HCC device pointers
-  __half* A = (__half*) calloc(M * K, sizeof(__half));
-  __half* B = (__half*) calloc(K * N, sizeof(__half));
-  __half* C = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_hcblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* C_cblas = (__half*) calloc(M * N, sizeof(__half));
-  __half* devA = hc::am_alloc(sizeof(__half) * M * K, acc, 0);
-  __half* devB = hc::am_alloc(sizeof(__half) * K * N, acc, 0);
-  __half* devC = hc::am_alloc(sizeof(__half) * M * N, acc, 0);
+  half* A = (half*) calloc(M * K, sizeof(half));
+  half* B = (half*) calloc(K * N, sizeof(half));
+  half* C = (half*) calloc(M * N, sizeof(half));
+  half* C_hcblas = (half*) calloc(M * N, sizeof(half));
+  half* C_cblas = (half*) calloc(M * N, sizeof(half));
+  half* devA = hc::am_alloc(sizeof(half) * M * K, acc, 0);
+  half* devB = hc::am_alloc(sizeof(half) * K * N, acc, 0);
+  half* devC = hc::am_alloc(sizeof(half) * M * N, acc, 0);
   float X = 2;
 
   for(int i = 0; i < M * K; i++) {
-    A[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    A[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < K * N; i++) {
-    B[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    B[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
   }
 
   for(int i = 0; i < M * N; i++) {
-    C[i] = __hc_float2half (static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
+    C[i] = (half)(static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/X)));
     C_cblas[i] = C[i];
   }
 
-  accl_view.copy(A, devA, M * K * sizeof(__half));
-  accl_view.copy(B, devB, K * N * sizeof(__half));
-  accl_view.copy(C, devC, M * N * sizeof(__half));
+  accl_view.copy(A, devA, M * K * sizeof(half));
+  accl_view.copy(B, devB, K * N * sizeof(half));
+  accl_view.copy(C, devC, M * N * sizeof(half));
 
   // TransA TransB
   typeA = Trans;
@@ -903,7 +902,7 @@ void func_check_hgemmTT_Row_type_1(int M, int N, int K, __half alpha, __half bet
   ldc = N;
   status = hc.hcblas_hgemm(accl_view, RowMajor, typeA, typeB, M, N, K, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
-  accl_view.copy(devC, C_hcblas, M * N * sizeof(__half));
+  accl_view.copy(devC, C_hcblas, M * N * sizeof(half));
   cblas_hgemm( CblasRowMajor, Transa, Transb, M, N, K, alpha, A, lda, B, ldb, beta, C_cblas, ldc);
 
   float result = hgemmCompareL2fe(C_cblas, C_hcblas, M*N, tolerance);
@@ -927,8 +926,8 @@ void func_check_hgemmTT_Row_type_1(int M, int N, int K, __half alpha, __half bet
 TEST(hcblas_hgemm, func_correct_hgemmNN_Col_square_vvsmall_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_vvsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172); 
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172); 
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -936,8 +935,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNN_Col_square_vvsmall_Implementation_type_1
 TEST(hcblas_hgemm, func_correct_hgemmNN_Col_square_vsmall_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -945,8 +944,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNN_Col_square_vsmall_Implementation_type_1)
 TEST(hcblas_hgemm, func_correct_hgemmNN_Col_square_small_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172); 
- __half beta =__hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172); 
+ half beta =(half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -955,8 +954,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNN_Col_square_small_Implementation_type_1) 
 TEST(hcblas_hgemm, func_correct_hgemmNN_Col_square_regular_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_regular();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172); 
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414); 
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172); 
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414); 
  func_check_hgemmNN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -965,8 +964,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNN_Col_square_regular_Implementation_type_1
 TEST(hcblas_hgemm, func_correct_hgemmNT_Col_square_vvsmall_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_vvsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -974,8 +973,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNT_Col_square_vvsmall_Implementation_type_1
 TEST(hcblas_hgemm, func_correct_hgemmNT_Col_square_vsmall_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -983,8 +982,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNT_Col_square_vsmall_Implementation_type_1)
 TEST(hcblas_hgemm, func_correct_hgemmNT_Col_square_small_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -993,8 +992,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNT_Col_square_small_Implementation_type_1) 
 TEST(hcblas_hgemm, func_correct_hgemmNT_Col_square_regular_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_regular();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 
 }
@@ -1005,8 +1004,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNT_Col_square_regular_Implementation_type_1
  int M, N, K;
  M = N = K = gen_large();
   
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta =  __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414); 
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta =  (half)((float)rand()/(float)(RAND_MAX) * 3.414); 
  func_check_hgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }*/
 
@@ -1015,8 +1014,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNT_Col_square_regular_Implementation_type_1
 TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_vvsmall_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_vvsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta =  __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta =  (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1024,8 +1023,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_vvsmall_Implementation_type_1
 TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_vsmall_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta =  __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta =  (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1033,8 +1032,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_vsmall_Implementation_type_1)
 TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_small_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta =  __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414); 
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta =  (half)((float)rand()/(float)(RAND_MAX) * 3.414); 
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1043,8 +1042,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_small_Implementation_type_1) 
 TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_regular_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_regular();
- __half alpha =__hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172); 
- __half beta =  __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha =(half)((float)rand()/(float)(RAND_MAX) * 1.172); 
+ half beta =  (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1053,8 +1052,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_regular_Implementation_type_1
 /*TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_large_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_large();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414); 
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414); 
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }*/
 
@@ -1064,8 +1063,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_square_regular_Implementation_type_1
 TEST(hcblas_hgemm, func_correct_hgemmTT_Col_square_vvsmall_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_vvsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414); 
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414); 
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1073,8 +1072,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_square_vvsmall_Implementation_type_1
 TEST(hcblas_hgemm, func_correct_hgemmTT_Col_square_vsmall_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta =  __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta =  (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1083,8 +1082,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_square_vsmall_Implementation_type_1)
 /*TEST(hcblas_hgemm, func_correct_hgemmTT_Col_square_small_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta =  __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414); 
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta =  (half)((float)rand()/(float)(RAND_MAX) * 3.414); 
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }*/
 
@@ -1092,8 +1091,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_square_vsmall_Implementation_type_1)
 TEST(hcblas_hgemm, func_correct_hgemmTT_Col_square_regular_Implementation_type_1) {
  int M, N, K;
  M = N = K = gen_regular();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1105,8 +1104,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNN_Col_slimA_vsmallK_Implementation_type_1)
  int M, N, K;
  M = N = gen_vlarge();
  K = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414); 
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414); 
  func_check_hgemmNN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1115,8 +1114,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNN_Col_slimA_smallK_Implementation_type_1) 
  int M, N, K;
  M = N = gen_vlarge();
  K = gen_small();
- __half alpha =__hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172); 
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha =(half)((float)rand()/(float)(RAND_MAX) * 1.172); 
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1127,8 +1126,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNT_Col_slimA_vsmallK_Implementation_type_1)
  int M, N, K;
  M = N = gen_vlarge();
  K = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1137,8 +1136,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNT_Col_slimA_smallK_Implementation_type_1) 
  int M, N, K;
  M = N = gen_vlarge();
  K = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1149,8 +1148,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_slimA_vsmallK_Implementation_type_1)
  int M, N, K;
  M = N = gen_vlarge();
  K = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1159,8 +1158,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_slimA_smallK_Implementation_type_1) 
  int M, N, K;
  M = N = gen_vlarge();
  K = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1171,8 +1170,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_slimA_vsmallK_Implementation_type_1)
  int M, N, K;
  M = N = gen_vlarge();
  K = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1181,8 +1180,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_slimA_smallK_Implementation_type_1) 
  int M, N, K;
  M = N = gen_vlarge();
  K = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1191,8 +1190,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_slimA_regularK_Implementation_type_1
  int M, N, K;
  M = N = gen_vlarge();
  K = gen_regular();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1205,8 +1204,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNN_Col_slimC_vsmallN_Implementation_type_1)
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1215,8 +1214,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNN_Col_slimC_smallN_Implementation_type_1) 
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1225,8 +1224,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNN_Col_slimC_regularN_Implementation_type_1
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_regular();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1237,8 +1236,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNT_Col_slimC_smallN_Implementation_type_1) 
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1247,8 +1246,8 @@ TEST(hcblas_hgemm, func_correct_hgemmNT_Col_slimC_regularN_Implementation_type_1
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_regular();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1258,8 +1257,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_slimC_vsmallN_Implementation_type_1)
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_vsmall();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414); 
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414); 
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1268,8 +1267,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_slimC_smallN_Implementation_type_1) 
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1278,8 +1277,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTN_Col_slimC_regularN_Implementation_type_1
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_regular();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 // HGEMM TT Case
@@ -1289,8 +1288,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_slimC_smallN_Implementation_type_1) 
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_small();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
@@ -1299,8 +1298,8 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_slimC_regularN_Implementation_type_1
  int M, N, K;
  M = K = gen_vlarge();
  N = gen_regular();
- __half alpha = __hc_float2half((float)rand()/(float)(RAND_MAX) * 1.172);
- __half beta = __hc_float2half((float)rand()/(float)(RAND_MAX) * 3.414);
+ half alpha = (half)((float)rand()/(float)(RAND_MAX) * 1.172);
+ half beta = (half)((float)rand()/(float)(RAND_MAX) * 3.414);
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 

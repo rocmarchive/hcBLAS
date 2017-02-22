@@ -21,9 +21,9 @@ THE SOFTWARE.
 */
 #pragma once
 
-#include <hip/hip_runtime.h>
+#include <hip/hip_runtime_api.h>
+#include <hip/hip_complex.h>
 #include <hip/hip_fp16.h>
-#include <hcblas.h>
 
 //HGSOS for Kalmar leave it as C++, only cublas needs C linkage.
 
@@ -31,8 +31,11 @@ THE SOFTWARE.
 extern "C" {
 #endif
 
+// Forward declarations
+enum hcblasStatus_t: unsigned short;
+enum hcblasOperation_t : unsigned short;
+typedef struct Hcblaslibrary* hcblasHandle_t;
 typedef hcblasHandle_t hipblasHandle_t;
-typedef hcComplex hip_Complex ;
 typedef __half hiphalf;
 
 hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op);
@@ -115,7 +118,7 @@ hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOperation_t transa,
                            int m, int n, int k,  const double *alpha, const double *A, int lda, const double *B, int ldb, const double *beta, double *C, int ldc);
 
 hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hip_Complex *alpha, hip_Complex *A, int lda, hip_Complex *B, int ldb, const hip_Complex *beta, hip_Complex *C, int ldc);
+                           int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc);
 
 hipblasStatus_t hipblasHgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const hiphalf *alpha, hiphalf *A, int lda, hiphalf *B, int ldb, const hiphalf *beta, hiphalf *C, int ldc);
@@ -127,7 +130,7 @@ hipblasStatus_t hipblasDgemmBatched(hipblasHandle_t handle,  hipblasOperation_t 
                            int m, int n, int k,  const double *alpha, const double *A[], int lda, const double *B[], int ldb, const double *beta, double *C[], int ldc, int batchCount);
 
 hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hip_Complex *alpha, hip_Complex *A, int lda, hip_Complex *B, int ldb, const hip_Complex *beta, hip_Complex *C, int ldc, int batchCount);
+                           int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc, int batchCount);
 
 
 #ifdef __cplusplus

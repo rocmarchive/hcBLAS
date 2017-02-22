@@ -3,12 +3,12 @@
 
 #define __HC_FP16_DECL_SUFFIX__ __attribute__((hc,cpu))
 
-#ifdef __cplusplus
-extern "C" {
-#endif //(__cplusplus)
 //2.2.1. hcblasHandle_t
 
 
+#include "hc_defines.h"
+
+using namespace hc;
 // The hcblasHandle_t type is a pointer to an opaque structure holding the hcBLAS library context.
 // The hcBLAS library context must be initialized using hcblasCreate() and the returned handle must be
 // passed to all subsequent library function calls. The context should be destroyed at the end using
@@ -19,7 +19,7 @@ namespace hc {
   class accelerator_view;
 };
 
-typedef class  Hcblaslibrary* hcblasHandle_t;
+typedef struct  Hcblaslibrary* hcblasHandle_t;
 
 // 2.2.2. hcblasStatus_t
 
@@ -28,7 +28,8 @@ typedef class  Hcblaslibrary* hcblasHandle_t;
 // core functions can be retrieved via  hcblasGetError() . Currently, the
 // following values are defined:
 
-enum hcblasStatus_t {
+enum hcblasStatus_t : unsigned short
+{
   HCBLAS_STATUS_SUCCESS,          // Function succeeds
   HCBLAS_STATUS_NOT_INITIALIZED,  // HCBLAS library not initialized
   HCBLAS_STATUS_ALLOC_FAILED,     // resource allocation failed
@@ -45,7 +46,8 @@ enum hcblasStatus_t {
 // ‘T’ or ‘t’ (transpose) and ‘C’ or ‘c’ (conjugate transpose) that are often used as parameters
 // to legacy BLAS implementations.
 
-enum hcblasOperation_t {
+enum hcblasOperation_t : unsigned short
+{
   HCBLAS_OP_N,  // The Non transpose operation is selected
   HCBLAS_OP_T,  // Transpose operation is selected
   HCBLAS_OP_C   // Conjugate transpose operation is selected
@@ -62,8 +64,6 @@ struct double_2_ {
   double y;
 };
 
-typedef __fp16 half_;
-
 
 // 2.2.4. hcComplex
 
@@ -73,6 +73,9 @@ typedef float_2_ hcFloatComplex;
 typedef hcFloatComplex hcComplex;
 typedef double_2_ hcDoubleComplex;
 typedef hcDoubleComplex hcDoubleComplex;
+
+
+
 
 // hcblas Helper functions
 
@@ -117,7 +120,7 @@ hcblasStatus_t hcblasSetAcclView(hcblasHandle_t handle, hc::accelerator_view acc
 // HCBLAS_STATUS_SUCCESS : the stream was returned successfully
 // HCBLAS_STATUS_NOT_INITIALIZED : the library was not initialized
 
-hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view *accl_view, void **streamId);
+hcblasStatus_t  hcblasGetAcclView(hcblasHandle_t handle, hc::accelerator_view *&accl_view, void **streamId);
 
 // 3. hcblasSetVector()
 
@@ -569,11 +572,11 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
 hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
-                           const half_           *alpha,
-                            half_          *A, int lda,
-                            half_          *B, int ldb,
-                           const half_           *beta,
-                            half_           *C, int ldc);
+                           const half           *alpha,
+                            half          *A, int lda,
+                            half          *B, int ldb,
+                           const half           *beta,
+                            half           *C, int ldc);
 
 // 2. hcblas<t>gemmBatched()
 
@@ -651,7 +654,4 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
                                   hcDoubleComplex       *Barray, int ldb,
                                   const hcDoubleComplex       *beta,
                                   hcDoubleComplex       *Carray, int ldc, int batchCount);
-#ifdef __cplusplus
-}
-#endif //(__cplusplus)
 #endif //(HCBLAS_H)
