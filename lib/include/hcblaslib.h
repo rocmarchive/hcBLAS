@@ -19,6 +19,7 @@ using namespace hc;
 using namespace hc::short_vector;
 using namespace std;
 
+
 //Compulsory wait
 #define _WAIT2 .wait()
 

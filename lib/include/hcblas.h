@@ -3,12 +3,12 @@
 
 #define __HC_FP16_DECL_SUFFIX__ __attribute__((hc,cpu))
 
-#ifdef __cplusplus
-extern "C" {
-#endif //(__cplusplus)
 //2.2.1. hcblasHandle_t
 
 
+#include "hc_defines.h"
+
+using namespace hc;
 // The hcblasHandle_t type is a pointer to an opaque structure holding the hcBLAS library context.
 // The hcBLAS library context must be initialized using hcblasCreate() and the returned handle must be
 // passed to all subsequent library function calls. The context should be destroyed at the end using
@@ -64,8 +64,6 @@ struct double_2_ {
   double y;
 };
 
-typedef __fp16 half_;
-
 
 // 2.2.4. hcComplex
 
@@ -75,6 +73,9 @@ typedef float_2_ hcFloatComplex;
 typedef hcFloatComplex hcComplex;
 typedef double_2_ hcDoubleComplex;
 typedef hcDoubleComplex hcDoubleComplex;
+
+
+
 
 // hcblas Helper functions
 
@@ -571,11 +572,11 @@ hcblasStatus_t hcblasZgemm(hcblasHandle_t handle,
 hcblasStatus_t hcblasHgemm(hcblasHandle_t handle,
                            hcblasOperation_t transa, hcblasOperation_t transb,
                            int m, int n, int k,
-                           const half_           *alpha,
-                            half_          *A, int lda,
-                            half_          *B, int ldb,
-                           const half_           *beta,
-                            half_           *C, int ldc);
+                           const half           *alpha,
+                            half          *A, int lda,
+                            half          *B, int ldb,
+                           const half           *beta,
+                            half           *C, int ldc);
 
 // 2. hcblas<t>gemmBatched()
 
@@ -653,7 +654,4 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
                                   hcDoubleComplex       *Barray, int ldb,
                                   const hcDoubleComplex       *beta,
                                   hcDoubleComplex       *Carray, int ldc, int batchCount);
-#ifdef __cplusplus
-}
-#endif //(__cplusplus)
 #endif //(HCBLAS_H)
