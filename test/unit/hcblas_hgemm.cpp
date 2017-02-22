@@ -6,7 +6,7 @@
 #include "cblas.h"
 #include "test_constants.h"
 
-
+#ifdef HGEMM_UNIT_TESTING
 void cblas_hgemm( int,int, int,int, int, int, half, half* ,long, half* , long, half ,half*,long  );
 
 
@@ -1303,3 +1303,4 @@ TEST(hcblas_hgemm, func_correct_hgemmTT_Col_slimC_regularN_Implementation_type_1
  func_check_hgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
+#endif
