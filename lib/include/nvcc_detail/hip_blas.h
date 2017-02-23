@@ -33,7 +33,7 @@ extern "C" {
 
 typedef cublasHandle_t hipblasHandle_t ;
 typedef cuComplex hipComplex;
-typedef __half hiphalf;
+typedef __half __half;
 
 /* Unsupported types
 		"cublasFillMode_t",
@@ -128,7 +128,7 @@ hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOperation_t transa,
                            int m, int n, int k,  const double *alpha, const double *A, int lda, const double *B, int ldb, const double *beta, double *C, int ldc);
 
 hipblasStatus_t hipblasHgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hiphalf *alpha, hiphalf *A, int lda, hiphalf *B, int ldb, const hiphalf *beta, hiphalf *C, int ldc);
+                           int m, int n, int k,  const __half *alpha, __half *A, int lda, __half *B, int ldb, const __half *beta, __half *C, int ldc);
 
 hipblasStatus_t hipblasSgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const float *alpha, const float *A[], int lda, const float *B[], int ldb, const float *beta, float *C[], int ldc, int batchCount);
@@ -363,7 +363,7 @@ inline static hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOpera
 }
 
 inline static hipblasStatus_t hipblasHgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hiphalf *alpha, hiphalf *A, int lda, hiphalf *B, int ldb, const hiphalf *beta, hiphalf *C, int ldc){
+                           int m, int n, int k,  const __half *alpha, __half *A, int lda, __half *B, int ldb, const __half *beta, __half *C, int ldc){
         return hipCUBLASStatusToHIPStatus(cublasHgemm( handle, hipOperationToCudaOperation(transa),  hipOperationToCudaOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc));
 }
 

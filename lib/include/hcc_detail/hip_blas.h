@@ -36,7 +36,6 @@ enum hcblasStatus_t: unsigned short;
 enum hcblasOperation_t : unsigned short;
 typedef struct Hcblaslibrary* hcblasHandle_t;
 typedef hcblasHandle_t hipblasHandle_t;
-typedef __half hiphalf;
 
 hcblasOperation_t hipOperationToHCCOperation( hipblasOperation_t op);
 
@@ -121,7 +120,7 @@ hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa,
                            int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc);
 
 hipblasStatus_t hipblasHgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hiphalf *alpha, hiphalf *A, int lda, hiphalf *B, int ldb, const hiphalf *beta, hiphalf *C, int ldc);
+                           int m, int n, int k,  const __half *alpha, __half *A, int lda, __half *B, int ldb, const __half *beta, __half *C, int ldc);
 
 hipblasStatus_t hipblasSgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const float *alpha, const float *A[], int lda, const float *B[], int ldb, const float *beta, float *C[], int ldc, int batchCount);

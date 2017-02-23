@@ -235,7 +235,7 @@ hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa,
 }
 
 hipblasStatus_t hipblasHgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hiphalf *alpha, hiphalf *A, int lda, hiphalf *B, int ldb, const hiphalf *beta, hiphalf *C, int ldc){
+                           int m, int n, int k,  const __half *alpha, __half *A, int lda, __half *B, int ldb, const __half *beta, __half *C, int ldc){
 	return hipCUBLASStatusToHIPStatus(cublasHgemm( handle, hipOperationToCudaOperation(transa),  hipOperationToCudaOperation(transb), m,  n,  k, alpha, A,  lda, B,  ldb, beta, C,  ldc));
 }
 
