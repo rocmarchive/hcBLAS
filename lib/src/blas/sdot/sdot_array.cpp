@@ -116,7 +116,7 @@ float sdot_HC(hc::accelerator_view accl_view, long n,
   // Assumption : The target architecture has 40 compute units
   if (tile_count < TILE_SIZE * 20) {
     for(int i = 0; i < tile_count; i++) {
-      out = (isnan(out) || isinf(out)) ? 0 : out;
+      out = (hc::fast_math::isnan(out) || hc::fast_math::isinf(out)) ? 0 : out;
       out += host_global_buffer[ i ] ;
     }
   } else
@@ -236,7 +236,7 @@ float sdot_HC(hc::accelerator_view accl_view, long n,
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
-    out = (isnan(out) || isinf(out)) ? 0 : out;
+    out = (hc::fast_math::isnan(out) || hc::fast_math::isinf(out)) ? 0 : out;
     out += host_global_buffer[ i ] ;
   }
 

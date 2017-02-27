@@ -65,7 +65,7 @@ static void gemv_TransA(hc::accelerator_view accl_view,
 
           tidx.barrier.wait();
           long Y_index = yOffset + Col;
-          Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+          Y_vec[Y_index] = (hc::fast_math::isnan(Y_vec[Y_index]) || hc::fast_math::isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
           Y_vec[Y_index] *= beta;
           Y_vec[Y_index] += alpha * sh[0];
         }
@@ -103,7 +103,7 @@ static void gemv_TransA(hc::accelerator_view accl_view,
 
       if(threadIdx == 0 && Col < lenY) {
         long Y_index = yOffset + Col;
-        Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+        Y_vec[Y_index] = (hc::fast_math::isnan(Y_vec[Y_index]) || hc::fast_math::isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
@@ -171,7 +171,7 @@ static void gemv_TransA(hc::accelerator_view accl_view,
 
           tidx.barrier.wait();
           long Y_index = yOffset + Y_batchOffset * elt + Col;
-          Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+          Y_vec[Y_index] = (hc::fast_math::isnan(Y_vec[Y_index]) || hc::fast_math::isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
           Y_vec[Y_index] *= beta;
           Y_vec[Y_index] += alpha * sh[0];
         }
@@ -210,7 +210,7 @@ static void gemv_TransA(hc::accelerator_view accl_view,
 
       if(threadIdx == 0 && Col < lenY) {
         long Y_index = yOffset + Y_batchOffset * elt + Col;
-        Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+        Y_vec[Y_index] = (hc::fast_math::isnan(Y_vec[Y_index]) || hc::fast_math::isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
@@ -277,7 +277,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view,
 
           tidx.barrier.wait();
           long Y_index = yOffset + Col;
-          Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+          Y_vec[Y_index] = (hc::fast_math::isnan(Y_vec[Y_index]) || hc::fast_math::isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
           Y_vec[Y_index] *= beta;
           Y_vec[Y_index] += alpha * sh[0];
         }
@@ -315,7 +315,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view,
 
       if(threadIdx == 0 && Col < lenY) {
         long Y_index = yOffset + Col;
-        Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+        Y_vec[Y_index] = (hc::fast_math::isnan(Y_vec[Y_index]) || hc::fast_math::isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
@@ -383,7 +383,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view,
 
           tidx.barrier.wait();
           long Y_index = yOffset + Y_batchOffset * elt + Col;
-          Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+          Y_vec[Y_index] = (hc::fast_math::isnan(Y_vec[Y_index]) || hc::fast_math::isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
           Y_vec[Y_index] *= beta;
           Y_vec[Y_index] += alpha * sh[0];
         }
@@ -422,7 +422,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view,
 
       if(threadIdx == 0 && Col < lenY) {
         long Y_index = yOffset + Y_batchOffset * elt + Col;
-        Y_vec[Y_index] = (isnan(Y_vec[Y_index]) || isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
+        Y_vec[Y_index] = (hc::fast_math::isnan(Y_vec[Y_index]) || hc::fast_math::isinf(Y_vec[Y_index])) ? 0 : Y_vec[Y_index];
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
@@ -463,7 +463,7 @@ static void gemv_NoTransA(hc::accelerator_view accl_view,
 
     if (Col < lenY) {
       long Y_index = yOffset + Col;
-      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
       Y[Y_index] *= beta;
       Y[Y_index] += alpha * Pvalue;
     }
@@ -506,7 +506,7 @@ static void gemv_NoTransA(hc::accelerator_view accl_view,
 
     if (Col < lenY) {
       long Y_index = yOffset + Y_batchOffset * elt + Col;
-      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
       Y[Y_index] *= beta;
       Y[Y_index] += alpha * Pvalue;
     }
@@ -548,7 +548,7 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view accl_view,
 
     if (Col < lenY) {
       long Y_index = yOffset + Col;
-      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
       Y[Y_index] *= beta;
       Y[Y_index] += alpha * Pvalue;
     }
@@ -591,7 +591,7 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view accl_view,
 
     if (Col < lenY) {
       long Y_index = yOffset + Y_batchOffset * elt + Col;
-      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
       Y[Y_index] *= beta;
       Y[Y_index] += alpha * Pvalue;
     }
@@ -613,7 +613,7 @@ static void gemv_alpha0_col(hc::accelerator_view accl_view,
     int Col = bx * BLOCK_SIZE + tx;
     if (Col < lenY) {
       long Y_index = yOffset + Col;
-      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
       if (alpha == 0) {
         if (beta == 0)
           Y[Y_index] = 0.0;
@@ -638,7 +638,7 @@ static void gemv_alpha0_colbatch(hc::accelerator_view accl_view,
     int Col = bx * BLOCK_SIZE + tx;
     if (Col < lenY) {
       long Y_index = yOffset + Y_batchOffset * elt + Col;
-      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
       if (alpha == 0) {
         if (beta == 0)
           Y[Y_index] = 0.0;
@@ -662,7 +662,7 @@ static void gemv_alpha0_row(hc::accelerator_view accl_view,
     int Col = bx * BLOCK_SIZE + tx;
     if (Col < lenY) {
       long Y_index = yOffset + Col;
-      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
       if (alpha == 0) {
         if (beta == 0)
           Y[Y_index] = 0.0;
@@ -687,7 +687,7 @@ static void gemv_alpha0_rowbatch(hc::accelerator_view accl_view,
     int Col = bx * BLOCK_SIZE + tx;
     if (Col < lenY) {
       long Y_index = yOffset + Y_batchOffset * elt + Col;
-      Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
       if (alpha == 0) {
         if (beta == 0)
           Y[Y_index] = 0.0;

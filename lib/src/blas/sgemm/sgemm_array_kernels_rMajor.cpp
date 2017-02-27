@@ -66,7 +66,7 @@ hcblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS8XSS8(hc::accelerator_view accl_vi
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       long C_index = cOffset + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy);
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -139,7 +139,7 @@ hcblasStatus gemm_NoTransAB_rMajor_STEP_NBK_TS16XSS16(hc::accelerator_view accl_
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       long C_index = cOffset + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy);
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -215,7 +215,7 @@ hcblasStatus gemm_NoTransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if((xIndex / ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N) {
           long C_index = cOffset + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row);
-          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
           C[C_index] = alpha * rC[col][row] + beta * C[C_index];
         }
       }
@@ -292,7 +292,7 @@ hcblasStatus gemm_NoTransA_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       long C_index = cOffset + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy);
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -378,7 +378,7 @@ hcblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS8XSS8(hc::accelerator_view accl_vie
 
     if(crow / ldc < M && ccolprod < N) {
       long C_index = cOffset + crow + ccolprod;
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -464,7 +464,7 @@ hcblasStatus gemm_NoTransA_rMajor_STEP_NBK_TS16XSS16(hc::accelerator_view accl_v
 
     if(crow / ldc < M && ccolprod < N) {
       long C_index = cOffset + crow + ccolprod;
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -549,7 +549,7 @@ hcblasStatus gemm_NoTransA_rMajor_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if((xIndex / ldc) + (col << shiftTS) < M && (yIndex) + (row << shiftTS) < N) {
           long C_index = cOffset + (xIndex + ((col << shiftTS) * N)) + yIndex + (row << shiftTS);
-          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
           C[C_index] = alpha * rC[col][row] + beta * C[C_index];
         }
       }
@@ -628,7 +628,7 @@ hcblasStatus gemm_NoTransA_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if((xIndex / ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N) {
           long C_index = cOffset + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row);
-          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
           C[C_index] = alpha * rC[col][row] + beta * C[C_index];
         }
       }
@@ -714,7 +714,7 @@ hcblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS16XSS16(hc::accelerator_view accl_v
 
     if(crow / ldc < M && ccolprod < N) {
       long C_index = cOffset + crow + ccolprod;
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -798,7 +798,7 @@ hcblasStatus gemm_NoTransB_rMajor_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if((xIndex / ldc) + (col << shiftTS) < M && (yIndex) + (row << shiftTS) < N) {
           long C_index = cOffset + (xIndex + ((col << shiftTS) * N)) + yIndex + (row << shiftTS);
-          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
           C[C_index] = alpha * rC[col][row] + beta * C[C_index];
         }
       }
@@ -874,7 +874,7 @@ hcblasStatus gemm_NoTransB_rMajor_STEP_TS16XSS16(hc::accelerator_view accl_view,
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       long C_index = cOffset + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy);
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -949,7 +949,7 @@ hcblasStatus gemm_NoTransB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       long C_index = cOffset + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy);
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -1026,7 +1026,7 @@ hcblasStatus gemm_NoTransB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if((xIndex / ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N) {
           long C_index = cOffset + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row);
-          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
           C[C_index] = alpha * rC[col][row] + beta * C[C_index];
         }
       }
@@ -1113,7 +1113,7 @@ hcblasStatus gemm_NoTransB_rMajor_STEP_NBK_TS8XSS8(hc::accelerator_view accl_vie
 
     if(crow / ldc < M && ccolprod < N) {
       long C_index = cOffset + crow + ccolprod;
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -1197,7 +1197,7 @@ hcblasStatus gemm_TransAB_rMajor_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_v
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex  + (row << shiftTS) < N) {
           long C_index = cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS);
-          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
           C[C_index] = alpha * rC[col][row] + beta * C[C_index];
         }
       }
@@ -1276,7 +1276,7 @@ hcblasStatus gemm_TransAB_rMajor_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       long C_index = cOffset + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy);
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -1352,7 +1352,7 @@ hcblasStatus gemm_TransAB_rMajor_STEP_NBK_TS16XSS16(hc::accelerator_view accl_vi
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       long C_index = cOffset + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy);
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -1429,7 +1429,7 @@ hcblasStatus gemm_TransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if((xIndex / ldc) + (TILESIZE * col) < M && (yIndex) + (TILESIZE * row) < N) {
           long C_index = cOffset + (xIndex + (TILESIZE * col) * N) + yIndex + (TILESIZE * row);
-          C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+          C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
           C[C_index] = alpha * rC[col][row] + beta * C[C_index];
         }
       }
@@ -1510,7 +1510,7 @@ hcblasStatus gemm_TransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       long C_index = cOffset + (gidx * TILESIZE + idx) * ldc + (gidy * TILESIZE + idy);
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] = alpha * rC[0][0] + beta * C[C_index];
     }
   })_WAIT1;
@@ -1553,7 +1553,7 @@ hcblasStatus gemm_TransAB_rMajor_largeK(hc::accelerator_view accl_view,
 
     if (threadIdx == 0 && Col < M && Row < N) {
       long C_index = cOffset + Row + Col * ldc;
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
     }
@@ -1596,7 +1596,7 @@ hcblasStatus gemm_NoTransB_rMajor_largeK(hc::accelerator_view accl_view,
 
     if (threadIdx == 0 && Col < M && Row < N) {
       long C_index = cOffset + Row + Col * ldc;
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
     }
@@ -1640,7 +1640,7 @@ hcblasStatus gemm_NoTransA_rMajor_largeK(hc::accelerator_view accl_view,
 
     if (threadIdx == 0 && Col < M && Row < N) {
       long C_index = cOffset + Row + Col * ldc;
-      C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+      C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
       C[C_index] *= beta;
       C[C_index] += sh[0] * alpha;
     }
