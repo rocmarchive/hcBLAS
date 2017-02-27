@@ -34,7 +34,7 @@ using namespace std;
   #define _WAIT2
 #endif
 
-#define __HC_FP16_DECL_SUFFIX__ __attribute__((hc,cpu))
+#define __HC_FP16_DECL_SUFFIX__ [[hc]]
 
 /* enumerator to indicate the status of  blas operation */
 enum hcblasStatus {

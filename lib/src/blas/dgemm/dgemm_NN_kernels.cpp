@@ -15,7 +15,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(hc:
   int K_R = (K + 15) & ~15;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[4][4] = {{(double)0}};
     double rA[1][4];
     double rB[1][4];
@@ -94,7 +94,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(hc:
   int N_ = N >> 3;
   hc::extent<2> grdExt((N_ + 15) & ~15, (M_ + 15) & ~15);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[8][8] = {{(double)0}};
     double rA[1][8];
     double rB[1][8];
@@ -232,7 +232,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS2_MB2(hc::acceler
   int K_R = (K + 15) & ~15;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[4][4] = {{(double)0}};
     double rA[1][4];
     double rB[1][4];
@@ -388,7 +388,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS4_MB2(hc::acceler
   int K_R = (K + 15) & ~15;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[8][8] = {{(double)0}};
     double rA[1][8];
     double rB[1][8];
@@ -695,7 +695,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX064_NX064_KX16_TS16XMTS4(hc::accelerator
   int N_ = N >> 2;
   hc::extent<2> grdExt((N_ + 15) & ~15, (M_ + 15) & ~15);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[4][4] = {{(double)0}};
     double rA[1][4];
     double rB[1][4];
@@ -784,7 +784,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_
   int K_R = (K + 15) & ~15;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[2][2] = {{(double)0}};
     double rA[1][2];
     double rB[1][2];
@@ -896,7 +896,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS8XMTS4(hc::accelerator_view accl_v
   int K_R = (K + 7) & ~7;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(8, 8);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[4][4] = {{(double)0}};
     double rA[1][4];
     double rB[1][4];
@@ -1048,7 +1048,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_
   int K_R = (K + 15) & ~15;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[4][4] = {{(double)0}};
     double rA[1][4];
     double rB[1][4];
@@ -1204,7 +1204,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_
   int K_R = (K + 15) & ~15;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[6][6] = {{(double)0}};
     double rA[1][6];
     double rB[1][6];
@@ -1425,7 +1425,7 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_MX096_NX096_KX16_TS16XMTS6(hc::accelerator
   int N_ = N/6 ;
   hc::extent<2> grdExt((N_ + 15) & ~15, (M_ + 15) & ~15);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
     double rC[6][6] = {{(double)0}};
     double rA[1][6];
     double rB[1][6];
@@ -1541,7 +1541,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS4(hc::accelerator_view accl_vi
   int K_blocks = K_R/64;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) [[hc]] {
 
    double rC[1][1];
    double rA[1][4];
@@ -1632,7 +1632,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_M_N_K_TS16XMS6(hc::accelerator_view accl_vi
   int K_blocks = (K -1) / 96 + 1;
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) [[hc]] {
 
    double rC[1][1];
    double rA[1][6];
@@ -1719,7 +1719,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX64_TS16XMS4(hc::accelerator_vie
 					     double alpha, double beta) {
   hc::extent<2> grdExt((N + 15) & ~15, (M + 15) & ~15);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) [[hc]] {
 
    double rC[1][1];
    double rA[1][4];
@@ -1781,7 +1781,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_Mx16_NX16_KX96_TS16XMS6(hc::accelerator_vie
 					     double alpha, double beta) {
   hc::extent<2> grdExt((N + 15) & ~15, (M + 15) & ~15);
   hc::tiled_extent<2> t_ext = grdExt.tile(16, 16);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) [[hc]] {
 
    double rC[1][1];
    double rA[1][6];

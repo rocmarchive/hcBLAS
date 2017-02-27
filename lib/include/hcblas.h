@@ -1,7 +1,7 @@
 #ifndef HCBLAS_H
 #define HCBLAS_H
 
-#define __HC_FP16_DECL_SUFFIX__ __attribute__((hc,cpu))
+#define __HC_FP16_DECL_SUFFIX__ [[hc]]
 
 //2.2.1. hcblasHandle_t
 

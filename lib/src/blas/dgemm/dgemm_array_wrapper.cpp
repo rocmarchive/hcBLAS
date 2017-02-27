@@ -111,7 +111,7 @@ hcblasStatus gemm_alpha0_col(hc::accelerator_view accl_view,
 #define GEMM_BLOCK 256
   hc::extent<2> grdExt(N, M * GEMM_BLOCK);
   hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) [[hc]] {
     int threadIdx = tidx.local[1];
     int Row = tidx.tile[0];
     int Col = tidx.tile[1];
@@ -143,7 +143,7 @@ hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view accl_view,
 #define GEMM_BLOCK 256
   hc::extent<3> grdExt(batchSize, N, M * GEMM_BLOCK);
   hc::tiled_extent<3> t_ext = grdExt.tile(1, 1, GEMM_BLOCK);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) [[hc]] {
     int elt = tidx.tile[0];
     int threadIdx = tidx.local[2];
     int Row = tidx.tile[1];
@@ -176,7 +176,7 @@ hcblasStatus gemm_alpha0_row(hc::accelerator_view accl_view,
 #define GEMM_BLOCK 256
   hc::extent<2> grdExt(N, M * GEMM_BLOCK);
   hc::tiled_extent<2> t_ext = grdExt.tile(1, GEMM_BLOCK);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2>& tidx) [[hc]] {
     int threadIdx = tidx.local[1];
     int Row = tidx.tile[0];
     int Col = tidx.tile[1];
@@ -208,7 +208,7 @@ hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view accl_view,
 #define GEMM_BLOCK 256
   hc::extent<3> grdExt(batchSize, N, M * GEMM_BLOCK);
   hc::tiled_extent<3> t_ext = grdExt.tile(1, 1, GEMM_BLOCK);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) __attribute__((hc, cpu)) {
+  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<3>& tidx) [[hc]] {
     int elt = tidx.tile[0];
     int threadIdx = tidx.local[2];
     int Row = tidx.tile[1];
