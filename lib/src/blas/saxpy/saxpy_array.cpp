@@ -12,7 +12,7 @@ void axpy_HC(hc::accelerator_view accl_view,
   if(n <= 102400) {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     hc::extent<1> compute_domain(size);
-    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) [[hc]] {
+    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1> tidx) [[hc]] {
       if(tidx.global[0] < n) {
         long Y_index = yOffset + tidx.global[0];
         Y[Y_index] = (isnan(Y[Y_index]) || isinf(Y[Y_index])) ? 0 : Y[Y_index];
@@ -35,7 +35,7 @@ void axpy_HC(hc::accelerator_view accl_view,
     long size = (n / step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size / BLOCK_SIZE;
     hc::extent<1> compute_domain(size);
-    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1>& tidx) [[hc]] {
+    hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1> tidx) [[hc]] {
       if(tidx.tile[0] != nBlocks - 1) {
         for(int iter = 0; iter < step_sz; iter++) {
           long Y_index = yOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter * 256;
@@ -65,7 +65,7 @@ void axpy_HC(hc::accelerator_view accl_view,
   if(n <= 102400) {
     long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     hc::extent<2> compute_domain(batchSize, size);
-    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) [[hc]] {
+    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2> tidx) [[hc]] {
       int elt = tidx.tile[0];
 
       if(tidx.global[1] < n) {
@@ -90,7 +90,7 @@ void axpy_HC(hc::accelerator_view accl_view,
     long size = (n / step_sz + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
     long nBlocks = size / BLOCK_SIZE;
     hc::extent<2> compute_domain(batchSize, size);
-    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2>& tidx) [[hc]] {
+    hc::parallel_for_each(accl_view, compute_domain.tile(1, BLOCK_SIZE), [ = ] (hc::tiled_index<2> tidx) [[hc]] {
       int elt = tidx.tile[0];
 
       if(tidx.tile[1] != nBlocks - 1) {

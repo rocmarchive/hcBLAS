@@ -20,7 +20,7 @@ void dasum_HC(hc::accelerator_view accl_view,
   hc::extent<1> extent(thread_count);
   hc::parallel_for_each(accl_view, 
     extent.tile(TILE_SIZE),
-  [ = ] (hc::tiled_index<1>& tid) [[hc]] {
+  [ = ] (hc::tiled_index<1> tid) [[hc]] {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
     // indexes
@@ -132,7 +132,7 @@ void dasum_HC(hc::accelerator_view accl_view,
   hc::extent<2> extent(batchSize, thread_count);
   hc::parallel_for_each(accl_view, 
     extent.tile(1, TILE_SIZE),
-  [ = ] (hc::tiled_index<2>& tid) [[hc]] {
+  [ = ] (hc::tiled_index<2> tid) [[hc]] {
     // shared tile buffer
     tile_static double local_buffer[TILE_SIZE];
     // indexes
