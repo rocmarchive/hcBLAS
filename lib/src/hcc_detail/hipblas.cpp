@@ -227,12 +227,20 @@ hipblasStatus_t  hipblasDscal(hipblasHandle_t handle, int n, const double *alpha
 	return hipHCBLASStatusToHIPStatus(hcblasDscal(handle, n, alpha,  x, incx));
 }
 
+hipblasStatus_t  hipblasCscal(hipblasHandle_t handle, int n, const hipComplex *alpha,  hipComplex *x, int incx){
+	return hipHCBLASStatusToHIPStatus(hcblasCscal(handle, n, (const hcComplex*)alpha,  (hcComplex*)x, incx));
+}
+
 hipblasStatus_t  hipblasSscalBatched(hipblasHandle_t handle, int n, const float *alpha,  float *x, int incx, int batchCount){
 	return hipHCBLASStatusToHIPStatus(hcblasSscalBatched(handle, n, alpha,  x, incx, batchCount));
 }
 
 hipblasStatus_t  hipblasDscalBatched(hipblasHandle_t handle, int n, const double *alpha,  double *x, int incx, int batchCount){
 	return hipHCBLASStatusToHIPStatus(hcblasDscalBatched(handle, n, alpha,  x, incx, batchCount));
+}
+
+hipblasStatus_t  hipblasCscalBatched(hipblasHandle_t handle, int n, const hipComplex *alpha, hipComplex *x, int incx, int batchCount){
+	return hipHCBLASStatusToHIPStatus(hcblasCscalBatched(handle, n, (const hcComplex*)alpha,  (hcComplex*)x, incx, batchCount));
 }
 
 hipblasStatus_t hipblasSgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const float *alpha, const float *A, int lda,

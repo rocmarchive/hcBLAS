@@ -93,9 +93,13 @@ hipblasStatus_t  hipblasSscal(hipblasHandle_t handle, int n, const float *alpha,
 
 hipblasStatus_t  hipblasDscal(hipblasHandle_t handle, int n, const double *alpha,  double *x, int incx);
 
+hipblasStatus_t  hipblasCscal(hipblasHandle_t handle, int n, const hipComplex *alpha,  hipComplex *x, int incx);
+
 hipblasStatus_t  hipblasSscalBatched(hipblasHandle_t handle, int n, const float *alpha,  float *x, int incx, int batchCount);
 
 hipblasStatus_t  hipblasDscalBatched(hipblasHandle_t handle, int n, const double *alpha,  double *x, int incx, int batchCount);
+
+hipblasStatus_t  hipblasCscalBatched(hipblasHandle_t handle, int n, const hipComplex *alpha,  hipComplex *x, int incx, int batchCount);
 
 hipblasStatus_t hipblasSgemv(hipblasHandle_t handle, hipblasOperation_t trans, int m, int n, const float *alpha, const float *A, int lda,
                            const float *x, int incx,  const float *beta,  float *y, int incy);

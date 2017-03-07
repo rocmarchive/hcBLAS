@@ -345,6 +345,110 @@ TEST(hipblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
 }
 #endif 
 
+TEST(hipblaswrapper_cscal, func_return_correct_cscal) {
+  hipblasStatus_t status;
+  hipblasHandle_t handle = NULL;
+  // Passing a Null handle and default accelerator to the API
+  status = hipblasCreate(&handle);
+  int n = 123;
+  int incx = 1;
+  long lenx = 1 + (n-1) * abs(incx);
+  float alpha[2];
+  hipComplex cAlpha;
+
+  cAlpha.x = 1;
+  cAlpha.y = 1;
+  alpha[0] = cAlpha.x;
+  alpha[1] = cAlpha.y;
+
+  hipComplex *devX = NULL;
+
+  // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
+  float *Xcblas = (float*)calloc(lenx * 2, sizeof(float));
+  hipComplex *X = (hipComplex*)calloc(lenx, sizeof(hipComplex));//host input
+  hipError_t err = hipMalloc(&devX, sizeof(hipComplex) * lenx);
+  int k = 0;
+  for(int i = 0; i < lenx; i++){
+            X[i].x = rand() % 10;
+            X[i].y = rand() % 20;
+            Xcblas[k++] = X[i].x;
+            Xcblas[k++] = X[i].y;
+  }
+  status = hipblasSetVector(lenx, sizeof(hipComplex), X, incx, devX, incx);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  status = hipblasCscal(handle, n, &cAlpha, devX, incx);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  status = hipblasGetVector(lenx, sizeof(hipComplex), devX, incx, X, incx);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  cblas_cscal( n, alpha, Xcblas, incx );
+  for(int i = 0, k = 0; i < lenx && k < lenx * 2 ; i++, k = k + 2){
+        EXPECT_EQ(X[i].x, Xcblas[k]);
+        EXPECT_EQ(X[i].y, Xcblas[k+1]);
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
+  hipblasDestroy(handle);
+  status = hipblasCscal(handle, n, &cAlpha, devX, incx);
+  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+
+  free(X);
+  free(Xcblas);
+  hipFree(devX);
+}
+
+TEST(hipblaswrapper_cscalBatched, func_return_correct_cscalBatched) {
+  hipblasStatus_t status;
+  hipblasHandle_t handle = NULL;
+  // Passing a Null handle and default accelerator to the API
+  status = hipblasCreate(&handle);
+  int n = 123;
+  int incx = 1;
+  long lenx = 1 + (n-1) * abs(incx);
+  float alpha[2];
+  int batchSize = 128;
+  hipComplex cAlpha;
+
+  cAlpha.x = 1;
+  cAlpha.y = 1;
+  alpha[0] = cAlpha.x;
+  alpha[1] = cAlpha.y;
+
+  hipComplex *devX = NULL;
+
+  // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
+  float *Xcblas = (float*)calloc(lenx * batchSize * 2 , sizeof(float));
+  hipComplex *X = (hipComplex*)calloc(lenx * batchSize, sizeof(hipComplex));//host input
+  hipError_t err = hipMalloc(&devX, sizeof(hipComplex) * lenx * batchSize);
+  int k = 0;
+  for(int i = 0; i < lenx * batchSize; i++){
+            X[i].x = rand() % 10;
+            X[i].y = rand() % 20;
+            Xcblas[k++] =  X[i].x;
+            Xcblas[k++] =  X[i].y;
+  }
+  status = hipblasSetVector(lenx*batchSize, sizeof(hipComplex), X, incx, devX, incx);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  status = hipblasCscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  status = hipblasGetVector(lenx*batchSize, sizeof(hipComplex), devX, incx, X, incx);
+  EXPECT_EQ(status, HIPBLAS_STATUS_SUCCESS);
+  for(int i = 0; i < batchSize; i++)
+          cblas_cscal( n, alpha, Xcblas + i * n * 2, incx);
+  for(int i =0, k = 0; i < lenx * batchSize && k < lenx * batchSize * 2; i++, k = k + 2){
+          EXPECT_EQ(X[i].x, Xcblas[k]);
+          EXPECT_EQ(X[i].y, Xcblas[k+1]);
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
+  hipblasDestroy(handle);
+  status = hipblasCscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
+  EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+
+  free(X);
+  free(Xcblas);
+  hipFree(devX);
+}
+
 TEST(hipblaswrapper_scopy, func_return_correct_scopy) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
