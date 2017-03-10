@@ -15,22 +15,23 @@ SET (TESTSRCS
 
   # Choice to take compilation flags from source or package
   #option(PROFILE "HCBLAS profiling" OFF)
-  #IF(PROFILE)
+  IF(PROFILE)
    ADD_DEFINITIONS(-DPROFILE)
-  #ENDIF(PROFILE)
+  ENDIF(PROFILE)
 
   execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
   execute_process(COMMAND ${HCC_CONFIG} --install --ldflags 
                             OUTPUT_VARIABLE HCC_LDFLAGS)
+  SET(SHARED_LIB_OBJ "/opt/rocm/lib")
   SET(HCBLAS_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/include/")
   SET(TEST_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../include/")
   SET(HCBLAS_LIBRARY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../build/lib/src")
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   set (HCC_CXXFLAGS "-I${TEST_INCLUDE_PATH} ${HCC_CXXFLAGS} -I${HCBLAS_INCLUDE_PATH}")
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
-  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HCBLAS_LIBRARY_PATH} -Wl,-rpath-link,/opt/rocm/hip/lib")
-  SET (LINK "-lblas  -lhcblas -lhc_am")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HCBLAS_LIBRARY_PATH} -L${SHARED_LIB_OBJ} -Wl,--rpath=/opt/rocm/hip/lib")
+  SET (LINK "-lblas  -lhcblas -lhc_am -lhip_hcc")
   SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "bin/")
   FOREACH(test_file ${TESTSRCS})
     SET_PROPERTY(SOURCE ${test_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS}")
