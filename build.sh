@@ -115,6 +115,10 @@ if [ "$install" = "1" ]; then
     export INSTALL_OPT=on
 fi
 
+if [ "$profiling" = "on" ]; then
+    export CODEXL_PATH=/opt/rocm/profiler/bin
+fi
+
 current_dir=$PWD
 
 set +e
