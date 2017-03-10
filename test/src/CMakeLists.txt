@@ -14,10 +14,10 @@ SET (TESTSRCS
     )
 
   # Choice to take compilation flags from source or package
-  option(PROFILE "HCBLAS profiling" OFF)
-  IF(PROFILE)
+  #option(PROFILE "HCBLAS profiling" OFF)
+  #IF(PROFILE)
    ADD_DEFINITIONS(-DPROFILE)
-  ENDIF(PROFILE)
+  #ENDIF(PROFILE)
 
   execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
                             OUTPUT_VARIABLE HCC_CXXFLAGS)
