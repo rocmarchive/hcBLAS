@@ -32,6 +32,13 @@ else
   exit 1
 fi
 
+if ( [ ! -z $HIP_PATH ] || [ -x "/opt/rocm/hip/bin/hipcc" ] ); then 
+  export HIP_SUPPORT=on
+elif ( [ "$platform" = "nvcc" ]); then
+  echo "HIP not found. Install latest HIP to continue."
+  exit 1
+fi
+
 #CURRENT_WORK_DIRECTORY
 current_work_dir=$PWD
 
@@ -159,9 +166,11 @@ if [ "$platform" = "hcc" ]; then
         printf "* UNIT-API TESTS *\n"
         printf "******************\n"
         ${current_work_dir}/build/test/unit-api/bin/unit-api-test
-        printf "* UNIT-HIP TESTS *\n"
-        printf "******************\n"
-        ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test  
+        if [ $HIP_SUPPORT = "on" ]; then
+          printf "* UNIT-HIP TESTS *\n"
+          printf "******************\n"
+          ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test  
+        fi
 # Test=ON and Profile=ON (Build, test and profile the library)
     elif ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ) || ( [ "$testing" = "on" ] && [ "$profiling" = "on" ] ); then 
 # Build Tests
@@ -175,13 +184,15 @@ if [ "$platform" = "hcc" ]; then
         printf "* UNIT-API TESTS *\n"
         printf "******************\n"
         ${current_work_dir}/build/test/unit-api/bin/unit-api-test
-        printf "* UNIT-HIP TESTS *\n"
-        printf "******************\n"
-        ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
+        if [ $HIP_SUPPORT = "on" ]; then
+          printf "* UNIT-HIP TESTS *\n"
+          printf "******************\n"
+          ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test
+        fi
 # Invoke test script
-      cd $current_work_dir/test/benchmark/
+        cd $current_work_dir/test/benchmark/
 # Invoke profiling script
-      ./runme.sh
+        ./runme.sh
 # Test=OFF and Profile=ON (Build and profile the library)
     elif ( [ "$profiling" = "on" ] && [ -z $testing ] ) || ( [ "$testing" = "off" ] && [ "$profiling" = "on" ] ); then
       cd $current_work_dir/test/benchmark/
