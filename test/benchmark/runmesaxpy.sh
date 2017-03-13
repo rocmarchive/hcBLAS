@@ -20,7 +20,7 @@ if [ ! -x $path2profiler ]; then
   echo "profiler does not exist..Exiting.."
   exit
 fi
-echo -e "\n N\t Imple\t Avg Time(ms)" >> $workingdir/profileSummary_saxpy.csv
+echo -e "\n N\t Imple\t Gflop/sec \t Avg Time(ms)" >> $workingdir/profileSummary_saxpy.csv
 
 #Start profiling saxpy
 while read line; do    
