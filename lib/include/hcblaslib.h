@@ -376,6 +376,19 @@ struct Hcblaslibrary
                              double_2 *X, const int incX,
                              const long xOffset, const long X_batchOffset, const int batchSize);
 
+/* CSCAL - X = alpha * X */
+/* CSCAL - Overloaded function with arguments of type hc::array */
+   hcblasStatus hcblas_csscal(hc::accelerator_view accl_view,
+		             const int N, const float &alpha,
+                             float_2 *X, const int incX,
+                             const long xOffset);
+
+/* CSCAL - Overloaded function with arguments related to batch processing */
+   hcblasStatus hcblas_csscal(hc::accelerator_view accl_view,
+		             const int N,const float &alpha,
+                             float_2 *X, const int incX,
+                             const long xOffset, const long X_batchOffset, const int batchSize);
+
 /* SCOPY - Copies a vector X to a vector Y */
 /* SCOPY - Overloaded function with arguments of type hc::array */
    hcblasStatus hcblas_scopy(hc::accelerator_view accl_view, const int N,

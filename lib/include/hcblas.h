@@ -368,6 +368,9 @@ hcblasStatus_t  hcblasCscal(hcblasHandle_t handle, int n,
 hcblasStatus_t  hcblasZscal(hcblasHandle_t handle, int n,
                             const hcDoubleComplex           *alpha,
                             hcDoubleComplex           *x, int incx);
+hcblasStatus_t  hcblasCsscal(hcblasHandle_t handle, int n,
+                            const float           *alpha,
+                            hcComplex           *x, int incx);
 hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t handle, int n,
                             const float           *alpha,
                             float           *x, int incx, int batchCount);
@@ -380,6 +383,9 @@ hcblasStatus_t  hcblasCscalBatched(hcblasHandle_t handle, int n,
 hcblasStatus_t  hcblasZscalBatched(hcblasHandle_t handle, int n,
                             const hcDoubleComplex           *alpha,
                             hcDoubleComplex           *x, int incx, int batchCount);
+hcblasStatus_t  hcblasCsscalBatched(hcblasHandle_t handle, int n,
+                            const float           *alpha,
+                            hcComplex           *x, int incx, int batchCount);
 
 
 // HCBLAS Level-2 Function Reference

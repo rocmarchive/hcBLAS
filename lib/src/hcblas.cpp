@@ -739,6 +739,35 @@ hcblasStatus_t  hcblasZscalBatched(hcblasHandle_t handle, int n,
         return HCBLAS_STATUS_EXECUTION_FAILED;
 }
 
+hcblasStatus_t  hcblasCsscal(hcblasHandle_t handle, int n,
+                            const float           *alpha,
+                            hcComplex           *x, int incx) {
+  if(handle == nullptr || handle->initialized == false)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+  long xOffset = 0;
+  hcblasStatus status;
+  status = handle->hcblas_csscal(handle->currentAcclView, n, *alpha, reinterpret_cast<float2*>(x), incx, xOffset);
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}
+
+hcblasStatus_t  hcblasCsscalBatched(hcblasHandle_t handle, int n,
+                                   const float           *alpha,
+                                   hcComplex           *x, int incx, int batchCount) {
+  if(handle == nullptr || handle->initialized == false)
+    return HCBLAS_STATUS_NOT_INITIALIZED;
+  long xOffset = 0;
+  long X_batchOffset = n;
+  hcblasStatus status;
+  status = handle->hcblas_csscal(handle->currentAcclView, n, *alpha, reinterpret_cast<float2*>(x), incx, xOffset, X_batchOffset, batchCount);
+  if(status == HCBLAS_SUCCEEDS)
+        return HCBLAS_STATUS_SUCCESS;
+  else
+        return HCBLAS_STATUS_EXECUTION_FAILED;
+}
+
 // HCBLAS Level-2 Function Reference
 
 // The Level-2 Basic Linear Algebra Subprograms (BLAS2) functions perform matrix-vector operations.
