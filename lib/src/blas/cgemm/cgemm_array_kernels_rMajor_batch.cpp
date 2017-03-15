@@ -82,8 +82,8 @@ hcblasStatus cgemm_TransAB_rMajor_batch_loopunroll(hc::accelerator_view accl_vie
     if (Row < N && Col < M) {
       CReal = C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].x;
       CImg = C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
@@ -179,8 +179,8 @@ hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view acc
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-          CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -276,8 +276,8 @@ hcblasStatus cgemm_TransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view accl_v
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       CReal = C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
       CImg = C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -374,8 +374,8 @@ hcblasStatus cgemm_TransAB_rMajor_batch_MICRO_TS8XMTS2(hc::accelerator_view accl
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-          CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -472,8 +472,8 @@ hcblasStatus cgemm_NoTransB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view ac
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-          CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -564,8 +564,8 @@ hcblasStatus cgemm_NoTransA_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view accl_
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       CReal = C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
       CImg = C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -661,8 +661,8 @@ hcblasStatus cgemm_NoTransA_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view ac
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-          CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -757,8 +757,8 @@ hcblasStatus cgemm_NoTransA_rMajor_batch_loopunroll(hc::accelerator_view accl_vi
     if (Row < N && Col < M) {
       CReal = C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].x;
       CImg = C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + C_batchOffset * elt + tidx.global[2] + (tidx.global[1] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
@@ -844,8 +844,8 @@ hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS8XSS8(hc::accelerator_view accl
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       CReal = C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
       CImg = C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -931,8 +931,8 @@ hcblasStatus cgemm_NoTransAB_rMajor_batch_STEP_TS16XSS16(hc::accelerator_view ac
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       CReal = C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
       CImg = C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + C_batchOffset * elt + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -1027,8 +1027,8 @@ hcblasStatus cgemm_NoTransAB_rMajor_batch_MICRO_TS16XMTS2(hc::accelerator_view a
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-          CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));

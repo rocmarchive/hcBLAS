@@ -117,7 +117,7 @@ hcblasStatus gemm_alpha0_col(hc::accelerator_view accl_view,
     int Col = tidx.tile[1];
     if (threadIdx == 0 && Col < M && Row < N) {
         long C_index = cOffset + Row * ldc + Col;
-        C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+        C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
 	if (alpha == 0 ) {
 	  if ( beta == 0 ) {
             C[C_index] = 0.0;
@@ -150,7 +150,7 @@ hcblasStatus gemm_alpha0_col_batch(hc::accelerator_view accl_view,
     int Col = tidx.tile[2];
     if (threadIdx == 0 && Col < M && Row < N) {
     long C_index = cOffset + C_batchOffset * elt + Row * ldc + Col;
-    C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+    C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
     if (alpha == 0 ) {
       if ( beta == 0 ) {
         C[C_index] = 0.0;
@@ -182,7 +182,7 @@ hcblasStatus gemm_alpha0_row(hc::accelerator_view accl_view,
     int Col = tidx.tile[1];
     if (threadIdx == 0 && Col < M && Row < N) {
        long C_index = cOffset + Row + Col * ldc;
-       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+       C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
        if (alpha == 0 ) {
 	 if ( beta == 0 ) {
            C[C_index] = 0.0;
@@ -215,7 +215,7 @@ hcblasStatus gemm_alpha0_row_batch(hc::accelerator_view accl_view,
     int Col = tidx.tile[2];
     if (threadIdx == 0 && Col < M && Row < N) {
        long C_index = cOffset + C_batchOffset * elt + Row + Col * ldc;
-       C[C_index] = (isnan(C[C_index]) || isinf(C[C_index])) ? 0 : C[C_index];
+       C[C_index] = (hc::fast_math::isnan(C[C_index]) || hc::fast_math::isinf(C[C_index])) ? 0 : C[C_index];
        if (alpha == 0 ) {
          if ( beta == 0 ) {
            C[C_index] = 0.0;
