@@ -556,6 +556,206 @@ TEST(hcblaswrapper_zscalBatched, func_return_correct_zscalBatched) {
   hc::am_free(devX);
 }
 
+TEST(hcblaswrapper_csscal, func_return_correct_csscal) {
+  hcblasStatus_t status;
+  hcblasHandle_t handle = NULL;
+  hc::accelerator default_acc;
+  hc::accelerator_view av=default_acc.get_default_view();
+  // Passing a Null handle and default accelerator to the API
+  status = hcblasCreate(&handle, &av);
+  int n = 123;
+  int incx = 1;
+  long lenx = 1 + (n-1) * abs(incx);
+  float alpha;
+  float cAlpha;
+
+  cAlpha = 1;
+  alpha = cAlpha;
+
+  // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
+  float *Xcblas = (float*)calloc(lenx * 2, sizeof(float));
+  hcComplex *X = (hcComplex*)calloc(lenx, sizeof(hcComplex));//host input
+  hcComplex* devX = hc::am_alloc(sizeof(hcComplex) * lenx, handle->currentAccl, 0);
+  int k = 0;
+  for(int i = 0; i < lenx; i++){
+            X[i].x = rand() % 10;
+            X[i].y = rand() % 20;
+            Xcblas[k++] = X[i].x;
+            Xcblas[k++] = X[i].y;
+  }
+  status = hcblasSetVector(handle, lenx, sizeof(hcComplex), X, incx, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasCsscal(handle, n, &cAlpha, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasGetVector(handle, lenx, sizeof(hcComplex), devX, incx, X, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  cblas_csscal( n, alpha, Xcblas, incx );
+  for(int i = 0, k = 0; i < lenx && k < lenx * 2 ; i++, k = k + 2){
+        EXPECT_EQ(X[i].x, Xcblas[k]);
+        EXPECT_EQ(X[i].y, Xcblas[k+1]);
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
+  hcblasDestroy(&handle);
+  status = hcblasCsscal(handle, n, &cAlpha, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+  free(X);
+  free(Xcblas);
+  hc::am_free(devX);
+}
+
+TEST(hcblaswrapper_csscalBatched, func_return_correct_csscalBatched) {
+  hcblasStatus_t status;
+  hcblasHandle_t handle = NULL;
+  hc::accelerator default_acc;
+  hc::accelerator_view av=default_acc.get_default_view();
+  // Passing a Null handle and default accelerator to the API
+  status = hcblasCreate(&handle, &av);
+  int n = 123;
+  int incx = 1;
+  long lenx = 1 + (n-1) * abs(incx);
+  float alpha;
+  int batchSize = 128;
+  float cAlpha;
+
+  cAlpha = 1;
+  alpha = cAlpha;
+
+  // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
+  float *Xcblas = (float*)calloc(lenx * batchSize * 2 , sizeof(float));
+  hcComplex *X = (hcComplex*)calloc(lenx * batchSize, sizeof(hcComplex));//host input
+  hcComplex* devX = hc::am_alloc(sizeof(hcComplex) * lenx * batchSize, handle->currentAccl, 0);
+  int k = 0;
+  for(int i = 0; i < lenx * batchSize; i++){
+            X[i].x = rand() % 10;
+            X[i].y = rand() % 20;
+            Xcblas[k++] =  X[i].x;
+            Xcblas[k++] =  X[i].y;
+  }
+  status = hcblasSetVector(handle, lenx*batchSize, sizeof(hcComplex), X, incx, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasCsscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasGetVector(handle, lenx*batchSize, sizeof(hcComplex), devX, incx, X, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  for(int i = 0; i < batchSize; i++)
+          cblas_csscal( n, alpha, Xcblas + i * n * 2, incx);
+  for(int i =0, k = 0; i < lenx * batchSize && k < lenx * batchSize * 2; i++, k = k + 2){
+          EXPECT_EQ(X[i].x, Xcblas[k]);
+          EXPECT_EQ(X[i].y, Xcblas[k+1]);
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
+  hcblasDestroy(&handle);
+  status = hcblasCsscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
+  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+  free(X);
+  free(Xcblas);
+  hc::am_free(devX);
+}
+
+TEST(hcblaswrapper_zdscal, func_return_correct_zdscal) {
+  hcblasStatus_t status;
+  hcblasHandle_t handle = NULL;
+  hc::accelerator default_acc;
+  hc::accelerator_view av=default_acc.get_default_view();
+  // Passing a Null handle and default accelerator to the API
+  status = hcblasCreate(&handle, &av);
+  int n = 123;
+  int incx = 1;
+  long lenx = 1 + (n-1) * abs(incx);
+  double alpha;
+  double cAlpha;
+
+  cAlpha = 1;
+  alpha = cAlpha;
+
+  // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
+  double *Xcblas = (double*)calloc(lenx * 2, sizeof(double));
+  hcDoubleComplex *X = (hcDoubleComplex*)calloc(lenx, sizeof(hcDoubleComplex));//host input
+  hcDoubleComplex* devX = hc::am_alloc(sizeof(hcDoubleComplex) * lenx, handle->currentAccl, 0);
+  int k = 0;
+  for(int i = 0; i < lenx; i++){
+            X[i].x = rand() % 10;
+            X[i].y = rand() % 20;
+            Xcblas[k++] = X[i].x;
+            Xcblas[k++] = X[i].y;
+  }
+  status = hcblasSetVector(handle, lenx, sizeof(hcDoubleComplex), X, incx, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasZdscal(handle, n, &cAlpha, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasGetVector(handle, lenx, sizeof(hcDoubleComplex), devX, incx, X, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  cblas_zdscal( n, alpha, Xcblas, incx );
+  for(int i = 0, k = 0; i < lenx && k < lenx * 2 ; i++, k = k + 2){
+        EXPECT_EQ(X[i].x, Xcblas[k]);
+        EXPECT_EQ(X[i].y, Xcblas[k+1]);
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
+  hcblasDestroy(&handle);
+  status = hcblasZdscal(handle, n, &cAlpha, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+  free(X);
+  free(Xcblas);
+  hc::am_free(devX);
+}
+
+TEST(hcblaswrapper_zdscalBatched, func_return_correct_zdscalBatched) {
+  hcblasStatus_t status;
+  hcblasHandle_t handle = NULL;
+  hc::accelerator default_acc;
+  hc::accelerator_view av=default_acc.get_default_view();
+  // Passing a Null handle and default accelerator to the API
+  status = hcblasCreate(&handle, &av);
+  int n = 123;
+  int incx = 1;
+  long lenx = 1 + (n-1) * abs(incx);
+  double alpha;
+  int batchSize = 128;
+  double cAlpha;
+
+  cAlpha = 1;
+  alpha = cAlpha;
+
+  // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
+  double *Xcblas = (double*)calloc(lenx * batchSize * 2 , sizeof(double));
+  hcDoubleComplex *X = (hcDoubleComplex*)calloc(lenx * batchSize, sizeof(hcDoubleComplex));//host input
+  hcDoubleComplex* devX = hc::am_alloc(sizeof(hcDoubleComplex) * lenx * batchSize, handle->currentAccl, 0);
+  int k = 0;
+  for(int i = 0; i < lenx * batchSize; i++){
+            X[i].x = rand() % 10;
+            X[i].y = rand() % 20;
+            Xcblas[k++] =  X[i].x;
+            Xcblas[k++] =  X[i].y;
+  }
+  status = hcblasSetVector(handle, lenx*batchSize, sizeof(hcDoubleComplex), X, incx, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasZdscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasGetVector(handle, lenx*batchSize, sizeof(hcDoubleComplex), devX, incx, X, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  for(int i = 0; i < batchSize; i++)
+          cblas_zdscal( n, alpha, Xcblas + i * n * 2, incx);
+  for(int i =0, k = 0; i < lenx * batchSize && k < lenx * batchSize * 2; i++, k = k + 2){
+          EXPECT_EQ(X[i].x, Xcblas[k]);
+          EXPECT_EQ(X[i].y, Xcblas[k+1]);
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
+  hcblasDestroy(&handle);
+  status = hcblasZdscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
+  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+  free(X);
+  free(Xcblas);
+  hc::am_free(devX);
+}
+
 TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
