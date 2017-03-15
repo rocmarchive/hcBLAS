@@ -25,8 +25,8 @@ void zdscal_HC(hc::accelerator_view accl_view,
       X[X_index].y = 0.0;
     }
     else {
-      X[X_index].x = (XReal * alpha) - (XImg * alpha);
-      X[X_index].y = (XReal * alpha) + (XImg * alpha);
+      X[X_index].x = XReal * alpha;
+      X[X_index].y = XImg * alpha;
     }
     }
   })_WAIT1;
@@ -53,8 +53,8 @@ void zdscal_HC(hc::accelerator_view accl_view,
       X[X_index].y = 0.0;
     }
     else {
-      X[X_index].x = (XReal * alpha) - (XImg * alpha);
-      X[X_index].y = (XReal * alpha) + (XImg * alpha);
+      X[X_index].x = XReal * alpha;
+      X[X_index].y = XImg * alpha;
     }
     }
   })_WAIT1;
