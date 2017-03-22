@@ -133,10 +133,10 @@ hipblasStatus_t hipblasDgemm(hipblasHandle_t handle,  hipblasOperation_t transa,
                            int m, int n, int k,  const double *alpha, const double *A, int lda, const double *B, int ldb, const double *beta, double *C, int ldc);
 
 hipblasStatus_t hipblasCgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc);
+                           int m, int n, int k,  const hipComplex *alpha, const hipComplex *A, int lda, const hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc);
 
 hipblasStatus_t hipblasZgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hipDoubleComplex *alpha, hipDoubleComplex *A, int lda, hipDoubleComplex *B, int ldb, const hipDoubleComplex *beta, hipDoubleComplex *C, int ldc);
+                           int m, int n, int k,  const hipDoubleComplex *alpha, const hipDoubleComplex *A, int lda, const hipDoubleComplex *B, int ldb, const hipDoubleComplex *beta, hipDoubleComplex *C, int ldc);
 
 hipblasStatus_t hipblasHgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
                            int m, int n, int k,  const __half *alpha, __half *A, int lda, __half *B, int ldb, const __half *beta, __half *C, int ldc);
@@ -148,10 +148,10 @@ hipblasStatus_t hipblasDgemmBatched(hipblasHandle_t handle,  hipblasOperation_t 
                            int m, int n, int k,  const double *alpha, const double *A[], int lda, const double *B[], int ldb, const double *beta, double *C[], int ldc, int batchCount);
 
 hipblasStatus_t hipblasCgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hipComplex *alpha, hipComplex *A, int lda, hipComplex *B, int ldb, const hipComplex *beta, hipComplex *C, int ldc, int batchCount);
+                           int m, int n, int k,  const hipComplex *alpha, const hipComplex *A[], int lda, const hipComplex *B[], int ldb, const hipComplex *beta, hipComplex *C[], int ldc, int batchCount);
 
 hipblasStatus_t hipblasZgemmBatched(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,
-                           int m, int n, int k,  const hipDoubleComplex *alpha, hipDoubleComplex *A, int lda, hipDoubleComplex *B, int ldb, const hipDoubleComplex *beta, hipDoubleComplex *C, int ldc, int batchCount);
+                           int m, int n, int k,  const hipDoubleComplex *alpha, const hipDoubleComplex *A[], int lda, const hipDoubleComplex *B[], int ldb, const hipDoubleComplex *beta, hipDoubleComplex *C[], int ldc, int batchCount);
 
 #ifdef __cplusplus
 }

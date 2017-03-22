@@ -656,10 +656,10 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcComplex       *alpha,
-                                  hcComplex       *Aarray, int lda,
-                                  hcComplex       *Barray, int ldb,
+                                  hcComplex       *Aarray[], int lda,
+                                  hcComplex       *Barray[], int ldb,
                                   const hcComplex       *beta,
-                                  hcComplex       *Carray, int ldc, int batchCount);
+                                  hcComplex       *Carray[], int ldc, int batchCount);
 
 hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
@@ -674,8 +674,8 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcDoubleComplex       *alpha,
-                                  hcDoubleComplex       *Aarray, int lda,
-                                  hcDoubleComplex       *Barray, int ldb,
+                                  hcDoubleComplex       *Aarray[], int lda,
+                                  hcDoubleComplex       *Barray[], int ldb,
                                   const hcDoubleComplex       *beta,
-                                  hcDoubleComplex       *Carray, int ldc, int batchCount);
+                                  hcDoubleComplex       *Carray[], int ldc, int batchCount);
 #endif //(HCBLAS_H)

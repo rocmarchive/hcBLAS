@@ -302,12 +302,12 @@ struct Hcblaslibrary
                              hcblasTranspose typeB, const int M,
                              const int N, const int K,
                              const float_2 &alpha,
-                             float_2 *A, 
+                             float_2 *A[],
                              const long aOffset, const long A_batchOffset, const long lda,
-                             float_2 *B, 
+                             float_2 *B[],
 			     const long bOffset, const long B_batchOffset, const long ldb,
                              const float_2 &beta,
-                             float_2 *C, 
+                             float_2 *C[],
 			     const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 				 
 /* ZGEMM - Overloaded function with arguments related to batch processing */
@@ -316,12 +316,12 @@ struct Hcblaslibrary
                              hcblasTranspose typeB, const int M,
                              const int N, const int K,
                              const  double_2 &alpha,
-                             double_2 *A, 
+                             double_2 *A[],
                              const long aOffset, const long A_batchOffset, const long lda,
-                             double_2 *B, 
+                             double_2 *B[],
 			     const long bOffset, const long B_batchOffset, const long ldb,
                              const  double_2 &beta,
-                             double_2 *C, 
+                             double_2 *C[],
 			     const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 
 /* SSCAL - X = alpha * X */
