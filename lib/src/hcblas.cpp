@@ -1372,10 +1372,10 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcComplex       *alpha,
-                                  hcComplex       *Aarray, int lda,
-                                  hcComplex       *Barray, int ldb,
+                                  hcComplex       *Aarray[], int lda,
+                                  hcComplex       *Barray[], int ldb,
                                   const hcComplex       *beta,
-                                  hcComplex       *Carray, int ldc, int batchCount) {
+                                  hcComplex       *Carray[], int ldc, int batchCount) {
   if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
@@ -1394,7 +1394,7 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_cgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const float2*>(alpha)), reinterpret_cast<float2*>(Aarray), aOffset, A_batchOffset, lda, reinterpret_cast<float2*>(Barray), bOffset, B_batchOffset, ldb, *(reinterpret_cast<const float2*>(beta)), reinterpret_cast<float2*>(Carray), cOffset, C_batchOffset, ldc, batchCount);
+  status = handle->hcblas_cgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const float2*>(alpha)), reinterpret_cast<float2**>(Aarray), aOffset, A_batchOffset, lda, reinterpret_cast<float2**>(Barray), bOffset, B_batchOffset, ldb, *(reinterpret_cast<const float2*>(beta)), reinterpret_cast<float2**>(Carray), cOffset, C_batchOffset, ldc, batchCount);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;
@@ -1442,10 +1442,10 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcDoubleComplex       *alpha,
-                                  hcDoubleComplex       *Aarray, int lda,
-                                  hcDoubleComplex       *Barray, int ldb,
+                                  hcDoubleComplex       *Aarray[], int lda,
+                                  hcDoubleComplex       *Barray[], int ldb,
                                   const hcDoubleComplex       *beta,
-                                  hcDoubleComplex       *Carray, int ldc, int batchCount) {
+                                  hcDoubleComplex       *Carray[], int ldc, int batchCount) {
   if(handle == nullptr || handle->initialized == false)
     return HCBLAS_STATUS_NOT_INITIALIZED;
 
@@ -1464,7 +1464,7 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
   transA = (transa == HCBLAS_OP_N) ? NoTrans : Trans;
   transB = (transb == HCBLAS_OP_N) ? NoTrans : Trans;
 
-  status = handle->hcblas_zgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const double2*>(alpha)), reinterpret_cast<double2*>(Aarray), aOffset, A_batchOffset, lda, reinterpret_cast<double2*>(Barray), bOffset, B_batchOffset, ldb, *(reinterpret_cast<const double2*>(beta)), reinterpret_cast<double2*>(Carray), cOffset, C_batchOffset, ldc, batchCount);
+  status = handle->hcblas_zgemm(handle->currentAcclView, handle->Order, transA, transB, m, n, k, *(reinterpret_cast<const double2*>(alpha)), reinterpret_cast<double2**>(Aarray), aOffset, A_batchOffset, lda, reinterpret_cast<double2**>(Barray), bOffset, B_batchOffset, ldb, *(reinterpret_cast<const double2*>(beta)), reinterpret_cast<double2**>(Carray), cOffset, C_batchOffset, ldc, batchCount);
 
   if(status == HCBLAS_SUCCEEDS)
         return HCBLAS_STATUS_SUCCESS;

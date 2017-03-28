@@ -2,9 +2,9 @@
 #include "hc_math.hpp"
 using namespace hc::fast_math;
 hcblasStatus cgemm_NoTransAB_batch_loopunroll(hc::accelerator_view accl_view,
-					      float_2 *A, long aOffset, long A_batchOffset,
-					      float_2 *B, long bOffset, long B_batchOffset,
-					      float_2 *C, long cOffset, long C_batchOffset,
+					      float_2 *A[], long aOffset, long A_batchOffset,
+					      float_2 *B[], long bOffset, long B_batchOffset,
+					      float_2 *C[], long cOffset, long C_batchOffset,
 					      int M, int N, int K, int lda, int ldb, int ldc,
 					      float_2 alpha, float_2 beta, int batchSize) {
 #define THREADS   16
@@ -27,16 +27,16 @@ hcblasStatus cgemm_NoTransAB_batch_loopunroll(hc::accelerator_view accl_view,
 
     for (int k = 0; k < ((K + (TILE_DIM - 1)) / TILE_DIM ) ; k++) {
       if (k * TILE_DIM + tidx.local[2] < K && Row < N) {
-        Bsreal[tidx.local[1]][tidx.local[2]] = B[bOffset + B_batchOffset * elt + Row * ldb + (k * TILE_DIM + tidx.local[2])].x;
-        Bsimg[tidx.local[1]][tidx.local[2]] = B[bOffset + B_batchOffset * elt + Row * ldb + (k * TILE_DIM + tidx.local[2])].y;
+        Bsreal[tidx.local[1]][tidx.local[2]] = B[elt][bOffset + Row * ldb + (k * TILE_DIM + tidx.local[2])].x;
+        Bsimg[tidx.local[1]][tidx.local[2]] = B[elt][bOffset + Row * ldb + (k * TILE_DIM + tidx.local[2])].y;
       } else {
         Bsreal[tidx.local[1]][tidx.local[2]] = 0.0;
         Bsimg[tidx.local[1]][tidx.local[2]] = 0.0;
       }
 
       if (k * TILE_DIM + tidx.local[1] < K && Col < M) {
-        Asreal[tidx.local[1]][tidx.local[2]] = A[aOffset + A_batchOffset * elt + (k * TILE_DIM + tidx.local[1]) * lda + Col].x;
-        Asimg[tidx.local[1]][tidx.local[2]] = A[aOffset + A_batchOffset * elt + (k * TILE_DIM + tidx.local[1]) * lda + Col].y;
+        Asreal[tidx.local[1]][tidx.local[2]] = A[elt][aOffset + (k * TILE_DIM + tidx.local[1]) * lda + Col].x;
+        Asimg[tidx.local[1]][tidx.local[2]] = A[elt][aOffset + (k * TILE_DIM + tidx.local[1]) * lda + Col].y;
       } else {
         Asreal[tidx.local[1]][tidx.local[2]] = 0.0;
         Asimg[tidx.local[1]][tidx.local[2]] = 0.0;
@@ -80,14 +80,14 @@ hcblasStatus cgemm_NoTransAB_batch_loopunroll(hc::accelerator_view accl_view,
     }
 
     if (Row < N && Col < M) {
-      CReal = C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].x;
-      CImg = C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].y;
+      CReal = C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].x;
+      CImg = C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
-      C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
+      C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
+      C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
   })_WAIT1;
 #undef THREADS
@@ -97,9 +97,9 @@ hcblasStatus cgemm_NoTransAB_batch_loopunroll(hc::accelerator_view accl_view,
 
 
 hcblasStatus cgemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
-					           float_2 *A, long aOffset, long A_batchOffset,
-					           float_2 *B, long bOffset, long B_batchOffset,
-					           float_2 *C, long cOffset, long C_batchOffset,
+					           float_2 *A[], long aOffset, long A_batchOffset,
+					           float_2 *B[], long bOffset, long B_batchOffset,
+					           float_2 *C[], long cOffset, long C_batchOffset,
 					           int M, int N, int K, int lda, int ldb, int ldc,
 					           float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
@@ -146,16 +146,16 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
         int ArowIndex = (gidx * MICROTILEPROD) + idxT + secVal;
 
         if( BrowIndex < N && colIndex < K) {
-          lBreal[lIndex + secVal] = B[bOffset + B_batchOffset * elt + BrowIndex * ldb + colIndex].x;
-          lBimg[lIndex + secVal] = B[bOffset + B_batchOffset * elt + BrowIndex * ldb + colIndex].y;
+          lBreal[lIndex + secVal] = B[elt][bOffset + BrowIndex * ldb + colIndex].x;
+          lBimg[lIndex + secVal] = B[elt][bOffset + BrowIndex * ldb + colIndex].y;
         } else {
           lBreal[lIndex + secVal] = 0;
           lBimg[lIndex + secVal] = 0;
         }
 
         if( ArowIndex < M && colIndex < K) {
-          lAreal[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex +  colIndex * lda].x;
-          lAimg[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex +  colIndex * lda].y;
+          lAreal[lIndex + secVal] = A[elt][aOffset + ArowIndex +  colIndex * lda].x;
+          lAimg[lIndex + secVal] = A[elt][aOffset + ArowIndex +  colIndex * lda].y;
         } else {
           lAreal[lIndex + secVal] = 0;
           lAimg[lIndex + secVal] = 0;
@@ -179,14 +179,14 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+          CReal = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
+          CImg = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -197,9 +197,9 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
 }
 
 hcblasStatus cgemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
-					        float_2 *A, long aOffset, long A_batchOffset,
-				 	        float_2 *B, long bOffset, long B_batchOffset,
-					        float_2 *C, long cOffset, long C_batchOffset,
+					        float_2 *A[], long aOffset, long A_batchOffset,
+				 	        float_2 *B[], long bOffset, long B_batchOffset,
+					        float_2 *C[], long cOffset, long C_batchOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float_2 alpha, float_2 beta, int batchSize)
 
@@ -244,8 +244,8 @@ hcblasStatus cgemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
       for (int sec = 0; sec < STEPSIZE / TILESIZE; ++sec) {
         // Load Section 'sec' from global memory B onto shared lB
         if(gidy * TILESIZE + idxT  < N && (idyT + i * STEPSIZE + (TILESIZE * sec)) < K) {
-          lBreal[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = B[bOffset + B_batchOffset * elt + (gidy * TILESIZE + idxT) * ldb + idyT + i * STEPSIZE + (TILESIZE * sec)].x;
-          lBimg[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = B[bOffset + B_batchOffset * elt + (gidy * TILESIZE + idxT) * ldb + idyT + i * STEPSIZE + (TILESIZE * sec)].y;
+          lBreal[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = B[elt][bOffset + (gidy * TILESIZE + idxT) * ldb + idyT + i * STEPSIZE + (TILESIZE * sec)].x;
+          lBimg[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = B[elt][bOffset + (gidy * TILESIZE + idxT) * ldb + idyT + i * STEPSIZE + (TILESIZE * sec)].y;
         } else {
           lBreal[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = 0;
           lBimg[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = 0;
@@ -253,8 +253,8 @@ hcblasStatus cgemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 
         // Load Section 'sec' from global memory A onto shared lA
         if(gidx * TILESIZE + idxT < M && (i * STEPSIZE + idyT + (TILESIZE * sec)) < K) {
-          lAreal[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = A[aOffset  + A_batchOffset * elt + gidx * TILESIZE + idxT + idyT * lda + i * (lda << shiftFactor) + (TILESIZE * sec) * lda].x;
-          lAimg[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = A[aOffset  + A_batchOffset * elt + gidx * TILESIZE + idxT + idyT * lda + i * (lda << shiftFactor) + (TILESIZE * sec) * lda].y;
+          lAreal[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = A[elt][aOffset + gidx * TILESIZE + idxT + idyT * lda + i * (lda << shiftFactor) + (TILESIZE * sec) * lda].x;
+          lAimg[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = A[elt][aOffset + gidx * TILESIZE + idxT + idyT * lda + i * (lda << shiftFactor) + (TILESIZE * sec) * lda].y;
         } else {
           lAreal[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = 0;
           lAimg[idxT * TILESIZE + idyT + (TILESIZE * TILESIZE * sec)] = 0;
@@ -276,14 +276,14 @@ hcblasStatus cgemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
     tidx.barrier.wait();
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
-      CReal = C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
-      CImg = C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
+      CReal = C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
+      CImg = C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
-      C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
+      C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
+      C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
   })_WAIT1;
 #undef TILESIZE
@@ -294,9 +294,9 @@ hcblasStatus cgemm_NoTransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 
 
 hcblasStatus cgemm_NoTransAB_batch_MICRO_TS8XMTS2(hc::accelerator_view accl_view,
-					          float_2 *A, long aOffset, long A_batchOffset,
-					          float_2 *B, long bOffset, long B_batchOffset,
-					          float_2 *C, long cOffset, long C_batchOffset,
+					          float_2 *A[], long aOffset, long A_batchOffset,
+					          float_2 *B[], long bOffset, long B_batchOffset,
+					          float_2 *C[], long cOffset, long C_batchOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
 					          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
@@ -343,16 +343,16 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS8XMTS2(hc::accelerator_view accl_view
         int ArowIndex = (gidx * MICROTILEPROD) + idxT + secVal;
 
         if( BrowIndex < N && colIndex < K) {
-          lBreal[lIndex + secVal] = B[bOffset + B_batchOffset * elt + BrowIndex * ldb + colIndex].x;
-          lBimg[lIndex + secVal] = B[bOffset + B_batchOffset * elt + BrowIndex * ldb + colIndex].y;
+          lBreal[lIndex + secVal] = B[elt][bOffset + BrowIndex * ldb + colIndex].x;
+          lBimg[lIndex + secVal] = B[elt][bOffset + BrowIndex * ldb + colIndex].y;
         } else {
           lBreal[lIndex + secVal] = 0;
           lBimg[lIndex + secVal] = 0;
         }
 
         if( ArowIndex < M && colIndex < K) {
-          lAreal[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex +  colIndex * lda].x;
-          lAimg[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex +  colIndex * lda].y;
+          lAreal[lIndex + secVal] = A[elt][aOffset + ArowIndex +  colIndex * lda].x;
+          lAimg[lIndex + secVal] = A[elt][aOffset + ArowIndex +  colIndex * lda].y;
         } else {
           lAreal[lIndex + secVal] = 0;
           lAimg[lIndex + secVal] = 0;
@@ -376,14 +376,14 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS8XMTS2(hc::accelerator_view accl_view
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+          CReal = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
+          CImg = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -394,9 +394,9 @@ hcblasStatus cgemm_NoTransAB_batch_MICRO_TS8XMTS2(hc::accelerator_view accl_view
 }
 
 hcblasStatus cgemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
-					          float_2 *A, long aOffset, long A_batchOffset,
-					          float_2 *B, long bOffset, long B_batchOffset,
-					          float_2 *C, long cOffset, long C_batchOffset,
+					          float_2 *A[], long aOffset, long A_batchOffset,
+					          float_2 *B[], long bOffset, long B_batchOffset,
+					          float_2 *C[], long cOffset, long C_batchOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
 					          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
@@ -443,16 +443,16 @@ hcblasStatus cgemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view
         int ArowIndex = (gidx << shiftMTP) + idxT + secVal;
 
         if( BrowIndex < N && colIndex < K) {
-          lBreal[lIndex + secVal] = B[bOffset + B_batchOffset * elt + BrowIndex + colIndex * ldb].x;
-          lBimg[lIndex + secVal] = B[bOffset + B_batchOffset * elt + BrowIndex + colIndex * ldb].y;
+          lBreal[lIndex + secVal] = B[elt][bOffset + BrowIndex + colIndex * ldb].x;
+          lBimg[lIndex + secVal] = B[elt][bOffset + BrowIndex + colIndex * ldb].y;
         } else {
           lBreal[lIndex + secVal] = 0;
           lBimg[lIndex + secVal] = 0;
         }
 
         if(ArowIndex < M && colIndex < K) {
-          lAreal[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex + colIndex * lda].x;
-          lAimg[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex + colIndex * lda].y;
+          lAreal[lIndex + secVal] = A[elt][aOffset + ArowIndex + colIndex * lda].x;
+          lAimg[lIndex + secVal] = A[elt][aOffset + ArowIndex + colIndex * lda].y;
         } else {
           lAreal[lIndex + secVal] = 0;
           lAimg[lIndex + secVal] = 0;
@@ -476,14 +476,14 @@ hcblasStatus cgemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+          CReal = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
+          CImg = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -494,9 +494,9 @@ hcblasStatus cgemm_NoTransA_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view
 }
 
 hcblasStatus cgemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
-					       float_2 *A, long aOffset, long A_batchOffset,
-					       float_2 *B, long bOffset, long B_batchOffset,
-					       float_2 *C, long cOffset, long C_batchOffset,
+					       float_2 *A[], long aOffset, long A_batchOffset,
+					       float_2 *B[], long bOffset, long B_batchOffset,
+					       float_2 *C[], long cOffset, long C_batchOffset,
 					       int M, int N, int K, int lda, int ldb, int ldc,
 					       float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
@@ -537,16 +537,16 @@ hcblasStatus cgemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
       tidx.barrier.wait();
 
       if(gidy * TILESIZE + idxT < N && i * TILESIZE + idyT < K) {
-        lBreal[idyT + idxT * TILESIZE] = B[bOffset + B_batchOffset * elt + (gidy * TILESIZE + idxT) * ldb + idyT + i * TILESIZE].x;
-        lBimg[idyT + idxT * TILESIZE] = B[bOffset + B_batchOffset * elt + (gidy * TILESIZE + idxT) * ldb + idyT + i * TILESIZE].y;
+        lBreal[idyT + idxT * TILESIZE] = B[elt][bOffset + (gidy * TILESIZE + idxT) * ldb + idyT + i * TILESIZE].x;
+        lBimg[idyT + idxT * TILESIZE] = B[elt][bOffset + (gidy * TILESIZE + idxT) * ldb + idyT + i * TILESIZE].y;
       } else {
         lBreal[idyT + idxT * TILESIZE] = 0;
         lBimg[idyT + idxT * TILESIZE] = 0;
       }
 
       if(gidx * TILESIZE + idxT < M && i * TILESIZE + idyT < K) {
-        lAreal[idyT + idxT * TILESIZE] = A[aOffset  + A_batchOffset * elt + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].x;
-        lAimg[idyT + idxT * TILESIZE] = A[aOffset  + A_batchOffset * elt + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].y;
+        lAreal[idyT + idxT * TILESIZE] = A[elt][aOffset  + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].x;
+        lAimg[idyT + idxT * TILESIZE] = A[elt][aOffset  + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].y;
       } else {
         lAreal[idyT + idxT * TILESIZE] = 0;
         lAimg[idyT + idxT * TILESIZE] = 0;
@@ -568,14 +568,14 @@ hcblasStatus cgemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
     tidx.barrier.wait();
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
-      CReal = C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
-      CImg = C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
+      CReal = C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
+      CImg = C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
-      C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
+      C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
+      C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
   })_WAIT1;
 #undef TILESIZE
@@ -584,9 +584,9 @@ hcblasStatus cgemm_NoTransB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 }
 
 hcblasStatus cgemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
-					          float_2 *A, long aOffset, long A_batchOffset,
-					          float_2 *B, long bOffset, long B_batchOffset,
-					          float_2 *C, long cOffset, long C_batchOffset,
+					          float_2 *A[], long aOffset, long A_batchOffset,
+					          float_2 *B[], long bOffset, long B_batchOffset,
+					          float_2 *C[], long cOffset, long C_batchOffset,
 					          int M, int N, int K, int lda, int ldb, int ldc,
 					          float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
@@ -634,16 +634,16 @@ hcblasStatus cgemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view
         tidx.barrier.wait();
 
         if( BrowIndex < N && colIndex < K) {
-          lBreal[lIndex + secVal] = B[ bOffset + B_batchOffset * elt + BrowIndex * ldb + colIndex].x;
-          lBimg[lIndex + secVal] = B[ bOffset + B_batchOffset * elt + BrowIndex * ldb + colIndex].y;
+          lBreal[lIndex + secVal] = B[elt][bOffset + BrowIndex * ldb + colIndex].x;
+          lBimg[lIndex + secVal] = B[elt][bOffset + BrowIndex * ldb + colIndex].y;
         } else {
           lBreal[lIndex + secVal] = 0;
           lBimg[lIndex + secVal] = 0;
         }
 
         if( ArowIndex < M && colIndex < K) {
-          lAreal[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex * lda +  colIndex].x;
-          lAimg[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex * lda +  colIndex].y;
+          lAreal[lIndex + secVal] = A[elt][aOffset + ArowIndex * lda +  colIndex].x;
+          lAimg[lIndex + secVal] = A[elt][aOffset + ArowIndex * lda +  colIndex].y;
         } else {
           lAreal[lIndex + secVal] = 0;
           lAimg[lIndex + secVal] = 0;
@@ -667,14 +667,14 @@ hcblasStatus cgemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+          CReal = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
+          CImg = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -685,9 +685,9 @@ hcblasStatus cgemm_NoTransB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view
 }
 
 hcblasStatus cgemm_NoTransB_batch_loopunroll(hc::accelerator_view accl_view,
-					     float_2 *A, long aOffset, long A_batchOffset,
-					     float_2 *B, long bOffset, long B_batchOffset,
-					     float_2 *C, long cOffset, long C_batchOffset,
+					     float_2 *A[], long aOffset, long A_batchOffset,
+					     float_2 *B[], long bOffset, long B_batchOffset,
+					     float_2 *C[], long cOffset, long C_batchOffset,
 					     int M, int N, int K, int lda, int ldb, int ldc,
 					     float_2 alpha, float_2 beta, int batchSize) {
 #define THREADS   16
@@ -710,16 +710,16 @@ hcblasStatus cgemm_NoTransB_batch_loopunroll(hc::accelerator_view accl_view,
 
     for (int k = 0; k < ((K + (TILE_DIM - 1)) & ~(TILE_DIM - 1)) ; k += TILE_DIM) {
       if (k + tidx.local[2] < K && Row < N) {
-        Bsreal[tidx.local[1]][tidx.local[2]] = B[bOffset + B_batchOffset * elt + Row * ldb + k + tidx.local[2]].x;
-        Bsimg[tidx.local[1]][tidx.local[2]] = B[bOffset + B_batchOffset * elt + Row * ldb + k + tidx.local[2]].y;
+        Bsreal[tidx.local[1]][tidx.local[2]] = B[elt][bOffset + Row * ldb + k + tidx.local[2]].x;
+        Bsimg[tidx.local[1]][tidx.local[2]] = B[elt][bOffset + Row * ldb + k + tidx.local[2]].y;
       } else {
         Bsreal[tidx.local[1]][tidx.local[2]] = 0.0;
         Bsimg[tidx.local[1]][tidx.local[2]] = 0.0;
       }
 
       if (k + tidx.local[2] < K && (tidx.tile[2] * TILE_DIM + tidx.local[1]) < M) {
-        Asreal[tidx.local[1]][tidx.local[2]] = A[aOffset + A_batchOffset * elt + ((tidx.tile[2] * TILE_DIM + tidx.local[1]) * lda) + k + tidx.local[2]].x;
-        Asimg[tidx.local[1]][tidx.local[2]] = A[aOffset + A_batchOffset * elt + ((tidx.tile[2] * TILE_DIM + tidx.local[1]) * lda) + k + tidx.local[2]].y;
+        Asreal[tidx.local[1]][tidx.local[2]] = A[elt][aOffset + ((tidx.tile[2] * TILE_DIM + tidx.local[1]) * lda) + k + tidx.local[2]].x;
+        Asimg[tidx.local[1]][tidx.local[2]] = A[elt][aOffset + ((tidx.tile[2] * TILE_DIM + tidx.local[1]) * lda) + k + tidx.local[2]].y;
       } else {
         Asreal[tidx.local[1]][tidx.local[2]] = 0.0;
         Asimg[tidx.local[1]][tidx.local[2]] = 0.0;
@@ -763,14 +763,14 @@ hcblasStatus cgemm_NoTransB_batch_loopunroll(hc::accelerator_view accl_view,
     }
 
     if (Row < N && Col < M) {
-      CReal = C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].x;
-      CImg = C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].y;
+      CReal = C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].x;
+      CImg = C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
-      C[cOffset + C_batchOffset * elt + (tidx.global[1] * ldc) + tidx.global[2]].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
+      C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
+      C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].y = tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
   })_WAIT1;
 #undef THREADS
@@ -779,9 +779,9 @@ hcblasStatus cgemm_NoTransB_batch_loopunroll(hc::accelerator_view accl_view,
 }
 
 hcblasStatus cgemm_TransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
-					      float_2 *A, long aOffset, long A_batchOffset,
-					      float_2 *B, long bOffset, long B_batchOffset,
-					      float_2 *C, long cOffset, long C_batchOffset,
+					      float_2 *A[], long aOffset, long A_batchOffset,
+					      float_2 *B[], long bOffset, long B_batchOffset,
+					      float_2 *C[], long cOffset, long C_batchOffset,
 					      int M, int N, int K, int lda, int ldb, int ldc,
 					      float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 8
@@ -821,16 +821,16 @@ hcblasStatus cgemm_TransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
       tidx.barrier.wait();
 
       if(gidy * TILESIZE + idxT < N && i * TILESIZE + idyT < K) {
-        lBreal[idyT * TILESIZE + idxT] = B[bOffset + B_batchOffset * elt + gidy * TILESIZE + idxT + idyT * ldb + i * (ldb << shiftFactor)].x;
-        lBimg[idyT * TILESIZE + idxT] = B[bOffset + B_batchOffset * elt + gidy * TILESIZE + idxT + idyT * ldb + i * (ldb << shiftFactor)].y;
+        lBreal[idyT * TILESIZE + idxT] = B[elt][bOffset + gidy * TILESIZE + idxT + idyT * ldb + i * (ldb << shiftFactor)].x;
+        lBimg[idyT * TILESIZE + idxT] = B[elt][bOffset + gidy * TILESIZE + idxT + idyT * ldb + i * (ldb << shiftFactor)].y;
       } else {
         lBreal[idyT * TILESIZE + idxT] = 0;
         lBimg[idyT * TILESIZE + idxT] = 0;
       }
 
       if(gidx * TILESIZE + idxT < M && i * TILESIZE + idyT < K) {
-        lAreal[idyT * TILESIZE + idxT] = A[aOffset + A_batchOffset * elt + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].x;
-        lAimg[idyT * TILESIZE + idxT] = A[aOffset + A_batchOffset * elt + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].y;
+        lAreal[idyT * TILESIZE + idxT] = A[elt][aOffset + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].x;
+        lAimg[idyT * TILESIZE + idxT] = A[elt][aOffset + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].y;
       } else {
         lAreal[idyT * TILESIZE + idxT] = 0;
         lAimg[idyT * TILESIZE + idxT] = 0;
@@ -850,14 +850,14 @@ hcblasStatus cgemm_TransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
     tidx.barrier.wait();
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
-      CReal = C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
-      CImg = C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
+      CReal = C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
+      CImg = C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
-      C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
+      C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
+      C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
   })_WAIT1;
 #undef TILESIZE
@@ -866,9 +866,9 @@ hcblasStatus cgemm_TransAB_batch_STEP_TS8XSS8(hc::accelerator_view accl_view,
 }
 
 hcblasStatus cgemm_TransAB_batch_STEP_TS16XSS16(hc::accelerator_view accl_view,
-					        float_2 *A, long aOffset, long A_batchOffset,
-					        float_2 *B, long bOffset, long B_batchOffset,
-					        float_2 *C, long cOffset, long C_batchOffset,
+					        float_2 *A[], long aOffset, long A_batchOffset,
+					        float_2 *B[], long bOffset, long B_batchOffset,
+					        float_2 *C[], long cOffset, long C_batchOffset,
 					        int M, int N, int K, int lda, int ldb, int ldc,
 					        float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
@@ -908,16 +908,16 @@ hcblasStatus cgemm_TransAB_batch_STEP_TS16XSS16(hc::accelerator_view accl_view,
       tidx.barrier.wait();
 
       if(gidy * TILESIZE + idxT < N && i * TILESIZE + idyT < K) {
-        lBreal[idyT * TILESIZE + idxT] = B[bOffset + B_batchOffset * elt + gidy * TILESIZE + idxT + idyT * ldb + i * (ldb << shiftFactor)].x;
-        lBimg[idyT * TILESIZE + idxT] = B[bOffset + B_batchOffset * elt + gidy * TILESIZE + idxT + idyT * ldb + i * (ldb << shiftFactor)].y;
+        lBreal[idyT * TILESIZE + idxT] = B[elt][bOffset + gidy * TILESIZE + idxT + idyT * ldb + i * (ldb << shiftFactor)].x;
+        lBimg[idyT * TILESIZE + idxT] = B[elt][bOffset + gidy * TILESIZE + idxT + idyT * ldb + i * (ldb << shiftFactor)].y;
       } else {
         lBreal[idyT * TILESIZE + idxT] = 0;
         lBimg[idyT * TILESIZE + idxT] = 0;
       }
 
       if(gidx * TILESIZE + idxT < M && i * TILESIZE + idyT < K) {
-        lAreal[idyT * TILESIZE + idxT] = A[aOffset + A_batchOffset * elt + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].x;
-        lAimg[idyT * TILESIZE + idxT] = A[aOffset + A_batchOffset * elt + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].y;
+        lAreal[idyT * TILESIZE + idxT] = A[elt][aOffset + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].x;
+        lAimg[idyT * TILESIZE + idxT] = A[elt][aOffset + (gidx * TILESIZE + idxT) * lda + idyT + i * TILESIZE].y;
       } else {
         lAreal[idyT * TILESIZE + idxT] = 0;
         lAimg[idyT * TILESIZE + idxT] = 0;
@@ -937,14 +937,14 @@ hcblasStatus cgemm_TransAB_batch_STEP_TS16XSS16(hc::accelerator_view accl_view,
     tidx.barrier.wait();
 
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
-      CReal = C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
-      CImg = C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
+      CReal = C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].x;
+      CImg = C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y;
       CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
       CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-      C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
-      C[cOffset + C_batchOffset * elt + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
+      C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
+      C[elt][cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy)*ldc].y = tempImg  + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
   })_WAIT1;
 #undef TILESIZE
@@ -953,9 +953,9 @@ hcblasStatus cgemm_TransAB_batch_STEP_TS16XSS16(hc::accelerator_view accl_view,
 }
 
 hcblasStatus cgemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
-					         float_2 *A, long aOffset, long A_batchOffset,
-					         float_2 *B, long bOffset, long B_batchOffset,
-					         float_2 *C, long cOffset, long C_batchOffset,
+					         float_2 *A[], long aOffset, long A_batchOffset,
+					         float_2 *B[], long bOffset, long B_batchOffset,
+					         float_2 *C[], long cOffset, long C_batchOffset,
 					         int M, int N, int K, int lda, int ldb, int ldc,
 					         float_2 alpha, float_2 beta, int batchSize) {
 #define TILESIZE 16
@@ -1002,16 +1002,16 @@ hcblasStatus cgemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
         int ArowIndex = ( gidx << shiftMTP) + idxT + secVal;
 
         if( BrowIndex < N && colIndex < K) {
-          lBreal[lIndex + secVal] = B[bOffset + B_batchOffset * elt + BrowIndex + colIndex * ldb].x;
-          lBimg[lIndex + secVal] = B[bOffset + B_batchOffset * elt + BrowIndex + colIndex * ldb].y;
+          lBreal[lIndex + secVal] = B[elt][bOffset + BrowIndex + colIndex * ldb].x;
+          lBimg[lIndex + secVal] = B[elt][bOffset + BrowIndex + colIndex * ldb].y;
         } else {
           lBreal[lIndex + secVal ] = 0;
           lBimg[lIndex + secVal ] = 0;
         }
 
         if( ArowIndex < M && colIndex < K) {
-          lAreal[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex * lda + colIndex].x;
-          lAimg[lIndex + secVal] = A[aOffset + A_batchOffset * elt + ArowIndex * lda + colIndex].y;
+          lAreal[lIndex + secVal] = A[elt][aOffset + ArowIndex * lda + colIndex].x;
+          lAimg[lIndex + secVal] = A[elt][aOffset + ArowIndex * lda + colIndex].y;
         } else {
           lAreal[lIndex + secVal] = 0;
           lAimg[lIndex + secVal] = 0;
@@ -1035,14 +1035,14 @@ hcblasStatus cgemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
     for( int row = 0; row < MICROTILESIZE; row++) {
       for( int col = 0; col < MICROTILESIZE ; col++) {
         if(xIndex + (col << shiftTS) < M && (yIndex / ldc) + (row << shiftTS) < N) {
-          CReal = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
-          CImg = C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
+          CReal = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x;
+          CImg = C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y;
           CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
           CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
-          C[cOffset + C_batchOffset * elt + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row << shiftTS) * ldc].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
+          C[elt][cOffset + (xIndex + (col << shiftTS)) + yIndex + (row * TILESIZE) * ldc].y = tempImg + ((rCreal[col][row] * alpha.y) + (rCimg[col][row] * alpha.x));
         }
       }
     }
@@ -1053,9 +1053,9 @@ hcblasStatus cgemm_TransAB_batch_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 }
 
 hcblasStatus cgemm_NoTransAB(hc::accelerator_view accl_view,
-                             float_2 *A, long aOffset, long A_batchOffset,
-                             float_2 *B, long bOffset, long B_batchOffset,
-                             float_2 *C, long cOffset, long C_batchOffset,
+                             float_2 *A[], long aOffset, long A_batchOffset,
+                             float_2 *B[], long bOffset, long B_batchOffset,
+                             float_2 *C[], long cOffset, long C_batchOffset,
                              int M, int N, int K, int lda, int ldb, int ldc,
                              float_2 alpha, float_2 beta, int batchSize) {
   if (M < 600 && N < 600 && K >= 600 && K < 1800) {
@@ -1072,9 +1072,9 @@ hcblasStatus cgemm_NoTransAB(hc::accelerator_view accl_view,
 }
 
 hcblasStatus cgemm_NoTransA(hc::accelerator_view accl_view,
-                            float_2 *A, long aOffset, long A_batchOffset,
-                            float_2 *B, long bOffset, long B_batchOffset,
-                            float_2 *C, long cOffset, long C_batchOffset,
+                            float_2 *A[], long aOffset, long A_batchOffset,
+                            float_2 *B[], long bOffset, long B_batchOffset,
+                            float_2 *C[], long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float_2 alpha, float_2 beta, int batchSize) {
   /*if ((M < 600 && N >= 600 && N < 1800 && K < 600)||(M >= 600 && M < 6000 && N <6000 && K < 600))
@@ -1084,9 +1084,9 @@ hcblasStatus cgemm_NoTransA(hc::accelerator_view accl_view,
 }
 
 hcblasStatus cgemm_NoTransB(hc::accelerator_view accl_view,
-                            float_2 *A, long aOffset, long A_batchOffset,
-                            float_2 *B, long bOffset, long B_batchOffset,
-                            float_2 *C, long cOffset, long C_batchOffset,
+                            float_2 *A[], long aOffset, long A_batchOffset,
+                            float_2 *B[], long bOffset, long B_batchOffset,
+                            float_2 *C[], long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             float_2 alpha, float_2 beta, int batchSize) {
   if ((M >= 10 && M < 6000 && N < 600 && K < 10) || (  M >= 600 && M < 1800 && N < 10 && K >= 1800 && K < 6000) || ( M < 600 && N < 600 && K > 1800 && K < 6000)) {
@@ -1101,9 +1101,9 @@ hcblasStatus cgemm_NoTransB(hc::accelerator_view accl_view,
 }
 
 hcblasStatus cgemm_TransAB(hc::accelerator_view accl_view,
-                           float_2 *A, long aOffset, long A_batchOffset,
-                           float_2 *B, long bOffset, long B_batchOffset,
-                           float_2 *C, long cOffset, long C_batchOffset,
+                           float_2 *A[], long aOffset, long A_batchOffset,
+                           float_2 *B[], long bOffset, long B_batchOffset,
+                           float_2 *C[], long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            float_2 alpha, float_2 beta, int batchSize) {
   if ((M < 600 && N < 600 && K < 10) || (M < 1800 && N < 600 && K < 600)) {
