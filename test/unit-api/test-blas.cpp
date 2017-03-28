@@ -2009,43 +2009,65 @@ TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
     alpha[1] = cAlpha.y;
     beta[0] = cBeta.x;
     beta[1] = cBeta.y;
-    hcComplex *A = (hcComplex*) calloc(M * K, sizeof(hcComplex));
-    hcComplex *B = (hcComplex*) calloc(K * N, sizeof(hcComplex));
-    hcComplex *C = (hcComplex*) calloc(M * N * batchSize, sizeof(hcComplex));
-    hcComplex* devA = hc::am_alloc(sizeof(hcComplex) * M * K, handle->currentAccl, 0);
-    hcComplex* devB = hc::am_alloc(sizeof(hcComplex) * K * N, handle->currentAccl, 0);
-    hcComplex* devC = hc::am_alloc(sizeof(hcComplex) * M * N * batchSize, handle->currentAccl, 0);
-    float* ablas = (float *)malloc(sizeof(float )* M * K * 2);
-    float* bblas = (float *)malloc(sizeof(float )* K * N * 2);
-    float* cblas = (float *)malloc(sizeof(float )* M * N * batchSize * 2);
-    int k = 0;
-    for(int i = 0; i < M * K; i++) {
-                A[i].x = rand() % 10;
-                A[i].y = rand() % 20;
-                ablas[k++] = A[i].x;
-                ablas[k++] = A[i].y;
+
+    hcComplex *devA[batchSize], *devB[batchSize], *devC[batchSize];
+
+    hcComplex *A[batchSize];
+    hcComplex *B[batchSize];
+    hcComplex *C[batchSize];
+    hcComplex** d_Aarray = hc::am_alloc(sizeof(hcComplex*) * batchSize, default_acc, 0);
+    hcComplex** d_Barray = hc::am_alloc(sizeof(hcComplex*) * batchSize, default_acc, 0);
+    hcComplex** d_Carray = hc::am_alloc(sizeof(hcComplex*) * batchSize, default_acc, 0);
+    float *ablas[batchSize];
+    float *bblas[batchSize];
+    float *cblas[batchSize];
+
+    for (int b = 0; b < batchSize; b++)
+    {
+      A[b] = (hcComplex*) calloc(M * K, sizeof(hcComplex));
+      B[b] = (hcComplex*) calloc(K * N, sizeof(hcComplex));
+      C[b] = (hcComplex*) calloc(M * N, sizeof(hcComplex));
+      devA[b] = hc::am_alloc(sizeof(hcComplex) * M * K, default_acc, 0);
+      devB[b] = hc::am_alloc(sizeof(hcComplex) * K * N, default_acc, 0);
+      devC[b] = hc::am_alloc(sizeof(hcComplex) * M * N, default_acc, 0);
+      ablas[b] = (float *)malloc(sizeof(float )* M * K * 2);
+      bblas[b] = (float *)malloc(sizeof(float )* K * N * 2);
+      cblas[b] = (float *)malloc(sizeof(float )* M * N * 2);
     }
-    k = 0;
-    for(int i = 0; i < K * N;i++) {
-                B[i].x = rand() % 15;
-                B[i].y = rand() % 25;
-                bblas[k++] = B[i].x;
-                bblas[k++] = B[i].y;
-    }
-    k = 0;
-    for(int i = 0; i < M * N * batchSize;i++) {
-                C[i].x = rand() % 18;
-                C[i].y = rand() % 28;
-                cblas[k++] = C[i].x;
-                cblas[k++] = C[i].y;
+    for (int b = 0; b < batchSize; b++)
+    {
+      int k = 0;
+      for(int i = 0; i < M * K; i++) {
+                A[b][i].x = rand() % 10;
+                A[b][i].y = rand() % 20;
+                ablas[b][k++] = A[b][i].x;
+                ablas[b][k++] = A[b][i].y;
+      }
+      k = 0;
+      for(int i = 0; i < K * N;i++) {
+                B[b][i].x = rand() % 15;
+                B[b][i].y = rand() % 25;
+                bblas[b][k++] = B[b][i].x;
+                bblas[b][k++] = B[b][i].y;
+      }
+      k = 0;
+      for(int i = 0; i < M * N;i++) {
+                C[b][i].x = rand() % 18;
+                C[b][i].y = rand() % 28;
+                cblas[b][k++] = C[b][i].x;
+                cblas[b][k++] = C[b][i].y;
+      }
     }
 
-  status = hcblasSetMatrix(handle, M, K, sizeof(hcComplex), A, 1, devA, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  status = hcblasSetMatrix(handle, K, N, sizeof(hcComplex), B, 1, devB, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  status = hcblasSetMatrix(handle, M, N * batchSize, sizeof(hcComplex), C, 1, devC, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  for (int b = 0; b < batchSize; b++)
+  {
+    status = hcblasSetMatrix(handle, M, K, sizeof(hcComplex), A[b], 1, devA[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+    status = hcblasSetMatrix(handle, K, N, sizeof(hcComplex), B[b], 1, devB[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+    status = hcblasSetMatrix(handle, M, N, sizeof(hcComplex), C[b], 1, devC[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  }
 
   // NoTransA and NoTransB */           
   typeA = HCBLAS_OP_N;
@@ -2053,35 +2075,55 @@ TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   Transa = CblasNoTrans;
   Transb = CblasNoTrans;
 
+  // Copyinng device pointers stored in host memory to device memory
+  av.copy(devA, d_Aarray, batchSize * sizeof(hcComplex*));
+  av.copy(devB, d_Barray, batchSize * sizeof(hcComplex*));
+  av.copy(devC, d_Carray, batchSize * sizeof(hcComplex*));
+
     // Column major */
   lda = M; ldb = K ; ldc = M;
-  status = hcblasCgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc, batchSize);
+  status = hcblasCgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, d_Aarray, lda, d_Barray, ldb, &cBeta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
-  status = hcblasGetMatrix(handle, M, N * batchSize, sizeof(hcComplex), devC, 1, C, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-
-  for(int i = 0; i < batchSize;i++)
-         cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas + i * M * N * 2, ldc );
-  for(int i = 0, k = 0; ((i < M * N * batchSize) && ( k < M * N * batchSize * 2)) ; i++, k = k + 2) {
-            EXPECT_EQ(C[i].x, cblas[k]);
-            EXPECT_EQ(C[i].y, cblas[k+1]);
+  for (int b = 0; b < batchSize; b++)
+  {
+    status = hcblasGetMatrix(handle, M, N, sizeof(hcComplex), devC[b], 1, C[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   }
 
-   // HCBLAS_STATUS_NOT_INITIALIZED
+  for(int b = 0; b < batchSize; b++)
+  {
+      cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, ablas[b], lda, bblas[b], ldb, &beta, cblas[b], ldc );
+  }
+
+  for (int b = 0; b < batchSize; b++)
+  {
+    for(int i = 0, k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
+            EXPECT_EQ(C[b][i].x, cblas[b][k]);
+            EXPECT_EQ(C[b][i].y, cblas[b][k+1]);
+    }
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
-  status = hcblasCgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc, batchSize);
+  status = hcblasCgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, d_Aarray, lda, d_Barray, ldb, &cBeta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
-  free(A);
-  free(B);
-  free(C);
-  hc::am_free(devA);
-  hc::am_free(devB);
-  hc::am_free(devC);
-  free(ablas);
-  free(bblas);
-  free(cblas);
+  for (int b = 0; b < batchSize; b++)
+  {
+    hc::am_free(devA[b]);
+    hc::am_free(devB[b]);
+    hc::am_free(devC[b]);
+    free(A[b]);
+    free(B[b]);
+    free(C[b]);
+    free(ablas[b]);
+    free(bblas[b]);
+    free(cblas[b]);
+  }
+  hc::am_free(d_Aarray);
+  hc::am_free(d_Barray);
+  hc::am_free(d_Carray);
 }
 
 TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
@@ -2297,43 +2339,65 @@ TEST(hcblaswrapper_zgemmBatched, func_return_correct_zgemmBatched) {
     alpha[1] = cAlpha.y;
     beta[0] = cBeta.x;
     beta[1] = cBeta.y;
-    hcDoubleComplex *A = (hcDoubleComplex*) calloc(M * K, sizeof(hcDoubleComplex));
-    hcDoubleComplex *B = (hcDoubleComplex*) calloc(K * N, sizeof(hcDoubleComplex));
-    hcDoubleComplex *C = (hcDoubleComplex*) calloc(M * N * batchSize, sizeof(hcDoubleComplex));
-    hcDoubleComplex* devA = hc::am_alloc(sizeof(hcDoubleComplex) * M * K, handle->currentAccl, 0);
-    hcDoubleComplex* devB = hc::am_alloc(sizeof(hcDoubleComplex) * K * N, handle->currentAccl, 0);
-    hcDoubleComplex* devC = hc::am_alloc(sizeof(hcDoubleComplex) * M * N * batchSize, handle->currentAccl, 0);
-    double* ablas = (double *)malloc(sizeof(double )* M * K * 2);
-    double* bblas = (double *)malloc(sizeof(double )* K * N * 2);
-    double* cblas = (double *)malloc(sizeof(double )* M * N * batchSize * 2);
-    int k = 0;
-    for(int i = 0; i < M * K; i++) {
-                A[i].x = rand() % 10;
-                A[i].y = rand() % 20;
-                ablas[k++] = A[i].x;
-                ablas[k++] = A[i].y;
+
+    hcDoubleComplex *devA[batchSize], *devB[batchSize], *devC[batchSize];
+
+    hcDoubleComplex *A[batchSize];
+    hcDoubleComplex *B[batchSize];
+    hcDoubleComplex *C[batchSize];
+    hcDoubleComplex** d_Aarray = hc::am_alloc(sizeof(hcDoubleComplex*) * batchSize, default_acc, 0);
+    hcDoubleComplex** d_Barray = hc::am_alloc(sizeof(hcDoubleComplex*) * batchSize, default_acc, 0);
+    hcDoubleComplex** d_Carray = hc::am_alloc(sizeof(hcDoubleComplex*) * batchSize, default_acc, 0);
+    double *ablas[batchSize];
+    double *bblas[batchSize];
+    double *cblas[batchSize];
+
+    for (int b = 0; b < batchSize; b++)
+    {
+      A[b] = (hcDoubleComplex*) calloc(M * K, sizeof(hcDoubleComplex));
+      B[b] = (hcDoubleComplex*) calloc(K * N, sizeof(hcDoubleComplex));
+      C[b] = (hcDoubleComplex*) calloc(M * N, sizeof(hcDoubleComplex));
+      devA[b] = hc::am_alloc(sizeof(hcDoubleComplex) * M * K, default_acc, 0);
+      devB[b] = hc::am_alloc(sizeof(hcDoubleComplex) * K * N, default_acc, 0);
+      devC[b] = hc::am_alloc(sizeof(hcDoubleComplex) * M * N, default_acc, 0);
+      ablas[b] = (double *)malloc(sizeof(double )* M * K * 2);
+      bblas[b] = (double *)malloc(sizeof(double )* K * N * 2);
+      cblas[b] = (double *)malloc(sizeof(double )* M * N * 2);
     }
-    k = 0;
-    for(int i = 0; i < K * N;i++) {
-                B[i].x = rand() % 15;
-                B[i].y = rand() % 25;
-                bblas[k++] = B[i].x;
-                bblas[k++] = B[i].y;
-    }
-    k = 0;
-    for(int i = 0; i < M * N * batchSize;i++) {
-                C[i].x = rand() % 18;
-                C[i].y = rand() % 28;
-                cblas[k++] = C[i].x;
-                cblas[k++] = C[i].y;
+    for (int b = 0; b < batchSize; b++)
+    {
+      int k = 0;
+      for(int i = 0; i < M * K; i++) {
+                A[b][i].x = rand() % 10;
+                A[b][i].y = rand() % 20;
+                ablas[b][k++] = A[b][i].x;
+                ablas[b][k++] = A[b][i].y;
+      }
+      k = 0;
+      for(int i = 0; i < K * N;i++) {
+                B[b][i].x = rand() % 15;
+                B[b][i].y = rand() % 25;
+                bblas[b][k++] = B[b][i].x;
+                bblas[b][k++] = B[b][i].y;
+      }
+      k = 0;
+      for(int i = 0; i < M * N;i++) {
+                C[b][i].x = rand() % 18;
+                C[b][i].y = rand() % 28;
+                cblas[b][k++] = C[b][i].x;
+                cblas[b][k++] = C[b][i].y;
+      }
     }
 
-  status = hcblasSetMatrix(handle, M, K, sizeof(hcDoubleComplex), A, 1, devA, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  status = hcblasSetMatrix(handle, K, N, sizeof(hcDoubleComplex), B, 1, devB, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-  status = hcblasSetMatrix(handle, M, N * batchSize, sizeof(hcDoubleComplex), C, 1, devC, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  for (int b = 0; b < batchSize; b++)
+  {
+    status = hcblasSetMatrix(handle, M, K, sizeof(hcDoubleComplex), A[b], 1, devA[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+    status = hcblasSetMatrix(handle, K, N, sizeof(hcDoubleComplex), B[b], 1, devB[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+    status = hcblasSetMatrix(handle, M, N, sizeof(hcDoubleComplex), C[b], 1, devC[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  }
 
   // NoTransA and NoTransB */
   typeA = HCBLAS_OP_N;
@@ -2341,33 +2405,53 @@ TEST(hcblaswrapper_zgemmBatched, func_return_correct_zgemmBatched) {
   Transa = CblasNoTrans;
   Transb = CblasNoTrans;
 
+  // Copyinng device pointers stored in host memory to device memory
+  av.copy(devA, d_Aarray, batchSize * sizeof(hcDoubleComplex*));
+  av.copy(devB, d_Barray, batchSize * sizeof(hcDoubleComplex*));
+  av.copy(devC, d_Carray, batchSize * sizeof(hcDoubleComplex*));
+
     // Column major */
   lda = M; ldb = K ; ldc = M;
-  status = hcblasZgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc, batchSize);
+  status = hcblasZgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, d_Aarray, lda, d_Barray, ldb, &cBeta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
 
-  status = hcblasGetMatrix(handle, M, N * batchSize, sizeof(hcDoubleComplex), devC, 1, C, 1);
-  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
-
-  for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( order, Transa, Transb, M, N, K, &alpha, ablas, lda, bblas, ldb, &beta, cblas + i * M * N * 2, ldc );
-  for(int i = 0, k = 0; ((i < M * N * batchSize) && ( k < M * N * batchSize * 2)) ; i++, k = k + 2) {
-            EXPECT_EQ(C[i].x, cblas[k]);
-            EXPECT_EQ(C[i].y, cblas[k+1]);
+  for (int b = 0; b < batchSize; b++)
+  {
+    status = hcblasGetMatrix(handle, M, N, sizeof(hcDoubleComplex), devC[b], 1, C[b], 1);
+    EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
   }
 
-   // HCBLAS_STATUS_NOT_INITIALIZED
+  for(int b = 0; b < batchSize; b++)
+  {
+      cblas_zgemm( order, Transa, Transb, M, N, K, &alpha, ablas[b], lda, bblas[b], ldb, &beta, cblas[b], ldc );
+  }
+
+  for (int b = 0; b < batchSize; b++)
+  {
+    for(int i = 0, k = 0; ((i < M * N) && ( k < M * N * 2)) ; i++, k = k + 2) {
+            EXPECT_EQ(C[b][i].x, cblas[b][k]);
+            EXPECT_EQ(C[b][i].y, cblas[b][k+1]);
+    }
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
-  status = hcblasZgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB, ldb, &cBeta, devC, ldc, batchSize);
+  status = hcblasZgemmBatched(handle, typeA, typeB, M, N, K, &cAlpha, d_Aarray, lda, d_Barray, ldb, &cBeta, d_Carray, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
-  free(A);
-  free(B);
-  free(C);
-  hc::am_free(devA);
-  hc::am_free(devB);
-  hc::am_free(devC);
-  free(ablas);
-  free(bblas);
-  free(cblas);
+  for (int b = 0; b < batchSize; b++)
+  {
+    hc::am_free(devA[b]);
+    hc::am_free(devB[b]);
+    hc::am_free(devC[b]);
+    free(A[b]);
+    free(B[b]);
+    free(C[b]);
+    free(ablas[b]);
+    free(bblas[b]);
+    free(cblas[b]);
+  }
+  hc::am_free(d_Aarray);
+  hc::am_free(d_Barray);
+  hc::am_free(d_Carray);
 }
