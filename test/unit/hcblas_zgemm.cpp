@@ -20,8 +20,8 @@ TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_1) {
     hcblasOrder hcOrder;
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
-   accelerator_view accl_view = hc.currentAcclView;
-   accelerator acc = hc.currentAccl;
+    accelerator_view accl_view = hc.currentAcclView;
+    accelerator acc = hc.currentAccl;
     
 // Implementation type I - Inputs and Outputs are HCC device pointers */
 
@@ -149,8 +149,8 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_1) {
     hcblasOrder hcOrder;
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
-   accelerator_view accl_view = hc.currentAcclView;
-   accelerator acc = hc.currentAccl;
+    accelerator_view accl_view = hc.currentAcclView;
+    accelerator acc = hc.currentAccl;
     CBLAS_TRANSPOSE Transa, Transb;
     double alpha[2], beta[2];
 // Implementation type I - Inputs and Outputs are HCC device pointers */
@@ -410,7 +410,7 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_1) {
     hc::am_free(devC);
 }
 
-
+#if 0
 TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_2) {
    hc::accelerator accl;
    hc::accelerator_view av = accl.get_default_view();
@@ -428,8 +428,8 @@ TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_2) {
     hcblasOrder hcOrder;
     hcblasTranspose typeA, typeB;
     hcblasStatus status;
-   accelerator_view accl_view = hc.currentAcclView;
-   accelerator acc = hc.currentAccl;
+    accelerator_view accl_view = hc.currentAcclView;
+    accelerator acc = hc.currentAccl;
     double_2 cAlpha, cBeta;
     cAlpha.x = 1;
     cAlpha.y = 1;
@@ -437,29 +437,41 @@ TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_2) {
     cBeta.y = 1;
  
    // Implementation type II - Inputs and Outputs are HCC device pointers with batch processing 
-        
-   double_2 *Abatch = (double_2*) calloc(M * K, sizeof(double_2));
-   double_2 *Bbatch = (double_2*) calloc(K * N, sizeof(double_2));
-   double_2 *Cbatch = (double_2*) calloc(M * N * batchSize, sizeof(double_2));          
-   double_2* devAbatch = hc::am_alloc(sizeof(double_2) * M * K, acc, 0);
-   double_2* devBbatch = hc::am_alloc(sizeof(double_2) * K * N, acc, 0);
-   double_2* devCbatch = hc::am_alloc(sizeof(double_2) * M * N * batchSize, acc, 0);
+   double_2 *Abatch[batchSize];     
+   double_2 *Bbatch[batchSize];     
+   double_2 *Cbatch[batchSize];     
+   double_2** devAbatch = hc::am_alloc(sizeof(double_2*) * batchSize, acc, 0);
+   double_2** devBbatch = hc::am_alloc(sizeof(double_2*) * batchSize, acc, 0);
+   double_2** devCbatch = hc::am_alloc(sizeof(double_2*) * batchSize, acc, 0);
+  
+   for (int b = 0; b < batchSize; b++)
+   { 
+     Abatch[b] = (double_2*) calloc(M * K, sizeof(double_2));
+     Bbatch[b] = (double_2*) calloc(K * N, sizeof(double_2));
+     Cbatch[b] = (double_2*) calloc(M * N, sizeof(double_2));          
+     devAbatch[b] = hc::am_alloc(sizeof(double_2) * M * K, acc, 0);
+     devBbatch[b] = hc::am_alloc(sizeof(double_2) * K * N, acc, 0);
+     devCbatch[b] = hc::am_alloc(sizeof(double_2) * M * N, acc, 0);
+   }
 
-   for(int i = 0; i < M * K; i++) {
-             Abatch[i].x = rand() % 10;
-             Abatch[i].y = rand() % 20;
-   }
-   for(int i = 0; i < K * N;i++) {
-             Bbatch[i].x = rand() % 15;
-             Bbatch[i].y = rand() % 25;
-   }
-   for(int i = 0; i < M * N * batchSize;i++) {
-             Cbatch[i].x = rand() % 18;
-             Cbatch[i].y = rand() % 28;
+   for (int b = 0; b < batchSize; b++)
+   {
+     for(int i = 0; i < M * K; i++) {
+               Abatch[b][i].x = rand() % 10;
+               Abatch[b][i].y = rand() % 20;
+     }
+     for(int i = 0; i < K * N;i++) {
+               Bbatch[b][i].x = rand() % 15;
+               Bbatch[b][i].y = rand() % 25;
+     }
+     for(int i = 0; i < M * N * batchSize;i++) {
+               Cbatch[b][i].x = rand() % 18;
+               Cbatch[b][i].y = rand() % 28;
+     }
    } 
 
-   accl_view.copy(Abatch, devAbatch, M * K * sizeof(double_2));
-   accl_view.copy(Bbatch, devBbatch, K * N * sizeof(double_2));
+   accl_view.copy(Abatch, devAbatch, M * K * batchSize * sizeof(double_2));
+   accl_view.copy(Bbatch, devBbatch, K * N * batchSize * sizeof(double_2));
    accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(double_2));
 
    // NoTransA and NoTransB            
@@ -517,9 +529,9 @@ TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_2) {
     typeA = NoTrans;
     typeB = NoTrans;
     lda = M; ldb = K ; ldc = M;
-    double_2 *devA1 = NULL;
-    double_2 *devB1 = NULL;
-    double_2 *devC1 = NULL;
+    double_2 **devA1 = NULL;
+    double_2 **devB1 = NULL;
+    double_2 **devC1 = NULL;
     /* A, B, C device pointers are not allocated properly */
     status = hc.hcblas_zgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devA1, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     EXPECT_EQ(status, HCBLAS_INVALID); 
@@ -535,10 +547,17 @@ TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_2) {
     EXPECT_EQ(status, HCBLAS_INVALID);
     // K is 0
     status = hc.hcblas_zgemm(accl_view, ColMajor, typeA, typeB, M, N, 0, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
-    EXPECT_EQ(status, HCBLAS_INVALID);            
-    free(Abatch);
-    free(Bbatch);
-    free(Cbatch);
+    EXPECT_EQ(status, HCBLAS_INVALID);           
+
+    for (int b = 0; b < batchSize; b++)
+    { 
+      free(Abatch[b]);
+      free(Bbatch[b]);
+      free(Cbatch[b]);
+      hc::am_free(devAbatch[b]);
+      hc::am_free(devBbatch[b]);
+      hc::am_free(devCbatch[b]);
+    }
     hc::am_free(devAbatch);
     hc::am_free(devBbatch);
     hc::am_free(devCbatch);
@@ -567,39 +586,54 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
    CBLAS_TRANSPOSE Transa, Transb;
    // Implementation type II - Inputs and Outputs are HCC device pointers with batch processing 
    double alpha[2], beta[2];
-   double_2 cAlpha, cBeta;     
-   double_2 *Abatch = (double_2*) calloc(M * K, sizeof(double_2));
-   double_2 *Bbatch = (double_2*) calloc(K * N, sizeof(double_2));
-   double_2 *Cbatch = (double_2*) calloc(M * N * batchSize, sizeof(double_2));
-   double_2* devAbatch = hc::am_alloc(sizeof(double_2) * M * K, acc, 0);
-   double_2* devBbatch = hc::am_alloc(sizeof(double_2) * K * N, acc, 0);
-   double_2* devCbatch = hc::am_alloc(sizeof(double_2) * M * N * batchSize, acc, 0);
-   double* abatch = (double *)malloc(sizeof(double )* M * K * 2);
-   double* bbatch = (double *)malloc(sizeof(double )* K * N * 2);
-   double* cbatch = (double *)malloc(sizeof(double )* M * N * 2 * batchSize);   
-   int k = 0;
-   for (int i = 0;i < M * K; i++) {
-        Abatch[i].x = rand() % 10;
-        Abatch[i].y = rand() % 20;
-        abatch[k++] = Abatch[i].x;
-        abatch[k++] = Abatch[i].y;
+   double_2 cAlpha, cBeta;
+   double_2 *Abatch[batchSize];
+   double_2 *Bbatch[batchSize];
+   double_2 *Cbatch[batchSize];
+   double_2** devAbatch = hc::am_alloc(sizeof(double_2*) * batchSize, acc, 0);
+   double_2** devBbatch = hc::am_alloc(sizeof(double_2*) * batchSize, acc, 0);
+   double_2** devCbatch = hc::am_alloc(sizeof(double_2*) * batchSize, acc, 0);
+   double *abatch[batchSize];
+   double *bbatch[batchSize];
+   double *cbatch[batchSize];
+   for (int b = 0; b < batchSize; b++)
+   {     
+     Abatch[b] = (double_2*) calloc(M * K, sizeof(double_2));
+     Bbatch[b] = (double_2*) calloc(K * N, sizeof(double_2));
+     Cbatch[b] = (double_2*) calloc(M * N * batchSize, sizeof(double_2));
+     devAbatch[b] = hc::am_alloc(sizeof(double_2) * M * K, acc, 0);
+     devBbatch[b] = hc::am_alloc(sizeof(double_2) * K * N, acc, 0);
+     devCbatch[b] = hc::am_alloc(sizeof(double_2) * M * N * batchSize, acc, 0);
+     abatch[b] = (double *)malloc(sizeof(double )* M * K * 2);
+     bbatch[b] = (double *)malloc(sizeof(double )* K * N * 2);
+     cbatch[b] = (double *)malloc(sizeof(double )* M * N * 2 * batchSize);
+   }
+   for (int b = 0; b < batchSize; b++)
+   {
+     int k = 0;
+     for (int i = 0;i < M * K; i++) {
+          Abatch[b][i].x = rand() % 10;
+          Abatch[b][i].y = rand() % 20;
+          abatch[b][k++] = Abatch[b][i].x;
+          abatch[b][k++] = Abatch[b][i].y;
+      }
+      k = 0;
+      for (int i = 0;i < K * N; i++) {
+          Bbatch[b][i].x = rand() % 15;
+          Bbatch[b][i].y = rand() % 25;
+          bbatch[b][k++] = Bbatch[b][i].x;
+          bbatch[b][k++] = Bbatch[b][i].y;
+      }
+      k = 0;
+      for (int i = 0;i < M * N * batchSize; i++) {
+          Cbatch[b][i].x = rand() % 18;
+          Cbatch[b][i].y = rand() % 28;
+          cbatch[b][k++] = Cbatch[b][i].x ;
+          cbatch[b][k++] = Cbatch[b][i].y;
+      }
     }
-    k = 0;
-    for (int i = 0;i < K * N; i++) {
-        Bbatch[i].x = rand() % 15;
-        Bbatch[i].y = rand() % 25;
-        bbatch[k++] = Bbatch[i].x;
-        bbatch[k++] = Bbatch[i].y;
-    }
-    k = 0;
-    for (int i = 0;i < M * N * batchSize; i++) {
-        Cbatch[i].x = rand() % 18;
-        Cbatch[i].y = rand() % 28;
-        cbatch[k++] = Cbatch[i].x ;
-        cbatch[k++] = Cbatch[i].y;
-    }
-    accl_view.copy(Abatch, devAbatch, M * K * sizeof(double_2));
-    accl_view.copy(Bbatch, devBbatch, K * N * sizeof(double_2));
+    accl_view.copy(Abatch,devAbatch, M * K * batchSize * sizeof(double_2));
+    accl_view.copy(Bbatch, devBbatch, K * N * batchSize * sizeof(double_2));
     accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(double_2));
     cAlpha.x = 1;
     cAlpha.y = 1;
@@ -621,10 +655,10 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
 
     /* alpha = 0 */
@@ -640,10 +674,10 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
     /* alpha = 0, beta = 0*/
     lda = M; ldb = K ; ldc = M;
@@ -658,10 +692,10 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
     
     // Row Major 
@@ -677,10 +711,10 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
  
     /* alpha = 0 */
@@ -696,11 +730,11 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
-    } 
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
+    }
 
     /* alpha = 0, beta = 0 */
     lda = K; ldb = N ; ldc = N;     
@@ -715,11 +749,11 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
-    } 
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
+    }
 
     // NoTransA TransB   
     typeA = NoTrans;
@@ -740,10 +774,10 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
     
     // Row Major  
@@ -751,10 +785,10 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
 
     // TransA NoTransB 
@@ -768,10 +802,10 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
     
     // Row Major 
@@ -779,10 +813,10 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
 
     // TransA TransB 
@@ -796,10 +830,10 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, ColMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
     
     // Row Major 
@@ -807,20 +841,26 @@ TEST(hcblas_zgemm, func_correct_zgemm_Implementation_type_2) {
     status = hc.hcblas_zgemm(accl_view, RowMajor, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
     accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(double_2));
     for(int i = 0; i < batchSize;i++)
-         cblas_zgemm( CblasRowMajor, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-    for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-         EXPECT_EQ(Cbatch[i].x, cbatch[k]);
-         EXPECT_EQ(Cbatch[i].y, cbatch[k+1]);
+         cblas_zgemm( CblasColMajor, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+    for(int i = 0,k = 0,b = 0; ((i < M * N) && (b < batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2,b++){
+         EXPECT_EQ(Cbatch[b][i].x, cbatch[b][k]);
+         EXPECT_EQ(Cbatch[b][i].y, cbatch[b][k+1]);
     }
-    free(Abatch);
-    free(Bbatch);
-    free(Cbatch);
-    free(abatch);
-    free(bbatch);
-    free(cbatch);
+    for (int b = 0; b < batchSize; b++)
+    {
+      free(Abatch[b]);
+      free(Bbatch[b]);
+      free(Cbatch[b]);
+      free(abatch[b]);
+      free(bbatch[b]);
+      free(cbatch[b]);
+      hc::am_free(devAbatch[b]);
+      hc::am_free(devBbatch[b]);
+      hc::am_free(devCbatch[b]);
+    }
     hc::am_free(devAbatch);
     hc::am_free(devBbatch);
     hc::am_free(devCbatch);
 
 }
-
+#endif

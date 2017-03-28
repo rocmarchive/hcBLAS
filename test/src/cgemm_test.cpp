@@ -155,52 +155,72 @@ int main(int argc, char* argv[])
 /* Implementation type II - Inputs and Outputs are HCC float array containers with batch processing */
 
     else{
-        float_2 *Abatch = (float_2*) calloc(M * K, sizeof(float_2));
-        float_2 *Bbatch = (float_2*) calloc(K * N, sizeof(float_2));
-        float_2 *Cbatch = (float_2*) calloc(M * N * batchSize, sizeof(float_2));
-        float_2* devAbatch = hc::am_alloc(sizeof(float_2) * M * K, acc[1], 0);
-        float_2* devBbatch = hc::am_alloc(sizeof(float_2) * K * N, acc[1], 0);
-        float_2* devCbatch = hc::am_alloc(sizeof(float_2) * M * N * batchSize, acc[1], 0);
-        float* abatch = (float *)malloc(sizeof(float )* M * K * 2);
-        float* bbatch = (float *)malloc(sizeof(float )* K * N * 2);
-        float* cbatch = (float *)malloc(sizeof(float )* M * N * 2 * batchSize);
-        int k = 0;
-        for (int i = 0;i < M * K; i++) {
-           Abatch[i].x = rand() % 10;
-           Abatch[i].y = rand() % 20;
-           abatch[k++] = Abatch[i].x;
-           abatch[k++] = Abatch[i].y;
+        float_2 *Abatch[batchSize];
+        float_2 *Bbatch[batchSize];
+        float_2 *Cbatch[batchSize];
+        float_2 **devAbatch = hc::am_alloc(sizeof(float_2*) * batchSize, acc[1], 0);
+        float_2 **devBbatch = hc::am_alloc(sizeof(float_2*) * batchSize, acc[1], 0);
+        float_2 **devCbatch = hc::am_alloc(sizeof(float_2*) * batchSize, acc[1], 0);
+        float *abatch[batchSize];
+        float *bbatch[batchSize];
+        float *cbatch[batchSize];
+
+        for (int i = 0; i < batchSize; i++)
+        { 
+           Abatch[i] = (float_2*) calloc(M * K, sizeof(float_2));
+           Bbatch[i] = (float_2*) calloc(K * N, sizeof(float_2));
+           Cbatch[i] = (float_2*) calloc(M * N, sizeof(float_2));
+           devAbatch[i] = hc::am_alloc(sizeof(float_2) * M * K, acc[1], 0);
+           devBbatch[i] = hc::am_alloc(sizeof(float_2) * K * N, acc[1], 0);
+           devCbatch[i] = hc::am_alloc(sizeof(float_2) * M * N, acc[1], 0);
+           abatch[i] = (float *)malloc(sizeof(float )* M * K * 2);
+           bbatch[i] = (float *)malloc(sizeof(float )* K * N * 2);
+           cbatch[i] = (float *)malloc(sizeof(float )* M * N * 2);
         }
 
-        k = 0;
-        for (int i = 0;i < K * N; i++) {
-           Bbatch[i].x = rand() % 15;
-           Bbatch[i].y = rand() % 25;
-           bbatch[k++] = Bbatch[i].x;
-           bbatch[k++] = Bbatch[i].y;
+        for (int b = 0; b <= batchSize; b++)
+        {
+          int k = 0;
+          for (int i = 0;i < M * K; i++) {
+             Abatch[b][i].x = rand() % 10;
+             Abatch[b][i].y = rand() % 20;
+             abatch[b][k++] = Abatch[b][i].x;
+             abatch[b][k++] = Abatch[b][i].y;
+          }
+
+          k = 0;
+          for (int i = 0;i < K * N; i++) {
+             Bbatch[b][i].x = rand() % 15;
+             Bbatch[b][i].y = rand() % 25;
+             bbatch[b][k++] = Bbatch[b][i].x;
+             bbatch[b][k++] = Bbatch[b][i].y;
+          }
         }
 #ifdef PROFILE
         for(int iter=0; iter<10; iter++) {   
 #endif
-        k = 0;
-        for (int i = 0;i < M * N * batchSize; i++) {
-           Cbatch[i].x = rand() % 18;
-           Cbatch[i].y = rand() % 28;
-           cbatch[k++] = Cbatch[i].x ;
-           cbatch[k++] = Cbatch[i].y;
+        for (int b = 0; b < batchSize; b++)
+        {
+          int k = 0;
+          for (int i = 0;i < M * N; i++) {
+             Cbatch[b][i].x = rand() % 18;
+             Cbatch[b][i].y = rand() % 28;
+             cbatch[b][k++] = Cbatch[b][i].x ;
+             cbatch[b][k++] = Cbatch[b][i].y;
+          }
         } 
-        accl_view.copy(Abatch, devAbatch, M * K * sizeof(float_2));
-        accl_view.copy(Bbatch, devBbatch, K * N * sizeof(float_2));
+        accl_view.copy(Abatch, devAbatch, M * K * batchSize * sizeof(float_2));
+        accl_view.copy(Bbatch, devBbatch, K * N * batchSize * sizeof(float_2));
         accl_view.copy(Cbatch, devCbatch, M * N * batchSize * sizeof(float_2));
     	status = hc.hcblas_cgemm(accl_view, hcOrder, typeA, typeB, M, N, K, cAlpha, devAbatch, aOffset, A_batchOffset, lda, devBbatch, bOffset, B_batchOffset, ldb, cBeta, devCbatch, cOffset, C_batchOffset, ldc, batchSize);
         accl_view.copy(devCbatch, Cbatch,  M * N * batchSize * sizeof(float_2)); 
         for(int i = 0; i < batchSize;i++)
-	     cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch, lda, bbatch, ldb, &beta, cbatch + i * M * N * 2, ldc );
-        for(int i = 0,k = 0; ((i < M * N * batchSize)&&( k < M * N * 2 * batchSize)); i++, k = k + 2){
-            if ((Cbatch[i].x != cbatch[k]) || (Cbatch[i].y != cbatch[k+1])){
+	     cblas_cgemm( order, Transa, Transb, M, N, K, &alpha, abatch + i * M * K * 2, lda, bbatch + i * K * N * 2, ldb, &beta, cbatch + i * M * N * 2, ldc );
+        for(int i = 0,k = 0, b = 0; ((i < M * N) && (b < batchSize) && ( k < M * N * 2 * batchSize)); i++, k = k + 2, b++){
+            if ((Cbatch[b][i].x != cbatch[b][k]) || (Cbatch[b][i].y != cbatch[b][k+1])){
                 ispassed = 0;
-                cout <<" HCCGEMM_REAL[" << i<< "] " << Cbatch[i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[k] << endl;
-                cout <<" HCCGEMM_IMG[" << i<< "] " << Cbatch[i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[k + 1] << endl;
+                cout <<" HCCGEMM_REAL[" << i<< "] " << Cbatch[b][i].x << " does not match with CBLASCGEMM_REAL[" << k <<"] "<< cbatch[b][k] << endl;
+                cout <<" HCCGEMM_IMG[" << i<< "] " << Cbatch[b][i].y << " does not match with CBLASCGEMM_IMG[" << k <<"] "<< cbatch[b][k + 1] << endl;
                 break;
             }
             else
@@ -211,15 +231,22 @@ int main(int argc, char* argv[])
 #ifdef PROFILE
         }
 #endif
-        free(abatch);
-        free(bbatch);
-        free(cbatch);
-        free(Abatch);
-        free(Bbatch);
-        free(Cbatch);
+        for (int b = 0; b < batchSize; b++)
+        {
+          free(abatch[b]);
+          free(bbatch[b]);
+          free(cbatch[b]);
+          free(Abatch[b]);
+          free(Bbatch[b]);
+          free(Cbatch[b]);
+          hc::am_free(devAbatch[b]);
+          hc::am_free(devBbatch[b]);
+          hc::am_free(devCbatch[b]);
+        }
         hc::am_free(devAbatch);
         hc::am_free(devBbatch);
         hc::am_free(devCbatch);
+        
     }
     return 0;
 }
