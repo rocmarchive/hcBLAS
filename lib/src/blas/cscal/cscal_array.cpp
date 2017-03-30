@@ -20,7 +20,7 @@ void cscal_HC(hc::accelerator_view accl_view,
       XImg = X[X_index].y;
       XReal = (isnan(XReal) || isinf(XReal)) ? 0 : XReal;
       XImg = (isnan(XImg) || isinf(XImg)) ? 0 : XImg;
-    if (alpha == 0) {
+    if (alpha.x == 0 && alpha.y == 0) {
       X[X_index].x = 0.0;
       X[X_index].y = 0.0;
     }
@@ -48,7 +48,7 @@ void cscal_HC(hc::accelerator_view accl_view,
       XImg = X[X_index].y;
       XReal = (isnan(XReal) || isinf(XReal)) ? 0 : XReal;
       XImg = (isnan(XImg) || isinf(XImg)) ? 0 : XImg;
-    if (alpha == 0) {
+    if (alpha.x == 0 && alpha.y == 0) {
       X[X_index].x = 0.0;
       X[X_index].y = 0.0;
     }

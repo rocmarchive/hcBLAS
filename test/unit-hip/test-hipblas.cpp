@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 #include "cblas.h"
 
+#ifdef HGEMM_UNIT_TESTING
 
 void cblas_hgemm( int, int, int, __half* , __half* , __half* , __half, __half );
 
@@ -19,6 +20,8 @@ void cblas_hgemm( int M, int N, int K, __half* A, __half* B, __half* C_cblas, __
      }
    }
 }
+
+#endif
 
 TEST(hipblaswrapper_sasum, func_return_correct_sasum) {
   hipblasStatus_t status;
@@ -2117,6 +2120,8 @@ TEST(hipblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   hipFree(d_Carray);
 }
 #endif
+
+#ifdef HGEMM_UNIT_TESTING
 
 #ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_hgemm, func_return_correct_hgemm) {

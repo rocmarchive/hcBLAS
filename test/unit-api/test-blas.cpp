@@ -4,6 +4,8 @@
 #include "cblas.h"
 #include "hcblaslib.h"
 
+#ifdef HGEMM_UNIT_TESTING
+
 void cblas_hgemm( int, int, int, half* , half* , half* , half, half );
 
 void cblas_hgemm( int M, int N, int K, half* A, half* B, half* C_cblas, half alpha , half beta)
@@ -22,6 +24,7 @@ void cblas_hgemm( int M, int N, int K, half* A, half* B, half* C_cblas, half alp
    }
 }
 
+#endif
 
 TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   hcblasStatus_t status;
@@ -2126,6 +2129,8 @@ TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
   hc::am_free(d_Carray);
 }
 
+#ifdef HGEMM_UNIT_TESTING
+
 TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
@@ -2455,3 +2460,4 @@ TEST(hcblaswrapper_zgemmBatched, func_return_correct_zgemmBatched) {
   hc::am_free(d_Barray);
   hc::am_free(d_Carray);
 }
+#endif

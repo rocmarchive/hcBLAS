@@ -18,8 +18,8 @@ hcblasStatus cgemm_alpha0_col(hc::accelerator_view accl_view,
     if (Row < N && Col < M) {
       CReal = C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].x;
       CImg = C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       if( !alpha.x && !alpha.y) {
        if( !beta.x && !beta.y) {
         C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].x = 0.0;
@@ -56,8 +56,8 @@ hcblasStatus cgemm_alpha0_colbatch(hc::accelerator_view accl_view,
     if (Row < N && Col < M) {
       CReal = C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].x;
       CImg = C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       if( !alpha.x && !alpha.y) {
        if( !beta.x && !beta.y) {
         C[elt][cOffset + (tidx.global[1] * ldc) + tidx.global[2]].x = 0.0;
@@ -93,8 +93,8 @@ hcblasStatus cgemm_alpha0_row(hc::accelerator_view accl_view,
     if (Row < N && Col < M) {
       CReal = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x;
       CImg = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       if( !alpha.x && !alpha.y) {
        if( !beta.x && !beta.y) {
         C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x = 0.0;
@@ -131,8 +131,8 @@ hcblasStatus cgemm_alpha0_rowbatch(hc::accelerator_view accl_view,
     if (Row < N && Col < M) {
       CReal = C[elt][cOffset + tidx.global[2] + (tidx.global[1] * ldc)].x;
       CImg = C[elt][cOffset + tidx.global[2] + (tidx.global[1] * ldc)].y;
-      CReal = (isnan(CReal) || isinf(CReal)) ? 0 : CReal;
-      CImg = (isnan(CImg) || isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
       if( !alpha.x && !alpha.y) {
        if( !beta.x && !beta.y) {
         C[elt][cOffset + tidx.global[2] + (tidx.global[1] * ldc)].x = 0.0;

@@ -28,12 +28,14 @@ for row in table.find_all("tr")[1:]:
     datasets.append(dataset)
 
 vlist=[]
-#header =['M','N','K','TransA','TransB','Avg time']
+#header =['M','N','K','TransA','TransB','Avg time','Gflop/sec']
 #out.writerow(header)
 for dataset in datasets:
     for field in dataset:
         if field[0].encode('ascii') == "Avg Time(ms)" :
            avgtime=field[1].encode('ascii')
-           vlist = [Mval,Nval,Kval,transA,transB,Implem,avgtime]
+           flop = float(Mval)*float(Nval)*float(Kval)*2.0
+           gflops = str(round(flop/float(avgtime)/1.e6,2))
+           vlist = [Mval,Nval,Kval,transA,transB,Implem,gflops,avgtime]
            out.writerow(vlist)
            vlist = []

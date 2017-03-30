@@ -30,6 +30,8 @@ for dataset in datasets:
     for field in dataset:
         if field[0].encode('ascii') == "Avg Time(ms)" :
            avgtime=field[1].encode('ascii')
-           vlist = [Mval,Imple,avgtime]
+           flop = float(Mval)*2.0
+           gflops = str(round(flop/float(avgtime)/1.e6,2))
+           vlist = [Mval,Imple,gflops,avgtime]
            out.writerow(vlist)
            vlist = []

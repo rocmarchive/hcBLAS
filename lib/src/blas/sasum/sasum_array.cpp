@@ -107,7 +107,7 @@ void sasum_HC(hc::accelerator_view accl_view,
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count; i++) {
-    *Y = (isnan(*Y) || isinf(*Y)) ? 0 : *Y;
+    *Y = (hc::fast_math::isnan(*Y) || hc::fast_math::isinf(*Y)) ? 0 : *Y;
     *Y += host_global_buffer[ i ] ;
   }
 
@@ -220,7 +220,7 @@ void sasum_HC(hc::accelerator_view accl_view,
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
-    *Y = (isnan(*Y) || isinf(*Y)) ? 0 : *Y;
+    *Y = (hc::fast_math::isnan(*Y) || hc::fast_math::isinf(*Y)) ? 0 : *Y;
     *Y += host_global_buffer[ i ] ;
   }
 

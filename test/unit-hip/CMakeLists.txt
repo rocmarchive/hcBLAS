@@ -32,8 +32,6 @@ IF(${PLATFORM} MATCHES "hcc")
   SET_PROPERTY(TARGET unit-hip-test APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ${LINK}")
 
   TARGET_LINK_LIBRARIES(unit-hip-test hipblas_hcc)
-  MESSAGE(STATUS "HIPBLAS UNIT TEST USING libhipblas.so")
-  MESSAGE(STATUS "**************************************")
 
   add_test(NAME unit-hip-test COMMAND ./bin/unit-hip-test)
 
@@ -56,8 +54,6 @@ ELSEIF(${PLATFORM} MATCHES "nvcc")
   SET_PROPERTY(TARGET unit-hip-test APPEND_STRING PROPERTY LINK_FLAGS " ${HIP_LDFLAGS} ${LINK}")
    
   TARGET_LINK_LIBRARIES(unit-hip-test hipblas_nvcc blas cudart)
-  MESSAGE(STATUS "HIPBLAS UNIT TEST USING libhipblas.so")
-  MESSAGE(STATUS "**************************************")
 
   add_test(NAME unit-hip-test COMMAND ./bin/unit-hip-test)  
 
