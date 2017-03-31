@@ -2203,6 +2203,8 @@ TEST(hipblaswrapper_hgemm, func_return_correct_hgemm) {
 }
 #endif
 
+#endif
+
 #ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_zgemm, func_return_correct_zgemm) {
   hipblasStatus_t status;
