@@ -362,12 +362,36 @@ hcblasStatus_t  hcblasSscal(hcblasHandle_t handle, int n,
 hcblasStatus_t  hcblasDscal(hcblasHandle_t handle, int n,
                             const double          *alpha,
                             double          *x, int incx);
+hcblasStatus_t  hcblasCscal(hcblasHandle_t handle, int n,
+                            const hcComplex           *alpha,
+                            hcComplex           *x, int incx);
+hcblasStatus_t  hcblasZscal(hcblasHandle_t handle, int n,
+                            const hcDoubleComplex           *alpha,
+                            hcDoubleComplex           *x, int incx);
+hcblasStatus_t  hcblasCsscal(hcblasHandle_t handle, int n,
+                            const float           *alpha,
+                            hcComplex           *x, int incx);
+hcblasStatus_t  hcblasZdscal(hcblasHandle_t handle, int n,
+                            const double           *alpha,
+                            hcDoubleComplex           *x, int incx);
 hcblasStatus_t  hcblasSscalBatched(hcblasHandle_t handle, int n,
                             const float           *alpha,
                             float           *x, int incx, int batchCount);
 hcblasStatus_t  hcblasDscalBatched(hcblasHandle_t handle, int n,
                             const double          *alpha,
                             double          *x, int incx, int batchCount);
+hcblasStatus_t  hcblasCscalBatched(hcblasHandle_t handle, int n,
+                            const hcComplex           *alpha,
+                            hcComplex           *x, int incx, int batchCount);
+hcblasStatus_t  hcblasZscalBatched(hcblasHandle_t handle, int n,
+                            const hcDoubleComplex           *alpha,
+                            hcDoubleComplex           *x, int incx, int batchCount);
+hcblasStatus_t  hcblasCsscalBatched(hcblasHandle_t handle, int n,
+                            const float           *alpha,
+                            hcComplex           *x, int incx, int batchCount);
+hcblasStatus_t  hcblasZdscalBatched(hcblasHandle_t handle, int n,
+                            const double           *alpha,
+                            hcDoubleComplex           *x, int incx, int batchCount);
 
 
 // HCBLAS Level-2 Function Reference
@@ -632,10 +656,10 @@ hcblasStatus_t hcblasCgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcComplex       *alpha,
-                                  hcComplex       *Aarray, int lda,
-                                  hcComplex       *Barray, int ldb,
+                                  hcComplex       *Aarray[], int lda,
+                                  hcComplex       *Barray[], int ldb,
                                   const hcComplex       *beta,
-                                  hcComplex       *Carray, int ldc, int batchCount);
+                                  hcComplex       *Carray[], int ldc, int batchCount);
 
 hcblasStatus_t hcblasDgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
@@ -650,8 +674,8 @@ hcblasStatus_t hcblasZgemmBatched(hcblasHandle_t handle,
                                   hcblasOperation_t transa, hcblasOperation_t transb,
                                   int m, int n, int k,
                                   const hcDoubleComplex       *alpha,
-                                  hcDoubleComplex       *Aarray, int lda,
-                                  hcDoubleComplex       *Barray, int ldb,
+                                  hcDoubleComplex       *Aarray[], int lda,
+                                  hcDoubleComplex       *Barray[], int ldb,
                                   const hcDoubleComplex       *beta,
-                                  hcDoubleComplex       *Carray, int ldc, int batchCount);
+                                  hcDoubleComplex       *Carray[], int ldc, int batchCount);
 #endif //(HCBLAS_H)

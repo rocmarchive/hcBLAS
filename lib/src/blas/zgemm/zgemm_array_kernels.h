@@ -98,30 +98,30 @@ hcblasStatus zgemm_TransAB(hc::accelerator_view accl_view,
 */
 
 hcblasStatus zgemm_NoTransAB(hc::accelerator_view accl_view,
-		             double_2 *A, long aOffset, long A_batchOffset,
-                             double_2 *B, long bOffset, long B_batchOffset,
-                             double_2 *C, long cOffset, long C_batchOffset,
+		             double_2 *A[], long aOffset, long A_batchOffset,
+                             double_2 *B[], long bOffset, long B_batchOffset,
+                             double_2 *C[], long cOffset, long C_batchOffset,
                              int M, int N, int K, int lda, int ldb, int ldc,
                              double_2 alpha, double_2 beta, int batchSize);
 
 hcblasStatus zgemm_NoTransA(hc::accelerator_view accl_view,
-		            double_2 *A, long aOffset, long A_batchOffset,
-                            double_2 *B, long bOffset, long B_batchOffset,
-                            double_2 *C, long cOffset, long C_batchOffset,
+		            double_2 *A[], long aOffset, long A_batchOffset,
+                            double_2 *B[], long bOffset, long B_batchOffset,
+                            double_2 *C[], long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             double_2 alpha, double_2 beta, int batchSize);
 
 hcblasStatus zgemm_NoTransB(hc::accelerator_view accl_view,
-		            double_2 *A, long aOffset, long A_batchOffset,
-                            double_2 *B, long bOffset, long B_batchOffset,
-                            double_2 *C, long cOffset, long C_batchOffset,
+		            double_2 *A[], long aOffset, long A_batchOffset,
+                            double_2 *B[], long bOffset, long B_batchOffset,
+                            double_2 *C[], long cOffset, long C_batchOffset,
                             int M, int N, int K, int lda, int ldb, int ldc,
                             double_2 alpha, double_2 beta, int batchSize);
 
 hcblasStatus zgemm_TransAB(hc::accelerator_view accl_view,
-		           double_2 *A, long aOffset, long A_batchOffset,
-                           double_2 *B, long bOffset, long B_batchOffset,
-                           double_2 *C, long cOffset, long C_batchOffset,
+		           double_2 *A[], long aOffset, long A_batchOffset,
+                           double_2 *B[], long bOffset, long B_batchOffset,
+                           double_2 *C[], long cOffset, long C_batchOffset,
                            int M, int N, int K, int lda, int ldb, int ldc,
                            double_2 alpha, double_2 beta, int batchSize);
 
@@ -164,30 +164,30 @@ hcblasStatus zgemm_TransAB_rMajor(hc::accelerator_view accl_view,
 */
 
 hcblasStatus zgemm_NoTransAB_rMajor(hc::accelerator_view accl_view,
-                                    double_2 *A, long aOffset, long A_batchOffset,
-                                    double_2 *B, long bOffset, long B_batchOffset,
-                                    double_2 *C, long cOffset, long C_batchOffset,
+                                    double_2 *A[], long aOffset, long A_batchOffset,
+                                    double_2 *B[], long bOffset, long B_batchOffset,
+                                    double_2 *C[], long cOffset, long C_batchOffset,
                                     int M, int N, int K, int lda, int ldb, int ldc,
                                     double_2 alpha, double_2 beta, int batchSize);
 
 hcblasStatus zgemm_NoTransA_rMajor(hc::accelerator_view accl_view,
-                                   double_2 *A, long aOffset, long A_batchOffset,
-                                   double_2 *B, long bOffset, long B_batchOffset,
-                                   double_2 *C, long cOffset, long C_batchOffset,
+                                   double_2 *A[], long aOffset, long A_batchOffset,
+                                   double_2 *B[], long bOffset, long B_batchOffset,
+                                   double_2 *C[], long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    double_2 alpha, double_2 beta, int batchSize);
 
 hcblasStatus zgemm_NoTransB_rMajor(hc::accelerator_view accl_view,
-                                   double_2 *A, long aOffset, long A_batchOffset,
-                                   double_2 *B, long bOffset, long B_batchOffset,
-                                   double_2 *C, long cOffset, long C_batchOffset,
+                                   double_2 *A[], long aOffset, long A_batchOffset,
+                                   double_2 *B[], long bOffset, long B_batchOffset,
+                                   double_2 *C[], long cOffset, long C_batchOffset,
                                    int M, int N, int K, int lda, int ldb, int ldc,
                                    double_2 alpha, double_2 beta, int batchSize);
 
 hcblasStatus zgemm_TransAB_rMajor(hc::accelerator_view accl_view,
-                                  double_2 *A, long aOffset, long A_batchOffset,
-                                  double_2 *B, long bOffset, long B_batchOffset,
-                                  double_2 *C, long cOffset, long C_batchOffset,
+                                  double_2 *A[], long aOffset, long A_batchOffset,
+                                  double_2 *B[], long bOffset, long B_batchOffset,
+                                  double_2 *C[], long cOffset, long C_batchOffset,
                                   int M, int N, int K, int lda, int ldb, int ldc,
                                   double_2 alpha, double_2 beta, int batchSize);
 

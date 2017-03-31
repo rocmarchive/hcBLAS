@@ -302,12 +302,12 @@ struct Hcblaslibrary
                              hcblasTranspose typeB, const int M,
                              const int N, const int K,
                              const float_2 &alpha,
-                             float_2 *A, 
+                             float_2 *A[],
                              const long aOffset, const long A_batchOffset, const long lda,
-                             float_2 *B, 
+                             float_2 *B[],
 			     const long bOffset, const long B_batchOffset, const long ldb,
                              const float_2 &beta,
-                             float_2 *C, 
+                             float_2 *C[],
 			     const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 				 
 /* ZGEMM - Overloaded function with arguments related to batch processing */
@@ -316,12 +316,12 @@ struct Hcblaslibrary
                              hcblasTranspose typeB, const int M,
                              const int N, const int K,
                              const  double_2 &alpha,
-                             double_2 *A, 
+                             double_2 *A[],
                              const long aOffset, const long A_batchOffset, const long lda,
-                             double_2 *B, 
+                             double_2 *B[],
 			     const long bOffset, const long B_batchOffset, const long ldb,
                              const  double_2 &beta,
-                             double_2 *C, 
+                             double_2 *C[],
 			     const long cOffset, const long C_batchOffset, const long ldc, const int batchSize);
 
 /* SSCAL - X = alpha * X */
@@ -348,6 +348,58 @@ struct Hcblaslibrary
    hcblasStatus hcblas_dscal(hc::accelerator_view accl_view,
                              const int N,const double &alpha,
                              double *X, const int incX,
+                             const long xOffset, const long X_batchOffset, const int batchSize);
+
+/* CSCAL - X = alpha * X */
+/* CSCAL - Overloaded function with arguments of type hc::array */
+   hcblasStatus hcblas_cscal(hc::accelerator_view accl_view,
+		             const int N, const float_2 &alpha,
+                             float_2 *X, const int incX,
+                             const long xOffset);
+
+/* CSCAL - Overloaded function with arguments related to batch processing */
+   hcblasStatus hcblas_cscal(hc::accelerator_view accl_view,
+		             const int N,const float_2 &alpha,
+                             float_2 *X, const int incX,
+                             const long xOffset, const long X_batchOffset, const int batchSize);
+
+/* ZSCAL - X = alpha * X */
+/* ZSCAL - Overloaded function with arguments of type hc::array */
+   hcblasStatus hcblas_zscal(hc::accelerator_view accl_view,
+		             const int N, const double_2 &alpha,
+                             double_2 *X, const int incX,
+                             const long xOffset);
+
+/* ZSCAL - Overloaded function with arguments related to batch processing */
+   hcblasStatus hcblas_zscal(hc::accelerator_view accl_view,
+		             const int N,const double_2 &alpha,
+                             double_2 *X, const int incX,
+                             const long xOffset, const long X_batchOffset, const int batchSize);
+
+/* CSSCAL - X = alpha * X */
+/* CSSCAL - Overloaded function with arguments of type hc::array */
+   hcblasStatus hcblas_csscal(hc::accelerator_view accl_view,
+		             const int N, const float &alpha,
+                             float_2 *X, const int incX,
+                             const long xOffset);
+
+/* CSSCAL - Overloaded function with arguments related to batch processing */
+   hcblasStatus hcblas_csscal(hc::accelerator_view accl_view,
+		             const int N,const float &alpha,
+                             float_2 *X, const int incX,
+                             const long xOffset, const long X_batchOffset, const int batchSize);
+
+/* ZDSCAL - X = alpha * X */
+/* ZDSCAL - Overloaded function with arguments of type hc::array */
+   hcblasStatus hcblas_zdscal(hc::accelerator_view accl_view,
+		             const int N, const double &alpha,
+                             double_2 *X, const int incX,
+                             const long xOffset);
+
+/* ZDSCAL - Overloaded function with arguments related to batch processing */
+   hcblasStatus hcblas_zdscal(hc::accelerator_view accl_view,
+		             const int N,const double &alpha,
+                             double_2 *X, const int incX,
                              const long xOffset, const long X_batchOffset, const int batchSize);
 
 /* SCOPY - Copies a vector X to a vector Y */
