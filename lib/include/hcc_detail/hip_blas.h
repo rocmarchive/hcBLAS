@@ -24,7 +24,7 @@ THE SOFTWARE.
 #include <hip/hip_runtime_api.h>
 #include <hip/hip_complex.h>
 #include <hip/hip_fp16.h>
-
+#include <hip/hip_hcc.h>
 //HGSOS for Kalmar leave it as C++, only cublas needs C linkage.
 
 #ifdef __cplusplus
