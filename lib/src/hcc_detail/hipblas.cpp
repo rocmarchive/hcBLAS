@@ -1,6 +1,6 @@
 #include "hipblas.h"
 #include "hcblas.h"
-#include <hip/hcc_detail/hcc_acc.h>
+#include <hip/hcc_detail/hip_hcc.h>
 
 #ifdef __cplusplus
 extern "C" {
