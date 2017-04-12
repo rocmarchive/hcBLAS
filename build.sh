@@ -147,10 +147,10 @@ if [ "$platform" = "hcc" ]; then
   make -j$working_threads package $verbose
   make -j$working_threads $verbose
 
-  if [ "$install" = "1" ]; then
+   if [ "$install" = "1" ]; then
     sudo make -j$working_threads install
-    cd $build_dir/packaging/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir/packaging/
-  fi
+   fi
+   cd $build_dir/packaging/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir/packaging/
  
 # Various possibilities of test and profile arguments
 # Test=OFF and Profile=OFF (Build library and tests)
@@ -221,6 +221,7 @@ elif [ "$platform" = "nvcc" ]; then
     make -j$working_threads package $verbose
     make -j$working_threads $verbose
     
+    cd $build_dir/packaging/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/opt/rocm/hipblas $current_work_dir/packaging/    
     echo "${green}HIPBLAS Build Completed!${reset}"
 
   if  [ "$testing" = "on" ]; then
