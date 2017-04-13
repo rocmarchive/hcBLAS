@@ -391,14 +391,17 @@ TEST(hipblaswrapper_cscal, func_return_correct_cscal) {
 
   // HCBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
+#ifdef __HIP_PLATFORM_HCC__
   status = hipblasCscal(handle, n, &cAlpha, devX, incx);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+#endif
 
   free(X);
   free(Xcblas);
   hipFree(devX);
 }
 
+#ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_cscalBatched, func_return_correct_cscalBatched) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -451,6 +454,7 @@ TEST(hipblaswrapper_cscalBatched, func_return_correct_cscalBatched) {
   free(Xcblas);
   hipFree(devX);
 }
+#endif
 
 TEST(hipblaswrapper_zscal, func_return_correct_zscal) {
   hipblasStatus_t status;
@@ -495,14 +499,17 @@ TEST(hipblaswrapper_zscal, func_return_correct_zscal) {
 
   // HCBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
+#ifdef __HIP_PLATFORM_HCC__
   status = hipblasZscal(handle, n, &cAlpha, devX, incx);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+#endif
 
   free(X);
   free(Xcblas);
   hipFree(devX);
 }
 
+#ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_zscalBatched, func_return_correct_zscalBatched) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -555,6 +562,7 @@ TEST(hipblaswrapper_zscalBatched, func_return_correct_zscalBatched) {
   free(Xcblas);
   hipFree(devX);
 }
+#endif
 
 TEST(hipblaswrapper_csscal, func_return_correct_csscal) {
   hipblasStatus_t status;
@@ -597,14 +605,17 @@ TEST(hipblaswrapper_csscal, func_return_correct_csscal) {
 
   // HCBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
+#ifdef __HIP_PLATFORM_HCC__
   status = hipblasCsscal(handle, n, &cAlpha, devX, incx);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+#endif
 
   free(X);
   free(Xcblas);
   hipFree(devX);
 }
 
+#ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_csscalBatched, func_return_correct_csscalBatched) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -655,6 +666,7 @@ TEST(hipblaswrapper_csscalBatched, func_return_correct_csscalBatched) {
   free(Xcblas);
   hipFree(devX);
 }
+#endif
 
 TEST(hipblaswrapper_zdscal, func_return_correct_zdscal) {
   hipblasStatus_t status;
@@ -697,14 +709,17 @@ TEST(hipblaswrapper_zdscal, func_return_correct_zdscal) {
 
   // HCBLAS_STATUS_NOT_INITIALIZED
   hipblasDestroy(handle);
+#ifdef __HIP_PLATFORM_HCC__
   status = hipblasZdscal(handle, n, &cAlpha, devX, incx);
   EXPECT_EQ(status, HIPBLAS_STATUS_NOT_INITIALIZED);
+#endif
 
   free(X);
   free(Xcblas);
   hipFree(devX);
 }
 
+#ifdef __HIP_PLATFORM_HCC__
 TEST(hipblaswrapper_zdscalBatched, func_return_correct_zdscalBatched) {
   hipblasStatus_t status;
   hipblasHandle_t handle = NULL;
@@ -755,6 +770,7 @@ TEST(hipblaswrapper_zdscalBatched, func_return_correct_zdscalBatched) {
   free(Xcblas);
   hipFree(devX);
 }
+#endif
 
 TEST(hipblaswrapper_scopy, func_return_correct_scopy) {
   hipblasStatus_t status;

@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 #pragma once
 
-#include <hip/hip_runtime_api.h>
+#include <hip/hip_runtime.h>
 #include <hip/hip_complex.h>
 #include <hip/hip_fp16.h>
 #include <hip/hip_hcc.h>
