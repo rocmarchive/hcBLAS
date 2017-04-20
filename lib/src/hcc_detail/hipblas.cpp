@@ -287,8 +287,16 @@ hipblasStatus_t  hipblasSger(hipblasHandle_t handle, int m, int n, const float *
 	return hipHCBLASStatusToHIPStatus(hcblasSger(handle, m, n, alpha, x, incx, y, incy, A, lda));
 }
 
+hipblasStatus_t  hipblasDger(hipblasHandle_t handle, int m, int n, const double *alpha, const double *x, int incx, const double *y, int incy, double *A, int lda){
+        return hipHCBLASStatusToHIPStatus(hcblasDger(handle, m, n, alpha, x, incx, y, incy, A, lda));
+}
+
 hipblasStatus_t  hipblasSgerBatched(hipblasHandle_t handle, int m, int n, const float *alpha, const float *x, int incx, const float *y, int incy, float *A, int lda, int batchCount){
 	return hipHCBLASStatusToHIPStatus(hcblasSgerBatched(handle, m, n, alpha, x, incx, y, incy, A, lda, batchCount));
+}
+
+hipblasStatus_t  hipblasDgerBatched(hipblasHandle_t handle, int m, int n, const double *alpha, const double *x, int incx, const double *y, int incy, double *A, int lda, int batchCount){
+        return hipHCBLASStatusToHIPStatus(hcblasDgerBatched(handle, m, n, alpha, x, incx, y, incy, A, lda, batchCount));
 }
 
 hipblasStatus_t hipblasSgemm(hipblasHandle_t handle,  hipblasOperation_t transa, hipblasOperation_t transb,

@@ -1329,6 +1329,69 @@ TEST(hcblaswrapper_sger, func_return_correct_sger) {
   hc::am_free(devY);
 }
 
+TEST(hcblaswrapper_dger, func_return_correct_dger) {
+  hcblasStatus_t status;
+  hcblasHandle_t handle = NULL;
+  hc::accelerator default_acc;
+  hc::accelerator_view av=default_acc.get_default_view();
+  // Passing a Null handle and default accelerator to the API
+  status = hcblasCreate(&handle, &av);
+  int m = 123;
+  int n = 78;
+  int incx = 1;
+  int incy = 1;
+  long lenx = 1 + (m-1) * abs(incx);
+  long leny = 1 + (n-1) * abs(incy);
+  double alpha = 1;
+  long lda;
+  lda = (handle->Order)? m : n;
+  CBLAS_ORDER order;
+  order = (handle->Order)? CblasColMajor: CblasRowMajor;
+
+  // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
+  double *Acblas = (double *)calloc( lenx * leny , sizeof(double));
+  double *X = (double*)calloc(lenx, sizeof(double));//host input
+  double *Y = (double*)calloc(leny, sizeof(double));
+  double *A = (double *)calloc( lenx * leny , sizeof(double));
+  double* devA = hc::am_alloc(sizeof(double) * lenx * leny, handle->currentAccl, 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx, handle->currentAccl, 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny, handle->currentAccl, 0);
+  for(int i = 0; i < lenx; i++){
+            X[i] = rand() % 10;
+  }
+  for(int i = 0;i < leny;i++){
+            Y[i] =  rand() % 15;
+  }
+  for(int i = 0;i< lenx * leny ;i++) {
+            A[i] = rand() % 25;
+            Acblas[i] = A[i];
+  }
+  status = hcblasSetVector(handle, lenx*leny, sizeof(double), A, incx, devA, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasSetVector(handle, lenx, sizeof(double), X, incx, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasSetVector(handle, leny, sizeof(double), Y, incy, devY, incy);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasDger(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda);
+  status = hcblasGetVector(handle, lenx * leny, sizeof(double), devA, 1, A, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  cblas_dger( order, m, n, alpha, X, incx, Y, incy, Acblas, lda);
+  for(int i =0; i < lenx * leny ; i++){
+      EXPECT_EQ(A[i], Acblas[i]);
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
+  hcblasDestroy(&handle);
+  status = hcblasDger(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda);
+  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+  free(X);
+  free(Acblas);
+  hc::am_free(devX);
+  free(Y);
+  hc::am_free(devY);
+}
+
 TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
   hcblasStatus_t status;
   hcblasHandle_t handle = NULL;
@@ -1385,6 +1448,73 @@ TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSgerBatched(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda, batchSize);
+  EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
+
+  free(X);
+  hc::am_free(devX);
+  free(Y);
+  free(Acblas);
+  hc::am_free(devY);
+  free(A);
+  hc::am_free(devA);
+}
+
+TEST(hcblaswrapper_dgerBatched, func_return_correct_dgerBatched) {
+  hcblasStatus_t status;
+  hcblasHandle_t handle = NULL;
+  hc::accelerator default_acc;
+  hc::accelerator_view av=default_acc.get_default_view();
+  // Passing a Null handle and default accelerator to the API
+  status = hcblasCreate(&handle, &av);
+  int m = 123;
+  int n = 67;
+  int incx = 1;
+  int incy = 1;
+  long lenx = 1 + (m-1) * abs(incx);
+  long leny = 1 + (n-1) * abs(incy);
+  double alpha = 1;
+  int batchSize = 32;
+  long lda;
+  lda = (handle->Order)? m : n;
+  CBLAS_ORDER order;
+  order = (handle->Order)? CblasColMajor: CblasRowMajor;
+
+  // HCBLAS_STATUS_SUCCESS and FUNCTIONALITY CHECK
+  double *X = (double*)calloc(lenx * batchSize, sizeof(double));//host input
+  double *Y = (double*)calloc(leny * batchSize, sizeof(double));
+  double *Acblas = (double*)calloc(leny * lenx * batchSize, sizeof(double));
+  double *A = (double *)calloc( lenx * leny * batchSize, sizeof(double));
+  double* devA = hc::am_alloc(sizeof(double) * lenx * leny * batchSize, handle->currentAccl, 0);
+  double* devX = hc::am_alloc(sizeof(double) * lenx * batchSize, handle->currentAccl, 0);
+  double* devY = hc::am_alloc(sizeof(double) * leny * batchSize, handle->currentAccl, 0);
+  for(int i = 0; i < lenx * batchSize; i++){
+            X[i] = rand() % 10;
+  }
+  for(int i = 0;i < leny * batchSize;i++){
+            Y[i] =  rand() % 15;
+  }
+  for(int i = 0;i< lenx * leny * batchSize;i++) {
+            A[i] = rand() % 25;
+            Acblas[i] = A[i];
+  }
+  status = hcblasSetVector(handle, lenx*leny*batchSize, sizeof(double), A, incx, devA, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasSetVector(handle, lenx*batchSize, sizeof(double), X, incx, devX, incx);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasSetVector(handle, leny*batchSize, sizeof(double), Y, incy, devY, incy);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  status = hcblasDgerBatched(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda, batchSize);
+  status = hcblasGetVector(handle, lenx * leny * batchSize, sizeof(double), devA, 1, A, 1);
+  EXPECT_EQ(status, HCBLAS_STATUS_SUCCESS);
+  for(int i = 0; i < batchSize; i++)
+      cblas_dger( order, m, n, alpha, X + i * m, incx, Y + i * n, incy, Acblas + i * m * n, lda);
+  for(int i =0; i < lenx * leny * batchSize; i++){
+      EXPECT_EQ(A[i], Acblas[i]);
+  }
+
+  // HCBLAS_STATUS_NOT_INITIALIZED
+  hcblasDestroy(&handle);
+  status = hcblasDgerBatched(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda, batchSize);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
 
   free(X);

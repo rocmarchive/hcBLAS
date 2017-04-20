@@ -31,7 +31,7 @@ SET (TESTSRCS
   set (HCC_CXXFLAGS "-I${TEST_INCLUDE_PATH} ${HCC_CXXFLAGS} -I${HCBLAS_INCLUDE_PATH}")
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
   set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HCBLAS_LIBRARY_PATH} -L${SHARED_LIB_OBJ} -Wl,--rpath=/opt/rocm/hip/lib")
-  SET (LINK "-lblas  -lhcblas -lhc_am -lhip_hcc")
+  SET (LINK "-lblas  -lhcblas -lhc_am")
   SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "bin/")
   FOREACH(test_file ${TESTSRCS})
     SET_PROPERTY(SOURCE ${test_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS}")

@@ -503,11 +503,21 @@ hcblasStatus_t  hcblasSger(hcblasHandle_t handle, int m, int n,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *A, int lda);
+hcblasStatus_t  hcblasDger(hcblasHandle_t handle, int m, int n,
+                           const double           *alpha,
+                           const double           *x, int incx,
+                           const double           *y, int incy,
+                           double           *A, int lda);
 hcblasStatus_t  hcblasSgerBatched(hcblasHandle_t handle, int m, int n,
                            const float           *alpha,
                            const float           *x, int incx,
                            const float           *y, int incy,
                            float           *A, int lda, int batchCount);
+hcblasStatus_t  hcblasDgerBatched(hcblasHandle_t handle, int m, int n,
+                           const double           *alpha,
+                           const double           *x, int incx,
+                           const double           *y, int incy,
+                           double           *A, int lda, int batchCount);
 
 // HCBLAS Level-3 Function Reference
 
