@@ -33,7 +33,7 @@ void zscal_HC(hc::accelerator_view accl_view,
 }
 
 void zscal_HC(hc::accelerator_view accl_view,
-              long n, double_2 alpha,
+              long n, double alpha_x, double alpha_y,
               double_2 *X, long incx, long xOffset,
               long X_batchOffset, int batchSize) {
   long size = (n + BLOCK_SIZE - 1) & ~(BLOCK_SIZE - 1);
@@ -48,13 +48,13 @@ void zscal_HC(hc::accelerator_view accl_view,
       XImg = X[X_index].y;
       XReal = (isnan(XReal) || isinf(XReal)) ? 0 : XReal;
       XImg = (isnan(XImg) || isinf(XImg)) ? 0 : XImg;
-    if (alpha.x == 0 && alpha.y == 0) {
+    if (alpha_x == 0 && alpha_y == 0) {
       X[X_index].x = 0.0;
       X[X_index].y = 0.0;
     }
     else {
-      X[X_index].x = (XReal * alpha.x) - (XImg * alpha.y);
-      X[X_index].y = (XReal * alpha.x) + (XImg * alpha.y);
+      X[X_index].x = (XReal * alpha_x) - (XImg * alpha_y);
+      X[X_index].y = (XReal * alpha_x) + (XImg * alpha_y);
     }
     }
   })_WAIT1;
@@ -82,7 +82,9 @@ hcblasStatus Hcblaslibrary :: hcblas_zscal(hc::accelerator_view accl_view,
   if ( X == NULL || N <= 0 || incX <= 0 ) {
     return HCBLAS_INVALID;
   }
-  zscal_HC(accl_view, N, alpha, X, incX, xOffset, X_batchOffset, batchSize);
+  double alpha_x = alpha.x;
+  double alpha_y = alpha.y;
+  zscal_HC(accl_view, N, alpha_x, alpha_y, X, incX, xOffset, X_batchOffset, batchSize);
   return HCBLAS_SUCCEEDS;
 }
 
