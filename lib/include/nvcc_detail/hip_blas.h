@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 #pragma once
 
-#include <hip/hip_runtime.h>
+#include <hip/hip_runtime_api.h>
 #include <hip/hip_complex.h>
 #include <cuda_runtime.h>
 #include <cublas.h>
