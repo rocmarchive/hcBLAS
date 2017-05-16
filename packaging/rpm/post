@@ -1,0 +1,1 @@
+echo /opt/rocm/hcblas/lib > /etc/ld.so.conf.d/hcblas-rocm-dev.conf && ldconfig
