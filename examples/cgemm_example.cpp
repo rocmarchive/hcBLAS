@@ -30,8 +30,10 @@ int main() {
   // Sets default target accelerator (id =1) and data layout as column major
   hcblasHandle_t handle = NULL;
   hc::accelerator default_acc;
-  // Passing a Null handle and default accelerator to the API 
-  status = hcblasCreate(&handle, &default_acc);
+  hc::accelerator_view av=default_acc.get_default_view();
+  // Passing a Null handle and default accelerator to the API
+
+  status = hcblasCreate(&handle, &av);
   
 
   // Variables to hold Transpose combinations
