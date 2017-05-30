@@ -62,10 +62,10 @@ b. Verifying the Installation
 a. Install using Prebuilt debian
 
     
-    ``wget https://bitbucket.org/multicoreware/hcblas/downloads/hcblas-master-db04c54-Linux.deb``
+    ``wget https://github.com/ROCmSoftwarePlatform/hcBLAS/blob/master/pre-builds/hcblas-master-37ebd24-Linux.deb``
         
         
-    ``sudo dpkg -i hcblas-master-db04c54-Linux.deb``
+    ``sudo dpkg -i hcblas-master-37ebd24-Linux.deb``
 
      
 b. Build debian from source
