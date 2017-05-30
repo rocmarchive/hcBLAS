@@ -5,11 +5,11 @@
 
 The following are the steps to use the library
 
-      * ROCM 1.0 Kernel, Driver and Compiler Installation (if not done until now)
+      * ROCM 1.5 Kernel, Driver and Compiler Installation (if not done until now)
 
       * Library installation.
 
-1.4.1. ROCM 1.0 Installation
+1.4.1. ROCM 1.5 Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To Know more about ROCM  refer https://github.com/RadeonOpenCompute/ROCm/blob/master/README.md
@@ -27,14 +27,20 @@ a. Installing Debian ROCM repositories
   ``wget -qO - http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -``
 
       
-  ``sudo sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ trusty main > /etc/apt/sources.list.d/rocm.list'``
+  ``sudo sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ xenial main > /etc/apt/sources.list.d/rocm.list'``
 
      
   ``sudo apt-get update``
 
       
   ``sudo apt-get install rocm``
+  
+  Then, make the ROCm kernel your default kernel. If using grub2 as your bootloader, you can edit the GRUB_DEFAULT variable in the following file:
 
+  ``sudo vi /etc/default/grub``
+  
+  
+  ``sudo update-grub``
       
   and Reboot the system
       
@@ -65,7 +71,7 @@ a. Install using Prebuilt debian
 b. Build debian from source
 
     
-    ``git clone https://bitbucket.org/multicoreware/hcblas.git && cd hcblas``
+    ``git clone https://github.com/ROCmSoftwarePlatform/hcBLAS.git && cd hcBLAS``
         
         
     ``chmod +x build.sh && ./build.sh``
