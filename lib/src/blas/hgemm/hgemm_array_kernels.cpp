@@ -13,7 +13,7 @@ hcblasStatus gemm_NoTransAB_STEP_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(STEPSIZE);
+    int shiftFactor = hc::fast_math::log2f(STEPSIZE);
     half rC[1][1];
     half rA[1][STEPSIZE / TILESIZE];
     half rB[1][STEPSIZE / TILESIZE];
@@ -87,7 +87,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(STEPSIZE);
+    int shiftFactor = hc::fast_math::log2f(STEPSIZE);
     half rC[1][1] = {{0.0}};
     half rA[1][STEPTILERATIO];
     half rB[1][STEPTILERATIO];
@@ -158,7 +158,7 @@ hcblasStatus gemm_NoTransAB_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(STEPSIZE);
+    int shiftFactor = hc::fast_math::log2f(STEPSIZE);
     half rC[1][1] = {{0.0}};
     half rA[1][STEPTILERATIO];
     half rB[1][STEPTILERATIO];
@@ -226,12 +226,12 @@ hcblasStatus gemm_NoTransAB_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_view,
 					        half alpha, half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2 
-  int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
-  int N_ = hc::fast_math::fmax(1, (N / MICROTILESIZE + 1));
+  int M_ = hc::fast_math::fmaxf(1, (M / MICROTILESIZE + 1));
+  int N_ = hc::fast_math::fmaxf(1, (N / MICROTILESIZE + 1));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftTS = hc::fast_math::log2(TILESIZE);
+    int shiftTS = hc::fast_math::log2f(TILESIZE);
     half rC[MICROTILESIZE][MICROTILESIZE] = {{(half)0}};
     half rA[1][MICROTILESIZE];
     half rB[1][MICROTILESIZE];
@@ -307,8 +307,8 @@ hcblasStatus gemm_NoTransAB_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 					    half alpha, half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
-  int N_ = hc::fast_math::fmax(1, (N / MICROTILESIZE + 1));
+  int M_ = hc::fast_math::fmaxf(1, (M / MICROTILESIZE + 1));
+  int N_ = hc::fast_math::fmaxf(1, (N / MICROTILESIZE + 1));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
@@ -384,8 +384,8 @@ hcblasStatus gemm_NoTransA_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int tilemulshift = (int)hc::fast_math::log2(TILESIZE);
-    int shiftfactor = hc::fast_math::log2(STEPSIZE);
+    int tilemulshift = (int)hc::fast_math::log2f(TILESIZE);
+    int shiftfactor = hc::fast_math::log2f(STEPSIZE);
     int block_k = ((K + (STEPSIZE - 1)) & ~(STEPSIZE - 1)) >> shiftfactor;
     half rC[1][1] = {{0.0}};
     half rA[1][STEPTILERATIO];
@@ -464,8 +464,8 @@ hcblasStatus gemm_NoTransA_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int tilemulshift = (int)hc::fast_math::log2(TILESIZE);
-    int shiftfactor = hc::fast_math::log2(STEPSIZE);
+    int tilemulshift = (int)hc::fast_math::log2f(TILESIZE);
+    int shiftfactor = hc::fast_math::log2f(STEPSIZE);
     int block_k = ((K + (STEPSIZE - 1)) & ~(STEPSIZE - 1)) >> shiftfactor;
     half rC[1][1] = {{0.0}};
     half rA[1][STEPTILERATIO];
@@ -543,7 +543,7 @@ hcblasStatus gemm_NoTransA_STEP_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(STEPSIZE);
+    int shiftFactor = hc::fast_math::log2f(STEPSIZE);
     half rC[1][1] = {{(half)0}};
     half rA[1][STEPSIZE / TILESIZE];
     half rB[1][STEPSIZE / TILESIZE];
@@ -613,7 +613,7 @@ hcblasStatus gemm_NoTransA_STEP_TS16XSS16(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(STEPSIZE);
+    int shiftFactor = hc::fast_math::log2f(STEPSIZE);
     half rC[1][1] = {{(half)0}};
     half rA[1][STEPSIZE / TILESIZE];
     half rB[1][STEPSIZE / TILESIZE];
@@ -679,12 +679,12 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_view,
 					       half alpha, half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
-  int N_ = hc::fast_math::fmax(1, (N / MICROTILESIZE + 1));
+  int M_ = hc::fast_math::fmaxf(1, (M / MICROTILESIZE + 1));
+  int N_ = hc::fast_math::fmaxf(1, (N / MICROTILESIZE + 1));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftTS = hc::fast_math::log2(TILESIZE);
+    int shiftTS = hc::fast_math::log2f(TILESIZE);
     half rC[MICROTILESIZE][MICROTILESIZE] = {{(half)0}};
     half rA[1][MICROTILESIZE];
     half rB[1][MICROTILESIZE];
@@ -760,8 +760,8 @@ hcblasStatus gemm_NoTransA_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 				           half alpha, half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
-  int N_ = hc::fast_math::fmax(1, (N / MICROTILESIZE + 1));
+  int M_ = hc::fast_math::fmaxf(1, (M / MICROTILESIZE + 1));
+  int N_ = hc::fast_math::fmaxf(1, (N / MICROTILESIZE + 1));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
@@ -837,8 +837,8 @@ hcblasStatus gemm_NoTransB_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int tilemulshift = (int)hc::fast_math::log2(TILESIZE);
-    int shiftfactor = (int)hc::fast_math::log2(STEPSIZE);
+    int tilemulshift = (int)hc::fast_math::log2f(TILESIZE);
+    int shiftfactor = (int)hc::fast_math::log2f(STEPSIZE);
     int block_k = ((K + (STEPSIZE - 1)) & ~(STEPSIZE - 1)) >> shiftfactor;
     half rC[1][1] = {{0.0}};
     half rA[1][STEPTILERATIO];
@@ -917,7 +917,7 @@ hcblasStatus gemm_NoTransB_STEP_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(STEPSIZE);
+    int shiftFactor = hc::fast_math::log2f(STEPSIZE);
     half rC[1][1] = {{(half)0}};
     half rA[1][STEPSIZE / TILESIZE];
     half rB[1][STEPSIZE / TILESIZE];
@@ -986,8 +986,8 @@ hcblasStatus gemm_NoTransB_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int tilemulshift = (int)hc::fast_math::log2(TILESIZE);
-    int shiftfactor = (int)hc::fast_math::log2(STEPSIZE);
+    int tilemulshift = (int)hc::fast_math::log2f(TILESIZE);
+    int shiftfactor = (int)hc::fast_math::log2f(STEPSIZE);
     int block_k = ((K + (STEPSIZE - 1)) & ~(STEPSIZE - 1)) >> shiftfactor;
     half rC[1][1] = {{0.0}};
     half rA[1][STEPTILERATIO];
@@ -1064,12 +1064,12 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_TS16XMTS2(hc::accelerator_view accl_view,
 					       half alpha, half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
-  int N_ = hc::fast_math::fmax(1, (N / MICROTILESIZE + 1));
+  int M_ = hc::fast_math::fmaxf(1, (M / MICROTILESIZE + 1));
+  int N_ = hc::fast_math::fmaxf(1, (N / MICROTILESIZE + 1));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftTS = hc::fast_math::log2(TILESIZE);
+    int shiftTS = hc::fast_math::log2f(TILESIZE);
     half rC[MICROTILESIZE][MICROTILESIZE] = {{(half)0}};
     half rA[1][MICROTILESIZE];
     half rB[1][MICROTILESIZE];
@@ -1146,8 +1146,8 @@ hcblasStatus gemm_NoTransB_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 				           half alpha, half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
-  int N_ = hc::fast_math::fmax(1, (N / MICROTILESIZE + 1));
+  int M_ = hc::fast_math::fmaxf(1, (M / MICROTILESIZE + 1));
+  int N_ = hc::fast_math::fmaxf(1, (N / MICROTILESIZE + 1));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
@@ -1225,7 +1225,7 @@ hcblasStatus gemm_TransAB_STEP_NBK_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(STEPSIZE);
+    int shiftFactor = hc::fast_math::log2f(STEPSIZE);
     half rC[1][1] = {{(half)0}};
     half rA[1][STEPTILERATIO];
     half rB[1][STEPTILERATIO];
@@ -1293,7 +1293,7 @@ hcblasStatus gemm_TransAB_STEP_NBK_TS16XSS16(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((N + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(STEPSIZE);
+    int shiftFactor = hc::fast_math::log2f(STEPSIZE);
     half rC[1][1] = {{(half)0}};
     half rA[1][STEPTILERATIO];
     half rB[1][STEPTILERATIO];
@@ -1358,8 +1358,8 @@ hcblasStatus gemm_TransAB_MICRO_TS16XMTS2(hc::accelerator_view accl_view,
 				          half alpha, half beta) {
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  int M_ = hc::fast_math::fmax(1, (M / MICROTILESIZE + 1));
-  int N_ = hc::fast_math::fmax(1, (N / MICROTILESIZE + 1));
+  int M_ = hc::fast_math::fmaxf(1, (M / MICROTILESIZE + 1));
+  int N_ = hc::fast_math::fmaxf(1, (N / MICROTILESIZE + 1));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
@@ -1660,7 +1660,7 @@ hcblasStatus gemm_TransAB_K3(hc::accelerator_view accl_view,
 #define TILESIZE 16
 #define HC_WPT 4
 #define HC_RTS 16
-  int N_ = hc::fast_math::fmax(1, (N / HC_WPT));
+  int N_ = hc::fast_math::fmaxf(1, (N / HC_WPT));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
@@ -2567,7 +2567,7 @@ hcblasStatus gemm_NoTransAB_K3(hc::accelerator_view accl_view,
 #define TILESIZE 16
 #define HC_WPT 4
 #define HC_RTS 16
-  int N_ = hc::fast_math::fmax(1, (N / HC_WPT));
+  int N_ = hc::fast_math::fmaxf(1, (N / HC_WPT));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
@@ -2663,7 +2663,7 @@ hcblasStatus gemm_NoTransA_K3(hc::accelerator_view accl_view,
 #define TILESIZE 16
 #define HC_WPT 4
 #define HC_RTS 16
-  int N_ = hc::fast_math::fmax(1, (N / HC_WPT));
+  int N_ = hc::fast_math::fmaxf(1, (N / HC_WPT));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
@@ -2758,7 +2758,7 @@ hcblasStatus gemm_NoTransB_K3(hc::accelerator_view accl_view,
 #define TILESIZE 16
 #define HC_WPT 4
 #define HC_RTS 16
-  int N_ = hc::fast_math::fmax(1, (N / HC_WPT));
+  int N_ = hc::fast_math::fmaxf(1, (N / HC_WPT));
   hc::extent<2> grdExt((N_ + (TILESIZE - 1)) & ~(TILESIZE - 1), (M + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {

@@ -14,7 +14,7 @@ void sscal_HC(hc::accelerator_view accl_view,
   hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1> tidx) [[hc]] {
     if(tidx.global[0] < n) {
       long X_index = xOffset + tidx.global[0];
-      X[X_index] = (hc::fast_math::isnan(X[X_index]) || hc::fast_math::isinf(X[X_index])) ? 0 : X[X_index];
+      X[X_index] = (hc::fast_math::isnan(static_cast<float>(X[X_index])) || hc::fast_math::isinf(static_cast<float>(X[X_index]))) ? 0 : X[X_index];
     if (alpha == 0)
       X[X_index] = 0.0;
     else
@@ -34,7 +34,7 @@ void sscal_HC(hc::accelerator_view accl_view,
 
     if(tidx.global[1] < n) {
       long X_index = xOffset + X_batchOffset * elt + tidx.global[1];
-      X[X_index] = (hc::fast_math::isnan(X[X_index]) || hc::fast_math::isinf(X[X_index])) ? 0 : X[X_index];
+      X[X_index] = (hc::fast_math::isnan(static_cast<float>(X[X_index])) || hc::fast_math::isinf(static_cast<float>(X[X_index]))) ? 0 : X[X_index];
     if (alpha == 0)
       X[X_index] = 0.0;
     else

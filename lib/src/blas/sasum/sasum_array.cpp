@@ -33,7 +33,7 @@ void sasum_HC(hc::accelerator_view accl_view,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += hc::fast_math::fabs(xView[xOffset + hc::index<1>(idx)[0]]);
+      smem += hc::fast_math::fabsf(xView[xOffset + hc::index<1>(idx)[0]]);
       // next chunk
       idx += thread_count;
     }
@@ -107,7 +107,7 @@ void sasum_HC(hc::accelerator_view accl_view,
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count; i++) {
-    *Y = (hc::fast_math::isnan(*Y) || hc::fast_math::isinf(*Y)) ? 0 : *Y;
+    *Y = (hc::fast_math::isnan(static_cast<float>(*Y)) || hc::fast_math::isinf(static_cast<float>(*Y))) ? 0 : *Y;
     *Y += host_global_buffer[ i ] ;
   }
 
@@ -146,7 +146,7 @@ void sasum_HC(hc::accelerator_view accl_view,
     // fold data into local buffer
     while (idx < n) {
       // reduction of smem and X[idx] with results stored in smem
-      smem += hc::fast_math::fabs(xView[xOffset + X_batchOffset * elt + hc::index<1>(idx)[0]]);
+      smem += hc::fast_math::fabsf(xView[xOffset + X_batchOffset * elt + hc::index<1>(idx)[0]]);
       // next chunk
       idx += thread_count;
     }
@@ -220,7 +220,7 @@ void sasum_HC(hc::accelerator_view accl_view,
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
-    *Y = (hc::fast_math::isnan(*Y) || hc::fast_math::isinf(*Y)) ? 0 : *Y;
+    *Y = (hc::fast_math::isnan(static_cast<float>(*Y)) || hc::fast_math::isinf(static_cast<float>(*Y))) ? 0 : *Y;
     *Y += host_global_buffer[ i ] ;
   }
 

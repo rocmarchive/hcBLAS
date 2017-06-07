@@ -629,7 +629,7 @@ compareDataAsFloatThreshold(const T *reference, const T *data, const unsigned in
 
     for (unsigned int i = 0; i < len; ++i)
     {
-        float diff = fabs((float)reference[i] - (float)data[i]);
+        float diff = fabsf((float)reference[i] - (float)data[i]);
         bool comp = (diff < max_error);
         result &= comp;
 
@@ -885,7 +885,7 @@ sdkCompareL2fe(const float *reference, const float *data,
 
     float normRef = sqrtf(ref);
 
-    if (fabs(ref) < 1e-7)
+    if (fabsf(ref) < 1e-7)
     {
 #ifdef _DEBUG
         std::cerr << "ERROR, reference l2-norm is 0\n";

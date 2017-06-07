@@ -14,7 +14,7 @@ void dcopy_HC(hc::accelerator_view accl_view, long n,
   hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1> tidx) [[hc]] {
     if(tidx.global[0] < n) {
       long Y_index = yOffset + tidx.global[0];
-      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(static_cast<float>(Y[Y_index])) || hc::fast_math::isinf(static_cast<float>(Y[Y_index]))) ? 0 : Y[Y_index];
       Y[Y_index] = X[xOffset + tidx.global[0]];
     }
   })_WAIT1;
@@ -31,7 +31,7 @@ void dcopy_HC(hc::accelerator_view accl_view, long n,
 
     if(tidx.global[1] < n) {
       long Y_index = yOffset + Y_batchOffset * elt + tidx.global[1];
-      Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
+      Y[Y_index] = (hc::fast_math::isnan(static_cast<float>(Y[Y_index])) || hc::fast_math::isinf(static_cast<float>(Y[Y_index]))) ? 0 : Y[Y_index];
       Y[Y_index] = X[xOffset + X_batchOffset * elt + tidx.global[1]];
     }
   })_WAIT1;
