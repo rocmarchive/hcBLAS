@@ -29,7 +29,7 @@ inline float sgemmCompareL2fe(const float *reference, const float *data,
     ref = std::inner_product(refVec.begin(), refVec.end(), refVec.begin(), ref);
     float normRef = sqrtf(ref);
 
-    if (fabs(ref) < 1e-7)
+    if (fabsf(ref) < 1e-7)
     {
 #ifdef _DEBUG
         std::cerr << "ERROR, reference l2-norm is 0\n";
@@ -73,8 +73,8 @@ inline float hgemmCompareL2fe(const half *reference, const  half *data,
     std::transform(diffVec.begin(), diffVec.end(), diffVec.begin(), diffVec.begin(), std::multiplies<half>());
     error = std::inner_product(diffVec.begin(), diffVec.end(), diffVec.begin(), error);
     ref = std::inner_product(refVec.begin(), refVec.end(), refVec.begin(), ref);
-    float normRef = sqrtf(fabs((float)ref));
-    if (fabs(float(ref)) < 1e-7)
+    float normRef = sqrtf(fabsf((float)ref));
+    if (fabsf(float(ref)) < 1e-7)
     {
 #ifdef _DEBUG
         std::cerr << "ERROR, reference l2-norm is 0\n";
@@ -113,7 +113,7 @@ inline void printDiff(float *data1, float *data2, int width, int height, int iLi
         for (i = 0; i < width; i++)
         {
             k = j * width + i;
-            float fDiff = fabs(data1[k] - data2[k]);
+            float fDiff = fabsf(data1[k] - data2[k]);
 
             if (fDiff > fListTol)
             {

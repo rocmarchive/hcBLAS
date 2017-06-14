@@ -18,7 +18,7 @@ void ger_HC(hc::accelerator_view accl_view,
 
     if(i < m && j < n) {
       long a_index = aOffset + j * lda + i;
-      a[a_index] = (hc::fast_math::isnan(a[a_index]) || hc::fast_math::isinf(a[a_index])) ? 0 : a[a_index];
+      a[a_index] = (hc::fast_math::isnan(static_cast<float>(a[a_index])) || hc::fast_math::isinf(static_cast<float>(a[a_index]))) ? 0 : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
   })_WAIT2;
@@ -42,7 +42,7 @@ void ger_HC(hc::accelerator_view accl_view,
 
     if(i < m && j < n) {
       long a_index = aOffset + A_batchOffset * elt + j * lda + i;
-      a[a_index] = (hc::fast_math::isnan(a[a_index]) || hc::fast_math::isinf(a[a_index])) ? 0 : a[a_index];
+      a[a_index] = (hc::fast_math::isnan(static_cast<float>(a[a_index])) || hc::fast_math::isinf(static_cast<float>(a[a_index]))) ? 0 : a[a_index];
       a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
   })_WAIT2;
@@ -62,7 +62,7 @@ void ger_HC_rMajor(hc::accelerator_view accl_view,
 
     if(i < m && j < n) {
       long a_index = aOffset + j + i * lda;
-      a[a_index] = (hc::fast_math::isnan(a[a_index]) || hc::fast_math::isinf(a[a_index])) ? 0 : a[a_index];
+      a[a_index] = (hc::fast_math::isnan(static_cast<float>(a[a_index])) || hc::fast_math::isinf(static_cast<float>(a[a_index]))) ? 0 : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
   })_WAIT2;
@@ -86,7 +86,7 @@ void ger_HC_rMajor(hc::accelerator_view accl_view,
 
     if(i < m && j < n) {
       long a_index = aOffset + A_batchOffset * elt + j + i * lda;
-      a[a_index] = (hc::fast_math::isnan(a[a_index]) || hc::fast_math::isinf(a[a_index])) ? 0 : a[a_index];
+      a[a_index] = (hc::fast_math::isnan(static_cast<float>(a[a_index])) || hc::fast_math::isinf(static_cast<float>(a[a_index]))) ? 0 : a[a_index];
       a[a_index] += x[xOffset + X_batchOffset * elt + i] * y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
   })_WAIT2;

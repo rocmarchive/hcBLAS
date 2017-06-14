@@ -81,8 +81,8 @@ hcblasStatus zgemm_TransAB_rMajor_loopunroll(hc::accelerator_view accl_view,
     if (Row < N && Col < M) {
       CReal = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x;
       CImg = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y;
-      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
@@ -106,8 +106,8 @@ hcblasStatus zgemm_TransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftTS = hc::fast_math::log2(TILESIZE);
-    int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
+    int shiftTS = hc::fast_math::log2f(TILESIZE);
+    int shiftMTP = hc::fast_math::log2f(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rCimg[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rAreal[1][MICROTILESIZE] = {{(float)0}};
@@ -177,8 +177,8 @@ hcblasStatus zgemm_TransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_view
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -205,7 +205,7 @@ hcblasStatus zgemm_TransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(STEPSIZE);
+    int shiftFactor = hc::fast_math::log2f(STEPSIZE);
     float rCreal[1][1];
     float rAreal[1][STEPSIZE / TILESIZE];
     float rBreal[1][STEPSIZE / TILESIZE];
@@ -273,8 +273,8 @@ hcblasStatus zgemm_TransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       CReal = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
       CImg = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
-      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -299,8 +299,8 @@ hcblasStatus zgemm_TransAB_rMajor_MICRO_TS8XMTS2(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftTS = hc::fast_math::log2(TILESIZE);
-    int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
+    int shiftTS = hc::fast_math::log2f(TILESIZE);
+    int shiftMTP = hc::fast_math::log2f(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rCimg[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rAreal[1][MICROTILESIZE] = {{(float)0}};
@@ -370,8 +370,8 @@ hcblasStatus zgemm_TransAB_rMajor_MICRO_TS8XMTS2(hc::accelerator_view accl_view,
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -396,8 +396,8 @@ hcblasStatus zgemm_NoTransB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftTS = hc::fast_math::log2(TILESIZE);
-    int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
+    int shiftTS = hc::fast_math::log2f(TILESIZE);
+    int shiftMTP = hc::fast_math::log2f(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rCimg[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rAreal[1][MICROTILESIZE] = {{(float)0}};
@@ -467,8 +467,8 @@ hcblasStatus zgemm_NoTransB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -493,7 +493,7 @@ hcblasStatus zgemm_NoTransA_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(TILESIZE);
+    int shiftFactor = hc::fast_math::log2f(TILESIZE);
     float rCreal[1][1];
     float rAreal[1][1];
     float rBreal[1][1];
@@ -558,8 +558,8 @@ hcblasStatus zgemm_NoTransA_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       CReal = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
       CImg = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
-      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -582,8 +582,8 @@ hcblasStatus zgemm_NoTransA_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftTS = hc::fast_math::log2(TILESIZE);
-    int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
+    int shiftTS = hc::fast_math::log2f(TILESIZE);
+    int shiftMTP = hc::fast_math::log2f(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rCimg[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rAreal[1][MICROTILESIZE] = {{(float)0}};
@@ -654,8 +654,8 @@ hcblasStatus zgemm_NoTransA_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vie
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));
@@ -749,8 +749,8 @@ hcblasStatus zgemm_NoTransA_rMajor_loopunroll(hc::accelerator_view accl_view,
     if (Row < N && Col < M) {
       CReal = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x;
       CImg = C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].y;
-      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + tidx.global[1] + (tidx.global[0] * ldc)].x = tempReal + ((CValue * alpha.x) - (CValue1 * alpha.y));
@@ -773,7 +773,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(TILESIZE);
+    int shiftFactor = hc::fast_math::log2f(TILESIZE);
     float rCreal[1][1];
     float rAreal[1][1];
     float rBreal[1][1];
@@ -835,8 +835,8 @@ hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS8XSS8(hc::accelerator_view accl_view,
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       CReal = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
       CImg = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
-      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -859,7 +859,7 @@ hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS16XSS16(hc::accelerator_view accl_vie
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftFactor = hc::fast_math::log2(TILESIZE);
+    int shiftFactor = hc::fast_math::log2f(TILESIZE);
     float rCreal[1][1];
     float rAreal[1][1];
     float rBreal[1][1];
@@ -921,8 +921,8 @@ hcblasStatus zgemm_NoTransAB_rMajor_STEP_TS16XSS16(hc::accelerator_view accl_vie
     if(gidx * TILESIZE + idx < M && gidy * TILESIZE + idy < N) {
       CReal = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].x;
       CImg = C[cOffset + (gidx * TILESIZE + idx) * ldc + gidy * TILESIZE + idy].y;
-      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+      CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+      CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
       tempReal = ((CReal * beta.x) - (CImg * beta.y));
       tempImg  = ((CReal * beta.y) + (CImg * beta.x));
       C[cOffset + (gidx * TILESIZE + idx)*ldc + gidy * TILESIZE + idy].x = tempReal + ((rCreal[0][0] * alpha.x) - (rCimg[0][0] * alpha.y));
@@ -945,8 +945,8 @@ hcblasStatus zgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vi
   hc::extent<2> grdExt((M + (TILESIZE - 1)) & ~(TILESIZE - 1), (N + (TILESIZE - 1)) & ~(TILESIZE - 1));
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
   hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
-    int shiftTS = hc::fast_math::log2(TILESIZE);
-    int shiftMTP = hc::fast_math::log2(MICROTILEPROD);
+    int shiftTS = hc::fast_math::log2f(TILESIZE);
+    int shiftMTP = hc::fast_math::log2f(MICROTILEPROD);
     float rCreal[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rCimg[MICROTILESIZE][MICROTILESIZE] = {{(float)0}};
     float rAreal[1][MICROTILESIZE] = {{(float)0}};
@@ -1016,8 +1016,8 @@ hcblasStatus zgemm_NoTransAB_rMajor_MICRO_TS16XMTS2(hc::accelerator_view accl_vi
         if((xIndex / ldc) + (col << shiftTS) < M && yIndex + (row << shiftTS) < N) {
           CReal = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x;
           CImg = C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row * TILESIZE)].y;
-          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(CReal)) ? 0 : CReal;
-          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(CImg)) ? 0 : CImg;
+          CReal = (hc::fast_math::isnan(CReal) || hc::fast_math::isinf(static_cast<float>(CReal))) ? 0 : CReal;
+          CImg = (hc::fast_math::isnan(CImg) || hc::fast_math::isinf(static_cast<float>(CImg))) ? 0 : CImg;
           tempReal = ((CReal * beta.x) - (CImg * beta.y));
           tempImg  = ((CReal * beta.y) + (CImg * beta.x));
           C[cOffset + (xIndex + (col << shiftTS) * ldc) + yIndex + (row << shiftTS)].x = tempReal + ((rCreal[col][row] * alpha.x) - (rCimg[col][row] * alpha.y));

@@ -15,7 +15,7 @@ void axpy_HC(hc::accelerator_view accl_view,
     hc::parallel_for_each(accl_view, compute_domain.tile(BLOCK_SIZE), [ = ] (hc::tiled_index<1> tidx) [[hc]] {
       if(tidx.global[0] < n) {
         long Y_index = yOffset + tidx.global[0];
-        Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
+        Y[Y_index] = (hc::fast_math::isnan(static_cast<float>(Y[Y_index])) || hc::fast_math::isinf(static_cast<float>(Y[Y_index]))) ? 0 : Y[Y_index];
         Y[Y_index] += X[xOffset + tidx.global[0]] * alpha;
       }
     })_WAIT1;
@@ -39,7 +39,7 @@ void axpy_HC(hc::accelerator_view accl_view,
       if(tidx.tile[0] != nBlocks - 1) {
         for(int iter = 0; iter < step_sz; iter++) {
           long Y_index = yOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter * 256;
-          Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
+          Y[Y_index] = (hc::fast_math::isnan(static_cast<float>(Y[Y_index])) || hc::fast_math::isinf(static_cast<float>(Y[Y_index]))) ? 0 : Y[Y_index];
           Y[Y_index] += X[xOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter * 256] * alpha;
         }
       } else {
@@ -48,7 +48,7 @@ void axpy_HC(hc::accelerator_view accl_view,
         for(int iter = 0; iter < n_iter; iter++) {
           if (((nBlocks - 1) * 256 * step_sz + iter * 256 + tidx.local[0]) < n) {
             long Y_index = yOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter * 256;
-            Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
+            Y[Y_index] = (hc::fast_math::isnan(static_cast<float>(Y[Y_index])) || hc::fast_math::isinf(static_cast<float>(Y[Y_index]))) ? 0 : Y[Y_index];
             Y[Y_index] += X[xOffset + tidx.tile[0] * 256 * step_sz + tidx.local[0] + iter * 256] * alpha;
           }
         }
@@ -70,7 +70,7 @@ void axpy_HC(hc::accelerator_view accl_view,
 
       if(tidx.global[1] < n) {
         long Y_index = yOffset + Y_batchOffset * elt + tidx.global[1];
-        Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
+        Y[Y_index] = (hc::fast_math::isnan(static_cast<float>(Y[Y_index])) || hc::fast_math::isinf(static_cast<float>(Y[Y_index]))) ? 0 : Y[Y_index];
         Y[Y_index] += X[xOffset + X_batchOffset * elt + tidx.global[1]] * alpha;
       }
     })_WAIT1;
@@ -96,7 +96,7 @@ void axpy_HC(hc::accelerator_view accl_view,
       if(tidx.tile[1] != nBlocks - 1) {
         for(int iter = 0; iter < step_sz; iter++) {
           long Y_index = yOffset +  Y_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter * 256;
-          Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
+          Y[Y_index] = (hc::fast_math::isnan(static_cast<float>(Y[Y_index])) || hc::fast_math::isinf(static_cast<float>(Y[Y_index]))) ? 0 : Y[Y_index];
           Y[Y_index] += X[xOffset +  X_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter * 256] * alpha;
         }
       } else {
@@ -105,7 +105,7 @@ void axpy_HC(hc::accelerator_view accl_view,
         for(int iter = 0; iter < n_iter; iter++) {
           if (((nBlocks - 1) * 256 * step_sz + iter * 256 + tidx.local[1]) < n) {
             long Y_index = yOffset +  Y_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter * 256;
-            Y[Y_index] = (hc::fast_math::isnan(Y[Y_index]) || hc::fast_math::isinf(Y[Y_index])) ? 0 : Y[Y_index];
+            Y[Y_index] = (hc::fast_math::isnan(static_cast<float>(Y[Y_index])) || hc::fast_math::isinf(static_cast<float>(Y[Y_index]))) ? 0 : Y[Y_index];
             Y[Y_index] += X[xOffset +  X_batchOffset * elt + tidx.tile[1] * 256 * step_sz + tidx.local[1] + iter * 256] * alpha;
           }
         }

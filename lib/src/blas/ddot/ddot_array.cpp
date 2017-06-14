@@ -107,7 +107,7 @@ double ddot_HC(hc::accelerator_view accl_view, long n,
 
   // 2nd pass reduction
   for(int i = 0; i < tile_count; i++) {
-    out = (hc::fast_math::isnan(out) || hc::fast_math::isinf(out)) ? 0 : out;
+    out = (hc::fast_math::isnan(static_cast<float>(out)) || hc::fast_math::isinf(static_cast<float>(out))) ? 0 : out;
     out += host_global_buffer[ i ] ;
   }
 
@@ -223,7 +223,7 @@ double ddot_HC(hc::accelerator_view accl_view, long n,
 
 // 2nd pass reduction
   for(int i = 0; i < tile_count * batchSize; i++) {
-    out = (hc::fast_math::isnan(out) || hc::fast_math::isinf(out)) ? 0 : out;
+    out = (hc::fast_math::isnan(static_cast<float>(out)) || hc::fast_math::isinf(static_cast<float>(out))) ? 0 : out;
     out += host_global_buffer[ i ] ;
   }
 
