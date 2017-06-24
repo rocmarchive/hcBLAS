@@ -5,14 +5,15 @@
 CURRENTDIR=$PWD
 export HCBLAS_PATH=$CURRENTDIR/../../
 
-cd $CURRENTDIR/../../build/test/ && cmake -DCMAKE_CXX_FLAGS=-fPIC $HCBLAS_PATH/test/ -DPROFILE=ON 
 set +e
+mkdir $CURRENTDIR/../../build/bench/ 
 set -e
+cd $CURRENTDIR/../../build/bench/ && cmake -DCMAKE_CXX_FLAGS=-fPIC $HCBLAS_PATH/test/src/ -DPROFILE=ON 
 make
 cd $CURRENTDIR
 
 #Path to SGEMM executable
-path2exe="$CURRENTDIR/../../build/test/src/bin/sgemm_st_timer"
+path2exe="$CURRENTDIR/../../build/bench/bin/sgemm_st_timer"
 workingdir="$CURRENTDIR"
 
 #Create Profile Data directory to store profile results

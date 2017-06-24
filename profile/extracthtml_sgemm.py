@@ -10,17 +10,10 @@ Nval=str(sys.argv[3])
 Kval=str(sys.argv[4])
 transA=str(sys.argv[5])
 transB=str(sys.argv[6])
-lda=str(sys.argv[7])
-ldb=str(sys.argv[8])
-ldc=str(sys.argv[9])
-alpha=str(sys.argv[10])
-beta=str(sys.argv[11])
-aoff=str(sys.argv[12])
-boff=str(sys.argv[13])
-coff=str(sys.argv[14])
+Implem=str(sys.argv[7])
 HCBLAS_PATH=str(os.environ['HCBLAS_PATH'])
 inputfile=open(filename,"r")
-out = csv.writer(open(HCBLAS_PATH +"/test/BLAS_benchmark_Convolution_Networks/Profilesummary_sgemm.csv","a"), delimiter='\t',quoting=csv.QUOTE_NONE)
+out = csv.writer(open(HCBLAS_PATH +"/profile/profileSummary_sgemm.csv","a"), delimiter='\t',quoting=csv.QUOTE_NONE)
 html=inputfile.read()
 
 soup = BeautifulSoup(html, 'lxml')
@@ -35,12 +28,14 @@ for row in table.find_all("tr")[1:]:
     datasets.append(dataset)
 
 vlist=[]
-#header =['M','N','K','TransA','TransB','Avg time']
+#header =['M','N','K','TransA','TransB','Avg time','Gflop/sec']
 #out.writerow(header)
 for dataset in datasets:
     for field in dataset:
         if field[0].encode('ascii') == "Avg Time(ms)" :
            avgtime=field[1].encode('ascii')
-           vlist = [Mval,Nval,Kval,transA,transB,lda,ldb,ldc,alpha,beta,aoff,boff,coff,avgtime]
+           flop = float(Mval)*float(Nval)*float(Kval)*2.0
+           gflops = str(round(flop/float(avgtime)/1.e6,2))
+           vlist = [Mval,Nval,Kval,transA,transB,Implem,gflops,avgtime]
            out.writerow(vlist)
            vlist = []

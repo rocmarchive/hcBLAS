@@ -5,7 +5,7 @@
 CURRENTDIR=$PWD
 
 #Path to SGEMM executable
-path2exe="$CURRENTDIR/../../build/test/src/bin/sgemm_cn"
+path2exe="$CURRENTDIR/../../build/bench/bin/sgemm_cn"
 workingdir="$CURRENTDIR"
 
 while read line; do

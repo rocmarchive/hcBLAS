@@ -5,10 +5,10 @@
 CURRENTDIR=$PWD
 
 #Path to profile
-path2profiler="${CODEXL_PATH}/CodeXLGpuProfiler"
+path2profiler="${PROFILER_PATH}/rcprof"
 
 #Path to SGEMM executable
-path2exe="$CURRENTDIR/../../build/test/src/bin/sgemm"
+path2exe="$CURRENTDIR/../build/profile/bin/sgemm"
 workingdir="$CURRENTDIR"
 
 #Create Profile Data directory to store profile results

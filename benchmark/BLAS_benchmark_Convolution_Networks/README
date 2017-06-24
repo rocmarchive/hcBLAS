@@ -21,7 +21,7 @@ AlexnetBlasDimensions.txt, GoogleBlasDimensions.txt, OverfeatBlasDimensions.txt,
 OxfordBlasDimensions.txt and SquareMat.txt are the input files. Scripts take inputs 
 from Input.txt, where the order of profiling could be changed if needed.
 
-$ export CODEXL_PATH=path/to/AMD_CodeXL_Linux_x86_64_2.0.10823
+$ export PROFILER_PATH=path/to/AMD_CodeXL_Linux_x86_64_2.0.10823
 
 $ cd ~/hcblas/test/BLAS_benchmark_Convolution_Networks/
 

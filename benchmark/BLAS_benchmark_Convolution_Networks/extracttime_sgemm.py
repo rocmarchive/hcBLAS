@@ -20,7 +20,7 @@ boff=str(sys.argv[13])
 coff=str(sys.argv[14])
 HCBLAS_PATH=str(os.environ['HCBLAS_PATH'])
 inputfile=open(filename,"r")
-out = csv.writer(open(HCBLAS_PATH +"/test/BLAS_benchmark_Convolution_Networks/Benchmark_sgemm.csv","a"), delimiter='\t',quoting=csv.QUOTE_NONE, quotechar='')
+out = csv.writer(open(HCBLAS_PATH +"/benchmark/BLAS_benchmark_Convolution_Networks/Benchmark_sgemm.csv","a"), delimiter='\t',quoting=csv.QUOTE_NONE, quotechar='')
 lines = inputfile.readlines()
 avgtime = lines[0].split(":")[1].split("\n")[0]
 gflops = lines[2].split(":")[1].split("\n")[0]

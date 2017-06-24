@@ -22,9 +22,9 @@ $ sudo apt-get install libgtest-dev
 The versions of the profiler in CodeXL 2.2 and 2.1 are not compatible with
 ROCm 1.3 or 1.4. If you are using ROCm 1.3 or 1.4 then use the profiler 
 installed in ROCm with
-    $ export CODEXL_PATH=/opt/rocm/profiler/bin
+    $ export PROFILER_PATH=/opt/rocm/profiler/bin
 else use the CodeXL profiler with
-    $ export CODEXL_PATH=path/to/AMD_CodeXL_Linux_x86_64_2.0.10823
+    $ export PROFILER_PATH=path/to/AMD_CodeXL_Linux_x86_64_2.0.10823
 
 $ cd ~/hcblas/test/benchmark/
 

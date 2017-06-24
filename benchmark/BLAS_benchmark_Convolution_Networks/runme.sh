@@ -5,21 +5,31 @@
 CURRENTDIR=$PWD
 export HCBLAS_PATH=$CURRENTDIR/../../
 
-cd $CURRENTDIR/../../build/test/ && cmake -DCMAKE_CXX_FLAGS=-fPIC $HCBLAS_PATH/test/ -DPROFILE=ON 
 set +e
+mkdir -p $CURRENTDIR/../../build/bench/
 set -e
+cd $CURRENTDIR/../../build/bench/ && cmake -DCMAKE_CXX_FLAGS=-fPIC $HCBLAS_PATH/test/src/ -DPROFILE=ON 
 make
 cd $CURRENTDIR
 
+#Path to profile
+path2profiler="${PROFILER_PATH}/rcprof"
+
 #Path to SGEMM executable
-path2exe="$CURRENTDIR/../../build/test/src/bin/sgemm_timer"
+path2exe="$CURRENTDIR/../../build/bench/bin/sgemm_cn"
 workingdir="$CURRENTDIR"
 
 #Create Profile Data directory to store profile results
-profDir="$workingdir/sgemmbenchData"
+profDir="$workingdir/SgemmprofileData"
 mkdir -p $profDir
 
-echo -e "\n M\t N\t K\t TransA\t TransB\t lda\t ldb\t ldc\t alpha\t beta\t aoff\t boff\t coff\t Avg Time(ms) \t GFlops/s" >> $workingdir/Benchmark_sgemm.csv
+#Check if profiler exists
+if [ ! -x $path2profiler ]; then
+  echo "profiler does not exist..Exiting.."
+  echo $path2profiler
+  exit
+fi
+echo -e "\n M\t N\t K\t TransA\t TransB\t lda\t ldb\t ldc\t alpha\t beta\t aoff\t boff\t coff\t Avg Time(ms)" >> $workingdir/Profilesummary_sgemm.csv
 
 while read line; do
     Input=$(echo $line | cut -f1 -d" " )
@@ -44,20 +54,24 @@ while read line; do
     path2outdir="$profDir/$datetime$Mvalue$Nvalue$Kvalue$transA$transB$lda$ldb$ldc$alpha$beta$aoff$boff$coff"
     mkdir -p $path2outdir
 
+#Grep CLKernel Summary
+    cmd="(ls -a $path2outdir) | grep HSAKernelSummary"
+
 #Check if executable exixts
     if [ -x $path2exe ]; then
       echo $path2exe $Mvalue $Nvalue $Kvalue $transA $transB $lda $ldb $ldc $alpha $beta $aoff $boff $coff  
 
 #Generate ATP file
-      runcmd="$path2exe $Mvalue $Nvalue $Kvalue $transA $transB $lda $ldb $ldc $alpha $beta $aoff $boff $coff >> $path2outdir/output_$datetime.txt"
+      runcmd="$path2profiler --hsatrace -o $path2outdir/output.atp -t -T -w $path2outdir $path2exe $Mvalue $Nvalue $Kvalue $transA $transB $lda $ldb $ldc $alpha $beta $aoff $boff $coff --device gpu"
       echo $runcmd
       eval $runcmd
-      filename="output_$datetime.txt"
+      echo $cmd
+      filename="$(eval $cmd)"
       passarg=$path2outdir/$filename
 
 #Store profile timings in CSV using python script
-      if [ -f "$workingdir/extracttime_sgemm.py" ]; then
-        python $workingdir/extracttime_sgemm.py $passarg $Mvalue $Nvalue $Kvalue $transA $transB $lda $ldb $ldc $alpha $beta $aoff $boff $coff 
+      if [ -f "$workingdir/extracthtml_sgemm.py" ]; then
+        python $workingdir/extracthtml_sgemm.py $passarg $Mvalue $Nvalue $Kvalue $transA $transB $lda $ldb $ldc $alpha $beta $aoff $boff $coff 
       fi
 
     else
@@ -67,4 +81,4 @@ while read line; do
 #Input file
 done < $workingdir/$Input
 
-done < $workingdir/Input_timer.txt
+done < $workingdir/Input.txt
