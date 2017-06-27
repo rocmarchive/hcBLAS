@@ -11,6 +11,8 @@ SET(ROCM_PATH "/opt/rocm/")
 PROJECT (${PROJECT_NAME})
 MESSAGE(STATUS "PROJECT NAME : ${PROJECT_NAME}")
 
+SET(HIP_SUPPORT $ENV{HIP_SUPPORT})
+
 # Find HIP
 set (HIP_PATH $ENV{HIP_PATH})
 if (NOT DEFINED HIP_PATH)
@@ -43,8 +45,10 @@ IF (${PLATFORM} MATCHES "hcc")
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${ROCM_PATH}/include")
   set (HCC_LDFLAGS "${HCC_LDFLAGS}")
 
-  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${ROCM_PATH}/include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
-  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc -Wl,-rpath-link,${HIP_PATH}/lib")
+  IF (${HIP_SUPPORT} MATCHES "on") 
+    set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${ROCM_PATH}/include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
+    set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc -Wl,-rpath-link,${HIP_PATH}/lib")
+  ENDIF()
  
   # Setting header dependencies for hcblas library generation
   FOREACH(src_file ${HCBLASSRCS})
@@ -73,27 +77,29 @@ IF (${PLATFORM} MATCHES "hcc")
 
   INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../include/" DESTINATION include PATTERN "*.h.in" EXCLUDE)
   
-  SET (HIPBLASSRCS ${HCBLASSRCS} ${CMAKE_CURRENT_SOURCE_DIR}/hcc_detail/hipblas.cpp)
+  IF (${HIP_SUPPORT} MATCHES "on")
+    SET (HIPBLASSRCS ${HCBLASSRCS} ${CMAKE_CURRENT_SOURCE_DIR}/hcc_detail/hipblas.cpp)
  
     
-  # Setting header dependencies for hipblas library generation
-  FOREACH(src_file ${HIPBLASSRCS})
-    SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
-  ENDFOREACH()
+    # Setting header dependencies for hipblas library generation
+    FOREACH(src_file ${HIPBLASSRCS})
+          SET_PROPERTY(SOURCE ${src_file} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS} ")
+    ENDFOREACH()
     
-  #Generating hipblas shared object
-  ADD_LIBRARY("${PROJECT_NAME_EXT}_hcc" SHARED ${HIPBLASSRCS})
-  SET_PROPERTY(TARGET "${PROJECT_NAME_EXT}_hcc" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
-  TARGET_LINK_LIBRARIES("${PROJECT_NAME_EXT}_hcc" hc_am)
+    #Generating hipblas shared object
+    ADD_LIBRARY("${PROJECT_NAME_EXT}_hcc" SHARED ${HIPBLASSRCS})
+    SET_PROPERTY(TARGET "${PROJECT_NAME_EXT}_hcc" APPEND_STRING PROPERTY LINK_FLAGS " ${HCC_LDFLAGS} ")
+    TARGET_LINK_LIBRARIES("${PROJECT_NAME_EXT}_hcc" hc_am)
 
-  INSTALL(TARGETS "${PROJECT_NAME_EXT}_hcc" 
+    INSTALL(TARGETS "${PROJECT_NAME_EXT}_hcc" 
         RUNTIME DESTINATION lib
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         PERMISSIONS WORLD_READ WORLD_WRITE WORLD_EXECUTE
-  )
+    )
   
-  INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../include/" DESTINATION include PATTERN "*.h.in" EXCLUDE)  
+    INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../include/" DESTINATION include PATTERN "*.h.in" EXCLUDE)  
+  ENDIF()
 
 ELSEIF (${PLATFORM} MATCHES "nvcc")
   
