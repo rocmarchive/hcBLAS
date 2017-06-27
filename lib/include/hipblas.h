@@ -54,9 +54,9 @@ enum hipblasOperation_t {
 // on NVCC path:
 
 #if defined(__HIP_PLATFORM_HCC__) and not defined (__HIP_PLATFORM_NVCC__)
-#include <hcc_detail/hip_blas.h>
+#include "hcc_detail/hip_blas.h"
 #elif defined(__HIP_PLATFORM_NVCC__) and not defined (__HIP_PLATFORM_HCC__)
-#include <nvcc_detail/hip_blas.h>
+#include "nvcc_detail/hip_blas.h"
 #else 
 #error("Must define exactly one of __HIP_PLATFORM_HCC__ or __HIP_PLATFORM_NVCC__");
 #endif 
