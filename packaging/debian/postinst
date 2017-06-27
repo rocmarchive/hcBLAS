@@ -3,6 +3,9 @@
 set -e
 
 do_ldconfig() {
+    ln -sfn /opt/rocm/hcblas/lib/libhipblas_hcc.so /opt/rocm/hcblas/lib/libhipblas.so
+    ln -sfn /opt/rocm/hcblas/lib/libhipblas_hcc.so /opt/rocm/lib/libhipblas.so
+    ln -sfn /opt/rocm/hcblas/lib/libhcblas.so /opt/rocm/lib/libhcblas.so
     echo /opt/rocm/hcblas/lib > /etc/ld.so.conf.d/hcblas-rocm-dev.conf && ldconfig
 }
 
