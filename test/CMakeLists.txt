@@ -6,14 +6,12 @@ ELSE()
   SET(HIP_PATH $ENV{HIP_PATH})
 ENDIF()
 
-SET(HIP_SUPPORT $ENV{HIP_SUPPORT})
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake  "${HIP_PATH}/cmake")
 EXECUTE_PROCESS(COMMAND ${HIP_PATH}/bin/hipconfig -P OUTPUT_VARIABLE PLATFORM)
 
-IF(${HIP_SUPPORT} MATCHES "on")
-  add_subdirectory(unit-hip)
-ENDIF()
+# Tests common to both NV and AMD stack
+add_subdirectory(unit-hip)
 
 IF(${PLATFORM} MATCHES "hcc")
   add_subdirectory(src)
