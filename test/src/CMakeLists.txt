@@ -10,7 +10,7 @@ FIND_PACKAGE(HC++ 1.0 REQUIRED)
 SET (TESTSRCS
     dcopy_test.cpp  dscal_test.cpp  saxpy_test.cpp  sdot_test.cpp   sgemv_test.cpp  sscal_test.cpp  
     dasum_test.cpp  ddot_test.cpp   sasum_test.cpp  scopy_test.cpp  sgemm_test.cpp  sger_test.cpp  sgemm_cn_test.cpp
-    sgemm_timer_test.cpp 
+    sgemm_timer_test.cpp  cgemm_test.cpp
     )
 
   # Choice to take compilation flags from source or package
@@ -30,7 +30,7 @@ SET (TESTSRCS
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   set (HCC_CXXFLAGS "-I${TEST_INCLUDE_PATH} ${HCC_CXXFLAGS} -I${HCBLAS_INCLUDE_PATH}")
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
-  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HCBLAS_LIBRARY_PATH} -L${SHARED_LIB_OBJ} -Wl,--rpath=/opt/rocm/hip/lib")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HCBLAS_LIBRARY_PATH} -L${SHARED_LIB_OBJ} -Wl,--rpath=/opt/rocm/hip/lib -Wl,--rpath=/opt/rocm/profiler/bin")
   SET (LINK "-lblas  -lhcblas -lhc_am")
   SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "bin/")
   FOREACH(test_file ${TESTSRCS})
