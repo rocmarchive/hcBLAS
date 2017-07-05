@@ -116,6 +116,9 @@ TEST(hcblas_dgemm, return_correct_dgemm_Implementation_type_1) {
     // K is 0 */
     status = hc.hcblas_dgemm(accl_view, hcOrder, typeA, typeB, M, N, 0, alpha, devA, lda, devB, ldb, beta, devC, ldc, aOffset, bOffset, cOffset);
     EXPECT_EQ(status, HCBLAS_INVALID);
+
+    // add an explicit wait to sync on host
+    accl_view.wait();
     free(A);
     free(B);
     free(C);

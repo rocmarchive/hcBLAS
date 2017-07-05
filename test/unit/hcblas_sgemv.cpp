@@ -118,6 +118,9 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_1) {
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, devA1, aOffset, lda, devX1, xOffset, incX, beta, devY1, yOffset, incY);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+
+    // Mandatory wait on accl_view
+    accl_view.wait();
     free(x);
     free(y);
     free(A);
@@ -398,6 +401,8 @@ TEST(hcblas_sgemv, return_correct_sgemv_Implementation_type_2) {
     /*Proper call with row major */
     status = hc.hcblas_sgemv(accl_view, RowMajor, typeA, M, N, alpha, devAbatch1, aOffset, A_batchOffset, lda, devXbatch1, xOffset, X_batchOffset, incX, beta, devYbatch1, yOffset, Y_batchOffset, incY, batchSize);
     EXPECT_EQ(status, HCBLAS_SUCCEEDS);
+    // Mandatory wait on accl_view
+    accl_view.wait();
     free(xbatch);
     free(ybatch);
     free(Abatch);
