@@ -62,7 +62,7 @@ while read line; do
       echo $path2exe $Mvalue $Nvalue $Kvalue $transA $transB $lda $ldb $ldc $alpha $beta $aoff $boff $coff  
 
 #Generate ATP file
-      runcmd="$path2profiler --hsatrace -o $path2outdir/output.atp -t -T -w $path2outdir $path2exe $Mvalue $Nvalue $Kvalue $transA $transB $lda $ldb $ldc $alpha $beta $aoff $boff $coff --device gpu"
+      runcmd="$path2profiler --hsatrace -o $path2outdir/output.atp -T -w $path2outdir $path2exe $Mvalue $Nvalue $Kvalue $transA $transB $lda $ldb $ldc $alpha $beta $aoff $boff $coff --device gpu"
       echo $runcmd
       eval $runcmd
       echo $cmd

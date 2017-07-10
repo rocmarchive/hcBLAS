@@ -42,7 +42,7 @@ while read line; do
       echo $path2exe $Mvalue $Nvalue $Implem
 
 #Generate ATP file
-      runcmd="$path2profiler --hsatrace -o $path2outdir/output.atp -t -T -w $path2outdir $path2exe $Mvalue $Nvalue $Implem --device gpu"
+      runcmd="$path2profiler --hsatrace -o $path2outdir/output.atp -T -w $path2outdir $path2exe $Mvalue $Nvalue $Implem --device gpu"
       echo $runcmd
       eval $runcmd
       echo $cmd
