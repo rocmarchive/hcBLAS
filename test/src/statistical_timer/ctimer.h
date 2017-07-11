@@ -39,4 +39,4 @@ extern void ResetDelayTimer(Timer timer, double delay_time);
 }
 #endif
 
-#endif // ifndef C_TIMER_HXX__
+#endif  // ifndef C_TIMER_HXX__

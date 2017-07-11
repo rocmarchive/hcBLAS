@@ -24,7 +24,7 @@ SET (TESTSRCS
   execute_process(COMMAND ${HCC_CONFIG} --install --ldflags 
                             OUTPUT_VARIABLE HCC_LDFLAGS)
   SET(SHARED_LIB_OBJ "/opt/rocm/lib")
-  SET(HCBLAS_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/include/")
+  SET(HCBLAS_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/")
   SET(TEST_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../include/")
   SET(HCBLAS_LIBRARY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../build/lib/src")
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)

@@ -13,7 +13,7 @@ execute_process(COMMAND ${HCC_CONFIG} --install --cxxflags
 execute_process(COMMAND ${HCC_CONFIG}  --install --ldflags
                             OUTPUT_VARIABLE HCC_LDFLAGS)
 
-SET(HCBLAS_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/include/")
+SET(HCBLAS_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../lib/")
 SET(HCBLAS_LIBRARY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../build/lib/src")
 
 string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)

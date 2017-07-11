@@ -19,32 +19,30 @@
 
 #include <time.h>
 
-class timer
-{
-public:
+class timer {
+ public:
   double get();
   void pause();
   void restart();
   void reset();
   void reset_delay(double delay_time);
 
-private:
-  inline double get_walltime()
-  {
+ private:
+  inline double get_walltime() {
     struct timespec ts;
 
     clock_gettime(CLOCK_REALTIME, &ts);
     return static_cast<double>(ts.tv_sec) +
-      static_cast<double>(ts.tv_nsec) * 1.0e-9;
+           static_cast<double>(ts.tv_nsec) * 1.0e-9;
   }
 
-private:
+ private:
   double init_time_;
   double elapsed_time_;
 
-public:
-    timer();
+ public:
+  timer();
   ~timer();
-}; // class timer
+};  // class timer
 
-#endif // ifndef TIMER_HXX__
+#endif  // ifndef TIMER_HXX__

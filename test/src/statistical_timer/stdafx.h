@@ -14,7 +14,6 @@
  * limitations under the License.
  * ************************************************************************/
 
-
 // stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently, but
 // are changed infrequently
@@ -24,17 +23,17 @@
 
 #include "targetver.h"
 
-#include <iostream>
-#include <stdexcept>
-#include <iomanip>
 #include <complex>
-#include <valarray>
+#include <iomanip>
+#include <iostream>
 #include <stdarg.h>
-#if defined( _WIN32 )
-	#define NOMINMAX
-	#define WIN32_LEAN_AND_MEAN			// Exclude rarely-used stuff from Windows headers
+#include <stdexcept>
+#include <valarray>
+#if defined(_WIN32)
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN  // Exclude rarely-used stuff from Windows headers
 
-	#include <tchar.h>
-	#include <windows.h>
+#include <tchar.h>
+#include <windows.h>
 #endif
 

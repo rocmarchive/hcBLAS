@@ -14,90 +14,45 @@
  * limitations under the License.
  * ************************************************************************/
 
-#include "ctimer.h"
 #include "timer.hpp"
+#include "ctimer.h"
 
-timer::
-timer() : elapsed_time_(0.0)
-{
-  init_time_ = get_walltime();
-}
+timer::timer() : elapsed_time_(0.0) { init_time_ = get_walltime(); }
 
-timer::
-~timer()
-{
-}
+timer::~timer() {}
 
-double
-timer::
-get()
-{
-  return elapsed_time_ + get_walltime() - init_time_;
-}
+double timer::get() { return elapsed_time_ + get_walltime() - init_time_; }
 
-void
-timer::
-pause()
-{
-  elapsed_time_ = get();
-}
+void timer::pause() { elapsed_time_ = get(); }
 
-void
-timer::
-restart()
-{
-  init_time_ = get_walltime();
-}
+void timer::restart() { init_time_ = get_walltime(); }
 
-void
-timer::
-reset()
-{
+void timer::reset() {
   elapsed_time_ = 0.0;
   init_time_ = get_walltime();
 }
 
-void
-timer::
-reset_delay(double delay_time)
-{
+void timer::reset_delay(double delay_time) {
   reset();
   elapsed_time_ = delay_time;
 }
 
-Timer CreateTimer()
-{
+Timer CreateTimer() {
   Timer local_timer = new timer();
   return local_timer;
 }
 
-void DeleteTimer(Timer timer)
-{
-  delete timer;
-}
+void DeleteTimer(Timer timer) { delete timer; }
 
-double GetTime(Timer timer)
-{
-  return timer->get();
-}
+double GetTime(Timer timer) { return timer->get(); }
 
-void ResetTimer(Timer timer)
-{
-  timer->reset();
-}
+void ResetTimer(Timer timer) { timer->reset(); }
 
-void RestartTimer(Timer timer)
-{
-  timer->restart();
-}
+void RestartTimer(Timer timer) { timer->restart(); }
 
-void PauseTimer(Timer timer)
-{
-  timer->pause();
-}
+void PauseTimer(Timer timer) { timer->pause(); }
 
-void ResetDelayTimer(Timer timer, double delay_time)
-{
+void ResetDelayTimer(Timer timer, double delay_time) {
   timer->reset_delay(delay_time);
 }
 

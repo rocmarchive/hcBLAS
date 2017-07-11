@@ -42,11 +42,11 @@ IF (${PLATFORM} MATCHES "hcc")
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
   
-  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${ROCM_PATH}/include")
+  set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../ -I${ROCM_PATH}/include")
   set (HCC_LDFLAGS "${HCC_LDFLAGS}")
 
   IF (${HIP_SUPPORT} MATCHES "on") 
-    set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${ROCM_PATH}/include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
+    set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../ -I${ROCM_PATH}/include -I${HIP_PATH}/include -D__HIP_PLATFORM_HCC__=")
     set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIP_PATH}/lib -lhip_hcc -Wl,-rpath-link,${HIP_PATH}/lib")
   ENDIF()
  
@@ -105,7 +105,7 @@ ELSEIF (${PLATFORM} MATCHES "nvcc")
   
   MESSAGE(STATUS "Building hipblas.cpp")
   
-  SET (CXXFLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/../include -I${HIP_PATH}/include -I/usr/local/cuda/include -D__HIP_PLATFORM_NVCC__=")
+  SET (CXXFLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/../ -I${HIP_PATH}/include -I/usr/local/cuda/include -D__HIP_PLATFORM_NVCC__=")
   SET (LDFLAGS "-L/usr/local/cuda/lib64 -L/usr/local/cuda/lib")
   SET (HIPBLASSRCS ${CMAKE_CURRENT_SOURCE_DIR}/nvcc_detail/hipblas.cpp)
   

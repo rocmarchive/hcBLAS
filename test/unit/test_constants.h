@@ -56,7 +56,6 @@ inline long gen_vlarge() {
   return vlarge;
 }
 
-
 // Generates numbers from 16385 to 131072
 inline long gen_vvlarge() {
   srand(1);

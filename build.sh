@@ -55,13 +55,13 @@ cat <<-HELP
 =============================================================================================================================
 This script is invoked to build hcBLAS library and test sources. Please provide the following arguments:
 
-   ${green}--test${reset}     Test to enable the library testing (on/off)
-   ${green}--profile${reset}  Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY (CodeXL)
-   ${green}--bench${reset}    Profile benchmark using chrono timer
-   ${green}--debug${reset}    Compile with debug info (-g)
-   ${green}--verbose${reset}  Run make with VERBOSE=1
-   ${green}--install${reset}  Install the shared library and include the header files under /opt/rocm/hcblas  Requires sudo perms.
-   ${green}--examples${reset} To build and run the example files in examples folder (on/off) (ONLY SUPPORTED ON AMD PLATFORM)
+  ${green}--test${reset}     Test to enable the library testing (on/off)
+  ${green}--profile${reset}  Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY (CodeXL)
+  ${green}--bench${reset}    Profile benchmark using chrono timer
+  ${green}--debug${reset}    Compile with debug info (-g)
+  ${green}--verbose${reset}  Run make with VERBOSE=1
+  ${green}--install${reset}  Install the shared library and include the header files under /opt/rocm/hcblas  Requires sudo perms.
+  ${green}--examples${reset} To build and run the example files in examples folder (on/off) (ONLY SUPPORTED ON AMD PLATFORM)
 
 NOTE: export PROFILER_PATH=/path/to/profiler before enabling profile variable.
 =============================================================================================================================
@@ -106,7 +106,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "$install" = "1" ]; then
-    export INSTALL_OPT=on
+  export INSTALL_OPT=on
 fi
 
 set +e
@@ -163,6 +163,8 @@ if [ "$platform" = "hcc" ]; then
 
 # profile=on 
   if ( [ "$profiling" = "on" ] ); then 
+    printf "* PROFILING *\n"
+    printf "*************\n"
     cd $current_work_dir/profile/
 # Invoke profiling script
     ./runme.sh
@@ -170,6 +172,8 @@ if [ "$platform" = "hcc" ]; then
 
 # bench=on
   if [ "$benchmark" = "on" ]; then
+    printf "* BENCHMARKING *\n"
+    printf "****************\n"
     cd $current_work_dir/benchmark/BLAS_benchmark_Convolution_Networks/
     ./runme.sh
   fi
@@ -177,6 +181,8 @@ if [ "$platform" = "hcc" ]; then
 #EXAMPLES
 #Invoke examples script if --examples=on
   if [ "$examples" = "on" ]; then
+    printf "* EXAMPLES *\n"
+    printf "************\n"
     chmod +x $current_work_dir/examples/build.sh
     cd $current_work_dir/examples/
     ./build.sh

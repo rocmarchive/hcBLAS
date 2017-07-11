@@ -47,6 +47,10 @@ if [ "$deepclean" = "1" ]; then
   sudo rm -rf /opt/rocm/hcblas
   sudo rm -f /opt/rocm/lib/libhcblas.so
   sudo rm -f /opt/rocm/lib/libhipblas.so
+ 
+  rm -rf ./profile/*Data
+  rm -f ./profile/*.csv
+
+  rm -rf ./benchmark/BLAS_benchmark_Convolution_Networks/*Data
+  rm -f ./benchmark/BLAS_benchmark_Convolution_Networks/*.csv
 fi
-
-

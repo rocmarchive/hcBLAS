@@ -1,13 +1,33 @@
-#include "dgemm_array_kernels.h"
-#include <cmath>
-#include "hc_math.hpp"
+/*
+Copyright (c) 2015-2016 Advanced Micro Devices, Inc. All rights reserved.
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_view accl_view,
-					       const double *A, long aOffset,
-					       const double *B, long bOffset,
-					       double *C, long cOffset,
-					       int M, int N, int K, int lda, int ldb, int ldc,
-					       double alpha, double beta) {
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
+#include "./dgemm_array_kernels.h"
+#include <cmath>
+#include <hc_math.hpp>
+
+hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(
+    hc::accelerator_view accl_view, const double *A, __int64_t aOffset,
+    const double *B, __int64_t bOffset, double *C, __int64_t cOffset, int M,
+    int N, int K, int lda, int ldb, int ldc, double alpha, double beta) {
 
 #undef TILESIZE
 #undef MICROTILESIZE
@@ -20,9 +40,9 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_vi
   int K_R = (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
+  hc::parallel_for_each(accl_view, t_ext, [=](hc::tiled_index<2> tidx)[[hc]] {
     int shiftTS = hc::fast_math::log2f(TILESIZE);
-    double rC[MICROTILESIZE][MICROTILESIZE] = {{(double)0}};
+    double rC[MICROTILESIZE][MICROTILESIZE] = {{static_cast<double>(0)}};
     double rA[1][MICROTILESIZE];
     double rB[1][MICROTILESIZE];
     tile_static double lA[TOTMICROTILEPROD + TILESIZE];
@@ -35,70 +55,86 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M064_N064_K064_TS16XMTS4(hc::accelerator_vi
     int lIndex = (idy * BANKMICROTILESIZE) + idx;
     int AIndex = aOffset + (gidx * MICROTILEPROD) + idx + (idy * lda);
     int BIndex = bOffset + (gidy * MICROTILEPROD) + idx + (idy * ldb);
-    long CIndex = cOffset + (gidx * MICROTILEPROD) + idx + (((gidy * MICROTILEPROD) + idy) * ldc);
-    long CinitOffset = 0;
+    __int64_t CIndex = cOffset + (gidx * MICROTILEPROD) + idx +
+                       (((gidy * MICROTILEPROD) + idy) * ldc);
+    __int64_t CinitOffset = 0;
 
     do {
       tidx.barrier.wait();
 
-      lB[lIndex + 0 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 0 * TILESIZE];
-      lB[lIndex + 1 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 1 * TILESIZE];
-      lB[lIndex + 2 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 2 * TILESIZE];
-      lB[lIndex + 3 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 3 * TILESIZE];
-      lA[lIndex + 0 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 0 * TILESIZE];
-      lA[lIndex + 1 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 1 * TILESIZE];
-      lA[lIndex + 2 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 2 * TILESIZE];
-      lA[lIndex + 3 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 3 * TILESIZE];
+      lB[lIndex + 0 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 0 * TILESIZE];
+      lB[lIndex + 1 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 1 * TILESIZE];
+      lB[lIndex + 2 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 2 * TILESIZE];
+      lB[lIndex + 3 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 3 * TILESIZE];
+      lA[lIndex + 0 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 0 * TILESIZE];
+      lA[lIndex + 1 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 1 * TILESIZE];
+      lA[lIndex + 2 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 2 * TILESIZE];
+      lA[lIndex + 3 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 3 * TILESIZE];
 
       tidx.barrier.wait();
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
-          M4x4
-          M4x4
-          M4x4
-          M4x4
-          M4x4
-          M4x4
-          M4x4
-          M4x4
+      for (int iter = 0; iter < TILESIZE; iter += 8) {
+        M4x4 M4x4 M4x4 M4x4 M4x4 M4x4 M4x4 M4x4
       }
 
       tidx.barrier.wait();
     } while (++block_k < (K_R / TILESIZE));
 
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[0][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[0][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[0][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[0][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[0][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[0][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
     CinitOffset += TILESIZE;
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[1][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[1][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[1][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[1][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[1][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[1][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
     CinitOffset += TILESIZE;
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[2][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[2][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[2][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[2][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[2][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[2][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
     CinitOffset += TILESIZE;
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[3][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-  })_WAIT1;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[3][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+  }) _WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_view accl_view,
-                                               const double *A, long aOffset,
-                                               const double *B, long bOffset,
-                                               double *C, long cOffset,
-                                               int M, int N, int K, int lda, int ldb, int ldc,
-                                               double alpha, double beta) {
+hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(
+    hc::accelerator_view accl_view, const double *A, __int64_t aOffset,
+    const double *B, __int64_t bOffset, double *C, __int64_t cOffset, int M,
+    int N, int K, int lda, int ldb, int ldc, double alpha, double beta) {
 
 #undef TILESIZE
 #undef MICROTILESIZE
@@ -111,9 +147,9 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_vi
   int K_R = (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
+  hc::parallel_for_each(accl_view, t_ext, [=](hc::tiled_index<2> tidx)[[hc]] {
     int shiftTS = hc::fast_math::log2f(TILESIZE);
-    double rC[MICROTILESIZE][MICROTILESIZE] = {{(double)0}};
+    double rC[MICROTILESIZE][MICROTILESIZE] = {{static_cast<double>(0)}};
     double rA[1][MICROTILESIZE];
     double rB[1][MICROTILESIZE];
     tile_static double lA[TOTMICROTILEPROD + TILESIZE];
@@ -126,111 +162,151 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M096_N096_K096_TS16XMTS6(hc::accelerator_vi
     int lIndex = (idy * BANKMICROTILESIZE) + idx;
     int AIndex = aOffset + (gidx * MICROTILEPROD) + idx + (idy * lda);
     int BIndex = bOffset + (gidy * MICROTILEPROD) + idx + (idy * ldb);
-    long CIndex = cOffset + (gidx * MICROTILEPROD) + idx + (((gidy * MICROTILEPROD) + idy) * ldc);
-    long CinitOffset = 0;
+    __int64_t CIndex = cOffset + (gidx * MICROTILEPROD) + idx +
+                       (((gidy * MICROTILEPROD) + idy) * ldc);
+    __int64_t CinitOffset = 0;
 
     do {
       tidx.barrier.wait();
 
-      lB[lIndex + 0 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 0 * TILESIZE];
-      lB[lIndex + 1 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 1 * TILESIZE];
-      lB[lIndex + 2 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 2 * TILESIZE];
-      lB[lIndex + 3 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 3 * TILESIZE];
-      lB[lIndex + 4 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 4 * TILESIZE];
-      lB[lIndex + 5 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 5 * TILESIZE];
-      lA[lIndex + 0 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 0 * TILESIZE];
-      lA[lIndex + 1 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 1 * TILESIZE];
-      lA[lIndex + 2 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 2 * TILESIZE];
-      lA[lIndex + 3 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 3 * TILESIZE];
-      lA[lIndex + 4 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 4 * TILESIZE];
-      lA[lIndex + 5 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 5 * TILESIZE];
+      lB[lIndex + 0 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 0 * TILESIZE];
+      lB[lIndex + 1 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 1 * TILESIZE];
+      lB[lIndex + 2 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 2 * TILESIZE];
+      lB[lIndex + 3 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 3 * TILESIZE];
+      lB[lIndex + 4 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 4 * TILESIZE];
+      lB[lIndex + 5 * TILESIZE] =
+          B[BIndex + block_k * TILESIZE * ldb + 5 * TILESIZE];
+      lA[lIndex + 0 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 0 * TILESIZE];
+      lA[lIndex + 1 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 1 * TILESIZE];
+      lA[lIndex + 2 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 2 * TILESIZE];
+      lA[lIndex + 3 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 3 * TILESIZE];
+      lA[lIndex + 4 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 4 * TILESIZE];
+      lA[lIndex + 5 * TILESIZE] =
+          A[AIndex + block_k * TILESIZE * lda + 5 * TILESIZE];
 
       tidx.barrier.wait();
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
-          M6x6
-          M6x6
-          M6x6
-          M6x6
-          M6x6
-          M6x6
-          M6x6
-          M6x6
+      for (int iter = 0; iter < TILESIZE; iter += 8) {
+        M6x6 M6x6 M6x6 M6x6 M6x6 M6x6 M6x6 M6x6
       }
 
       tidx.barrier.wait();
     } while (++block_k < (K_R / TILESIZE));
 
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[0][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[0][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[0][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[0][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[0][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[0][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[0][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[0][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+        alpha * rC[0][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+        alpha * rC[0][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
     CinitOffset += TILESIZE;
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[1][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[1][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[1][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[1][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[1][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[1][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[1][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[1][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+        alpha * rC[1][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+        alpha * rC[1][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
     CinitOffset += TILESIZE;
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[2][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[2][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[2][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[2][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[2][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[2][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[2][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[2][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+        alpha * rC[2][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+        alpha * rC[2][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
     CinitOffset += TILESIZE;
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[3][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[3][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[3][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[3][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+        alpha * rC[3][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+        alpha * rC[3][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
     CinitOffset += TILESIZE;
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[4][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[4][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[4][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[4][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[4][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[4][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[4][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[4][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[4][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[4][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+        alpha * rC[4][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+        alpha * rC[4][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
     CinitOffset += TILESIZE;
-    C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[5][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[5][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[5][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[5][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[5][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[5][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-  })_WAIT1;
+    C[CIndex + CinitOffset + 0 * ldc] =
+        alpha * rC[5][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+    C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+        alpha * rC[5][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+        alpha * rC[5][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+        alpha * rC[5][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+        alpha * rC[5][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+    C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+        alpha * rC[5][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+  }) _WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_view,
-					       const double *A, long aOffset,
-					       const double *B, long bOffset,
-					       double *C, long cOffset,
-					       int M, int N, int K, int lda, int ldb, int ldc,
-					       double alpha, double beta) {
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(
+    hc::accelerator_view accl_view, const double *A, __int64_t aOffset,
+    const double *B, __int64_t bOffset, double *C, __int64_t cOffset, int M,
+    int N, int K, int lda, int ldb, int ldc, double alpha, double beta) {
 
 #undef TILESIZE
 #undef MICROTILESIZE
 #define TILESIZE 16
 #define MICROTILESIZE 2
-  int M_ = (M-1) / MICROTILESIZE + 1;
-  int N_ = (N-1) / MICROTILESIZE + 1;
+  int M_ = (M - 1) / MICROTILESIZE + 1;
+  int N_ = (N - 1) / MICROTILESIZE + 1;
   int N_R = (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
   int M_R = (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
   int K_R = (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
+  hc::parallel_for_each(accl_view, t_ext, [=](hc::tiled_index<2> tidx)[[hc]] {
     int shiftTS = hc::fast_math::log2f(TILESIZE);
-    double rC[MICROTILESIZE][MICROTILESIZE] = {{(double)0}};
+    double rC[MICROTILESIZE][MICROTILESIZE] = {{static_cast<double>(0)}};
     double rA[1][MICROTILESIZE];
     double rB[1][MICROTILESIZE];
     tile_static double lA[TOTMICROTILEPROD + TILESIZE];
@@ -243,106 +319,107 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS2(hc::accelerator_view accl_v
     int lIndex = (idy * BANKMICROTILESIZE) + idx;
     int AIndex = aOffset + (gidx * MICROTILEPROD) + idx + (idy * lda);
     int BIndex = bOffset + (gidy * MICROTILEPROD) + idx + (idy * ldb);
-    long CIndex = cOffset + (gidx * MICROTILEPROD) + idx + (((gidy * MICROTILEPROD) + idy) * ldc);
-    int N_block = N_R/TILESIZE;
-    int M_block = M_R/TILESIZE;
-    int K_block = K_R/TILESIZE;
-    long CinitOffset = 0;
+    __int64_t CIndex = cOffset + (gidx * MICROTILEPROD) + idx +
+                       (((gidy * MICROTILEPROD) + idy) * ldc);
+    int N_block = N_R / TILESIZE;
+    int M_block = M_R / TILESIZE;
+    int K_block = K_R / TILESIZE;
+    __int64_t CinitOffset = 0;
 
     do {
       tidx.barrier.wait();
 
-      if (gidx == M_block-1 || gidy == N_block-1 || block_k == K_block-1)
-      {
-          for(int sec = 0; sec < MICROTILESIZE; ++sec) {
-            int secVal = sec << shiftTS;
+      if (gidx == M_block - 1 || gidy == N_block - 1 ||
+          block_k == K_block - 1) {
+        for (int sec = 0; sec < MICROTILESIZE; ++sec) {
+          int secVal = sec << shiftTS;
 
-            if((gidy*MICROTILEPROD + idx + secVal) < N && (block_k * TILESIZE + idy) < K) {
-              lB[ lIndex + secVal] = B[BIndex + block_k * TILESIZE * ldb + secVal]; 
-            } else {
-              lB[lIndex + secVal] = 0;
-            }
-
-            if(((gidx*MICROTILEPROD) + idx + secVal) < M && (block_k * TILESIZE + idy) < K) {
-              lA[lIndex + secVal] = A[AIndex + block_k * TILESIZE * lda + secVal];
-            } else {
-              lA[lIndex + secVal] = 0;
-            }
+          if ((gidy * MICROTILEPROD + idx + secVal) < N &&
+              (block_k * TILESIZE + idy) < K) {
+            lB[lIndex + secVal] = B[BIndex + block_k * TILESIZE * ldb + secVal];
+          } else {
+            lB[lIndex + secVal] = 0;
           }
-      }
-      else
-      {
-          lB[lIndex] = B[BIndex + block_k * TILESIZE * ldb];
-          lB[lIndex + TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + TILESIZE];
-          lA[lIndex] = A[AIndex + block_k * TILESIZE * lda];
-          lA[lIndex + TILESIZE] = A[AIndex + block_k * TILESIZE * lda + TILESIZE];
+
+          if (((gidx * MICROTILEPROD) + idx + secVal) < M &&
+              (block_k * TILESIZE + idy) < K) {
+            lA[lIndex + secVal] = A[AIndex + block_k * TILESIZE * lda + secVal];
+          } else {
+            lA[lIndex + secVal] = 0;
+          }
+        }
+      } else {
+        lB[lIndex] = B[BIndex + block_k * TILESIZE * ldb];
+        lB[lIndex + TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + TILESIZE];
+        lA[lIndex] = A[AIndex + block_k * TILESIZE * lda];
+        lA[lIndex + TILESIZE] = A[AIndex + block_k * TILESIZE * lda + TILESIZE];
       }
 
       tidx.barrier.wait();
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
-          M2x2
-          M2x2
-          M2x2
-          M2x2
-          M2x2
-          M2x2
-          M2x2
-          M2x2
+      for (int iter = 0; iter < TILESIZE; iter += 8) {
+        M2x2 M2x2 M2x2 M2x2 M2x2 M2x2 M2x2 M2x2
       }
 
       tidx.barrier.wait();
     } while (++block_k < (K_R / TILESIZE));
 
-    if(gidx == M_block-1 || gidy == N_block-1)
-    {
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + TILESIZE * ldc] = alpha*rC[0][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + TILESIZE * ldc] = alpha*rC[1][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc] ;
+    if (gidx == M_block - 1 || gidy == N_block - 1) {
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + TILESIZE * ldc] =
+            alpha * rC[0][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + TILESIZE * ldc] =
+            alpha * rC[1][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc];
+    } else {
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + TILESIZE * ldc] =
+          alpha * rC[0][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + TILESIZE * ldc] =
+          alpha * rC[1][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc];
     }
-    else
-    {
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + TILESIZE * ldc] = alpha*rC[0][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + TILESIZE * ldc] = alpha*rC[1][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc] ;
-    }
-  })_WAIT1;
+  }) _WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_view,
-					       const double *A, long aOffset,
-					       const double *B, long bOffset,
-					       double *C, long cOffset,
-					       int M, int N, int K, int lda, int ldb, int ldc,
-					       double alpha, double beta) {
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(
+    hc::accelerator_view accl_view, const double *A, __int64_t aOffset,
+    const double *B, __int64_t bOffset, double *C, __int64_t cOffset, int M,
+    int N, int K, int lda, int ldb, int ldc, double alpha, double beta) {
 
 #undef TILESIZE
 #undef MICROTILESIZE
 #define TILESIZE 16
 #define MICROTILESIZE 4
-  int M_ = (M-1) / MICROTILESIZE + 1;
-  int N_ = (N-1) / MICROTILESIZE + 1;
+  int M_ = (M - 1) / MICROTILESIZE + 1;
+  int N_ = (N - 1) / MICROTILESIZE + 1;
   int N_R = (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
   int M_R = (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
   int K_R = (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
+  hc::parallel_for_each(accl_view, t_ext, [=](hc::tiled_index<2> tidx)[[hc]] {
     int shiftTS = hc::fast_math::log2f(TILESIZE);
-    double rC[MICROTILESIZE][MICROTILESIZE] = {{(double)0}};
+    double rC[MICROTILESIZE][MICROTILESIZE] = {{static_cast<double>(0)}};
     double rA[1][MICROTILESIZE];
     double rB[1][MICROTILESIZE];
     tile_static double lA[TOTMICROTILEPROD + TILESIZE];
@@ -355,151 +432,220 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS4(hc::accelerator_view accl_v
     int lIndex = (idy * BANKMICROTILESIZE) + idx;
     int AIndex = aOffset + (gidx * MICROTILEPROD) + idx + (idy * lda);
     int BIndex = bOffset + (gidy * MICROTILEPROD) + idx + (idy * ldb);
-    long CIndex = cOffset + (gidx * MICROTILEPROD) + idx + (((gidy * MICROTILEPROD) + idy) * ldc);
-    int N_block = N_R/TILESIZE;
-    int M_block = M_R/TILESIZE;
-    int K_block = K_R/TILESIZE;
-    long CinitOffset = 0;
+    __int64_t CIndex = cOffset + (gidx * MICROTILEPROD) + idx +
+                       (((gidy * MICROTILEPROD) + idy) * ldc);
+    int N_block = N_R / TILESIZE;
+    int M_block = M_R / TILESIZE;
+    int K_block = K_R / TILESIZE;
+    __int64_t CinitOffset = 0;
 
     do {
       tidx.barrier.wait();
 
-      if (gidx == M_block-1 || gidy == N_block-1 || block_k == K_block-1)
-      {
-          for(int sec = 0; sec < MICROTILESIZE; ++sec) {
-            int secVal = sec << shiftTS;
+      if (gidx == M_block - 1 || gidy == N_block - 1 ||
+          block_k == K_block - 1) {
+        for (int sec = 0; sec < MICROTILESIZE; ++sec) {
+          int secVal = sec << shiftTS;
 
-            if((gidy*MICROTILEPROD + idx + secVal) < N && (block_k * TILESIZE + idy) < K) {
-              lB[ lIndex + secVal] = B[BIndex + block_k * TILESIZE * ldb + secVal]; 
-            } else {
-              lB[lIndex + secVal] = 0;
-            }
-            tidx.barrier.wait();
-
-            if((gidx*MICROTILEPROD + idx + secVal) < M && (block_k * TILESIZE + idy) < K) {
-              lA[lIndex + secVal] = A[AIndex + block_k * TILESIZE * lda + secVal];
-            } else {
-              lA[lIndex + secVal] = 0;
-            }
+          if ((gidy * MICROTILEPROD + idx + secVal) < N &&
+              (block_k * TILESIZE + idy) < K) {
+            lB[lIndex + secVal] = B[BIndex + block_k * TILESIZE * ldb + secVal];
+          } else {
+            lB[lIndex + secVal] = 0;
           }
-      }
-      else
-      {
-          lB[lIndex + 0 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 0 * TILESIZE];
-          lB[lIndex + 1 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 1 * TILESIZE];
-          lB[lIndex + 2 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 2 * TILESIZE];
-          lB[lIndex + 3 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 3 * TILESIZE];
-          lA[lIndex + 0 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 0 * TILESIZE];
-          lA[lIndex + 1 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 1 * TILESIZE];
-          lA[lIndex + 2 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 2 * TILESIZE];
-          lA[lIndex + 3 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 3 * TILESIZE];
+          tidx.barrier.wait();
+
+          if ((gidx * MICROTILEPROD + idx + secVal) < M &&
+              (block_k * TILESIZE + idy) < K) {
+            lA[lIndex + secVal] = A[AIndex + block_k * TILESIZE * lda + secVal];
+          } else {
+            lA[lIndex + secVal] = 0;
+          }
+        }
+      } else {
+        lB[lIndex + 0 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 0 * TILESIZE];
+        lB[lIndex + 1 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 1 * TILESIZE];
+        lB[lIndex + 2 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 2 * TILESIZE];
+        lB[lIndex + 3 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 3 * TILESIZE];
+        lA[lIndex + 0 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 0 * TILESIZE];
+        lA[lIndex + 1 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 1 * TILESIZE];
+        lA[lIndex + 2 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 2 * TILESIZE];
+        lA[lIndex + 3 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 3 * TILESIZE];
       }
 
       tidx.barrier.wait();
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
-          M4x4
-          M4x4
-          M4x4
-          M4x4
-          M4x4
-          M4x4
-          M4x4
-          M4x4
+      for (int iter = 0; iter < TILESIZE; iter += 8) {
+        M4x4 M4x4 M4x4 M4x4 M4x4 M4x4 M4x4 M4x4
       }
 
       tidx.barrier.wait();
     } while (++block_k < (K_R / TILESIZE));
 
-    if (gidx == M_block-1 || gidy == N_block-1)
-    {
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[0][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[0][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[0][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[1][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[1][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[1][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[2][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[2][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[2][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[3][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
+    if (gidx == M_block - 1 || gidy == N_block - 1) {
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[0][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[0][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[0][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[1][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[1][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[1][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[2][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[2][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[2][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[3][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[3][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[3][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+    } else {
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[0][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[0][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[0][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[1][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[1][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[1][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[2][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[2][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[2][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[3][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[3][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[3][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
     }
-    else
-    {
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[0][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[0][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[0][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[1][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[1][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[1][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[2][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[2][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[2][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[3][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-    }
-  })_WAIT1;
+  }) _WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
 }
 
-hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_view,
-                                               const double *A, long aOffset,
-                                               const double *B, long bOffset,
-                                               double *C, long cOffset,
-                                               int M, int N, int K, int lda, int ldb, int ldc,
-                                               double alpha, double beta) {
+hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS6(
+    hc::accelerator_view accl_view, const double *A, __int64_t aOffset,
+    const double *B, __int64_t bOffset, double *C, __int64_t cOffset, int M,
+    int N, int K, int lda, int ldb, int ldc, double alpha, double beta) {
 
 #undef TILESIZE
 #undef MICROTILESIZE
 #define TILESIZE 16
 #define MICROTILESIZE 6
-  int M_ = (M-1) / MICROTILESIZE + 1;
-  int N_ = (N-1) / MICROTILESIZE + 1;
+  int M_ = (M - 1) / MICROTILESIZE + 1;
+  int N_ = (N - 1) / MICROTILESIZE + 1;
   int N_R = (N_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
   int M_R = (M_ + (TILESIZE - 1)) & ~(TILESIZE - 1);
   int K_R = (K + (TILESIZE - 1)) & ~(TILESIZE - 1);
   hc::extent<2> grdExt(N_R, M_R);
   hc::tiled_extent<2> t_ext = grdExt.tile(TILESIZE, TILESIZE);
-  hc::parallel_for_each(accl_view, t_ext, [ = ] (hc::tiled_index<2> tidx) [[hc]] {
+  hc::parallel_for_each(accl_view, t_ext, [=](hc::tiled_index<2> tidx)[[hc]] {
     int shiftTS = hc::fast_math::log2f(TILESIZE);
-    double rC[MICROTILESIZE][MICROTILESIZE] = {{(double)0}};
+    double rC[MICROTILESIZE][MICROTILESIZE] = {{static_cast<double>(0)}};
     double rA[1][MICROTILESIZE];
     double rB[1][MICROTILESIZE];
     tile_static double lA[TOTMICROTILEPROD + TILESIZE];
@@ -512,193 +658,364 @@ hcblasStatus gemm_NoTransA_MICRO_NBK_M_N_K_TS16XMTS6(hc::accelerator_view accl_v
     int lIndex = (idy * BANKMICROTILESIZE) + idx;
     int AIndex = aOffset + (gidx * MICROTILEPROD) + idx + (idy * lda);
     int BIndex = bOffset + (gidy * MICROTILEPROD) + idx + (idy * ldb);
-    long CIndex = cOffset + (gidx * MICROTILEPROD) + idx + (((gidy * MICROTILEPROD) + idy) * ldc);
-    int N_block = N_R/TILESIZE;
-    int M_block = M_R/TILESIZE;
-    int K_block = K_R/TILESIZE;
-    long CinitOffset = 0;
+    __int64_t CIndex = cOffset + (gidx * MICROTILEPROD) + idx +
+                       (((gidy * MICROTILEPROD) + idy) * ldc);
+    int N_block = N_R / TILESIZE;
+    int M_block = M_R / TILESIZE;
+    int K_block = K_R / TILESIZE;
+    __int64_t CinitOffset = 0;
 
     do {
       tidx.barrier.wait();
 
-      if (gidx == M_block-1 || gidy == N_block-1 || block_k == K_block-1)
-      {
-          for(int sec = 0; sec < MICROTILESIZE; ++sec) {
-            int secVal = sec << shiftTS;
+      if (gidx == M_block - 1 || gidy == N_block - 1 ||
+          block_k == K_block - 1) {
+        for (int sec = 0; sec < MICROTILESIZE; ++sec) {
+          int secVal = sec << shiftTS;
 
-            if((gidy*MICROTILEPROD + idx + secVal) < N && (block_k * TILESIZE + idy) < K) {
-              lB[ lIndex + secVal] = B[BIndex + block_k * TILESIZE * ldb + secVal];
-            } else {
-              lB[lIndex + secVal] = 0;
-            }
-            tidx.barrier.wait();
-
-            if((gidx*MICROTILEPROD + idx + secVal) < M && (block_k * TILESIZE + idy) < K) {
-              lA[lIndex + secVal] = A[AIndex + block_k * TILESIZE * lda + secVal];
-            } else {
-              lA[lIndex + secVal] = 0;
-            }
+          if ((gidy * MICROTILEPROD + idx + secVal) < N &&
+              (block_k * TILESIZE + idy) < K) {
+            lB[lIndex + secVal] = B[BIndex + block_k * TILESIZE * ldb + secVal];
+          } else {
+            lB[lIndex + secVal] = 0;
           }
-      }
-      else
-      {
-          lB[lIndex + 0 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 0 * TILESIZE];
-          lB[lIndex + 1 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 1 * TILESIZE];
-          lB[lIndex + 2 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 2 * TILESIZE];
-          lB[lIndex + 3 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 3 * TILESIZE];
-          lB[lIndex + 4 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 4 * TILESIZE];
-          lB[lIndex + 5 * TILESIZE] = B[BIndex + block_k * TILESIZE * ldb + 5 * TILESIZE];
-          lA[lIndex + 0 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 0 * TILESIZE];
-          lA[lIndex + 1 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 1 * TILESIZE];
-          lA[lIndex + 2 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 2 * TILESIZE];
-          lA[lIndex + 3 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 3 * TILESIZE];
-          lA[lIndex + 4 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 4 * TILESIZE];
-          lA[lIndex + 5 * TILESIZE] = A[AIndex + block_k * TILESIZE * lda + 5 * TILESIZE];
+          tidx.barrier.wait();
+
+          if ((gidx * MICROTILEPROD + idx + secVal) < M &&
+              (block_k * TILESIZE + idy) < K) {
+            lA[lIndex + secVal] = A[AIndex + block_k * TILESIZE * lda + secVal];
+          } else {
+            lA[lIndex + secVal] = 0;
+          }
+        }
+      } else {
+        lB[lIndex + 0 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 0 * TILESIZE];
+        lB[lIndex + 1 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 1 * TILESIZE];
+        lB[lIndex + 2 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 2 * TILESIZE];
+        lB[lIndex + 3 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 3 * TILESIZE];
+        lB[lIndex + 4 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 4 * TILESIZE];
+        lB[lIndex + 5 * TILESIZE] =
+            B[BIndex + block_k * TILESIZE * ldb + 5 * TILESIZE];
+        lA[lIndex + 0 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 0 * TILESIZE];
+        lA[lIndex + 1 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 1 * TILESIZE];
+        lA[lIndex + 2 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 2 * TILESIZE];
+        lA[lIndex + 3 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 3 * TILESIZE];
+        lA[lIndex + 4 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 4 * TILESIZE];
+        lA[lIndex + 5 * TILESIZE] =
+            A[AIndex + block_k * TILESIZE * lda + 5 * TILESIZE];
       }
 
       tidx.barrier.wait();
       int offA = idx;
       int offB = idy;
 
-      for (int iter = 0; iter < TILESIZE; iter+=8) {
-          M6x6
-          M6x6
-          M6x6
-          M6x6
-          M6x6
-          M6x6
-          M6x6
-          M6x6
+      for (int iter = 0; iter < TILESIZE; iter += 8) {
+        M6x6 M6x6 M6x6 M6x6 M6x6 M6x6 M6x6 M6x6
       }
 
       tidx.barrier.wait();
     } while (++block_k < (K_R / TILESIZE));
 
-    if (gidx == M_block-1 || gidy == N_block-1)
-    {
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[0][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[0][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[0][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[0][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[0][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[1][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[1][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[1][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[1][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[1][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[2][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[2][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[2][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[2][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[2][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[3][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[3][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[3][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[4][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[4][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[4][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[4][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[4][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[4][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[5][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[5][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[5][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[5][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[5][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        if((gidx * MICROTILEPROD + idx + CinitOffset)  < M && (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[5][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
+    if (gidx == M_block - 1 || gidy == N_block - 1) {
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[0][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[0][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[0][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+            alpha * rC[0][4] +
+            beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+            alpha * rC[0][5] +
+            beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[1][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[1][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[1][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+            alpha * rC[1][4] +
+            beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+            alpha * rC[1][5] +
+            beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[2][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[2][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[2][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+            alpha * rC[2][4] +
+            beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+            alpha * rC[2][5] +
+            beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[3][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[3][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[3][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+            alpha * rC[3][4] +
+            beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+            alpha * rC[3][5] +
+            beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[4][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[4][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[4][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[4][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+            alpha * rC[4][4] +
+            beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+            alpha * rC[4][5] +
+            beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 0 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 0 * ldc] =
+            alpha * rC[5][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 1 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+            alpha * rC[5][1] +
+            beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 2 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+            alpha * rC[5][2] +
+            beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 3 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+            alpha * rC[5][3] +
+            beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 4 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+            alpha * rC[5][4] +
+            beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      if ((gidx * MICROTILEPROD + idx + CinitOffset) < M &&
+          (gidy * MICROTILEPROD + idy + 5 * TILESIZE) < N)
+        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+            alpha * rC[5][5] +
+            beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+    } else {
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[0][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[0][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[0][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+          alpha * rC[0][4] +
+          beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+          alpha * rC[0][5] +
+          beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[1][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[1][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[1][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+          alpha * rC[1][4] +
+          beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+          alpha * rC[1][5] +
+          beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[2][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[2][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[2][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+          alpha * rC[2][4] +
+          beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+          alpha * rC[2][5] +
+          beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[3][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[3][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[3][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+          alpha * rC[3][4] +
+          beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+          alpha * rC[3][5] +
+          beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[4][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[4][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[4][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[4][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+          alpha * rC[4][4] +
+          beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+          alpha * rC[4][5] +
+          beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
+      CinitOffset += TILESIZE;
+      C[CIndex + CinitOffset + 0 * ldc] =
+          alpha * rC[5][0] + beta * C[CIndex + CinitOffset + 0 * ldc];
+      C[CIndex + CinitOffset + 1 * TILESIZE * ldc] =
+          alpha * rC[5][1] +
+          beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 2 * TILESIZE * ldc] =
+          alpha * rC[5][2] +
+          beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
+          alpha * rC[5][3] +
+          beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 4 * TILESIZE * ldc] =
+          alpha * rC[5][4] +
+          beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
+      C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
+          alpha * rC[5][5] +
+          beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
     }
-    else
-    {
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[0][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[0][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[0][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[0][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[0][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[0][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[1][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[1][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[1][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[1][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[1][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[1][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[2][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[2][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[2][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[2][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[2][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[2][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[3][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[3][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[3][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[3][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[4][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[4][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[4][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[4][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[4][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[4][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-        CinitOffset += TILESIZE;
-        C[CIndex + CinitOffset + 0 * ldc] = alpha*rC[5][0] + beta * C[CIndex + CinitOffset + 0 * ldc] ;
-        C[CIndex + CinitOffset + 1 * TILESIZE * ldc] = alpha*rC[5][1] + beta * C[CIndex + CinitOffset + 1 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 2 * TILESIZE * ldc] = alpha*rC[5][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 3 * TILESIZE * ldc] = alpha*rC[5][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 4 * TILESIZE * ldc] = alpha*rC[5][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc] ;
-        C[CIndex + CinitOffset + 5 * TILESIZE * ldc] = alpha*rC[5][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc] ;
-    }
-  })_WAIT1;
+  }) _WAIT1;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
