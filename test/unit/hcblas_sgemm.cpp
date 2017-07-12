@@ -183,8 +183,6 @@ TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_1) {
                            devA, lda, devB, ldb, beta, devC, ldc, aOffset,
                            bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_INVALID);
-  // Implicit wait to ensure async kernels are complete
-  accl_view.wait();
   free(A);
   free(B);
   free(C);
