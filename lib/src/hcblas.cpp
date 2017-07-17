@@ -93,7 +93,7 @@ hcblasStatus_t hcblasDestroy(hcblasHandle_t *handle) {
 // HCBLAS_STATUS_NOT_INITIALIZED :the library was not initialized
 
 hcblasStatus_t hcblasSetAcclView(hcblasHandle_t handle,
-                                 hc::accelerator_view accl_view, void *stream) {
+                                 hc::accelerator_view &accl_view, void *stream) {
   if (handle == nullptr || handle->initialized == false) {
     return HCBLAS_STATUS_NOT_INITIALIZED;
   }
