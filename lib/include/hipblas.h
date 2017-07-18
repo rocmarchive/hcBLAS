@@ -32,6 +32,7 @@ THE SOFTWARE.
 
 #ifndef LIB_INCLUDE_HIPBLAS_H
 #define LIB_INCLUDE_HIPBLAS_H
+#include <hip/hip_runtime_api.h>
 #pragma once
 
 enum hipblasStatus_t {
