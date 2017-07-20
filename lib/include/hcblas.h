@@ -23,6 +23,10 @@ THE SOFTWARE.
 #ifndef LIB_INCLUDE_HCBLAS_H_
 #define LIB_INCLUDE_HCBLAS_H_
 
+#ifndef __HCC__
+#error "This header is compilable only with HCC compiler"
+#endif
+
 #define __HC_FP16_DECL_SUFFIX__ [[hc]]
 
 // 2.2.1. hcblasHandle_t
