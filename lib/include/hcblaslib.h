@@ -38,18 +38,9 @@ THE SOFTWARE.
 #include <vector>
 
 // Compulsory wait
-#define _WAIT2 .wait()
+#define _WAIT2 ;accl_view.wait()
+#define _WAIT1 ;accl_view.wait()
 
-// Ensuring Optional wait on kernels
-#if (SERIALIZE_KERNEL == 1)
-#define _WAIT1 .wait()
-#else
-#define _WAIT1
-#endif
-#if (SERIALIZE_KERNEL == 2)
-#undef _WAIT2
-#define _WAIT2
-#endif
 
 #define __HC_FP16_DECL_SUFFIX__ [[hc]]
 
