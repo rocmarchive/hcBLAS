@@ -92,6 +92,8 @@ TEST(hcblas_sasum, func_correct_sasum_Implementation_type_1) {
   EXPECT_EQ(status, HCBLAS_SUCCEEDS);
   asumcblas = cblas_sasum(N, X, incX);
   EXPECT_EQ(asumhcblas, asumcblas);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(X);
   hc::am_free(devX);
 }
@@ -137,6 +139,8 @@ TEST(hcblas_sasum, return_correct_sasum_Implementation_type_2) {
   status = hc.hcblas_sasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas,
                            X_batchOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(Xbatch);
   hc::am_free(devXbatch);
 }

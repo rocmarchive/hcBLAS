@@ -114,6 +114,9 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_1) {
   status = hc.hcblas_sger(accl_view, hcOrder, M, N, alpha, devX, xOffset, incX,
                           devY, yOffset, 0, devA, aOffset, lda);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(x);
   free(y);
   free(A);
@@ -301,6 +304,9 @@ TEST(hcblas_sger, return_correct_sger_Implementation_type_2) {
                      X_batchOffset, incX, devYbatch, yOffset, Y_batchOffset, 0,
                      devAbatch, aOffset, A_batchOffset, lda, batchSize);
   EXPECT_EQ(status, HCBLAS_INVALID);
+
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(xbatch);
   free(ybatch);
   free(Abatch);

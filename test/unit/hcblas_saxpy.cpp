@@ -91,6 +91,8 @@ TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_1) {
   status = hc.hcblas_saxpy(accl_view, N, alpha, devX, incX, devY, incY, xOffset,
                            yOffset);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(X);
   free(Y);
   hc::am_free(devX);
@@ -214,6 +216,8 @@ TEST(hcblas_saxpy, return_correct_saxpy_Implementation_type_2) {
                            devYbatch, incY, Y_batchOffset, xOffset, yOffset,
                            batchSize);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(Xbatch);
   free(Ybatch);
   hc::am_free(devXbatch);

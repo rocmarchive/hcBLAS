@@ -37,19 +37,6 @@ THE SOFTWARE.
 #include <iostream>
 #include <vector>
 
-// Compulsory wait
-#define _WAIT2 .wait()
-
-// Ensuring Optional wait on kernels
-#if (SERIALIZE_KERNEL == 1)
-#define _WAIT1 .wait()
-#else
-#define _WAIT1
-#endif
-#if (SERIALIZE_KERNEL == 2)
-#undef _WAIT2
-#define _WAIT2
-#endif
 
 #define __HC_FP16_DECL_SUFFIX__ [[hc]]
 

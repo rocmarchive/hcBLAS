@@ -202,6 +202,8 @@ TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_1) {
                            devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC,
                            cOffset, ldc);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait
+  accl_view.wait();
   free(A);
   free(B);
   free(C);
@@ -764,6 +766,8 @@ TEST(hcblas_zgemm, return_correct_zgemm_Implementation_type_2) {
                            cOffset, C_batchOffset, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_INVALID);
 
+  // Mandatory wait
+  accl_view.wait();
   for (int b = 0; b < batchSize; b++) {
     free(Abatch[b]);
     free(Bbatch[b]);

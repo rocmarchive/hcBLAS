@@ -202,6 +202,9 @@ TEST(hcblas_cgemm, return_correct_cgemm_Implementation_type_1) {
                            devA, aOffset, lda, devB, bOffset, ldb, cBeta, devC,
                            cOffset, ldc);
   EXPECT_EQ(status, HCBLAS_INVALID);
+
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(A);
   free(B);
   free(C);
@@ -763,6 +766,10 @@ TEST(hcblas_cgemm, return_correct_cgemm_Implementation_type_2) {
                            bOffset, B_batchOffset, ldb, cBeta, d_Carray,
                            cOffset, C_batchOffset, ldc, batchSize);
   EXPECT_EQ(status, HCBLAS_INVALID);
+
+
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
 
   for (int b = 0; b < batchSize; b++) {
     free(Abatch[b]);

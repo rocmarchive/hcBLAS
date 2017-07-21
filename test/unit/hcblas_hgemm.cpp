@@ -293,6 +293,8 @@ TEST(hcblas_hgemm, return_correct_hgemm_Implementation_type_1) {
                            devA, lda, devB, ldb, beta, devC, ldc, aOffset,
                            bOffset, cOffset);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(A);
   free(B);
   free(C);

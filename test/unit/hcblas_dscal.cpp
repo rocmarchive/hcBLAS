@@ -68,6 +68,10 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_1) {
   incX = 0;
   status = hc.hcblas_dscal(accl_view, N, alpha, devX, incX, xOffset);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
+  free(X);
+  hc::am_free(devX);
 }
 
 TEST(hcblas_dscal, function_correct_dscal_Implementation_type_1) {
@@ -99,6 +103,8 @@ TEST(hcblas_dscal, function_correct_dscal_Implementation_type_1) {
   for (int i = 0; i < lenx; i++) {
     EXPECT_EQ(X[i], Xcblas[i]);
   }
+  free(X);
+  hc::am_free(devX);
 }
 
 TEST(hcblas_dscal, return_correct_dscal_Implementation_type_2) {
@@ -148,6 +154,10 @@ TEST(hcblas_dscal, return_correct_dscal_Implementation_type_2) {
   status = hc.hcblas_dscal(accl_view, N, alpha, devXbatch, incX, xOffset,
                            X_batchOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
+  free(Xbatch);
+  hc::am_free(devXbatch);
 }
 
 TEST(hcblas_dscal, function_correct_dscal_Implementation_type_2) {
@@ -184,5 +194,7 @@ TEST(hcblas_dscal, function_correct_dscal_Implementation_type_2) {
   for (int i = 0; i < lenx * batchSize; i++) {
     EXPECT_EQ(Xbatch[i], Xcblasbatch[i]);
   }
+  free(Xbatch);
+  hc::am_free(devXbatch);
 }
 

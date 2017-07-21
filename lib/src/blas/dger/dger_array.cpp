@@ -44,7 +44,7 @@ void ger_HC(hc::accelerator_view accl_view, __int64_t m, __int64_t n,
                        : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
-  }) _WAIT1;
+  }) ;
 }
 
 void ger_HC(hc::accelerator_view accl_view, __int64_t m, __int64_t n,
@@ -71,7 +71,7 @@ void ger_HC(hc::accelerator_view accl_view, __int64_t m, __int64_t n,
       a[a_index] += x[xOffset + X_batchOffset * elt + i] *
                     y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
-  }) _WAIT1;
+  }) ;
 }
 
 void ger_HC_rMajor(hc::accelerator_view accl_view, __int64_t m, __int64_t n,
@@ -95,7 +95,7 @@ void ger_HC_rMajor(hc::accelerator_view accl_view, __int64_t m, __int64_t n,
                        : a[a_index];
       a[a_index] += x[xOffset + i] * y[yOffset + j] * alpha;
     }
-  }) _WAIT1;
+  }) ;
 }
 
 void ger_HC_rMajor(hc::accelerator_view accl_view, __int64_t m, __int64_t n,
@@ -122,7 +122,7 @@ void ger_HC_rMajor(hc::accelerator_view accl_view, __int64_t m, __int64_t n,
       a[a_index] += x[xOffset + X_batchOffset * elt + i] *
                     y[yOffset + Y_batchOffset * elt + j] * alpha;
     }
-  }) _WAIT1;
+  }) ;
 }
 
 /* DGER - Type I : Inputs and outputs are double array containers */

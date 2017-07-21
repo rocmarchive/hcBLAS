@@ -49,7 +49,7 @@ void cscal_HC(hc::accelerator_view accl_view, __int64_t n,
         X[X_index].y = (XReal * alpha.x) + (XImg * alpha.y);
       }
     }
-  }) _WAIT1;
+  }) ;
 }
 
 void cscal_HC(hc::accelerator_view accl_view, __int64_t n,
@@ -77,7 +77,7 @@ void cscal_HC(hc::accelerator_view accl_view, __int64_t n,
         X[X_index].y = (XReal * alpha.x) + (XImg * alpha.y);
       }
     }
-  }) _WAIT1;
+  }) ;
 }
 
 // SSCAL Call Type I: Inputs and outputs are HCC device pointers

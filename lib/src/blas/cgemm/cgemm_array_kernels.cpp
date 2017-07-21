@@ -155,7 +155,7 @@ hcblasStatus cgemm_NoTransAB_loopunroll(
       C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].y =
           tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
-  }) _WAIT1;
+  }) ;
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -271,7 +271,7 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS16XMTS2(
         }
       }
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -390,7 +390,7 @@ hcblasStatus cgemm_NoTransAB_STEP_TS8XSS8(
       C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y =
           tempImg + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -507,7 +507,7 @@ hcblasStatus cgemm_NoTransAB_MICRO_TS8XMTS2(
         }
       }
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -624,7 +624,7 @@ hcblasStatus cgemm_NoTransA_MICRO_TS16XMTS2(
         }
       }
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -728,7 +728,7 @@ hcblasStatus cgemm_NoTransB_STEP_TS8XSS8(
       C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y =
           tempImg + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -846,7 +846,7 @@ hcblasStatus cgemm_NoTransB_MICRO_TS16XMTS2(
         }
       }
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -990,7 +990,7 @@ hcblasStatus cgemm_NoTransB_loopunroll(
       C[cOffset + (tidx.global[0] * ldc) + tidx.global[1]].y =
           tempImg + ((CValue * alpha.y) + (CValue1 * alpha.x));
     }
-  }) _WAIT1;
+  }) ;
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -1094,7 +1094,7 @@ hcblasStatus cgemm_TransAB_STEP_TS8XSS8(
       C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y =
           tempImg + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -1198,7 +1198,7 @@ hcblasStatus cgemm_TransAB_STEP_TS16XSS16(
       C[cOffset + gidx * TILESIZE + idx + (gidy * TILESIZE + idy) * ldc].y =
           tempImg + ((rCreal[0][0] * alpha.y) + (rCimg[0][0] * alpha.x));
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef STEPSIZE
   return HCBLAS_SUCCEEDS;
@@ -1315,7 +1315,7 @@ hcblasStatus cgemm_TransAB_MICRO_TS16XMTS2(
         }
       }
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;

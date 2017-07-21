@@ -97,7 +97,7 @@ static void gemv_TransA(hc::accelerator_view accl_view, float *A_mat,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    }) _WAIT2;
+    }) ;
 
     // Free up resources
     free(temp);
@@ -142,7 +142,7 @@ static void gemv_TransA(hc::accelerator_view accl_view, float *A_mat,
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
-    }) _WAIT1;
+    }) ;
   }
 }
 
@@ -220,7 +220,7 @@ static void gemv_TransA(hc::accelerator_view accl_view, float *A_mat,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    }) _WAIT2;
+    }) ;
 
     // Free up resources
     free(temp);
@@ -267,7 +267,7 @@ static void gemv_TransA(hc::accelerator_view accl_view, float *A_mat,
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
-    }) _WAIT1;
+    }) ;
   }
 }
 
@@ -342,7 +342,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view, float *A_mat,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    }) _WAIT2;
+    }) ;
 
     // free up resources
     free(temp);
@@ -387,7 +387,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view, float *A_mat,
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
-    }) _WAIT1;
+    }) ;
   }
 }
 
@@ -466,7 +466,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view, float *A_mat,
           Y_vec[Y_index] += alpha * sh[0];
         }
       }
-    }) _WAIT2;
+    }) ;
     // free up resources
     free(temp);
     hc::am_free(tempBuf);
@@ -513,7 +513,7 @@ static void gemv_TransA_rMajor(hc::accelerator_view accl_view, float *A_mat,
         Y_vec[Y_index] *= beta;
         Y_vec[Y_index] += alpha * sh[0];
       }
-    }) _WAIT1;
+    }) ;
   }
 }
 
@@ -559,7 +559,7 @@ static void gemv_NoTransA(hc::accelerator_view accl_view, float *A,
     }
 
     tidx.barrier.wait();
-  }) _WAIT1;
+  }) ;
 }
 
 static void gemv_NoTransA(hc::accelerator_view accl_view, float *A,
@@ -608,7 +608,7 @@ static void gemv_NoTransA(hc::accelerator_view accl_view, float *A,
     }
 
     tidx.barrier.wait();
-  }) _WAIT1;
+  }) ;
 }
 
 static void gemv_NoTransA_rMajor(hc::accelerator_view accl_view, float *A,
@@ -653,7 +653,7 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view accl_view, float *A,
     }
 
     tidx.barrier.wait();
-  }) _WAIT1;
+  }) ;
 }
 
 static void gemv_NoTransA_rMajor(hc::accelerator_view accl_view, float *A,
@@ -703,7 +703,7 @@ static void gemv_NoTransA_rMajor(hc::accelerator_view accl_view, float *A,
     }
 
     tidx.barrier.wait();
-  }) _WAIT1;
+  }) ;
 }
 
 static void gemv_alpha0_col(hc::accelerator_view accl_view, float *A,
@@ -730,7 +730,7 @@ static void gemv_alpha0_col(hc::accelerator_view accl_view, float *A,
           Y[Y_index] *= beta;
       }
     }
-  }) _WAIT1;
+  }) ;
 }
 
 static void gemv_alpha0_colbatch(hc::accelerator_view accl_view, float *A,
@@ -761,7 +761,7 @@ static void gemv_alpha0_colbatch(hc::accelerator_view accl_view, float *A,
           Y[Y_index] *= beta;
       }
     }
-  }) _WAIT1;
+  }) ;
 }
 
 static void gemv_alpha0_row(hc::accelerator_view accl_view, float *A,
@@ -788,7 +788,7 @@ static void gemv_alpha0_row(hc::accelerator_view accl_view, float *A,
           Y[Y_index] *= beta;
       }
     }
-  }) _WAIT1;
+  }) ;
 }
 
 static void gemv_alpha0_rowbatch(hc::accelerator_view accl_view, float *A,
@@ -819,7 +819,7 @@ static void gemv_alpha0_rowbatch(hc::accelerator_view accl_view, float *A,
           Y[Y_index] *= beta;
       }
     }
-  }) _WAIT1;
+  }) ;
 }
 
 /* SGEMV - Type I : inputs and outputs are device pointers */

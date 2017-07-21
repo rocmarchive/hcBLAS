@@ -119,7 +119,7 @@ void sasum_HC(hc::accelerator_view accl_view, __int64_t n, float *xView,
           // write to global buffer in this tiles
           dev_global_buffer[tid.tile[0]] = smem;
         }
-      }) _WAIT2;
+      }) ;
 
   // create host buffer
   float *host_global_buffer =
@@ -237,7 +237,7 @@ void sasum_HC(hc::accelerator_view accl_view, __int64_t n, float *xView,
           // write to global buffer in this tiles
           dev_global_buffer[elt * tile_count + tid.tile[1]] = smem;
         }
-      }) _WAIT2;
+      }) ;
 
   // create host buffer
   float *host_global_buffer =

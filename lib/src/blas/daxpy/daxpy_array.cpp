@@ -42,7 +42,7 @@ void axpy_HC(hc::accelerator_view accl_view, __int64_t n, double alpha,
                          : Y[Y_index];
         Y[Y_index] += X[xOffset + tidx.global[0]] * alpha;
       }
-    }) _WAIT1;
+    }) ;
   } else {
     int step_sz;
 
@@ -92,7 +92,7 @@ void axpy_HC(hc::accelerator_view accl_view, __int64_t n, double alpha,
           }
         }
       }
-    }) _WAIT1;
+    }) ;
   }
 }
 
@@ -115,7 +115,7 @@ void axpy_HC(hc::accelerator_view accl_view, __int64_t n, double alpha,
                          : Y[Y_index];
         Y[Y_index] += X[xOffset + X_batchOffset * elt + tidx.global[1]] * alpha;
       }
-    }) _WAIT1;
+    }) ;
   } else {
     int step_sz;
 
@@ -171,7 +171,7 @@ void axpy_HC(hc::accelerator_view accl_view, __int64_t n, double alpha,
           }
         }
       }
-    }) _WAIT1;
+    }) ;
   }
 }
 

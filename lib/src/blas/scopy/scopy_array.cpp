@@ -41,7 +41,7 @@ void scopy_HC(hc::accelerator_view accl_view, __int64_t n, const float *X,
                        : Y[Y_index];
       Y[Y_index] = X[xOffset + tidx.global[0]];
     }
-  }) _WAIT1;
+  }) ;
 }
 
 void scopy_HC(hc::accelerator_view accl_view, __int64_t n, const float *X,
@@ -62,7 +62,7 @@ void scopy_HC(hc::accelerator_view accl_view, __int64_t n, const float *X,
                        : Y[Y_index];
       Y[Y_index] = X[xOffset + X_batchOffset * elt + tidx.global[1]];
     }
-  }) _WAIT1;
+  }) ;
 }
 
 // SCOPY Call Type I: Inputs and outputs are HCC float array containers

@@ -62,7 +62,7 @@ hcblasStatus cgemm_alpha0_col(hc::accelerator_view accl_view,
         }
       }
     }
-  }) _WAIT1;
+  }) ;
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -109,7 +109,7 @@ hcblasStatus cgemm_alpha0_colbatch(
         }
       }
     }
-  }) _WAIT1;
+  }) ;
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -155,7 +155,7 @@ hcblasStatus cgemm_alpha0_row(hc::accelerator_view accl_view,
         }
       }
     }
-  }) _WAIT1;
+  }) ;
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;
@@ -202,7 +202,7 @@ hcblasStatus cgemm_alpha0_rowbatch(
         }
       }
     }
-  }) _WAIT1;
+  }) ;
 #undef THREADS
 #undef TILE_DIM
   return HCBLAS_SUCCEEDS;

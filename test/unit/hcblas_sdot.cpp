@@ -135,6 +135,8 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_1) {
   status = hc.hcblas_sdot(accl_view, N, devX, incX, xOffset, devY, incY,
                           yOffset, dothcblas);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(X);
   free(Y);
   hc::am_free(devX);
@@ -211,6 +213,8 @@ TEST(hcblas_sdot, return_correct_sdot_Implementation_type_2) {
                           incY, yOffset, dothcblas, X_batchOffset,
                           Y_batchOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(Xbatch);
   free(Ybatch);
   hc::am_free(devXbatch);

@@ -76,11 +76,11 @@ TEST(hcblaswrapper_sasum, func_return_correct_sasum) {
   asumcblas = cblas_sasum(n, X, incx);
   EXPECT_EQ(result, asumcblas);
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSasum(handle, n, devX, incx, &result);
   EXPECT_EQ(status, HCBLAS_STATUS_NOT_INITIALIZED);
-
   free(X);
   hc::am_free(devX);
 }
@@ -119,6 +119,7 @@ TEST(hcblaswrapper_sasumBatched, func_return_correct_sasumBatched) {
   }
   EXPECT_EQ(result, asumcblas);
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSasumBatched(handle, n, devX, incx, &result, batchSize);
@@ -155,6 +156,7 @@ TEST(hcblaswrapper_dasum, func_return_correct_dasum) {
   asumcblas = cblas_dasum(n, X, incx);
   EXPECT_EQ(result, asumcblas);
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasDasum(handle, n, devX, incx, &result);
@@ -198,6 +200,7 @@ TEST(hcblaswrapper_dasumBatched, func_return_correct_dasumBatched) {
   }
   EXPECT_EQ(result, asumcblas);
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasDasumBatched(handle, n, devX, incx, &result, batchSize);
@@ -238,6 +241,7 @@ TEST(hcblaswrapper_sscal, func_return_correct_sscal) {
     EXPECT_EQ(X[i], Xcblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSscal(handle, n, &alpha, devX, incx);
@@ -284,6 +288,7 @@ TEST(hcblaswrapper_sscalBatched, func_return_correct_sscalBatched) {
     EXPECT_EQ(X[i], Xcblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSscalBatched(handle, n, &alpha, devX, incx, batchSize);
@@ -325,6 +330,7 @@ TEST(hcblaswrapper_dscal, func_return_correct_dscal) {
     EXPECT_EQ(X[i], Xcblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasDscal(handle, n, &alpha, devX, incx);
@@ -371,6 +377,7 @@ TEST(hcblaswrapper_dscalBatched, func_return_correct_dscalBatched) {
     EXPECT_EQ(X[i], Xcblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasDscalBatched(handle, n, &alpha, devX, incx, batchSize);
@@ -425,6 +432,7 @@ TEST(hcblaswrapper_cscal, func_return_correct_cscal) {
     EXPECT_EQ(X[i].y, Xcblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasCscal(handle, n, &cAlpha, devX, incx);
@@ -483,6 +491,7 @@ TEST(hcblaswrapper_cscalBatched, func_return_correct_cscalBatched) {
     EXPECT_EQ(X[i].y, Xcblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasCscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
@@ -538,6 +547,7 @@ TEST(hcblaswrapper_zscal, func_return_correct_zscal) {
     EXPECT_EQ(X[i].y, Xcblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasZscal(handle, n, &cAlpha, devX, incx);
@@ -596,6 +606,7 @@ TEST(hcblaswrapper_zscalBatched, func_return_correct_zscalBatched) {
     EXPECT_EQ(X[i].y, Xcblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasZscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
@@ -648,6 +659,7 @@ TEST(hcblaswrapper_csscal, func_return_correct_csscal) {
     EXPECT_EQ(X[i].y, Xcblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasCsscal(handle, n, &cAlpha, devX, incx);
@@ -704,6 +716,7 @@ TEST(hcblaswrapper_csscalBatched, func_return_correct_csscalBatched) {
     EXPECT_EQ(X[i].y, Xcblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasCsscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
@@ -757,6 +770,7 @@ TEST(hcblaswrapper_zdscal, func_return_correct_zdscal) {
     EXPECT_EQ(X[i].y, Xcblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasZdscal(handle, n, &cAlpha, devX, incx);
@@ -813,6 +827,7 @@ TEST(hcblaswrapper_zdscalBatched, func_return_correct_zdscalBatched) {
     EXPECT_EQ(X[i].y, Xcblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasZdscalBatched(handle, n, &cAlpha, devX, incx, batchSize);
@@ -863,6 +878,7 @@ TEST(hcblaswrapper_scopy, func_return_correct_scopy) {
     EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasScopy(handle, n, devX, incx, devY, incy);
@@ -922,6 +938,7 @@ TEST(hcblaswrapper_scopyBatched, func_return_correct_scopyBatched) {
     EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasScopyBatched(handle, n, devX, incx, devY, incy, batchSize);
@@ -974,6 +991,7 @@ TEST(hcblaswrapper_dcopy, func_return_correct_dcopy) {
     EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasDcopy(handle, n, devX, incx, devY, incy);
@@ -1033,6 +1051,7 @@ TEST(hcblaswrapper_dcopyBatched, func_return_correct_dcopyBatched) {
     EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasDcopyBatched(handle, n, devX, incx, devY, incy, batchSize);
@@ -1079,6 +1098,7 @@ TEST(hcblaswrapper_sdot, func_return_correct_sdot) {
   dotcblas = cblas_sdot(n, X, incx, Y, incy);
   EXPECT_EQ(result, dotcblas);
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSdot(handle, n, devX, incx, devY, incy, &result);
@@ -1134,6 +1154,7 @@ TEST(hcblaswrapper_sdotBatched, func_return_correct_sdotBatched) {
   }
   EXPECT_EQ(result, dotcblas);
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status =
@@ -1180,6 +1201,7 @@ TEST(hcblaswrapper_ddot, func_return_correct_ddot) {
   dotcblas = cblas_ddot(n, X, incx, Y, incy);
   EXPECT_EQ(result, dotcblas);
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasDdot(handle, n, devX, incx, devY, incy, &result);
@@ -1235,6 +1257,7 @@ TEST(hcblaswrapper_ddotBatched, func_return_correct_ddotBatched) {
   }
   EXPECT_EQ(result, dotcblas);
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status =
@@ -1286,6 +1309,7 @@ TEST(hcblaswrapper_saxpy, func_return_correct_saxpy) {
     EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSaxpy(handle, n, &alpha, devX, incx, devY, incy);
@@ -1346,6 +1370,7 @@ TEST(hcblaswrapper_saxpyBatched, func_return_correct_saxpyBatched) {
     EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status =
@@ -1412,6 +1437,7 @@ TEST(hcblaswrapper_sger, func_return_correct_sger) {
     EXPECT_EQ(A[i], Acblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSger(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda);
@@ -1477,6 +1503,7 @@ TEST(hcblaswrapper_dger, func_return_correct_dger) {
     EXPECT_EQ(A[i], Acblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasDger(handle, m, n, &alpha, devX, incx, devY, incy, devA, lda);
@@ -1551,6 +1578,7 @@ TEST(hcblaswrapper_sgerBatched, func_return_correct_sgerBatched) {
     EXPECT_EQ(A[i], Acblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSgerBatched(handle, m, n, &alpha, devX, incx, devY, incy, devA,
@@ -1628,6 +1656,7 @@ TEST(hcblaswrapper_dgerBatched, func_return_correct_dgerBatched) {
     EXPECT_EQ(A[i], Acblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasDgerBatched(handle, m, n, &alpha, devX, incx, devY, incy, devA,
@@ -1710,6 +1739,7 @@ TEST(hcblaswrapper_sgemv, func_return_correct_sgemv) {
   for (int i = 0; i < leny; i++) {
     EXPECT_EQ(Y[i], Ycblas[i]);
   }
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSgemv(handle, trans, m, n, &alpha, devA, lda, devX, incx,
@@ -1802,6 +1832,7 @@ TEST(hcblaswrapper_sgemvBatched, func_return_correct_sgemvBatched) {
     EXPECT_EQ(Y[i], Ycblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSgemvBatched(handle, trans, m, n, &alpha, devA, lda, devX,
@@ -1888,6 +1919,7 @@ TEST(hcblaswrapper_sgemm, func_return_correct_sgemm) {
     EXPECT_EQ(C_hcblas[i], C_cblas[i]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasSgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB,
@@ -2010,6 +2042,7 @@ TEST(hcblaswrapper_sgemmBatched, func_return_correct_sgemmBatched) {
     }
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status =
@@ -2141,6 +2174,7 @@ TEST(hcblaswrapper_dgemmBatched, func_return_correct_dgemmBatched) {
     }
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status =
@@ -2255,6 +2289,7 @@ TEST(hcblaswrapper_cgemm, func_return_correct_cgemm) {
     EXPECT_EQ(C[i].y, cblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasCgemm(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB,
@@ -2402,6 +2437,7 @@ TEST(hcblaswrapper_cgemmBatched, func_return_correct_cgemmBatched) {
     }
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status =
@@ -2496,6 +2532,7 @@ TEST(hcblaswrapper_hgemm, func_return_correct_hgemm) {
 
   for (int i = 0; i < M * N; i++) EXPECT_EQ(C_hcblas[i], C_cblas[i]);
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasHgemm(handle, typeA, typeB, M, N, K, &alpha, devA, lda, devB,
@@ -2611,6 +2648,7 @@ TEST(hcblaswrapper_zgemm, func_return_correct_zgemm) {
     EXPECT_EQ(C[i].y, cblas[k + 1]);
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status = hcblasZgemm(handle, typeA, typeB, M, N, K, &cAlpha, devA, lda, devB,
@@ -2758,6 +2796,7 @@ TEST(hcblaswrapper_zgemmBatched, func_return_correct_zgemmBatched) {
     }
   }
 
+  handle->currentAcclView.wait();
   // HCBLAS_STATUS_NOT_INITIALIZED
   hcblasDestroy(&handle);
   status =

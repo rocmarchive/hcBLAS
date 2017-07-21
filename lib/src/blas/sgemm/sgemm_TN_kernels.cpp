@@ -132,7 +132,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS2_MB2(
     C[CIndex + CinitOffset + (16 * 2 + 1) * ldc + 1] =
         alpha * rC[3][3] +
         beta * C[CIndex + CinitOffset + (16 * 2 + 1) * ldc + 1];
-  }) _WAIT1;
+  }) ;
   return HCBLAS_SUCCEEDS;
 }
 
@@ -407,7 +407,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M128_N128_K16_TS16XMTS4_MB2(
     C[CIndex + CinitOffset + (48 * 2 + 1) * ldc + 1] =
         alpha * rC[7][7] +
         beta * C[CIndex + CinitOffset + (48 * 2 + 1) * ldc + 1];
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -644,7 +644,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS2_MB2(
           alpha * rC[3][3] +
           beta * C[CIndex + CinitOffset + (16 * 2 + 1) * ldc + 1];
     }
-  }) _WAIT1;
+  }) ;
   return HCBLAS_SUCCEEDS;
 }
 
@@ -1273,7 +1273,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_Mini_Batch_M_N_K_TS16XMTS4_MB2(
           alpha * rC[7][7] +
           beta * C[CIndex + CinitOffset + (48 * 2 + 1) * ldc + 1];
     }
-  }) _WAIT1;
+  }) ;
   return HCBLAS_SUCCEEDS;
 }
 
@@ -1377,7 +1377,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M064_N064_K064_TS16XMTS4(
         alpha * rC[3][2] + beta * C[CIndex + CinitOffset + 2 * TILESIZE * ldc];
     C[CIndex + CinitOffset + 3 * TILESIZE * ldc] =
         alpha * rC[3][3] + beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -1533,7 +1533,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M096_N096_K096_TS16XMTS6(
         alpha * rC[5][4] + beta * C[CIndex + CinitOffset + 4 * TILESIZE * ldc];
     C[CIndex + CinitOffset + 5 * TILESIZE * ldc] =
         alpha * rC[5][5] + beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -1644,7 +1644,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS2(
       C[CIndex + CinitOffset + TILESIZE * ldc] =
           alpha * rC[1][1] + beta * C[CIndex + CinitOffset + TILESIZE * ldc];
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -1876,7 +1876,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS4(
           alpha * rC[3][3] +
           beta * C[CIndex + CinitOffset + 3 * TILESIZE * ldc];
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;
@@ -2280,7 +2280,7 @@ hcblasStatus gemm_NoTransB_MICRO_NBK_M_N_K_TS16XMTS6(
           alpha * rC[5][5] +
           beta * C[CIndex + CinitOffset + 5 * TILESIZE * ldc];
     }
-  }) _WAIT1;
+  }) ;
 #undef TILESIZE
 #undef MICROTILESIZE
   return HCBLAS_SUCCEEDS;

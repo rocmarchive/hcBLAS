@@ -49,7 +49,7 @@ void zdscal_HC(hc::accelerator_view accl_view, __int64_t n, double alpha,
                               X[X_index].y = XImg * alpha;
                             }
                           }
-                        }) _WAIT1;
+                        }) ;
 }
 
 void zdscal_HC(hc::accelerator_view accl_view, __int64_t n, double alpha,
@@ -76,7 +76,7 @@ void zdscal_HC(hc::accelerator_view accl_view, __int64_t n, double alpha,
         X[X_index].y = XImg * alpha;
       }
     }
-  }) _WAIT1;
+  }) ;
 }
 
 // SSCAL Call Type I: Inputs and outputs are HCC device pointers

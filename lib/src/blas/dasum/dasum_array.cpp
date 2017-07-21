@@ -119,7 +119,7 @@ void dasum_HC(hc::accelerator_view accl_view, __int64_t n, double* xView,
           // write to global buffer in this tiles
           dev_global_buffer[tid.tile[0]] = smem;
         }
-      }) _WAIT2;
+      }) ;
 
   // create host buffer
   double* host_global_buffer =
@@ -237,7 +237,7 @@ void dasum_HC(hc::accelerator_view accl_view, __int64_t n, double* xView,
           // write to global buffer in this tiles
           dev_global_buffer[tile_count * elt + tid.tile[1]] = smem;
         }
-      }) _WAIT2;
+      }) ;
 
   // create host buffer
   double* host_global_buffer = reinterpret_cast<double*>(

@@ -63,6 +63,9 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_1) {
   incX = 0;
   status = hc.hcblas_dasum(accl_view, N, devX, incX, xOffset, &asumhcblas);
   EXPECT_EQ(status, HCBLAS_INVALID);
+
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(X);
   hc::am_free(devX);
 }
@@ -137,6 +140,9 @@ TEST(hcblas_dasum, return_correct_dasum_Implementation_type_2) {
   status = hc.hcblas_dasum(accl_view, N, devXbatch, incX, xOffset, &asumhcblas,
                            X_batchOffset, batchSize);
   EXPECT_EQ(status, HCBLAS_INVALID);
+
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(Xbatch);
   hc::am_free(devXbatch);
 }
