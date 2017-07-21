@@ -82,6 +82,8 @@ TEST(hcblas_scopy, return_correct_scopy_Implementation_type_1) {
   status =
       hc.hcblas_scopy(accl_view, N, devX, incX, xOffset, devY, incY, yOffset);
   EXPECT_EQ(status, HCBLAS_INVALID);
+  // Mandatory wait after kernel invocations when no copy to host happens
+  accl_view.wait();
   free(X);
   free(Y);
   hc::am_free(devX);
@@ -125,8 +127,6 @@ TEST(hcblas_scopy, func_correct_scopy_Implementation_type_1) {
   for (int i = 0; i < leny; i++) {
     EXPECT_EQ(Y[i], Ycblas[i]);
   }
-  // Mandatory wait after kernel invocations when no copy to host happens
-  accl_view.wait();
   free(X);
   free(Y);
   free(Ycblas);
