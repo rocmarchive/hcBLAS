@@ -56,6 +56,7 @@ cat <<-HELP
 This script is invoked to build hcBLAS library and test sources. Please provide the following arguments:
 
   ${green}--test${reset}     Test to enable the library testing (on/off)
+  ${green}--test_basic${reset}     Minimal basic tests for library testing (on/off)
   ${green}--profile${reset}  Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY (CodeXL)
   ${green}--bench${reset}    Profile benchmark using chrono timer
   ${green}--debug${reset}    Compile with debug info (-g)
@@ -89,9 +90,6 @@ while [ $# -gt 0 ]; do
     --install)
       install="1"
       ;;
-    --synckernel=*)
-      synckernel="${1#*=}"
-      ;;
     --bench=*)
       benchmark="${1#*=}"
       ;;
@@ -124,14 +122,7 @@ build_dir=$current_work_dir/build
 cd $build_dir
 
 if [ "$platform" = "hcc" ]; then
-  if [ "$synckernel" = "on" ]; then
-    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
-  elif [ "$synckernel" = "off" ]; then
-    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler  -DSERIALIZE_KERNEL=OFF -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
-  else 
-    #default case: Of course there are Compulsory waits on certain kernels 
-    cmake -DCMAKE_C_COMPILER=$cmake_c_compiler  -DSERIALIZE_KERNEL=ON -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
-  fi
+  cmake -DCMAKE_C_COMPILER=$cmake_c_compiler   -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS="$copt -fPIC" -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir
 
   make -j$working_threads package $verbose
   make -j$working_threads $verbose
