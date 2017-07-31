@@ -55,8 +55,7 @@ cat <<-HELP
 =============================================================================================================================
 This script is invoked to build hcBLAS library and test sources. Please provide the following arguments:
 
-  ${green}--test${reset}     Test to enable the library testing (on/off)
-  ${green}--test_basic${reset}     Minimal basic tests for library testing (on/off)
+  ${green}--test${reset}     Test to enable the library testing (on/basic/off). Upon basic option minimal tests get evaluated
   ${green}--profile${reset}  Profile to enable profiling of five blas kernels namely SGEMM, CGEMM, SGEMV, SGER and SAXPY (CodeXL)
   ${green}--bench${reset}    Profile benchmark using chrono timer
   ${green}--debug${reset}    Compile with debug info (-g)
@@ -74,9 +73,6 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --test=*)
       testing="${1#*=}"
-      ;;
-    --test_basic=*)
-      basic_testing="${1#*=}"
       ;;
     --profile=*)
       profiling="${1#*=}"
@@ -156,7 +152,7 @@ if [ "$platform" = "hcc" ]; then
   fi
 
 #test_basic=on
-  if ( [ "$basic_testing" = "on" ] ); then
+  if ( [ "$testing" = "basic" ] ); then
 # Build Tests
     mkdir -p $current_work_dir/build/test
     cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DTEST_BASIC=ON $current_work_dir/test/
