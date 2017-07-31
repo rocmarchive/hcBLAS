@@ -1043,6 +1043,7 @@ TEST(hcblas_sgemm,
   func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
+#if (TEST_BASIC == 0)
 // check square matrices of regular input sizes
 TEST(hcblas_sgemm,
      func_correct_sgemmNT_Col_square_regular_Implementation_type_1) {
@@ -1066,7 +1067,7 @@ TEST(hcblas_sgemm,
                static_cast<float>((RAND_MAX)*3.414);
   func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
-
+#endif
 // Type NoTransB
 // check square matrices of VVSmall input sizes
 TEST(hcblas_sgemm,
@@ -1104,6 +1105,8 @@ TEST(hcblas_sgemm,
   func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
+
+#if (TEST_BASIC == 0)
 // check square matrices of regular input sizes
 TEST(hcblas_sgemm,
      func_correct_sgemmTN_Col_square_regular_Implementation_type_1) {
@@ -1127,6 +1130,7 @@ TEST(hcblas_sgemm,
                static_cast<float>((RAND_MAX)*3.414);
   func_check_sgemmTN_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
+#endif
 
 // Type TransAB
 // check square matrices of VVSmall input sizes
@@ -1165,6 +1169,7 @@ TEST(hcblas_sgemm,
   func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
+#if (TEST_BASIC == 0)
 // check square matrices of regular input sizes
 TEST(hcblas_sgemm,
      func_correct_sgemmTT_Col_square_regular_Implementation_type_1) {
@@ -1179,6 +1184,7 @@ TEST(hcblas_sgemm,
 
 // CASE 2: Slim A Fat B
 // SGEMM NN Case
+
 
 // check slim A with large M and Vsmall K
 TEST(hcblas_sgemm,
@@ -1290,6 +1296,7 @@ TEST(hcblas_sgemm,
   func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
 
+
 // check slim A with large M and regular K
 TEST(hcblas_sgemm,
      func_correct_sgemmTT_Col_slimA_regularK_Implementation_type_1) {
@@ -1372,7 +1379,6 @@ TEST(hcblas_sgemm,
                static_cast<float>((RAND_MAX)*3.414);
   func_check_sgemmNT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
-
 // SGEMM TN Case
 // check slim C with large M and Vsmall N
 TEST(hcblas_sgemm,
@@ -1439,7 +1445,7 @@ TEST(hcblas_sgemm,
                static_cast<float>((RAND_MAX)*3.414);
   func_check_sgemmTT_Col_type_1(M, N, K, alpha, beta, 1.0e-5f);
 }
-
+#endif
 /*TEST(hcblas_sgemm, return_correct_sgemm_Implementation_type_2) {
    hc::accelerator accl;
    Hcblaslibrary hc(&av);
@@ -1952,4 +1958,3 @@ TEST(hcblas_sgemm, func_correct_sgemm_Implementation_type_2) {
     hc::am_free(devBbatch);
     hc::am_free(devCbatch);*/
 }
-

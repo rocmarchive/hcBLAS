@@ -74,6 +74,9 @@ while [ $# -gt 0 ]; do
     --test=*)
       testing="${1#*=}"
       ;;
+    --test_basic=*)
+      basic_testing="${1#*=}"
+      ;;
     --profile=*)
       profiling="${1#*=}"
       ;;
@@ -160,6 +163,29 @@ if [ "$platform" = "hcc" ]; then
       ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test  
     fi
   fi
+
+#test_basic=on
+  if ( [ "$basic_testing" = "on" ] ); then
+# Build Tests
+    mkdir -p $current_work_dir/build/test
+    cd $build_dir/test/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DTEST_BASIC=ON $current_work_dir/test/
+    set +e
+    make -j$working_threads
+# Invoke test script 
+    printf "* UNIT TESTS *\n"
+    printf "**************\n"
+    ${current_work_dir}/build/test/unit/bin/unittest
+    printf "* UNIT-API TESTS *\n"
+    printf "******************\n"
+    ${current_work_dir}/build/test/unit-api/bin/unit-api-test
+    if [ $HIP_SUPPORT = "on" ]; then
+      printf "* UNIT-HIP TESTS *\n"
+      printf "******************\n"
+      ${current_work_dir}/build/test/unit-hip/bin/unit-hip-test  
+    fi
+  fi
+
+
 
 # profile=on 
   if ( [ "$profiling" = "on" ] ); then 
