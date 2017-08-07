@@ -45,8 +45,8 @@ rm -rf $current_work_dir/build
 # Remove files under /opt/rocm/hcrng
 if [ "$deepclean" = "1" ]; then
   sudo rm -rf /opt/rocm/hcblas
-  sudo rm -f /opt/rocm/lib/libhcblas.so
-  sudo rm -f /opt/rocm/lib/libhipblas.so
+  sudo rm -f /opt/rocm/lib/libhcblas*
+  sudo rm -f /opt/rocm/lib/libhipblas*
  
   rm -rf ./profile/*Data
   rm -f ./profile/*.csv

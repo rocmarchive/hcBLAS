@@ -3,6 +3,7 @@
 set -e
 
 do_ldconfig() {
+    cp /opt/rocm/hcblas/lib/libhipblas_hcc.so /opt/rocm/lib/libhipblas.1.0.so
     ln -sfn /opt/rocm/hcblas/lib/libhipblas_hcc.so /opt/rocm/hcblas/lib/libhipblas.so
     ln -sfn /opt/rocm/hcblas/lib/libhipblas_hcc.so /opt/rocm/lib/libhipblas.so
     ln -sfn /opt/rocm/hcblas/lib/libhcblas.so /opt/rocm/lib/libhcblas.so

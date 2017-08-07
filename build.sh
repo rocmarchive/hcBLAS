@@ -126,7 +126,7 @@ if [ "$platform" = "hcc" ]; then
   if [ "$install" = "1" ]; then
     sudo make -j$working_threads install
   fi
-  cd $build_dir/packaging/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas $current_work_dir/packaging/
+  cd $build_dir/packaging/ && cmake -DCMAKE_C_COMPILER=$cmake_c_compiler -DCMAKE_CXX_COMPILER=$cmake_cxx_compiler -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/opt/rocm/hcblas -DROCM_LIB_PATH=/opt/rocm/lib $current_work_dir/packaging/
  
   echo "${green}hcBLAS Build Completed!${reset}"
      
