@@ -1,3 +1,5 @@
+# This was an experimental BLAS implementation for ROCm and has been DEPRECATED. Please use [rocBLAS](https://github.com/ROCmSoftwarePlatform/rocBLAS).
+
 ## A. Introduction: ##
 
 This repository hosts the HCC based BLAS Library (hcBLAS), that targets GPU acceleration of the traditional set of BLAS routines on AMD devices. . To know what HCC compiler features, refer [here](https://github.com/RadeonOpenCompute/hcc). 
