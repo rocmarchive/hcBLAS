@@ -4,7 +4,7 @@
 
 #also do a preliminary basic testing
 
-sh build.sh --test=basic 
+sh build.sh  
 
 # Use dpkg package installer to install the generated debian package
 
