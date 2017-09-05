@@ -2,12 +2,26 @@
 
 set -e
 
+ROCM_PATH="/opt/rocm"
+INSTALL_PATH="${ROCM_PATH}/hcblas"
+LIBRARY_DIR="${INSTALL_PATH}/lib"
+COMMON_LIB="${ROCM_PATH}/lib"
+SYMLINK_DIR="${ROCM_PATH}/hipblas"
+
+rm_symlink() {
+    rm -rf ${COMMON_LIB}/libhipblas.so
+    rm -rf /opt/rocm/lib/libhcblas.so
+    rm -rf ${SYMLINK_DIR}
+}
+
 rm_ldconfig() {
+    rm -rf ${INSTALL_PATH}
     rm -f /etc/ld.so.conf.d/hcblas-rocm-dev.conf && ldconfig
 }
 
 case "$1" in
    remove)
+       rm_symlink
        rm_ldconfig
    ;;
    purge)

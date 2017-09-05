@@ -9,8 +9,8 @@ SYMLINK_DIR="${ROCM_PATH}/hipblas"
 
 do_symlink() {
     ln -sfn ${LIBRARY_DIR}/libhipblas.so ${COMMON_LIB}/libhipblas.so
-    ln -sfn ${LIBRARY_DIR}/libhcblas.so /opt/rocm/lib/libhcblas.so
-    ln -sfn ${SYMLINK_DIR} ${INSTALL_PATH}
+    ln -sfn ${LIBRARY_DIR}/libhcblas.so ${COMMON_LIB}/libhcblas.so
+    ln -sfn  ${INSTALL_PATH} ${SYMLINK_DIR}
 }
 
 do_ldconfig() {
@@ -20,6 +20,7 @@ do_ldconfig() {
 
 case "$1" in
    configure)
+       do_symlink
        do_ldconfig
    ;;
    abort-upgrade|abort-remove|abort-deconfigure)

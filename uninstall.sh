@@ -1,6 +1,7 @@
 # bash script to uninstall the library
 
-sh clean.sh --deepclean
+sudo dpkg -r hcblas
+#sh clean.sh --deepclean
 echo "Uninstallation of hcBLAS done"
 
 
