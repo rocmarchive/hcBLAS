@@ -42,7 +42,7 @@ IF (${PLATFORM} MATCHES "hcc")
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
   
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../ -I${ROCM_PATH}/include")
-  set (HCC_LDFLAGS "${HCC_LDFLAGS}")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -amdgpu-target=gfx803 -amdgpu-target=gfx900")
 
   IF (${HIP_SUPPORT} MATCHES "on") 
     set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/../ -I${ROCM_PATH}/include -I${HIP_PATH}/include")
