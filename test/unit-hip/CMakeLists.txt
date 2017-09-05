@@ -19,8 +19,8 @@ IF(${PLATFORM} MATCHES "hcc")
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${HIPBLAS_INCLUDE_PATH}")
 
   SET(HIPBLAS_LIBRARY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../build/lib/src")
-  string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS "-amdgpu-target=gfx803 -amdgpu-target=gfx900")
-  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HIPBLAS_LIBRARY_PATH} -L${HIP_PATH}/lib -Wl,-rpath,${HIP_PATH}/lib")
+  string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS )
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -amdgpu-target=gfx803 -amdgpu-target=gfx900 -L${HIPBLAS_LIBRARY_PATH} -L${HIP_PATH}/lib -Wl,-rpath,${HIP_PATH}/lib")
 
   INCLUDE_DIRECTORIES(${HIP_PATH}/include)
   
