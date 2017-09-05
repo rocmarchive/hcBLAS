@@ -26,7 +26,7 @@ SET (STSRCS
   string(STRIP "${HCC_CXXFLAGS}" HCC_CXXFLAGS)
   set (HCC_CXXFLAGS "${HCC_CXXFLAGS} -I${HCBLAS_INCLUDE_PATH} -I${CMAKE_CURRENT_SOURCE_DIR}")
   string(STRIP "${HCC_LDFLAGS}" HCC_LDFLAGS)
-  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HCBLAS_LIBRARY_PATH} -Wl,-rpath-link,/opt/rocm/hip/lib")
+  set (HCC_LDFLAGS "${HCC_LDFLAGS} -L${HCBLAS_LIBRARY_PATH} -Wl,-rpath-link,/opt/rocm/hip/lib -amdgpu-target=gfx803 -amdgpu-target=gfx900")
   SET (LINK "-lblas -lhcblas -lhc_am")
   SET(CMAKE_RUNTIME_OUTPUT_DIRECTOR "../bin/")
   SET_PROPERTY(SOURCE ${STSRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " ${HCC_CXXFLAGS}")
