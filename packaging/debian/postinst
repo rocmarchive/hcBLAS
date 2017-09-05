@@ -1,11 +1,21 @@
 #/bin/bash
 
 set -e
+ROCM_PATH="/opt/rocm"
+INSTALL_PATH="${ROCM_PATH}/hcblas"
+LIBRARY_DIR="${INSTALL_PATH}/lib"
+COMMON_LIB="${ROCM_PATH}/lib"
+SYMLINK_DIR="${ROCM_PATH}/hipblas"
+
+do_symlink() {
+    ln -sfn ${LIBRARY_DIR}/libhipblas.so ${COMMON_LIB}/libhipblas.so
+    ln -sfn ${LIBRARY_DIR}/libhcblas.so /opt/rocm/lib/libhcblas.so
+    ln -sfn ${SYMLINK_DIR} ${INSTALL_PATH}
+}
 
 do_ldconfig() {
-    ln -sfn /opt/rocm/hcblas/lib/libhipblas.so /opt/rocm/lib/libhipblas.so
-    ln -sfn /opt/rocm/hcblas/lib/libhcblas.so /opt/rocm/lib/libhcblas.so
-    echo /opt/rocm/hcblas/lib > /etc/ld.so.conf.d/hcblas-rocm-dev.conf && ldconfig
+    echo ${LIBRARY_DIR} > /etc/ld.so.conf.d/hcblas-rocm-dev.conf && ldconfig
+    echo ${COMMON_LIB} >> /etc/ld.so.conf.d/hcblas-rocm-dev.conf && ldconfig
 }
 
 case "$1" in
