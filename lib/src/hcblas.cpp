@@ -158,7 +158,7 @@ hcblasStatus_t hcblasSetVector(hcblasHandle_t handle, int n, int elemSize,
   }
 
   hc::accelerator accl;
-  hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
+  hc::AmPointerInfo resInfo(0, 0, 0, 0, accl, 0, 0);
   am_status_t status = am_memtracker_getinfo(&resInfo, y);
 
   if (elemSize != (resInfo._sizeBytes / n)) {
@@ -203,7 +203,7 @@ hcblasStatus_t hcblasGetVector(hcblasHandle_t handle, int n, int elemSize,
   }
 
   hc::accelerator accl;
-  hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
+  hc::AmPointerInfo resInfo(0, 0, 0, 0, accl, 0, 0);
   am_status_t status = am_memtracker_getinfo(&resInfo, x);
 
   if (elemSize != (resInfo._sizeBytes / n)) {
@@ -250,7 +250,7 @@ hcblasStatus_t hcblasSetMatrix(hcblasHandle_t handle, int rows, int cols,
   }
 
   hc::accelerator accl;
-  hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
+  hc::AmPointerInfo resInfo(0, 0, 0, 0, accl, 0, 0);
   am_status_t status = am_memtracker_getinfo(&resInfo, B);
 
   if (elemSize != (resInfo._sizeBytes / (rows * cols))) {
@@ -299,7 +299,7 @@ hcblasStatus_t hcblasGetMatrix(hcblasHandle_t handle, int rows, int cols,
   }
 
   hc::accelerator accl;
-  hc::AmPointerInfo resInfo(0, 0, 0, accl, 0, 0);
+  hc::AmPointerInfo resInfo(0, 0, 0, 0, accl, 0, 0);
   am_status_t status = am_memtracker_getinfo(&resInfo, A);
 
   if (elemSize != (resInfo._sizeBytes / (rows * cols))) {
