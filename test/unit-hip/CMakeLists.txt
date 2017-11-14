@@ -53,7 +53,7 @@ ELSEIF(${PLATFORM} MATCHES "nvcc")
   
   SET_PROPERTY(TARGET unit-hip-test APPEND_STRING PROPERTY LINK_FLAGS " ${HIP_LDFLAGS} ${LINK}")
    
-  TARGET_LINK_LIBRARIES(unit-hip-test hipblas_nvcc blas cudart)
+  TARGET_LINK_LIBRARIES(unit-hip-test hipblas blas cudart)
 
   add_test(NAME unit-hip-test COMMAND ./bin/unit-hip-test)  
 

@@ -83,6 +83,19 @@ hipblasStatus_t hipCUBLASStatusToHIPStatus(cublasStatus_t cuStatus) {
   }
 }
 
+cublasPointerMode_t hipPointerToCudaPointer(hipblasPointerMode_t op) {
+  switch (op) {
+    case HIPBLAS_POINTER_MODE_HOST:
+      return CUBLAS_POINTER_MODE_HOST;
+
+    case HIPBLAS_POINTER_MODE_DEVICE:
+      return CUBLAS_POINTER_MODE_DEVICE;
+
+    default:
+      throw "Non existent POINTER";
+  }
+}
+
 hipblasStatus_t hipblasCreate(hipblasHandle_t *handle) {
   return hipCUBLASStatusToHIPStatus(cublasCreate(handle));
 }
@@ -449,6 +462,62 @@ hipblasStatus_t hipblasCgemmBatched(
                          lda, B, ldb, beta, C, ldc, batchCount));
 }
 
+hipblasStatus_t hipblasIsamax(hipblasHandle_t handle,
+                              int n,
+                              const float *x,
+                              int incx,
+                              int *result)
+{
+
+  return hipCUBLASStatusToHIPStatus(
+	cublasIsamax(handle, n, x, incx, result));
+}
+
+hipblasStatus_t hipblasIdamax(hipblasHandle_t handle,
+                              int n,
+                              const double *x,
+                              int incx,
+                              int *result)
+{
+
+  return hipCUBLASStatusToHIPStatus(
+	cublasIdamax(handle, n, x, incx, result));
+}
+
+hipblasStatus_t hipblasSgeam(hipblasHandle_t handle, hipblasOperation_t transa,
+                             hipblasOperation_t transb, int m, int n,
+                             const float *alpha, /* host or device pointer */
+                             const float *A, int lda,
+                             const float *beta , /* host or device pointer */
+                             const float *B, int ldb,
+                             float *C, int ldc)
+{
+
+  return hipCUBLASStatusToHIPStatus(
+	cublasSgeam(handle, hipOperationToCudaOperation(transa), hipOperationToCudaOperation(transb), m, n,
+		    alpha, A, lda, beta, B, ldb, C, ldc));
+}
+
+hipblasStatus_t hipblasDgeam(hipblasHandle_t handle, hipblasOperation_t transa,
+                             hipblasOperation_t transb, int m, int n,
+                             const double *alpha, /* host or device pointer */
+                             const double *A, int lda,
+                             const double *beta, /* host or device pointer */
+                             const double *B, int ldb,
+                             double *C, int ldc)
+{
+
+  return hipCUBLASStatusToHIPStatus(
+        cublasDgeam(handle, hipOperationToCudaOperation(transa), hipOperationToCudaOperation(transb), m, n,
+                    alpha, A, lda, beta, B, ldb, C, ldc));
+}
+
+hipblasStatus_t hipblasSetPointerMode (hipblasHandle_t handle, hipblasPointerMode_t mode)
+{
+
+  return hipCUBLASStatusToHIPStatus(
+	cublasSetPointerMode(handle, hipPointerToCudaPointer(mode)));
+}
 #ifdef __cplusplus
 }
 #endif

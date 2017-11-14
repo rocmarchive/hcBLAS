@@ -49,6 +49,11 @@ enum hipblasStatus_t {
 
 enum hipblasOperation_t { HIPBLAS_OP_N, HIPBLAS_OP_T, HIPBLAS_OP_C };
 
+typedef enum {
+  HIPBLAS_POINTER_MODE_HOST   = 0,
+  HIPBLAS_POINTER_MODE_DEVICE = 1
+}hipblasPointerMode_t;
+
 // Some standard header files, these are included by hc.hpp and so want to make
 // them avail on both
 // paths to provide a consistent include env and avoid "missing symbol" errors
