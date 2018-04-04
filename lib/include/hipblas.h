@@ -41,6 +41,7 @@ enum hipblasStatus_t {
   HIPBLAS_STATUS_ALLOC_FAILED,      // resource allocation failed
   HIPBLAS_STATUS_INVALID_VALUE,     // unsupported numerical value was passed to
                                     // function
+  HIPBLAS_STATUS_ARCH_MISMATCH,     // Notifies if an absent device feature is required
   HIPBLAS_STATUS_MAPPING_ERROR,     // access to GPU memory space failed
   HIPBLAS_STATUS_EXECUTION_FAILED,  // GPU program failed to execute
   HIPBLAS_STATUS_INTERNAL_ERROR,    // an internal HIPBLAS operation failed
